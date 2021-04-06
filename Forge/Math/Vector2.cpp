@@ -15,12 +15,12 @@ Vector2::~Vector2()
 {
 }
 
-Float Vector2::SqrMagnitude()
+Float Vector2::SqrMagnitude() const
 {
 	return X * X + Y * Y;
 }
 
-Float Vector2::Magnitude()
+Float Vector2::Magnitude() const
 {
 	return std::sqrt( X * X + Y * Y );
 }

@@ -9,8 +9,8 @@ public:
 	Vector2( Float x, Float y );
 	~Vector2();
 
-	Float SqrMagnitude();
-	Float Magnitude();
+	Float SqrMagnitude() const;
+	Float Magnitude() const;
 
 	Float X;
 	Float Y;
