@@ -4,10 +4,12 @@ namespace Forge
 {
 	typedef float Float;
 	typedef int Int32;
+	typedef bool Bool;
 }
 
 typedef Forge::Float Float;
 typedef Forge::Int32 Int32;
+typedef Forge::Bool Bool;
 
 
 
