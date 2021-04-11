@@ -5,42 +5,87 @@
 class MATH_API Vector2
 {
 public:
-	Vector2();
-	Vector2( Float x, Float y );
-	Vector2( Float xy );
-	~Vector2();
 
-	static Vector2 ZEROS();
-	static Vector2 ONES();
+	Float X;
+	Float Y;
+
+	Vector2() {}
+
+	Vector2( Float x, Float y )
+		: X( x )
+		, Y( y )
+	{}
+
+	Vector2( Float xy )
+		: X( xy )
+		, Y( xy )
+	{}
+
+	~Vector2() {}
+
+	static Vector2 ZEROS() { return 0.0f; }
+	static Vector2 ONES() { return 1.0f; }
 	static Vector2 PLUS_MAX();
 	static Vector2 PLUS_INF();
 	static Vector2 MINUS_MAX();
 	static Vector2 MINUS_INF();
-	static Vector2 EX();
-	static Vector2 EY();
+	static Vector2 EX() { return Vector2( 1.0f, 0.0f ); }
+	static Vector2 EY() { return Vector2( 0.0f, 1.0f ); }
 
-	Float SquareMag() const;
+	Float SquareMag() const { return X * X + Y * Y; }
+
 	Float Mag() const;
-	Float Normalize();
-	Vector2 Normalized() const;
-	Float Dot( const Vector2& vec ) const;
 
-	Vector2 operator-() const;
+	Float Normalize()
+	{
+		Float mag = Mag();
+		X /= mag;
+		Y /= mag;
+		return mag;
+	}
 
-	Vector2 operator+( const Vector2& vec ) const;
+	Vector2 Normalized() const
+	{
+		Vector2 result = *this;
+		result.Normalize();
+		return result;
+	}
 
-	void operator+=( const Vector2& vec );
-	void operator-=( const Vector2& vec );
-	void operator*=( Float val );
-	void operator/=( Float val );
+	Float Dot( const Vector2& vec ) const { return X * vec.X + Y * vec.Y; }
 
-	Bool operator==( const Vector2& vec ) const;
-	Bool operator!=( const Vector2& vec ) const;
+	Vector2 operator-() const { return Vector2( -X, -Y ); }
 
-	Bool IsZero() const;
+	Vector2 operator+( const Vector2& vec ) const { return Vector2( X + vec.X, Y + vec.Y ); }
+
+	void operator+=( const Vector2& vec )
+	{
+		X += vec.X;
+		Y += vec.Y;
+	}
+
+	void operator-=( const Vector2& vec )
+	{
+		X -= vec.X;
+		Y -= vec.Y;
+	}
+
+	void operator*=( Float val )
+	{
+		X *= val;
+		Y *= val;
+	}
+
+	void operator/=( Float val )
+	{
+		X /= val;
+		Y /= val;
+	}
+
+	Bool operator==( const Vector2& vec ) const { return X == vec.X && Y == vec.Y; }
+
+	Bool operator!=( const Vector2& vec ) const { return X != vec.X || Y != vec.Y; }
+
+	Bool IsZero() const { return X == 0.0f && Y == 0.0f; }
 	Bool IsAlmostZero() const;
-
-	Float X;
-	Float Y;
 };
 
