@@ -10,13 +10,13 @@ public:
 	Float X = 0.0f;
 	Float Y = 0.0f;
 	Float Z = 0.0f;
-	Float W = 0.0f;
+	Float W = 1.0f;
 
 	static Vector4 EX() { return Vector4( 1.0f, 0.0f, 0.0f, 0.0f ); }
 	static Vector4 EY() { return Vector4( 0.0f, 1.0f, 0.0f, 0.0f ); }
 	static Vector4 EZ() { return Vector4( 0.0f, 0.0f, 1.0f, 0.0f ); }
 	static Vector4 EW() { return Vector4( 0.0f, 0.0f, 0.0f, 1.0f ); }
-	static Vector4 ZEROS() { return Vector4(); }
+	static Vector4 ZEROS() { return Vector4( 0.0f, 0.0f, 0.0f, 0.0f ); }
 	static Vector4 ONES() { return Vector4( 1.0f, 1.0f, 1.0f, 1.0f ); }
 	static Vector4 PLUS_MAX();
 	static Vector4 MINUS_MAX();
@@ -52,6 +52,13 @@ public:
 		, W( 1.0f )
 	{}
 
+	Vector4( const Float (&arr)[4] )
+		: X( arr[ 0 ] )
+		, Y( arr[ 1 ] )
+		, Z( arr[ 2 ] )
+		, W( arr[ 3 ] )
+	{}
+
 	~Vector4() {}
 
 	Vector4 operator-()
@@ -67,6 +74,14 @@ public:
 	Vector4 operator-( const Vector4& vec ) const
 	{
 		return Vector4( X - vec.X, Y - vec.Y, Z - vec.Z, W - vec.W );
+	}
+
+	Float& operator[]( Uint32 index ) const
+	{
+		FORGE_ASSERT( index < 4 );
+
+		Float* ptr = const_cast< Float* >( &X );
+		return *( ptr + index );
 	}
 
 	void operator*=( Float val )
@@ -115,7 +130,7 @@ public:
 	Bool IsAlmostZero() const;
 
 	Float Mag3() const;
-	Float SquareMag3() const { return X * X + Y * Y + Z * Z + W * W; }
+	Float SquareMag3() const { return X * X + Y * Y + Z * Z; }
 
 	Vector4 Normalized3() const
 	{
