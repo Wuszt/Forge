@@ -1,6 +1,6 @@
 #pragma once
 
-#include "build.h"
+#include "Build.h"
 #include "Vector3.h"
 
 class MATH_API Vector4

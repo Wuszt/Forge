@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="build.h" />
+    <ClInclude Include="Build.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Exports.h" />
     <ClInclude Include="Types.h" />
