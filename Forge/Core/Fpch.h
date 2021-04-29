@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Exports.h"
-
 #include "Types.h"
 
 #include "Core.h"

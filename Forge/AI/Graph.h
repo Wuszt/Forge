@@ -2,19 +2,19 @@
 
 namespace AI
 {
-	class AI_API Graph
+	class Graph
 	{
 	public:
 
 		using NodeID = Uint32;
 
-		struct AI_API Connection
+		struct Connection
 		{
 			NodeID m_to;
 			Float m_cost;
 		};
 
-		class AI_API Node
+		class Node
 		{
 		public:
 			Node();
@@ -45,7 +45,7 @@ namespace AI
 	};
 
 	template< class T >
-	class AI_API IdentifiedGraph
+	class IdentifiedGraph
 	{
 
 	public:

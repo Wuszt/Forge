@@ -3,7 +3,7 @@
 
 #include "Vector3.h"
 
-class MATH_API Vector4
+class Vector4
 {
 public:
 

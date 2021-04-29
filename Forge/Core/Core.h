@@ -1,10 +1,4 @@
 #pragma once
-#include "Exports.h"
-
-namespace
-{
-	CORE_API void Dummy() { }
-}
 
 #define FORGE_ASSERTIONS_ENABLED
 

@@ -3,7 +3,7 @@
 
 #include "../Math/Vector4.h"
 
-class MATH_API Matrix
+class Matrix
 {
 public:
 
@@ -21,7 +21,7 @@ public:
 		, W( w )
 	{}
 
-	~Matrix() {}
+	~Matrix();
 
 	void SetIdentity()
 	{

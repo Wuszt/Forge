@@ -1,7 +1,7 @@
 #pragma once
 #include "Fpch.h"
 
-class MATH_API Vector2
+class Vector2
 {
 public:
 

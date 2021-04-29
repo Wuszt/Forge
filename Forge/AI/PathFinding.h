@@ -5,5 +5,5 @@ namespace AI
 {
 	using Path = std::vector< Graph::NodeID >;
 
-	std::vector< Path > AI_API PerformDijkstra( Graph::NodeID startNode, const Graph& graph );
+	std::vector< Path > PerformDijkstra( Graph::NodeID startNode, const Graph& graph );
 }
