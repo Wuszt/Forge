@@ -26,10 +26,10 @@
     <ClInclude Include="Matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Build.h">
+    <ClInclude Include="Defaults.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Defaults.h">
+    <ClInclude Include="Fpch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,6 +44,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Matrix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Fpch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

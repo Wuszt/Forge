@@ -20,13 +20,16 @@
     <ClInclude Include="Exports.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Build.h">
+    <ClInclude Include="Fpch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Defaults.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Core.cpp">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="Fpch.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

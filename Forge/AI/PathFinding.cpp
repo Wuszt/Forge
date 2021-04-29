@@ -1,6 +1,5 @@
+#include "Fpch.h"
 #include "PathFinding.h"
-#include <algorithm>
-#include <deque>
 
 namespace AI
 {

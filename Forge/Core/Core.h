@@ -6,8 +6,6 @@ namespace
 	CORE_API void Dummy() { }
 }
 
-#include "Types.h"
-
 #define FORGE_ASSERTIONS_ENABLED
 
 #ifdef FORGE_ASSERTIONS_ENABLED

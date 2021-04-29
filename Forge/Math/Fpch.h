@@ -1,3 +1,3 @@
 #pragma once
-#include "../Core/Core.h"
+#include "../Core/Defaults.h"
 #include "Exports.h"

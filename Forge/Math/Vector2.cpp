@@ -1,5 +1,6 @@
+#include "Fpch.h"
+
 #include "Vector2.h"
-#include <limits>
 
 Vector2 Vector2::PLUS_MAX()
 {

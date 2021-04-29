@@ -1,6 +1,5 @@
 #pragma once
-
-#include "Build.h"
+#include "Fpch.h"
 
 class MATH_API Vector3
 {

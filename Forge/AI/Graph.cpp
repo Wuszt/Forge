@@ -1,5 +1,5 @@
+#include "Fpch.h"
 #include "Graph.h"
-#include <algorithm>
 
 using namespace AI;
 
