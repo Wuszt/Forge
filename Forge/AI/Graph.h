@@ -22,7 +22,7 @@ namespace AI
 
 			const std::vector< Connection >& GetAllConnections() const { return m_connections; }
 			void AddConnection( const Connection& connection );
-			void RemoveConnection( const NodeID& destination );
+			Bool RemoveConnection( const NodeID& destination );
 
 		private:
 			std::vector< Connection > m_connections;

@@ -55,9 +55,17 @@ void Graph::Node::AddConnection( const Connection& connection )
 	}
 }
 
-void Graph::Node::RemoveConnection( const NodeID& destination )
+Bool Graph::Node::RemoveConnection( const NodeID& destination )
 {
-	std::remove_if( m_connections.begin(), m_connections.end(), [ &destination ]( const Connection& element ) { return element.m_to == destination; } );
+	auto it = std::find_if( m_connections.begin(), m_connections.end(), [ &destination ]( const Connection& element ) { return element.m_to == destination; } );
+
+	if( it != m_connections.end() )
+	{
+		m_connections.erase( it );
+		return true;
+	}
+
+	return false;
 }
 
 void Graph::AddConnection( const NodeID& from, const NodeID& to, Float cost )

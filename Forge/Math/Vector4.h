@@ -38,7 +38,7 @@ public:
 		, Z( z )
 	{}
 
-	Vector4( Float xyz )
+	explicit Vector4( Float xyz )
 		: X( xyz )
 		, Y( xyz )
 		, Z( xyz )

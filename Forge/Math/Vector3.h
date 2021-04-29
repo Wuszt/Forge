@@ -27,7 +27,7 @@ public:
 		, Z( z )
 	{}
 
-	Vector3( Float xyz )
+	explicit Vector3( Float xyz )
 		: X( xyz )
 		, Y( xyz )
 		, Z( xyz )

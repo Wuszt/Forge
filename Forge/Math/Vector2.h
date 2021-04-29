@@ -15,15 +15,15 @@ public:
 		, Y( y )
 	{}
 
-	Vector2( Float xy )
+	explicit Vector2( Float xy )
 		: X( xy )
 		, Y( xy )
 	{}
 
 	~Vector2() {}
 
-	static Vector2 ZEROS() { return 0.0f; }
-	static Vector2 ONES() { return 1.0f; }
+	static Vector2 ZEROS() { return Vector2( 0.0f ); }
+	static Vector2 ONES() { return Vector2( 1.0f ); }
 	static Vector2 PLUS_MAX();
 	static Vector2 PLUS_INF();
 	static Vector2 MINUS_MAX();

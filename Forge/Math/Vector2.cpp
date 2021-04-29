@@ -4,22 +4,22 @@
 
 Vector2 Vector2::PLUS_MAX()
 {
-	return std::numeric_limits< Float >::max();
+	return Vector2( std::numeric_limits< Float >::max() );
 }
 
 Vector2 Vector2::PLUS_INF()
 {
-	return std::numeric_limits< Float >::infinity();
+	return Vector2( std::numeric_limits< Float >::infinity() );
 }
 
 Vector2 Vector2::MINUS_MAX()
 {
-	return -std::numeric_limits< Float >::max();
+	return Vector2( -std::numeric_limits< Float >::max() );
 }
 
 Vector2 Vector2::MINUS_INF()
 {
-	return -std::numeric_limits< Float >::infinity();
+	return Vector2( -std::numeric_limits< Float >::infinity() );
 }
 
 Float Vector2::Mag() const
