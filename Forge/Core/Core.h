@@ -6,3 +6,7 @@
 	#include <assert.h>
 	#define FORGE_ASSERT( condition ) assert( condition )
 #endif
+
+#if _DEBUG
+#define FORGE_DEBUG
+#endif

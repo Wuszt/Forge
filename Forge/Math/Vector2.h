@@ -43,6 +43,16 @@ public:
 		return mag;
 	}
 
+	Float DistanceTo( const Vector2& to ) const
+	{
+		return ( *this - to ).Mag();
+	}
+
+	Float DistanceSquaredTo( const Vector2& to ) const
+	{
+		return ( *this - to ).SquareMag();
+	}
+
 	Vector2 Normalized() const
 	{
 		Vector2 result = *this;
@@ -55,6 +65,7 @@ public:
 	Vector2 operator-() const { return Vector2( -X, -Y ); }
 
 	Vector2 operator+( const Vector2& vec ) const { return Vector2( X + vec.X, Y + vec.Y ); }
+	Vector2 operator-( const Vector2& vec ) const { return Vector2( X - vec.X, Y - vec.Y ); }
 
 	void operator+=( const Vector2& vec )
 	{

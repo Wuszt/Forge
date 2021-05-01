@@ -2,49 +2,137 @@
 
 namespace AI
 {
-	class Graph
+	using NodeID = Uint32;
+
+	struct Connection
+	{
+		NodeID m_to;
+		Float m_cost;
+	};
+
+	using PathAsNodes = std::vector< NodeID >;
+	using PathAsConnections = std::vector< Connection >;
+
+	class Node
 	{
 	public:
+		Node() {}
+		~Node() {}
 
-		using NodeID = Uint32;
+		const std::vector< Connection >& GetAllConnections() const { return m_connections; }
 
-		struct Connection
+		const Connection* GetConnectionTo( const NodeID& destination ) const
 		{
-			NodeID m_to;
-			Float m_cost;
-		};
+			auto it = std::find_if( m_connections.begin(), m_connections.end(), [ &destination ]( const Connection& element ) { return element.m_to == destination; } );
 
-		class Node
+			if( it != m_connections.end() )
+			{
+				return &*it;
+			}
+
+			return nullptr;
+		}
+
+		void AddConnection( const Connection& connection )
 		{
-		public:
-			Node();
-			~Node();
+			auto it = std::find_if( m_connections.begin(), m_connections.end(),
+				[ &connection ]( const Connection& element )
+			{
+				return element.m_to == connection.m_to;
+			} );
 
-			const std::vector< Connection >& GetAllConnections() const { return m_connections; }
-			void AddConnection( const Connection& connection );
-			Bool RemoveConnection( const NodeID& destination );
+			if( it == m_connections.end() )
+			{
+				m_connections.emplace_back( connection );
+			}
+			else if( connection.m_cost < it->m_cost )
+			{
+				*it = connection;
+			}
+		}
 
-		private:
-			std::vector< Connection > m_connections;
-		};
+		Bool RemoveConnection( const NodeID& destination )
+		{
+			auto it = std::find_if( m_connections.begin(), m_connections.end(), [ &destination ]( const Connection& element ) { return element.m_to == destination; } );
 
-		Graph();
-		~Graph();
+			if( it != m_connections.end() )
+			{
+				m_connections.erase( it );
+				return true;
+			}
 
-		void AddConnection( const NodeID& from, const NodeID& to, Float cost );
-		NodeID AddEmptyNode();
-		const std::vector< Node >& GetAllNodes() const { return m_nodes; }
-		const Node& GetNode( const NodeID& id ) const;
+			return false;
+		}
 
 	private:
-
-		NodeID AddNode( const Node& node );
-		Node& GetNode( const NodeID& id );
-
-		std::vector< Node > m_nodes;
+		std::vector< Connection > m_connections;
 	};
 
 	template< class T >
+	class NodeWithData : public Node
+	{
+	public:
+		NodeWithData() {}
+
+		NodeWithData( const T& data )
+			: m_data ( data )
+		{}
+
+		~NodeWithData() {}
+
+		const T& GetData() const
+		{
+			return m_data;
+		}
+
+	private:
+		T m_data;
+	};
+
+	template< class NodeType >
+	class Graph
+	{
+	public:
+		Graph() {}
+		~Graph() {}
+
+		void AddConnection( const NodeID& from, const NodeID& to, Float cost )
+		{
+			m_nodes[ from ].AddConnection( { to, cost } );
+		}
+
+		NodeID AddEmptyNode()
+		{
+			return AddNode( NodeType() );
+		}
+
+		const std::vector< NodeType >& GetAllNodes() const
+		{
+			return m_nodes;
+		}
+
+		const NodeType& GetNode( const NodeID& id ) const
+		{
+			return m_nodes[ id ];
+		}
+
+	private:
+		NodeID AddNode( const NodeType& node )
+		{
+			m_nodes.emplace_back( node );
+
+			return static_cast<Uint32>( m_nodes.size() - 1 );
+		}
+
+		NodeType& GetNode( const NodeID& id )
+		{
+			return m_nodes[ id ];
+		}
+
+		std::vector< NodeType > m_nodes;
+	};
+
+	template< class T, class NodeType = Node >
 	class IdentifiedGraph
 	{
 
@@ -52,41 +140,41 @@ namespace AI
 		IdentifiedGraph() {}
 		~IdentifiedGraph() {}
 
-		Graph::NodeID AddNode( const T& identifier )
+		NodeID AddNode( const T& identifier )
 		{
-			Graph::NodeID id = m_internalGraph.AddEmptyNode();
+			NodeID id = m_internalGraph.AddEmptyNode();
 			m_identifiersMap.emplace( identifier, id );
 			m_nodesData.emplace_back( identifier );
 
-			assert( m_nodesData.size() == m_internalGraph.GetAllNodes().size() ); 
+			FORGE_ASSERT( m_nodesData.size() == m_internalGraph.GetAllNodes().size() );
 
 			return id;
 		}
 
 		void AddConnection( const T& from, const T& to, Float cost )
 		{
-			Graph::NodeID fromId = GetOrCreateNode( from );
-			Graph::NodeID toId = GetOrCreateNode( to );
+			NodeID fromId = GetOrCreateNode( from );
+			NodeID toId = GetOrCreateNode( to );
 
 			m_internalGraph.AddConnection( fromId, toId, cost );
 		}
 
-		const Graph& GetInternalGraph() const
+		const Graph< NodeType >& GetInternalGraph() const
 		{
 			return m_internalGraph;
 		}
 
-		const T& GetIdentifierFromID( Graph::NodeID id ) const
+		const T& GetIdentifierFromID( NodeID id ) const
 		{
 			return m_nodesData[ id ];
 		}
 
-		std::vector< T > TranslatePath( const std::vector< Graph::NodeID >& path )
+		std::vector< T > TranslatePath( const std::vector< NodeID >& path )
 		{
 			std::vector< T > result;
 			result.reserve( path.size() );
 
-			for( Graph::NodeID id : path )
+			for( NodeID id : path )
 			{
 				result.emplace_back( GetIdentifierFromID( id ) );
 			}
@@ -94,15 +182,15 @@ namespace AI
 			return result;
 		}
 
-		Graph::NodeID GetIDFromIdentifier( const T& identifier )
+		NodeID GetIDFromIdentifier( const T& identifier )
 		{
-			assert( m_identifiersMap.find( identifier ) != m_identifiersMap.end() );
+			FORGE_ASSERT( m_identifiersMap.find( identifier ) != m_identifiersMap.end() );
 
 			return m_identifiersMap.find( identifier )->second;
 		}
 
 	private:
-		Graph::NodeID GetOrCreateNode( const T& identifier )
+		NodeID GetOrCreateNode( const T& identifier )
 		{
 			auto it = m_identifiersMap.find( identifier );
 
@@ -114,8 +202,8 @@ namespace AI
 			return AddNode( identifier );;
 		}
 
-		Graph m_internalGraph;
-		std::unordered_map< T, Graph::NodeID > m_identifiersMap;
+		Graph< NodeType > m_internalGraph;
+		std::unordered_map< T, NodeID > m_identifiersMap;
 		std::vector< T > m_nodesData;
 	};
 }
