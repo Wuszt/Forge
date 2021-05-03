@@ -94,17 +94,7 @@ namespace AI
 	{
 	public:
 		Graph() {}
-		~Graph() {}
-
-		void AddConnection( const NodeID& from, const NodeID& to, Float cost )
-		{
-			m_nodes[ from ].AddConnection( { to, cost } );
-		}
-
-		NodeID AddEmptyNode()
-		{
-			return AddNode( NodeType() );
-		}
+		virtual ~Graph() {}
 
 		const std::vector< NodeType >& GetAllNodes() const
 		{
@@ -114,6 +104,17 @@ namespace AI
 		const NodeType& GetNode( const NodeID& id ) const
 		{
 			return m_nodes[ id ];
+		}
+
+	protected:
+		void AddConnection( const NodeID& from, const NodeID& to, Float cost )
+		{
+			m_nodes[ from ].AddConnection( { to, cost } );
+		}
+
+		NodeID AddEmptyNode()
+		{
+			return AddNode( NodeType() );
 		}
 
 	private:
@@ -132,8 +133,8 @@ namespace AI
 		std::vector< NodeType > m_nodes;
 	};
 
-	template< class T, class NodeType = Node >
-	class IdentifiedGraph
+	template< class T >
+	class IdentifiedGraph : public Graph< Node >
 	{
 
 	public:
@@ -142,11 +143,11 @@ namespace AI
 
 		NodeID AddNode( const T& identifier )
 		{
-			NodeID id = m_internalGraph.AddEmptyNode();
+			NodeID id = AddEmptyNode();
 			m_identifiersMap.emplace( identifier, id );
 			m_nodesData.emplace_back( identifier );
 
-			FORGE_ASSERT( m_nodesData.size() == m_internalGraph.GetAllNodes().size() );
+			FORGE_ASSERT( m_nodesData.size() == GetAllNodes().size() );
 
 			return id;
 		}
@@ -156,12 +157,7 @@ namespace AI
 			NodeID fromId = GetOrCreateNode( from );
 			NodeID toId = GetOrCreateNode( to );
 
-			m_internalGraph.AddConnection( fromId, toId, cost );
-		}
-
-		const Graph< NodeType >& GetInternalGraph() const
-		{
-			return m_internalGraph;
+			Graph< Node >::AddConnection( fromId, toId, cost );
 		}
 
 		const T& GetIdentifierFromID( NodeID id ) const
@@ -202,8 +198,73 @@ namespace AI
 			return AddNode( identifier );;
 		}
 
-		Graph< NodeType > m_internalGraph;
 		std::unordered_map< T, NodeID > m_identifiersMap;
+		std::vector< T > m_nodesData;
+	};
+
+	template< class T >
+	class NavigationGraph : public Graph< Node >
+	{
+	public:
+		NavigationGraph() {}
+		~NavigationGraph() {}
+
+		NodeID AddNode( const T& data )
+		{
+			NodeID id = AddEmptyNode();
+			m_localizationData.emplace( data, id );
+			m_nodesData.emplace_back( data );
+
+			FORGE_ASSERT( m_nodesData.size() == GetAllNodes().size() );
+
+			return id;
+		}
+
+		void AddConnection( const T& from, const T& to )
+		{
+			NodeID fromId = GetOrCreateNode( from );
+			NodeID toId = GetOrCreateNode( to );
+
+			Float cost = from.DistanceTo( to );
+
+			Graph< Node>::AddConnection( fromId, toId, cost );
+		}
+
+		std::vector< T > TranslatePath( const std::vector< NodeID >& path )
+		{
+			std::vector< T > result;
+			result.reserve( path.size() );
+
+			for( NodeID id : path )
+			{
+				result.emplace_back( m_nodesData[ id ] );
+			}
+
+			return result;
+		}
+
+		NodeID GetIDFromLocation( const T& location )
+		{
+			FORGE_ASSERT( m_localizationData.find( location ) != m_localizationData.end() );
+
+			return m_localizationData.find( location )->second;
+		}
+
+		NodeID GetOrCreateNode( const T& identifier )
+		{
+			auto it = m_localizationData.find( identifier );
+
+			if( it != m_localizationData.end() )
+			{
+				return it->second;
+			}
+
+			return AddNode( identifier );
+		}
+
+	private:
+
+		std::unordered_map< T, NodeID > m_localizationData;
 		std::vector< T > m_nodesData;
 	};
 }
