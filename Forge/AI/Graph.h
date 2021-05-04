@@ -103,7 +103,7 @@ namespace AI
 
 		Uint32 GetNodesAmount() const
 		{
-			return m_nodes.size();
+			return static_cast< Uint32 >( m_nodes.size() );
 		}
 
 		const NodeType& GetNode( const NodeID& id ) const
@@ -127,7 +127,7 @@ namespace AI
 		{
 			m_nodes.emplace_back( node );
 
-			return static_cast<Uint32>( m_nodes.size() - 1 );
+			return static_cast< Uint32 >( m_nodes.size() - 1 );
 		}
 
 		NodeType& GetNode( const NodeID& id )
