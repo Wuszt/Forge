@@ -101,6 +101,11 @@ namespace AI
 			return m_nodes;
 		}
 
+		Uint32 GetNodesAmount() const
+		{
+			return m_nodes.size();
+		}
+
 		const NodeType& GetNode( const NodeID& id ) const
 		{
 			return m_nodes[ id ];
@@ -243,11 +248,16 @@ namespace AI
 			return result;
 		}
 
-		NodeID GetIDFromLocation( const T& location )
+		NodeID GetIDFromLocation( const T& location ) const
 		{
 			FORGE_ASSERT( m_localizationData.find( location ) != m_localizationData.end() );
 
 			return m_localizationData.find( location )->second;
+		}
+
+		const T& GetLocationFromID( NodeID id ) const
+		{
+			return m_nodesData[ id ];
 		}
 
 		NodeID GetOrCreateNode( const T& identifier )

@@ -5,14 +5,22 @@ namespace AI
 {
 	namespace
 	{
-		struct NodeData
+		struct DijkstraNodeData
 		{
+			Float m_cost;
+			NodeID m_predecessor;
+		};
+
+		struct AStarNodeData
+		{
+			Float m_heuristicCost;
 			Float m_cost;
 			NodeID m_predecessor;
 		};
 	}
 
-	static void GetPaths( const std::vector< NodeData >& nodesData, std::vector< PathAsNodes >& outPaths )
+	template< class DataType >
+	static void GetPaths( const std::vector< DataType >& nodesData, std::vector< PathAsNodes >& outPaths )
 	{
 		for( Uint32 i = 0; i < nodesData.size(); ++i )
 		{
@@ -36,8 +44,8 @@ namespace AI
 		}
 	}
 
-	template< class GraphType >
-	static void GetPaths( const GraphType& graph, const std::vector< NodeData >& nodesData, std::vector< PathAsConnections >& outPaths )
+	template< class GraphType, class DataType >
+	static void GetPaths( const GraphType& graph, const std::vector< DataType >& nodesData, std::vector< PathAsConnections >& outPaths )
 	{
 		for( Uint32 i = 0; i < nodesData.size(); ++i )
 		{
@@ -62,27 +70,27 @@ namespace AI
 	}
 
 	template< class GraphType >
-	static std::vector< NodeData > PerformDijkstraInternal( NodeID startNode, const GraphType& graph )
+	static std::vector< DijkstraNodeData > PerformDijkstraInternal( NodeID startNode, const GraphType& graph )
 	{
-		const auto& nodes = graph.GetAllNodes();
+		Uint32 nodesAmount = graph.GetNodesAmount();
 
-		std::vector< NodeData > nodesData;
-		nodesData.resize( nodes.size(), { std::numeric_limits< Float >::infinity(), std::numeric_limits< Uint32 >::max() } );
+		std::vector< DijkstraNodeData > nodesData;
+		nodesData.resize( nodesAmount, { std::numeric_limits< Float >::infinity(), std::numeric_limits< NodeID >::max() } );
 
 		nodesData[ startNode ].m_predecessor = startNode;
 		nodesData[ startNode ].m_cost = 0.0f;
 
 		std::vector< NodeID > queue;
-		queue.reserve( nodes.size() );
+		queue.reserve( nodesAmount );
 
 		queue.emplace_back( startNode );
 
 		std::vector< Bool > scoredNodes;
-		scoredNodes.resize( nodes.size(), false );
+		scoredNodes.resize( nodesAmount, false );
 
 		struct Pred
 		{
-			const std::vector< NodeData >& m_nodesData;
+			const std::vector< DijkstraNodeData >& m_nodesData;
 
 			bool operator () ( Float value, NodeID id ) const {
 				return m_nodesData[ id ].m_cost < value;
@@ -99,12 +107,12 @@ namespace AI
 			queue.pop_back();
 
 			NodeID currentNode = minIt;
-			const NodeData& currentNodeData = nodesData[ currentNode ];
+			const DijkstraNodeData& currentNodeData = nodesData[ currentNode ];
 
 			for( const auto& connection : graph.GetNode( currentNode ).GetAllConnections() )
 			{
 
-				NodeData& destinationData = nodesData[ connection.m_to ];
+				DijkstraNodeData& destinationData = nodesData[ connection.m_to ];
 
 				Float overallCost = currentNodeData.m_cost + connection.m_cost;
 				if( destinationData.m_cost > overallCost )
@@ -137,14 +145,82 @@ namespace AI
 	template< class GraphType >
 	void PerformDijkstra( NodeID startNode, const GraphType& graph, std::vector< PathAsNodes >& outPaths )
 	{
-		std::vector< NodeData > data = PerformDijkstraInternal( startNode, graph );
+		std::vector< DijkstraNodeData > data = PerformDijkstraInternal( startNode, graph );
 		GetPaths( data, outPaths );
 	}
 
 	template< class GraphType >
 	void PerformDijkstra( NodeID startNode, const GraphType& graph, std::vector< PathAsConnections >& outPaths )
 	{
-		std::vector< NodeData > data = PerformDijkstraInternal( startNode, graph );
+		std::vector< DijkstraNodeData > data = PerformDijkstraInternal( startNode, graph );
 		GetPaths( graph, data, outPaths );
+	}
+
+	template< class DataType >
+	Float BasicHeuristicFormula( const DataType& from, const DataType& to )
+	{
+		return from.DistanceSquaredTo( to );
+	}
+
+	template< class DataType >
+	static void PerformAStar( NodeID startNode, NodeID endNode, const NavigationGraph< DataType >& graph, PathAsNodes& outPath, Float( *heuristicFunc )( const DataType&, const DataType& ) = &BasicHeuristicFormula )
+	{
+		Uint32 nodesAmount = graph.GetNodesAmount();
+
+		std::vector< NodeID > queue;
+		queue.reserve( nodesAmount );
+
+		queue.push_back( startNode );
+
+		std::vector< AStarNodeData > nodesData;
+		nodesData.resize( nodesAmount, { std::numeric_limits< Float >::infinity(), std::numeric_limits< Float >::infinity(), std::numeric_limits< NodeID >::max() } );
+
+		nodesData[ startNode ].m_cost = 0.0f;
+		nodesData[ startNode ].m_heuristicCost = heuristicFunc( graph.GetLocationFromID( startNode ), graph.GetLocationFromID( endNode ) );
+
+		while( !queue.empty() )
+		{
+			auto it = std::min_element( queue.begin(), queue.end(), [ &nodesData ]( const auto& l, const auto& r ) { return nodesData[ l ].m_heuristicCost < nodesData[ r ].m_heuristicCost; } );
+			NodeID currentNode = *it;
+			if( currentNode == endNode )
+			{
+				break;
+			}
+
+			queue.erase( it );
+
+			AStarNodeData& currentNodeData = nodesData[ currentNode ];
+
+			for( const auto& connection : graph.GetNode( currentNode ).GetAllConnections() )
+			{
+				AStarNodeData& destinationData = nodesData[ connection.m_to ];
+
+				Float overallCost = currentNodeData.m_cost + connection.m_cost;
+
+				if( destinationData.m_cost > overallCost )
+				{
+					destinationData.m_cost = overallCost;
+					destinationData.m_predecessor = currentNode;
+					destinationData.m_heuristicCost = overallCost + heuristicFunc( graph.GetLocationFromID( connection.m_to ), graph.GetLocationFromID( endNode ) );
+
+					if( std::find( queue.begin(), queue.end(), connection.m_to ) == queue.end() )
+					{
+						queue.emplace_back( connection.m_to );
+					}
+				}
+			}
+		}
+
+		NodeID currentNode = endNode;
+		
+		while( currentNode != startNode )
+		{
+			outPath.emplace_back( currentNode );
+			currentNode = nodesData[ currentNode ].m_predecessor;
+		}
+		
+		outPath.emplace_back( currentNode );
+
+		std::reverse( outPath.begin(), outPath.end() );
 	}
 }
