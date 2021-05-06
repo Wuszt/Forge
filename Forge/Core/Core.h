@@ -10,3 +10,5 @@
 #if _DEBUG
 #define FORGE_DEBUG
 #endif
+
+#define FORGE_INLINE inline
