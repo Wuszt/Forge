@@ -20,8 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core.h" />
+    <ClInclude Include="ExternalIncludes.h" />
     <ClInclude Include="Fpch.h" />
-    <ClInclude Include="Defaults.h" />
+    <ClInclude Include="InternalDefaults.h" />
+    <ClInclude Include="PublicDefaults.h" />
     <ClInclude Include="Types.h" />
   </ItemGroup>
   <ItemGroup>

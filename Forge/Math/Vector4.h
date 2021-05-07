@@ -1,5 +1,4 @@
 #pragma once
-#include "Fpch.h"
 
 class Vector3;
 
@@ -71,6 +70,18 @@ public:
 		return Vector4( X - vec.X, Y - vec.Y, Z - vec.Z, W - vec.W );
 	}
 
+	FORGE_INLINE Vector4 operator*( Float val ) const
+	{
+		return Vector4( X * val, Y * val, Z * val, W );
+	}
+
+	FORGE_INLINE Vector4 operator/( Float val ) const
+	{
+		Float inv = 1.0f / val;
+
+		return Vector4( X * inv, Y * inv, Z * inv, W );
+	}
+
 	FORGE_INLINE Float& operator[]( Uint32 index ) const
 	{
 		FORGE_ASSERT( index < 4 );
@@ -113,7 +124,7 @@ public:
 
 	FORGE_INLINE Bool operator==( const Vector4& vec ) const
 	{
-		return X == vec.X && Y == vec.Y && vec.Z == Z && vec.W;
+		return X == vec.X && Y == vec.Y && vec.Z == Z && vec.W == vec.W;
 	}
 
 	FORGE_INLINE Bool operator!=( const Vector4& vec ) const

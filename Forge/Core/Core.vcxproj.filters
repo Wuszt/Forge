@@ -20,7 +20,13 @@
     <ClInclude Include="Fpch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Defaults.h">
+    <ClInclude Include="InternalDefaults.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PublicDefaults.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExternalIncludes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,2 +1,2 @@
 #pragma once
-#include "../Core/Defaults.h"
+#include "InternalDefaults.h"

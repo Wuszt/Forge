@@ -19,10 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Defaults.h" />
+    <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="PathFinding.h" />
+    <ClInclude Include="PublicDefaults.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fpch.cpp">

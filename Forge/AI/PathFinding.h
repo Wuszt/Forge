@@ -170,6 +170,7 @@ namespace AI
 	{
 		Uint32 nodesAmount = graph.GetNodesAmount();
 
+		//todo: make true priorityqueue/heap
 		std::vector< NodeID > queue;
 		queue.reserve( nodesAmount );
 

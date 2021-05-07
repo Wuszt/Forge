@@ -23,10 +23,16 @@
     <ClInclude Include="Matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Defaults.h">
+    <ClInclude Include="Fpch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Fpch.h">
+    <ClInclude Include="Math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InternalDefaults.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PublicDefaults.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,4 @@
 #pragma once
-#include "Fpch.h"
 
 class Vector2
 {
