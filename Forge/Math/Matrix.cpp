@@ -54,3 +54,23 @@ void Matrix::SetRotationZ( Float rad )
 	Z.Y = 0.0f;
 	Z.Z = 1.0f;
 }
+
+void Matrix::Transpose()
+{
+	Math::Swap( X[ 1 ], Y[ 0 ] );
+	Math::Swap( X[ 2 ], Z[ 0 ] );
+	Math::Swap( X[ 3 ], W[ 0 ] );
+	Math::Swap( Y[ 2 ], Z[ 1 ] );
+	Math::Swap( Y[ 3 ], W[ 1 ] );
+	Math::Swap( Z[ 3 ], W[ 2 ] );
+}
+
+void Matrix::OrthonormInvert()
+{
+	Vector4 translation = W;
+	W = 0.0f;
+	Transpose();
+
+	translation = TransformPoint( -translation );
+	W = translation;
+}

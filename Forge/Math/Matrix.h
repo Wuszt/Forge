@@ -5,6 +5,17 @@ struct Matrix
 {
 	FORGE_INLINE static Matrix IDENTITY() { return Matrix( Vector4::EX(), Vector4::EY(), Vector4::EZ(), Vector4::EW() ); }
 
+	static Matrix Mul( const Matrix& m0, const Matrix& m1 )
+	{
+		return m0 * m1;
+	}
+
+	template< class T0, class T1, class... Args >
+	static Matrix Mul( const Matrix& m0, const Matrix& m1, Args... matrices )
+	{
+		return Mul( Mul( m0, m1 ), matrices );
+	}
+
 	Matrix()
 		: X( Vector4::EX() )
 		, Y( Vector4::EY() )
@@ -17,6 +28,16 @@ struct Matrix
 		, Y( y )
 		, Z( z )
 		, W( w )
+	{}
+
+	Matrix( Float x0, Float x1, Float x2, Float x3,
+		Float y0, Float y1, Float y2, Float y3,
+		Float z0, Float z1, Float z2, Float z3,
+		Float w0, Float w1, Float w2, Float w3 )
+		: X( x0, x1, x2, x3 )
+		, Y( y0, y1, y2, y3 )
+		, Z( z0, z1, z2, z3 )
+		, W( w0, w1, w2, w3 )
 	{}
 
 	~Matrix() {}
@@ -85,6 +106,18 @@ struct Matrix
 
 	void SetRotationZ( Float rad );
 
+	void Transpose();
+
+	Matrix Transposed() const
+	{
+		return Matrix( X[ 0 ], Y[ 0 ], Z[ 0 ], W[ 0 ],
+					   X[ 1 ], Y[ 1 ], Z[ 1 ], W[ 1 ],
+					   X[ 2 ], Y[ 2 ], Z[ 2 ], W[ 2 ],
+					   X[ 3 ], Y[ 3 ], Z[ 3 ], W[ 3 ] );
+	}
+
+	void OrthonormInvert();
+
 	FORGE_INLINE void SetScale( Float scale )
 	{
 		X.X = scale;
@@ -99,7 +132,12 @@ struct Matrix
 		Z.Z = scale.Z;
 	}
 
-	FORGE_INLINE Matrix operator*( const Matrix& m )
+	FORGE_INLINE Bool operator==( const Matrix& m ) const
+	{
+		return X == m.X && Y == m.Y && Z == m.Z && W == m.W;
+	}
+
+	FORGE_INLINE Matrix operator*( const Matrix& m ) const
 	{
 		Matrix result;
 
