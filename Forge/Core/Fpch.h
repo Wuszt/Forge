@@ -1,3 +1,2 @@
 #pragma once
-
-#include "InternalDefaults.h""
+#include "InternalDefaults.h"

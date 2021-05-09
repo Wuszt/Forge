@@ -118,6 +118,8 @@ struct Matrix
 
 	void OrthonormInvert();
 
+	void AffineInvert();
+
 	FORGE_INLINE void SetScale( Float scale )
 	{
 		X.X = scale;
@@ -125,7 +127,7 @@ struct Matrix
 		Z.Z = scale;
 	}
 
-	FORGE_INLINE void SetScale( const Vector4& scale )
+	FORGE_INLINE void SetScale( const Vector3& scale )
 	{
 		X.X = scale.X;
 		Y.Y = scale.Y;

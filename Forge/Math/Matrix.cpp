@@ -68,9 +68,40 @@ void Matrix::Transpose()
 void Matrix::OrthonormInvert()
 {
 	Vector4 translation = W;
-	W = 0.0f;
+	SetTranslation( 0.0f, 0.0f, 0.0f );
 	Transpose();
 
 	translation = TransformPoint( -translation );
 	W = translation;
+}
+
+void Matrix::AffineInvert()
+{
+	Matrix copy = *this;
+
+	Float cofactor0 = copy.Y[ 1 ] * copy.Z[ 2 ] - copy.Y[ 2 ] * copy.Z[ 1 ];
+	Float cofactor4 = copy.X[ 1 ] * copy.Z[ 2 ] - copy.X[ 2 ] * copy.Z[ 1 ];
+	Float cofactor8 = copy.X[ 1 ] * copy.Y[ 2 ] - copy.X[ 2 ] * copy.Y[ 1 ];
+
+	Float det = copy.X[ 0 ] * cofactor0 + copy.Y[ 0 ] * cofactor4 + copy.Z[ 0 ] * cofactor8;
+
+	FORGE_ASSERT( !Math::IsAlmostZero( det ) );
+
+	Float invDet = 1.0f / det;
+
+	X[ 0 ] = invDet * cofactor0;
+	X[ 1 ] = invDet * cofactor4;
+	X[ 2 ] = invDet * cofactor8;
+
+	Y[ 0 ] = -invDet * ( copy.Y[ 0 ] * copy.Z[ 2 ] - copy.Y[ 2 ] * copy.Z[ 0 ] );
+	Y[ 1 ] = invDet * ( copy.X[ 0 ] * copy.Z[ 2 ] - copy.X[ 2 ] * copy.Z[ 0 ] );
+	Y[ 2 ] = -invDet * ( copy.X[ 0 ] * copy.Y[ 2 ] - copy.Y[ 0 ] * copy.X[ 2 ] );
+
+	Z[ 0 ] = invDet * ( copy.Y[ 0 ] * copy.Z[ 1 ] - copy.Z[ 0 ] * copy.Y[ 1 ] );
+	Z[ 1 ] = -invDet * ( copy.X[ 0 ] * copy.Z[ 1 ] - copy.Z[ 0 ] * copy.X[ 1 ] );
+	Z[ 2 ] = invDet * ( copy.X[ 0 ] * copy.Y[ 1 ] - copy.Y[ 0 ] * copy.X[ 1 ] );
+
+	W[ 0 ] = -( copy.W[ 0 ] * X[ 0 ] + copy.W[ 1 ] * Y[ 0 ] + copy.W[ 2 ] * Z[ 0 ] );
+	W[ 1 ] = -( copy.W[ 0 ] * X[ 1 ] + copy.W[ 1 ] * Y[ 1 ] + copy.W[ 2 ] * Z[ 1 ] );
+	W[ 2 ] = -( copy.W[ 0 ] * X[ 2 ] + copy.W[ 1 ] * Y[ 2 ] + copy.W[ 2 ] * Z[ 2 ] );
 }

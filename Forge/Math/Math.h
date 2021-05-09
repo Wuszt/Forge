@@ -22,4 +22,15 @@ namespace Math
 		l = r;
 		r = tmp;
 	}
+
+	template< class T >
+	FORGE_INLINE T Abs( T val )
+	{
+		return abs( val );
+	}
+
+	FORGE_INLINE Bool IsAlmostZero( Float val, Float epsilon = std::numeric_limits< Float >::epsilon() )
+	{
+		return Abs( val ) <= epsilon;
+	}
 }
