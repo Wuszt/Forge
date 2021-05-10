@@ -1,11 +1,9 @@
 #pragma once
 
-class Vector3;
+struct Vector3;
 
-class Vector4
+struct Vector4
 {
-public:
-
 	Float X = 0.0f;
 	Float Y = 0.0f;
 	Float Z = 0.0f;

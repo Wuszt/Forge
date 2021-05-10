@@ -1,11 +1,9 @@
 #pragma once
 
-class Vector4;
+struct Vector4;
 
-class Vector3
+struct Vector3
 {
-public:
-
 	Float X = 0.0f;
 	Float Y = 0.0f;
 	Float Z = 0.0f;
@@ -59,6 +57,11 @@ public:
 		Y *= val;
 		Z *= val;
 	}
+
+    FORGE_INLINE Vector3 operator*( Float val ) const
+    {
+        return Vector3( X * val, Y * val, Z * val );
+    }
 
 	FORGE_INLINE void operator/=( Float val )
 	{
@@ -136,5 +139,9 @@ public:
 			&& abs( Y ) != std::numeric_limits< Float >::infinity()
 			&& abs( Z ) != std::numeric_limits< Float >::infinity();
 	}
+
+    Bool AlmostEqual( const Vector3& vec, Float eps = std::numeric_limits< Float >::epsilon() ) const;
+
+    Vector3 Cross( const Vector3& vec ) const;
 };
 

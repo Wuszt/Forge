@@ -20,7 +20,12 @@ Uint32 Math::Random::GetUnsigned( Uint32 min /*= 0u*/, Uint32 max /*= std::numer
 {
 	auto random = ( *m_randomEngine )();
 	const Uint32 range = max - min;
-	return min + static_cast< Uint32 >( static_cast< Double >( range ) * static_cast< Double >( random ) / static_cast< Double >( c_randRange ) );
+	return min + static_cast< Uint32 >( static_cast< Double >( range ) * static_cast< Double >( random ) / static_cast< Double >( c_randRange ) + 0.5 );
+}
+
+Uint32 Math::Random::GetRaw()
+{
+    return ( *m_randomEngine )();
 }
 
 Math::Random::Random( Uint32 seed )

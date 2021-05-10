@@ -1,9 +1,7 @@
 #pragma once
 
-class Vector2
+struct Vector2
 {
-public:
-
 	Float X;
 	Float Y;
 
