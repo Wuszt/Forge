@@ -44,6 +44,8 @@ struct Vector4
 
 	Vector4( const Vector3& vec );
 
+	Vector4( const Vector3& vec, Float w );
+
 	Vector4( const Float (&arr)[4] )
 		: X( arr[ 0 ] )
 		, Y( arr[ 1 ] )

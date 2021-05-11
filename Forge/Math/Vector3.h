@@ -140,7 +140,7 @@ struct Vector3
 			&& abs( Z ) != std::numeric_limits< Float >::infinity();
 	}
 
-    Bool AlmostEqual( const Vector3& vec, Float eps = std::numeric_limits< Float >::epsilon() ) const;
+    Bool AlmostEqual( const Vector3& vec, Float eps = std::numeric_limits< Float >::epsilon() * 10.0f ) const;
 
     Vector3 Cross( const Vector3& vec ) const;
 };

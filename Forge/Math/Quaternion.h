@@ -1,24 +1,35 @@
 #pragma once
 struct Quaternion
 {   
-    union
-    {
-        struct
-        {
-            Float i;
-            Float j;
-            Float k;
-        };
+	union
+	{
+		Vector4 vec4;
 
-        Vector3 vec;
-    };
+		struct  
+		{
+			union
+			{
+				struct
+				{
+					Float i;
+					Float j;
+					Float k;
+				};
 
-    Float r;
+				Vector3 vec3;
+			};
+
+			Float r;
+		};
+	};
 
     FORGE_INLINE static Quaternion IDENTITY() { return Quaternion( 0.0f, 0.0f, 0.0f, 1.0f ); }
     FORGE_INLINE static Quaternion I() { return Quaternion( 1.0f, 0.0f, 0.0f, 0.0f ); }
     FORGE_INLINE static Quaternion J() { return Quaternion( 0.0f, 1.0f, 0.0f, 0.0f ); }
     FORGE_INLINE static Quaternion K() { return Quaternion( 0.0f, 0.0f, 1.0f, 0.0f ); }
+
+    Vector4 Transform( const Vector4& vec ) const;
+	void SetAxisAngle( const Vector4& vec, Float angle );
 
     Quaternion( Float i, Float j, Float k, Float r )
         : i( i )
@@ -35,12 +46,20 @@ struct Quaternion
     {}
 
     Quaternion( const Vector3 vec, Float r )
-        : vec( vec )
-        , r( r )
-    {}
+    {
+		SetAxisAngle( vec, r );
+	}
+
+	Quaternion( const Vector4& vec );
+
+	Quaternion( Float yaw, Float pitch, Float roll );
 
     ~Quaternion();
 
     Quaternion operator*( const Quaternion& q ) const;
+
+	Quaternion Conjugate() const;
+
+	Float Normalize();
 };
 

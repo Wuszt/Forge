@@ -29,7 +29,7 @@ namespace Math
 		return abs( val );
 	}
 
-	FORGE_INLINE Bool IsAlmostZero( Float val, Float epsilon = std::numeric_limits< Float >::epsilon() )
+	FORGE_INLINE Bool IsAlmostZero( Float val, Float epsilon = std::numeric_limits< Float >::epsilon() * 10.0f )
 	{
 		return Abs( val ) <= epsilon;
 	}
