@@ -72,14 +72,14 @@ struct Vector4
 
 	FORGE_INLINE Vector4 operator*( Float val ) const
 	{
-		return Vector4( X * val, Y * val, Z * val, W );
+		return Vector4( X * val, Y * val, Z * val, W * val );
 	}
 
 	FORGE_INLINE Vector4 operator/( Float val ) const
 	{
 		Float inv = 1.0f / val;
 
-		return Vector4( X * inv, Y * inv, Z * inv, W );
+		return Vector4( X * inv, Y * inv, Z * inv, W * inv );
 	}
 
 	FORGE_INLINE Float& operator[]( Uint32 index ) const
@@ -133,11 +133,7 @@ struct Vector4
 	}
 
 	FORGE_INLINE Bool IsZero() const { return X == 0.0f && Y == 0.0f && Z == 0.0f && W == 0.0f; }
-	FORGE_INLINE Bool IsAlmostZero() const
-	{
-		constexpr Float epsilon = std::numeric_limits< Float >::epsilon();
-		return X <= epsilon && Y <= epsilon && Z <= epsilon && W <= W;
-	}
+	Bool IsAlmostZero( Float eps = std::numeric_limits< Float >::epsilon() ) const;
 
 	FORGE_INLINE Float Mag3() const
 	{
@@ -210,6 +206,11 @@ struct Vector4
 			&& abs( Y ) != std::numeric_limits< Float >::infinity()
 			&& abs( Z ) != std::numeric_limits< Float >::infinity()
 			&& abs( W ) != std::numeric_limits< Float >::infinity();
+	}
+
+	FORGE_INLINE Bool IsAlmostEqual( const Vector4& vec, Float eps = std::numeric_limits< Float >::epsilon() ) const
+	{
+		return ( *this - vec ).IsAlmostZero( eps );
 	}
 };
 

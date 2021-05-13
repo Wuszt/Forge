@@ -23,30 +23,35 @@ struct Quaternion
 		};
 	};
 
-    FORGE_INLINE static Quaternion IDENTITY() { return Quaternion( 0.0f, 0.0f, 0.0f, 1.0f ); }
-    FORGE_INLINE static Quaternion I() { return Quaternion( 1.0f, 0.0f, 0.0f, 0.0f ); }
-    FORGE_INLINE static Quaternion J() { return Quaternion( 0.0f, 1.0f, 0.0f, 0.0f ); }
-    FORGE_INLINE static Quaternion K() { return Quaternion( 0.0f, 0.0f, 1.0f, 0.0f ); }
+	FORGE_INLINE static Quaternion IDENTITY() { return Quaternion( 0.0f, 0.0f, 0.0f, 1.0f ); }
+	FORGE_INLINE static Quaternion I() { return Quaternion( 1.0f, 0.0f, 0.0f, 0.0f ); }
+	FORGE_INLINE static Quaternion J() { return Quaternion( 0.0f, 1.0f, 0.0f, 0.0f ); }
+	FORGE_INLINE static Quaternion K() { return Quaternion( 0.0f, 0.0f, 1.0f, 0.0f ); }
 
-    Vector4 Transform( const Vector4& vec ) const;
+	Vector4 Transform( const Vector4& vec ) const;
+	FORGE_INLINE Vector4 TransformInvert( const Vector4& vec ) const
+	{
+		return Inverted().Transform( vec );
+	}
+
 	void SetAxisAngle( const Vector4& vec, Float angle );
 
-    Quaternion( Float i, Float j, Float k, Float r )
-        : i( i )
-        , j( j )
-        , k( k )
-        , r( r )
-    {}
+	Quaternion( Float i, Float j, Float k, Float r )
+		: i( i )
+		, j( j )
+		, k( k )
+		, r( r )
+	{}
 
-    Quaternion()
-        : i( 0.0f )
-        , j( 0.0f )
-        , k( 0.0f )
-        , r( 1.0f )
-    {}
+	Quaternion()
+		: i( 0.0f )
+		, j( 0.0f )
+		, k( 0.0f )
+		, r( 1.0f )
+	{}
 
-    Quaternion( const Vector3 vec, Float r )
-    {
+	Quaternion( const Vector3 vec, Float r )
+	{
 		SetAxisAngle( vec, r );
 	}
 
@@ -54,12 +59,32 @@ struct Quaternion
 
 	Quaternion( Float yaw, Float pitch, Float roll );
 
-    ~Quaternion();
+	~Quaternion();
 
-    Quaternion operator*( const Quaternion& q ) const;
+	Quaternion operator*( const Quaternion& q ) const;
 
-	Quaternion Conjugate() const;
+	Quaternion operator*( Float val ) const;
+
+	Quaternion operator/( Float val ) const;
+
+	Quaternion operator+( const Quaternion& q ) const;
+
+	Quaternion operator-( const Quaternion& q ) const;
+
+	Bool operator==( const Quaternion& q ) const;
+	Bool operator!=( const Quaternion& q ) const;
+
+	Quaternion Inverted() const;
+	void Invert();
 
 	Float Normalize();
+	Quaternion Normalized() const;
+
+	Float Dot( const Quaternion& q ) const;
+
+	Float Mag() const;
+	Float SquareMag() const;
+
+	Bool IsAlmostEqual( const Quaternion& q, Float eps = std::numeric_limits< Float >::epsilon() ) const;
 };
 

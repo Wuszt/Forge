@@ -7,17 +7,7 @@ Vector3::Vector3( const Vector4& vec )
 	, Z( vec.Z )
 {}
 
-Bool Vector3::AlmostEqual( const Vector3 & vec, Float eps ) const
+Bool Vector3::IsAlmostZero( Float eps ) const
 {
-    return Math::IsAlmostZero( X - vec.X, eps )
-    && Math::IsAlmostZero( Y - vec.Y, eps )
-    && Math::IsAlmostZero( Z - vec.Z, eps );
-}
-
-Vector3 Vector3::Cross( const Vector3 & vec ) const
-{
-    return Vector3(
-        Y * vec.Z - Z * vec.Y,
-        Z * vec.X - X * vec.Z,
-        X * vec.Y - Y * vec.X );
+	return Math::IsAlmostZero( X, eps ) && Math::IsAlmostZero( Y, eps ) && Math::IsAlmostZero( Z, eps );
 }

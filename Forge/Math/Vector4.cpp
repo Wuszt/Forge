@@ -14,3 +14,8 @@ Vector4::Vector4( const Vector3& vec, Float w )
 	, Z( vec.Z )
 	, W( w )
 {}
+
+Bool Vector4::IsAlmostZero( Float eps ) const
+{
+	return Math::IsAlmostZero( X, eps ) && Math::IsAlmostZero( Y, eps ) && Math::IsAlmostZero( Z, eps ) && Math::IsAlmostZero( W, eps );
+}

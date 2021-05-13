@@ -9,10 +9,9 @@ Vector4 Quaternion::Transform( const Vector4& vec ) const
 	float crossMult = 2.0f*r;
 	float pMult = crossMult * r - 1.0f;
 
-	return Vector3( pMult*vec.X + vMult * i + crossMult * ( j*vec.Z - k * vec.Y ),
+	return Vector4( pMult*vec.X + vMult * i + crossMult * ( j*vec.Z - k * vec.Y ),
 		pMult*vec.Y + vMult * j + crossMult * ( k*vec.X - i * vec.Z ),
-		pMult*vec.Z + vMult * k + crossMult * ( i*vec.Y - j * vec.X ) );
-
+		pMult*vec.Z + vMult * k + crossMult * ( i*vec.Y - j * vec.X ), vec.W );
 }
 
 void Quaternion::SetAxisAngle( const Vector4& vec, Float angle )
@@ -22,7 +21,7 @@ void Quaternion::SetAxisAngle( const Vector4& vec, Float angle )
 	r = Math::Cos( halfAngle );
 	vec3 = vec * Math::Sin( halfAngle );
 
-	vec4.Normalize4();
+	Normalize();
 }
 
 Quaternion::Quaternion( Float xRotation, Float yRotation, Float zRotation )
@@ -59,14 +58,72 @@ Quaternion Quaternion::operator*( const Quaternion & q ) const
 	return Quaternion( Vector4( q.vec3 * r + vec3 * q.r + vec3.Cross( q.vec3 ), r * q.r - vec3.Dot( q.vec3 ) ) );
 }
 
-Quaternion Quaternion::Conjugate() const
+Quaternion Quaternion::operator*( Float val ) const
 {
-	Quaternion copy( vec4 );
-	copy.r = -copy.r;
-	return copy;
+	return Quaternion( vec4 * val );
+}
+
+Quaternion Quaternion::operator/( Float val ) const
+{
+	return Quaternion( vec4 / val );
+}
+
+Quaternion Quaternion::operator+( const Quaternion& q ) const
+{
+	return Quaternion( vec4 + q.vec4 );
+}
+
+Quaternion Quaternion::operator-( const Quaternion& q ) const
+{
+	return Quaternion( vec4 - q.vec4 );
+}
+
+Bool Quaternion::operator==( const Quaternion& q ) const
+{
+	return vec4 == q.vec4;
+}
+
+Bool Quaternion::operator!=( const Quaternion& q ) const
+{
+	return vec4 != q.vec4;
+}
+
+Quaternion Quaternion::Inverted() const
+{
+	return Quaternion( -vec3.X, -vec3.Y, -vec3.Z, r );
+}
+
+void Quaternion::Invert()
+{
+	vec3 = -vec3;
 }
 
 Float Quaternion::Normalize()
 {
 	return vec4.Normalize4();
+}
+
+Quaternion Quaternion::Normalized() const
+{
+	return Quaternion( vec4.Normalized4() );
+}
+
+Float Quaternion::Dot( const Quaternion& q ) const
+{
+	return vec4.Dot4( q.vec4 );
+}
+
+Float Quaternion::Mag() const
+{
+	return vec4.Mag4();
+}
+
+Float Quaternion::SquareMag() const
+{
+	return vec4.SquareMag4();
+}
+
+Bool Quaternion::IsAlmostEqual( const Quaternion& q, Float eps ) const
+{
+	return vec4.IsAlmostEqual( q.vec4, eps );
 }

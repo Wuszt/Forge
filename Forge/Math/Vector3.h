@@ -36,7 +36,7 @@ struct Vector3
 
 	~Vector3(){}
 
-	FORGE_INLINE Vector3 operator-()
+	FORGE_INLINE Vector3 operator-() const
 	{
 		return Vector3( -X, -Y, -Z );
 	}
@@ -95,12 +95,7 @@ struct Vector3
 	}
 
 	FORGE_INLINE Bool IsZero() const { return X == 0.0f && Y == 0.0f && Z == 0.0f; }
-	FORGE_INLINE Bool IsAlmostZero() const
-	{
-		constexpr Float epsilon = std::numeric_limits< Float >::epsilon();
-
-		return X <= epsilon && Y <= epsilon && Z <= epsilon;
-	}
+	Bool IsAlmostZero( Float eps = std::numeric_limits< Float >::epsilon() ) const;
 
 	FORGE_INLINE Float Mag() const
 	{
@@ -140,8 +135,17 @@ struct Vector3
 			&& abs( Z ) != std::numeric_limits< Float >::infinity();
 	}
 
-    Bool AlmostEqual( const Vector3& vec, Float eps = std::numeric_limits< Float >::epsilon() * 10.0f ) const;
+   FORGE_INLINE Bool IsAlmostEqual( const Vector3& vec, Float eps = std::numeric_limits< Float >::epsilon() * 10.0f ) const
+   {
+	   return ( *this - vec ).IsAlmostZero( eps );
+   }
 
-    Vector3 Cross( const Vector3& vec ) const;
+   Vector3 Cross( const Vector3& vec ) const
+   {
+	   return Vector3(
+		   Y * vec.Z - Z * vec.Y,
+		   Z * vec.X - X * vec.Z,
+		   X * vec.Y - Y * vec.X );
+   }
 };
 
