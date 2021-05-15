@@ -1,6 +1,16 @@
 #include "Fpch.h"
 #include "Matrix.h"
 
+Matrix::Matrix( const Quaternion& q )
+{
+	FORGE_ASSERT( Math::IsAlmostZero( 1.0f - q.SquareMag() ) );
+
+	X = { 1.0f - 2.0f * q.j * q.j - 2.0f * q.k * q.k, 2.0f * q.i * q.j + 2.0f * q.r * q.k, 2.0f * q.i * q.k - 2.0f * q.r * q.j, 0.0f };
+	Y = { 2.0f * q.i * q.j - 2.0f * q.r * q.k, 1.0f - 2.0f * q.i * q.i - 2.0f * q.k * q.k, 2.0f * q.j * q.k + 2.0f * q.r * q.i, 0.0f };
+	Z = { 2.0f * q.i * q.k + 2.0f * q.r * q.j, 2.0f * q.j * q.k - 2.0f * q.r * q.i, 1.0f - 2.0f * q.i * q.i - 2.0f * q.j * q.j, 0.0f };
+	W = Vector4::EW();
+}
+
 void Matrix::SetRotationX( Float rad )
 {
 	Float sin = Math::Sin( rad );

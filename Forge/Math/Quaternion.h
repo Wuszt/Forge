@@ -1,4 +1,5 @@
 #pragma once
+
 struct Quaternion
 {   
 	union
@@ -62,6 +63,11 @@ struct Quaternion
 	~Quaternion();
 
 	Quaternion operator*( const Quaternion& q ) const;
+
+	FORGE_INLINE Vector4 operator*( const Vector4& v ) const
+	{
+		return Transform( v );
+	}
 
 	Quaternion operator*( Float val ) const;
 
