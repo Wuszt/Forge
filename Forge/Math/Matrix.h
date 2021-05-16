@@ -102,6 +102,18 @@ struct Matrix
 		return result;
 	}
 
+	FORGE_INLINE Vector4 TransformVectorWithW( const Vector4& vec ) const
+	{
+		Vector4 result;
+
+		result.X = vec.X * arr[ 0 ] + vec.Y * arr[ 4 ] + vec.Z * arr[ 8 ] + arr[ 12 ] * vec.W;
+		result.Y = vec.X * arr[ 1 ] + vec.Y * arr[ 5 ] + vec.Z * arr[ 9 ] + arr[ 13 ] * vec.W;
+		result.Z = vec.X * arr[ 2 ] + vec.Y * arr[ 6 ] + vec.Z * arr[ 10 ] + arr[ 14 ] * vec.W;
+		result.W = vec.W;
+
+		return result;
+	}
+
 	void SetRotationX( Float rad );
 
 	void SetRotationY( Float rad );
@@ -219,6 +231,26 @@ struct Matrix
 		result.W[ 3 ] = W[ 0 ] * m.arr[ 3 ] + W[ 1 ] * m.arr[ 7 ] + W[ 2 ] * m.arr[ 11 ] + W[ 3 ] * m.arr[ 15 ];
 
 		return result;
+	}
+
+	FORGE_INLINE const Vector4& GetAxisX() const
+	{
+		return X;
+	}
+
+	FORGE_INLINE const Vector4& GetAxisY() const
+	{
+		return Y;
+	}
+
+	FORGE_INLINE const Vector4& GetAxisZ() const
+	{
+		return Z;
+	}
+
+	FORGE_INLINE const Vector4& GetTranslation() const
+	{
+		return W;
 	}
 };
 

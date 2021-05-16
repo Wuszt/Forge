@@ -127,3 +127,33 @@ Bool Quaternion::IsAlmostEqual( const Quaternion& q, Float eps ) const
 {
 	return vec4.IsAlmostEqual( q.vec4, eps );
 }
+
+Vector3 Quaternion::GetXAxis3() const
+{
+	return *this * Vector3::EX();
+}
+
+Vector3 Quaternion::GetYAxis3() const
+{
+	return *this * Vector3::EY();
+}
+
+Vector3 Quaternion::GetZAxis3() const
+{
+	return *this * Vector3::EZ();
+}
+
+Vector4 Quaternion::GetXAxis4() const
+{
+	return *this * Vector4::EX();
+}
+
+Vector4 Quaternion::GetYAxis4() const
+{
+	return *this * Vector4::EY();
+}
+
+Vector4 Quaternion::GetZAxis4() const
+{
+	return *this * Vector4::EZ();
+}

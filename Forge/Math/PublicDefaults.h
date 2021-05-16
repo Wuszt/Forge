@@ -5,5 +5,6 @@
 #include "Vector4.h"
 #include "Quaternion.h"
 #include "Matrix.h"
+#include "Transform.h"
 #include "Math.h"
 #include "Random.h"

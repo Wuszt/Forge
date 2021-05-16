@@ -4,9 +4,18 @@ struct Vector3;
 
 struct Vector4
 {
-	Float X = 0.0f;
-	Float Y = 0.0f;
-	Float Z = 0.0f;
+	union
+	{
+		struct
+		{
+			Float X;
+			Float Y;
+			Float Z;
+		};
+
+		Vector3 vec3;
+	};
+
 	Float W = 1.0f;
 
 	FORGE_INLINE static Vector4 EX() { return Vector4( 1.0f, 0.0f, 0.0f, 0.0f ); }
@@ -20,7 +29,11 @@ struct Vector4
 	FORGE_INLINE static Vector4 PLUS_INF() { return Vector4( std::numeric_limits< Float >::infinity() ); }
 	FORGE_INLINE static Vector4 MINUS_INF() { return -Vector4( std::numeric_limits< Float >::infinity() ); }
 
-	Vector4() {}
+	Vector4()
+		: X( 0.0f )
+		, Y( 0.0f )
+		, Z( 0.0f )
+	{}
 
 	Vector4( Float x, Float y, Float z, Float w )
 		: X( x )
@@ -211,6 +224,11 @@ struct Vector4
 	FORGE_INLINE Bool IsAlmostEqual( const Vector4& vec, Float eps = std::numeric_limits< Float >::epsilon() ) const
 	{
 		return ( *this - vec ).IsAlmostZero( eps );
+	}
+
+	FORGE_INLINE const Vector3& AsVector3() const
+	{
+		return vec3;
 	}
 };
 

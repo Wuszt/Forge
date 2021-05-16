@@ -92,5 +92,13 @@ struct Quaternion
 	Float SquareMag() const;
 
 	Bool IsAlmostEqual( const Quaternion& q, Float eps = std::numeric_limits< Float >::epsilon() ) const;
+
+	Vector3 GetXAxis3() const;
+	Vector3 GetYAxis3() const;
+	Vector3 GetZAxis3() const;
+
+	Vector4 GetXAxis4() const;
+	Vector4 GetYAxis4() const;
+	Vector4 GetZAxis4() const;
 };
 
