@@ -75,6 +75,11 @@ public:
 		return Transform( ToMatrix() * transform.ToMatrix() );
 	}
 
+	FORGE_INLINE void SetIdentity()
+	{
+		*this = Transform();
+	}
+
 private:
 	Vector4 m_position = Vector4::EW();
 	Quaternion m_orientation = Quaternion::IDENTITY();
