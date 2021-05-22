@@ -2,6 +2,7 @@
 
 #include "../Core/PublicDefaults.h"
 #include "../Math/PublicDefaults.h"
+#include "../D3D11Renderer/PublicDefaults.h"
 
 #include <windows.h>
 #pragma comment(lib, "d3d11.lib")
@@ -38,16 +39,16 @@ const Int32 Width = 300;
 const Int32 Height = 300;
 
 //Function Prototypes//
-bool InitializeDirect3d11App( HINSTANCE hInstance );
+Bool InitializeDirect3d11App( HINSTANCE hInstance );
 void CleanUp();
-bool InitScene();
+Bool InitScene();
 void UpdateScene();
 void DrawScene();
 
-bool InitializeWindow( HINSTANCE hInstance,
+Bool InitializeWindow( HINSTANCE hInstance,
 	Int32 ShowWnd,
 	Int32 width, Int32 height,
-	bool windowed );
+	Bool windowed );
 WPARAM messageloop();
 
 LRESULT CALLBACK WndProc( HWND hWnd,
@@ -108,10 +109,18 @@ Int32 WINAPI WinMain( HINSTANCE hInstance,	//Main windows function
 	return 0;
 }
 
-bool InitializeWindow( HINSTANCE hInstance,
+Int32 main()
+{
+	//D3D11Renderer renderer( 700, 700 );
+	//while(1);
+
+	WinMain( GetModuleHandle( NULL ), nullptr, LPSTR(), 10 );
+}
+
+Bool InitializeWindow( HINSTANCE hInstance,
 	Int32 ShowWnd,
 	Int32 width, Int32 height,
-	bool windowed )
+	Bool windowed )
 {
 	typedef struct _WNDCLASS {
 		Uint32 cbSize;
@@ -175,7 +184,7 @@ bool InitializeWindow( HINSTANCE hInstance,
 	return true;
 }
 
-bool InitializeDirect3d11App( HINSTANCE hInstance )
+Bool InitializeDirect3d11App( HINSTANCE hInstance )
 {
 	//Describe our Buffer
 	DXGI_MODE_DESC bufferDesc;
@@ -239,7 +248,7 @@ void CleanUp()
 	vertLayout->Release();
 }
 
-bool InitScene()
+Bool InitScene()
 {
 	//Compile Shaders from shader file
 	hr = D3DCompileFromFile( L"Effects.fx", 0, 0, "VS", "vs_4_0", D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG, 0, &VS_Buffer, 0 );
