@@ -111,10 +111,29 @@ Int32 WINAPI WinMain( HINSTANCE hInstance,	//Main windows function
 
 Int32 main()
 {
-	//D3D11Renderer renderer( 700, 700 );
-	//while(1);
+	D3D11Renderer renderer( 700, 700 );
+	MSG msg;
+	ZeroMemory( &msg, sizeof( MSG ) );
+	while( true )
+	{
+		BOOL PeekMessageL(
+			LPMSG lpMsg,
+			HWND hWnd,
+			Uint32 wMsgFilterMin,
+			Uint32 wMsgFilterMax,
+			Uint32 wRemoveMsg
+		);
 
-	WinMain( GetModuleHandle( NULL ), nullptr, LPSTR(), 10 );
+		if( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+		{
+			if( msg.message == WM_QUIT )
+				break;
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
+		}
+	}
+
+	//WinMain( GetModuleHandle( NULL ), nullptr, LPSTR(), 10 );
 }
 
 Bool InitializeWindow( HINSTANCE hInstance,
