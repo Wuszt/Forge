@@ -2,9 +2,8 @@
 
 #include "../Core/PublicDefaults.h"
 #include "../Math/PublicDefaults.h"
-#include "../D3D11Renderer/PublicDefaults.h"
 
-#include <windows.h>
+#include <Windows.h>
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -13,6 +12,7 @@
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 
+#include "../D3D11Renderer/PublicDefaults.h"
 
 using namespace DirectX;
 
@@ -112,6 +112,13 @@ Int32 WINAPI WinMain( HINSTANCE hInstance,	//Main windows function
 Int32 main()
 {
 	D3D11Renderer renderer( 700, 700 );
+
+	auto vertexShader = renderer.GetVertexShader( "Effects.fx" );
+	auto pixelShader = renderer.GetPixelShader( "Effects.fx" );
+
+	renderer.GetContext()->SetVertexShader( *vertexShader );
+	renderer.GetContext()->SetPixelShader( *pixelShader );
+
 	MSG msg;
 	ZeroMemory( &msg, sizeof( MSG ) );
 	while( true )

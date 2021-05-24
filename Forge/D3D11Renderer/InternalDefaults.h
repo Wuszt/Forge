@@ -2,7 +2,6 @@
 
 #include "../Core/PublicDefaults.h"
 #include "../Math/PublicDefaults.h"
-#include "D3D11Window.h"
 
 #include <Windows.h>
 #pragma comment(lib, "d3d11.lib")

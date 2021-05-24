@@ -131,7 +131,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="D3D11Context.cpp" />
+    <ClCompile Include="D3D11Device.cpp" />
+    <ClCompile Include="D3D11PixelShader.cpp" />
     <ClCompile Include="D3D11Renderer.cpp" />
+    <ClCompile Include="D3D11RenderTargetView.cpp" />
+    <ClCompile Include="D3D11VertexShader.cpp" />
+    <ClCompile Include="D3D11Swapchain.cpp" />
+    <ClCompile Include="D3D11Texture.cpp" />
     <ClCompile Include="Fpch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -141,7 +148,14 @@
     <ClCompile Include="D3D11Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="D3D11Context.h" />
+    <ClInclude Include="D3D11Device.h" />
+    <ClInclude Include="D3D11PixelShader.h" />
     <ClInclude Include="D3D11Renderer.h" />
+    <ClInclude Include="D3D11RenderTargetView.h" />
+    <ClInclude Include="D3D11VertexShader.h" />
+    <ClInclude Include="D3D11Swapchain.h" />
+    <ClInclude Include="D3D11Texture.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="PublicDefaults.h" />

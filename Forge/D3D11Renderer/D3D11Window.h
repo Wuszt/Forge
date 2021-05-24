@@ -1,9 +1,9 @@
 #pragma once
 
-class HINSTANCE__;
+struct HINSTANCE__;
 typedef HINSTANCE__* HINSTANCE;
 
-class HWND__;
+struct HWND__;
 typedef HWND__* HWND;
 
 class D3D11Window
