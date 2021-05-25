@@ -133,6 +133,8 @@
   <ItemGroup>
     <ClCompile Include="D3D11Context.cpp" />
     <ClCompile Include="D3D11Device.cpp" />
+    <ClCompile Include="D3D11IndexBuffer.cpp" />
+    <ClCompile Include="D3D11InputLayout.cpp" />
     <ClCompile Include="D3D11PixelShader.cpp" />
     <ClCompile Include="D3D11Renderer.cpp" />
     <ClCompile Include="D3D11RenderTargetView.cpp" />
@@ -146,10 +148,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="D3D11Window.cpp" />
+    <ClCompile Include="D3D11VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3D11Context.h" />
     <ClInclude Include="D3D11Device.h" />
+    <ClInclude Include="D3D11IndexBuffer.h" />
+    <ClInclude Include="D3D11InputLayout.h" />
     <ClInclude Include="D3D11PixelShader.h" />
     <ClInclude Include="D3D11Renderer.h" />
     <ClInclude Include="D3D11RenderTargetView.h" />
@@ -160,6 +165,7 @@
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="PublicDefaults.h" />
     <ClInclude Include="D3D11Window.h" />
+    <ClInclude Include="D3D11VertexBuffer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

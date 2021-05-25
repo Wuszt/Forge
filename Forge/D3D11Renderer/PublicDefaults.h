@@ -4,3 +4,8 @@
 #include "D3D11VertexShader.h"
 #include "D3D11PixelShader.h"
 #include "D3D11Texture.h"
+#include "D3D11VertexBuffer.h"
+#include "D3D11IndexBuffer.h"
+#include "D3D11InputLayout.h"
+#include "D3D11RenderTargetView.h"
+#include "D3D11Swapchain.h"

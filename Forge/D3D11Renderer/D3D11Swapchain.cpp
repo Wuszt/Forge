@@ -42,6 +42,11 @@ D3D11Swapchain::~D3D11Swapchain()
 	m_swapChain->Release();
 }
 
+void D3D11Swapchain::Present()
+{
+	m_swapChain->Present( 0, 0 );
+}
+
 std::unique_ptr< D3D11Texture > D3D11Swapchain::GetBackBuffer() const
 {
 	ID3D11Texture2D* backBuffer;

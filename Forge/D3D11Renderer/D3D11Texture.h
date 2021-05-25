@@ -1,4 +1,6 @@
 #pragma once
+struct ID3D11Texture2D;
+
 class D3D11Texture
 {
 public:

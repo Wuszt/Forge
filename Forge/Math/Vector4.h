@@ -230,5 +230,10 @@ struct Vector4
 	{
 		return vec3;
 	}
+
+	FORGE_INLINE const Float* AsArray() const
+	{
+		return &X;
+	}
 };
 

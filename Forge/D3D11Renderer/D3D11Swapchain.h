@@ -1,6 +1,7 @@
 #pragma once
 
 class D3D11Texture;
+struct IDXGISwapChain;
 
 class D3D11Swapchain
 {
@@ -15,6 +16,7 @@ public:
 		return m_swapChain;
 	}
 
+	void Present();
 	std::unique_ptr< D3D11Texture > GetBackBuffer() const;
 
 private:

@@ -1,4 +1,6 @@
 #pragma once
+struct ID3D11Device;
+
 class D3D11Device
 {
 public:
