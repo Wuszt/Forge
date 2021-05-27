@@ -1,15 +1,16 @@
 #pragma once
+#include "../Renderer/IInputLayout.h"
 
 class D3D11Device;
 class D3D11VertexShader;
-class D3D11Context;
+class D3D11RenderContext;
 struct ID3D11InputLayout;
 enum D3D_PRIMITIVE_TOPOLOGY;
 
-class D3D11InputLayout
+class D3D11InputLayout : public IInputLayout
 {
 public:
-	D3D11InputLayout( D3D11Context* contextPtr, const D3D11Device& device, const D3D11VertexShader& vertexShader, const D3D11VertexBuffer& vertexBuffer );
+	D3D11InputLayout( D3D11RenderContext* contextPtr, const D3D11Device& device, const D3D11VertexShader& vertexShader, const D3D11VertexBuffer& vertexBuffer );
 	~D3D11InputLayout();
 
 	ID3D11InputLayout* const& GetLayout() const
@@ -19,10 +20,10 @@ public:
 
 	D3D_PRIMITIVE_TOPOLOGY GetTopology() const;
 
-	void Set();
+	virtual void Set() override;
 
 private:
 	ID3D11InputLayout* m_layout = nullptr;
-	D3D11Context* m_contextPtr = nullptr;
+	D3D11RenderContext* m_contextPtr = nullptr;
 };
 

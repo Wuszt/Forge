@@ -1,44 +1,51 @@
 #pragma once
+#include "../Renderer/IRenderer.h"
+#include "D3D11RenderContext.h"
+#include "D3D11RenderTargetView.h"
+#include "D3D11SwapChain.h"
+#include "D3D11VertexShader.h"
+#include "D3D11PixelShader.h"
 
 class D3D11Window;
 class D3D11Device;
-class D3D11Context;
 class D3D11Swapchain;
-class D3D11RenderTargetView;
 class D3D11VertexShader;
 class D3D11PixelShader;
 class D3D11InputLayout;
 class D3D11VertexBuffer;
 class D3D11IndexBuffer;
-struct Vertex;
+class IVertexShader;
+class IVertexBuffer;
+class IInputLayout;
+class IIndexBuffer;
 
-class D3D11Renderer
+class D3D11Renderer : public IRenderer
 {
 public:
 	D3D11Renderer( Uint32 width, Uint32 height );
 	~D3D11Renderer();
 
-	FORGE_INLINE D3D11Context* GetContext() const
+	virtual FORGE_INLINE D3D11RenderContext* GetContext() const override
 	{
 		return m_context.get();
 	}
 
-	FORGE_INLINE D3D11RenderTargetView* GetRenderTargetView() const
+	virtual FORGE_INLINE D3D11RenderTargetView* GetRenderTargetView() const override
 	{
 		return m_renderTargetView.get();
 	}
 
-	FORGE_INLINE D3D11Swapchain* GetSwapchain() const
+	virtual FORGE_INLINE D3D11Swapchain* GetSwapchain() const override
 	{
 		return m_swapChain.get();
 	}
 
-	D3D11VertexShader* GetVertexShader( const std::string& path );
-	D3D11PixelShader* GetPixelShader( const std::string& path );
+	virtual D3D11VertexShader* GetVertexShader( const std::string& path ) override;
+	virtual D3D11PixelShader* GetPixelShader( const std::string& path ) override;
 
-	std::unique_ptr< D3D11InputLayout > GetInputLayout( const D3D11VertexShader& vertexShader, const D3D11VertexBuffer& vertexBuffer ) const;
-	std::unique_ptr< D3D11VertexBuffer > GetVertexBuffer( const Vertex* vertices, Uint32 amount ) const;
-	std::unique_ptr< D3D11IndexBuffer > GetIndexBuffer( const Uint32* indices, Uint32 amount ) const;
+	virtual std::unique_ptr< IInputLayout > GetInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const override;
+	virtual std::unique_ptr< IVertexBuffer > GetVertexBuffer( const IVertices& vertices ) const;
+	virtual std::unique_ptr< IIndexBuffer > GetIndexBuffer( const Uint32* indices, Uint32 amount ) const override;
 
 private:
 	void InitializeSwapChainAndContext( Uint32 width, Uint32 height, const D3D11Window& window );
@@ -46,7 +53,7 @@ private:
 
 	std::unique_ptr< D3D11Window > m_window;
 	std::unique_ptr< D3D11Device > m_device;
-	std::unique_ptr< D3D11Context > m_context;
+	std::unique_ptr< D3D11RenderContext > m_context;
 	std::unique_ptr< D3D11Swapchain > m_swapChain;
 	std::unique_ptr< D3D11RenderTargetView > m_renderTargetView;
 

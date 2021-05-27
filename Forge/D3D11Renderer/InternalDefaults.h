@@ -2,6 +2,7 @@
 
 #include "../Core/PublicDefaults.h"
 #include "../Math/PublicDefaults.h"
+#include "../Renderer/PublicDefaults.h"
 
 #include <Windows.h>
 #pragma comment(lib, "d3d11.lib")

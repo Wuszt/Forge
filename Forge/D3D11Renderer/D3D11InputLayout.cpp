@@ -3,7 +3,7 @@
 #include "D3D11Device.h"
 #include "D3D11VertexShader.h"
 
-D3D11InputLayout::D3D11InputLayout( D3D11Context* contextPtr, const D3D11Device& device, const D3D11VertexShader& vertexShader, const D3D11VertexBuffer& vertexBuffer )
+D3D11InputLayout::D3D11InputLayout( D3D11RenderContext* contextPtr, const D3D11Device& device, const D3D11VertexShader& vertexShader, const D3D11VertexBuffer& vertexBuffer )
 	: m_contextPtr( contextPtr )
 {
 	auto hr = device.GetDevice()->CreateInputLayout( D3D11VertexBuffer::ElementType::GetLayout(), D3D11VertexBuffer::ElementType::GetElementsAmount(),

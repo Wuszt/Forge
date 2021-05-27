@@ -2,7 +2,7 @@
 #include "D3D11Renderer.h"
 #include "D3D11Window.h"
 #include "D3D11Device.h"
-#include "D3D11Context.h"
+#include "D3D11RenderContext.h"
 #include "D3D11Swapchain.h"
 #include "D3D11RenderTargetView.h"
 #include "D3D11VertexBuffer.h"
@@ -35,17 +35,17 @@ D3D11PixelShader* D3D11Renderer::GetPixelShader( const std::string& path )
 	return m_pixelShaders.back().get();
 }
 
-std::unique_ptr< D3D11InputLayout > D3D11Renderer::GetInputLayout( const D3D11VertexShader& vertexShader, const D3D11VertexBuffer& vertexBuffer ) const
+std::unique_ptr< IInputLayout > D3D11Renderer::GetInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const
 {
-	return std::make_unique< D3D11InputLayout >( GetContext(), *m_device, vertexShader, vertexBuffer );
+	return std::make_unique< D3D11InputLayout >( GetContext(), *m_device, static_cast< const D3D11VertexShader& >( vertexShader ), static_cast<const D3D11VertexBuffer&>( vertexBuffer )  );
 }
 
-std::unique_ptr< D3D11VertexBuffer > D3D11Renderer::GetVertexBuffer( const Vertex* vertices, Uint32 amount ) const
+std::unique_ptr< IVertexBuffer > D3D11Renderer::GetVertexBuffer( const IVertices& vertices ) const
 {
-	return std::make_unique< D3D11VertexBuffer >( GetContext(), *m_device, vertices, amount );
+	return std::make_unique< D3D11VertexBuffer >( GetContext(), *m_device, static_cast< const ID3D11Vertices& >( vertices ) );
 }
 
-std::unique_ptr< D3D11IndexBuffer > D3D11Renderer::GetIndexBuffer( const Uint32* indices, Uint32 amount ) const
+std::unique_ptr< IIndexBuffer > D3D11Renderer::GetIndexBuffer( const Uint32* indices, Uint32 amount ) const
 {
 	return std::make_unique< D3D11IndexBuffer >( GetContext(), *m_device, indices, amount );
 }
@@ -64,7 +64,7 @@ void D3D11Renderer::InitializeSwapChainAndContext( Uint32 width, Uint32 height, 
 	FORGE_ASSERT( result == S_OK );
 
 	m_device = std::make_unique< D3D11Device >( d3d11Device );
-	m_context = std::make_unique< D3D11Context >( d3d11DevCon );
+	m_context = std::make_unique< D3D11RenderContext >( d3d11DevCon );
 	m_swapChain = std::make_unique< D3D11Swapchain >( swapChain );
 }
 
@@ -78,6 +78,5 @@ void D3D11Renderer::InitializeViewport( Uint32 width, Uint32 height )
 	viewport.Width = static_cast< Float >( width );
 	viewport.Height = static_cast< Float >( height );
 
-	//Set the Viewport
 	m_context->GetDeviceContext()->RSSetViewports( 1, &viewport );
 }

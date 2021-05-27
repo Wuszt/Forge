@@ -4,7 +4,7 @@
 #include "D3D11SwapChain.h"
 #include "D3D11Texture.h"
 
-D3D11RenderTargetView::D3D11RenderTargetView( D3D11Context* contextPtr, const D3D11Device& device, const D3D11Swapchain& swapChain )
+D3D11RenderTargetView::D3D11RenderTargetView( D3D11RenderContext* contextPtr, const D3D11Device& device, const D3D11Swapchain& swapChain )
 	: m_contextPtr( contextPtr )
 {
 	auto backBuffer = swapChain.GetBackBuffer();

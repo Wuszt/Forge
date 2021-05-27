@@ -18,10 +18,49 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Fpch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="IIndexBuffer.cpp" />
+    <ClCompile Include="IInputLayout.cpp" />
+    <ClCompile Include="IPixelShader.cpp" />
+    <ClCompile Include="IRenderContext.cpp" />
+    <ClCompile Include="IRenderer.cpp" />
+    <ClCompile Include="IRenderTargetView.cpp" />
+    <ClCompile Include="ISwapchain.cpp" />
+    <ClCompile Include="IVertexBuffer.cpp" />
+    <ClCompile Include="IVertexShader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Fpch.h" />
+    <ClInclude Include="IIndexBuffer.h" />
+    <ClInclude Include="IInputLayout.h" />
+    <ClInclude Include="InternalDefaults.h" />
+    <ClInclude Include="IPixelShader.h" />
+    <ClInclude Include="IRenderContext.h" />
+    <ClInclude Include="IRenderer.h" />
+    <ClInclude Include="IRenderTargetView.h" />
+    <ClInclude Include="ISwapchain.h" />
+    <ClInclude Include="IVertexBuffer.h" />
+    <ClInclude Include="IVertexShader.h" />
+    <ClInclude Include="PublicDefaults.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.vcxproj">
+      <Project>{38e97199-f4e4-4704-b916-dd286525c84b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Math\Math.vcxproj">
+      <Project>{4ee1f241-1190-4a8f-be2a-2054bcab3709}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{062BAC3D-0EA5-48E2-98EA-58215896E1EA}</ProjectGuid>
-    <RootNamespace>D3D11Renderer</RootNamespace>
+    <ProjectGuid>{B80E49A4-1D06-4643-9EF0-34E4E56781AD}</ProjectGuid>
+    <RootNamespace>Renderer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -130,48 +169,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="D3D11RenderContext.cpp" />
-    <ClCompile Include="D3D11Device.cpp" />
-    <ClCompile Include="D3D11IndexBuffer.cpp" />
-    <ClCompile Include="D3D11InputLayout.cpp" />
-    <ClCompile Include="D3D11PixelShader.cpp" />
-    <ClCompile Include="D3D11Renderer.cpp" />
-    <ClCompile Include="D3D11RenderTargetView.cpp" />
-    <ClCompile Include="D3D11VertexShader.cpp" />
-    <ClCompile Include="D3D11Swapchain.cpp" />
-    <ClCompile Include="D3D11Texture.cpp" />
-    <ClCompile Include="Fpch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="D3D11Window.cpp" />
-    <ClCompile Include="D3D11VertexBuffer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="D3D11RenderContext.h" />
-    <ClInclude Include="D3D11Device.h" />
-    <ClInclude Include="D3D11IndexBuffer.h" />
-    <ClInclude Include="D3D11InputLayout.h" />
-    <ClInclude Include="D3D11PixelShader.h" />
-    <ClInclude Include="D3D11Renderer.h" />
-    <ClInclude Include="D3D11RenderTargetView.h" />
-    <ClInclude Include="D3D11VertexShader.h" />
-    <ClInclude Include="D3D11Swapchain.h" />
-    <ClInclude Include="D3D11Texture.h" />
-    <ClInclude Include="Fpch.h" />
-    <ClInclude Include="InternalDefaults.h" />
-    <ClInclude Include="PublicDefaults.h" />
-    <ClInclude Include="D3D11Window.h" />
-    <ClInclude Include="D3D11VertexBuffer.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Renderer\Renderer.vcxproj">
-      <Project>{b80e49a4-1d06-4643-9ef0-34e4e56781ad}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

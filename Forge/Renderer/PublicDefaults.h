@@ -1,0 +1,10 @@
+#pragma once
+#include "IRenderer.h"
+#include "IIndexBuffer.h"
+#include "IInputLayout.h"
+#include "IPixelShader.h"
+#include "IRenderContext.h"
+#include "IRenderTargetView.h"
+#include "ISwapchain.h"
+#include "IVertexBuffer.h"
+#include "IVertexShader.h"

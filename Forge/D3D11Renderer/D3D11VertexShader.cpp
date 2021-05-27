@@ -2,7 +2,7 @@
 #include "D3D11VertexShader.h"
 #include "D3D11Device.h"
 
-D3D11VertexShader::D3D11VertexShader( D3D11Context* contextPtr, const D3D11Device& device, const std::string& path )
+D3D11VertexShader::D3D11VertexShader( D3D11RenderContext* contextPtr, const D3D11Device& device, const std::string& path )
 	: m_contextPtr( contextPtr )
 {
 	HRESULT result;

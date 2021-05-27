@@ -2,7 +2,7 @@
 #include "D3D11IndexBuffer.h"
 #include "D3D11Device.h"
 
-D3D11IndexBuffer::D3D11IndexBuffer( D3D11Context* contextPtr, const D3D11Device& device, const Uint32* indices, Uint32 amount )
+D3D11IndexBuffer::D3D11IndexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const Uint32* indices, Uint32 amount )
 	: m_contextPtr( contextPtr )
 {
 	D3D11_BUFFER_DESC indexBufferDesc;

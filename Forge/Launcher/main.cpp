@@ -4,38 +4,33 @@
 #include "../Math/PublicDefaults.h"
 
 #include <Windows.h>
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3dcompiler.lib")
 
-#include <d3d11.h>
-#include <d3dcompiler.h>
-#include <DirectXMath.h>
-
-#include "../D3D11Renderer/PublicDefaults.h"
+#include "../Renderer/PublicDefaults.h"
+#include "../D3D11Renderer/D3D11VertexBuffer.h"
 
 Int32 main()
 {
-	D3D11Renderer renderer( 700, 700 );
+	auto renderer = IRenderer::CreateRenderer( 700, 700 );
 
-	auto vertexShader = renderer.GetVertexShader( "Effects.fx" );
-	auto pixelShader = renderer.GetPixelShader( "Effects.fx" );
+	auto vertexShader = renderer->GetVertexShader( "Effects.fx" );
+	auto pixelShader = renderer->GetPixelShader( "Effects.fx" );
 
 	vertexShader->Set();
 	pixelShader->Set();
 
-	Vertex v[] =
+	D3D11Vertices< D3D11Vertex > vertices;
+	vertices.m_vertices =
 	{
-		Vertex( Vector3( -0.5f, -0.5f, 0.5f),Vector4(  1.0f, 0.0f, 0.0f, 1.0f) ),
-		Vertex( Vector3( -0.5f,  0.5f, 0.5f),Vector4(  0.0f, 1.0f, 0.0f, 1.0f) ),
-		Vertex( Vector3( 0.5f,  0.5f, 0.5f), Vector4( 0.0f, 0.0f, 1.0f, 1.0f )),
-		Vertex( Vector3( 0.5f, -0.5f, 0.5f), Vector4( 0.0f, 1.0f, 0.0f, 1.0f )),
+		D3D11Vertex( Vector3( -0.5f, -0.5f, 0.5f ), Vector4( 1.0f, 0.0f, 0.0f, 1.0f ) ),
+		D3D11Vertex( Vector3( -0.5f, 0.5f, 0.5f ), Vector4( 0.0f, 1.0f, 0.0f, 1.0f ) ),
+		D3D11Vertex( Vector3( 0.5f, 0.5f, 0.5f ), Vector4( 0.0f, 0.0f, 1.0f, 1.0f ) ),
+		D3D11Vertex( Vector3( 0.5f, -0.5f, 0.5f ), Vector4( 0.0f, 1.0f, 0.0f, 1.0f ) ),
 	};
 
-	auto vertexBuffer = renderer.GetVertexBuffer( v, sizeof( v ) / sizeof( Vertex ) );
+	auto vertexBuffer = renderer->GetVertexBuffer( vertices );
 	vertexBuffer->Set();
 
-	auto inputLayout = renderer.GetInputLayout( *vertexShader, *vertexBuffer );
+	auto inputLayout = renderer->GetInputLayout( *vertexShader, *vertexBuffer );
 	inputLayout->Set();
 
 	Uint32 indices[] =
@@ -43,7 +38,7 @@ Int32 main()
 		0,1,2,0,2,3
 	};
 
-	auto indexBuffer = renderer.GetIndexBuffer( indices, sizeof( indices ) / sizeof( Uint32 ) );
+	auto indexBuffer = renderer->GetIndexBuffer( indices, sizeof( indices ) / sizeof( Uint32 ) );
 	indexBuffer->Set( 0 );
 
 	MSG msg;
@@ -67,9 +62,9 @@ Int32 main()
 		}
 		else
 		{
-			renderer.GetRenderTargetView()->Clear();
-			renderer.GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
-			renderer.GetSwapchain()->Present();
+			renderer->GetRenderTargetView()->Clear( Vector4( 0.0f, 0.0f, 0.0f, 1.0f ) );
+			renderer->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
+			renderer->GetSwapchain()->Present();
 		}
 	}
 }
