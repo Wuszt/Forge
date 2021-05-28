@@ -2,14 +2,92 @@
 #include "D3D11VertexBuffer.h"
 #include "D3D11Device.h"
 
+//const D3D11_INPUT_ELEMENT_DESC D3D11Vertex::c_layout[] =
+//{
+//		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+//		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+//};
+//
+//const D3D11_INPUT_ELEMENT_DESC* const& D3D11Vertex::GetLayout()
+//{
+//	std::vector< D3D11_INPUT_ELEMENT_DESC > layout;
+//
+//	return c_layout;
+//}
+//
+//Uint32 D3D11Vertex::GetElementsAmount()
+//{
+//	return ARRAYSIZE( c_layout );
+//}
+
+const char* InputTypeToString( InputType type )
+{
+	if( type == InputType::Position )
+	{
+		static const char* txt = "POSITION";
+		return txt;
+	}
+	else if( type == InputType::Color )
+	{
+		static const char* txt = "COLOR";
+		return txt;
+	}
+	else
+	{
+		FORGE_FATAL( "Not known input type" );
+		return "";
+	}
+}
+
+DXGI_FORMAT InputFormatToD3D11Format( InputFormat format )
+{
+	if( format == InputFormat::R32G32B32 )
+	{
+		return DXGI_FORMAT_R32G32B32_FLOAT;
+	}
+	else if( format == InputFormat::R32G32B32A32 )
+	{
+		return DXGI_FORMAT_R32G32B32A32_FLOAT;
+	}
+	else
+	{
+		FORGE_FATAL( "Not known format" );
+		return DXGI_FORMAT_UNKNOWN;
+	}
+}
+
+D3D11_INPUT_CLASSIFICATION InputClassificationToD3D11Classification( InputClassification classification )
+{
+	if( classification == InputClassification::PerVertex )
+	{
+		return D3D11_INPUT_PER_VERTEX_DATA;
+	}
+	else
+	{
+		FORGE_FATAL( "Not known classification" );
+		return D3D11_INPUT_PER_VERTEX_DATA;
+	}
+}
+
+void ConstructLayout( const std::vector< InputElement >& inputElements, std::vector< D3D11_INPUT_ELEMENT_DESC >& outLayout )
+{
+	Uint32 currentOffset = 0u;
+	for( auto it : inputElements )
+	{
+		outLayout.push_back( { InputTypeToString( it.m_inputType ), 0, InputFormatToD3D11Format( it.m_inputFormat ), 0, currentOffset, InputClassificationToD3D11Classification( it.m_classification ), 0 } );
+		currentOffset += it.m_size;
+	}
+}
+
 D3D11VertexBuffer::D3D11VertexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const IVertices& vertices )
 	: m_contextPtr( contextPtr )
+	, m_stride( vertices.GetVertexByteWidth() )
 {
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	ZeroMemory( &vertexBufferDesc, sizeof( vertexBufferDesc ) );
 
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = vertices.GetByteWidth();
+	vertexBufferDesc.ByteWidth = vertices.GetVerticesByteWidth();
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
@@ -20,7 +98,9 @@ D3D11VertexBuffer::D3D11VertexBuffer( D3D11RenderContext* contextPtr, const D3D1
 	vertexBufferData.pSysMem = vertices.GetData();
 	auto hr = device.GetDevice()->CreateBuffer( &vertexBufferDesc, &vertexBufferData, &m_buffer );
 
-	FORGE_ASSERT( hr == S_OK ); 
+	FORGE_ASSERT( hr == S_OK );
+
+	ConstructLayout( vertices.GetInputElements(), m_layout );
 }
 
 D3D11VertexBuffer::~D3D11VertexBuffer()
@@ -36,18 +116,12 @@ void D3D11VertexBuffer::Set()
 	m_contextPtr->GetDeviceContext()->IASetVertexBuffers( 0, 1, &GetBuffer(), &stride, &offset );
 }
 
-const D3D11_INPUT_ELEMENT_DESC D3D11Vertex::c_layout[] =
+const D3D11_INPUT_ELEMENT_DESC* D3D11VertexBuffer::GetLayout() const
 {
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-};
-
-const D3D11_INPUT_ELEMENT_DESC* const& D3D11Vertex::GetLayout()
-{
-	return c_layout;
+	return m_layout.data();
 }
 
-Uint32 D3D11Vertex::GetElementsAmount()
+Uint32 D3D11VertexBuffer::GetElementsAmount() const
 {
-	return ARRAYSIZE( c_layout );
+	return static_cast< Uint32 >( m_layout.size() );
 }

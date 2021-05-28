@@ -42,7 +42,7 @@ std::unique_ptr< IInputLayout > D3D11Renderer::GetInputLayout( const IVertexShad
 
 std::unique_ptr< IVertexBuffer > D3D11Renderer::GetVertexBuffer( const IVertices& vertices ) const
 {
-	return std::make_unique< D3D11VertexBuffer >( GetContext(), *m_device, static_cast< const ID3D11Vertices& >( vertices ) );
+	return std::make_unique< D3D11VertexBuffer >( GetContext(), *m_device, vertices );
 }
 
 std::unique_ptr< IIndexBuffer > D3D11Renderer::GetIndexBuffer( const Uint32* indices, Uint32 amount ) const

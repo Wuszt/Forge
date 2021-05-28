@@ -6,7 +6,6 @@
 #include <Windows.h>
 
 #include "../Renderer/PublicDefaults.h"
-#include "../D3D11Renderer/D3D11VertexBuffer.h"
 
 Int32 main()
 {
@@ -18,13 +17,13 @@ Int32 main()
 	vertexShader->Set();
 	pixelShader->Set();
 
-	D3D11Vertices< D3D11Vertex > vertices;
+	Vertices< IVertex< InputPosition, InputColor > > vertices;
 	vertices.m_vertices =
 	{
-		D3D11Vertex( Vector3( -0.5f, -0.5f, 0.5f ), Vector4( 1.0f, 0.0f, 0.0f, 1.0f ) ),
-		D3D11Vertex( Vector3( -0.5f, 0.5f, 0.5f ), Vector4( 0.0f, 1.0f, 0.0f, 1.0f ) ),
-		D3D11Vertex( Vector3( 0.5f, 0.5f, 0.5f ), Vector4( 0.0f, 0.0f, 1.0f, 1.0f ) ),
-		D3D11Vertex( Vector3( 0.5f, -0.5f, 0.5f ), Vector4( 0.0f, 1.0f, 0.0f, 1.0f ) ),
+		{ InputPosition( -0.5f, -0.5f, 0.5f ), InputColor( 1.0f, 0.0f, 0.0f, 1.0f ) },
+		{ InputPosition( -0.5f, 0.5f, 0.5f ), InputColor( 0.0f, 1.0f, 0.0f, 1.0f ) },
+		{ InputPosition( 0.5f, 0.5f, 0.5f ), InputColor( 0.0f, 0.0f, 1.0f, 1.0f ) },
+		{ InputPosition( 0.5f, -0.5f, 0.5f ), InputColor( 0.0f, 1.0f, 0.0f, 1.0f ) },
 	};
 
 	auto vertexBuffer = renderer->GetVertexBuffer( vertices );
