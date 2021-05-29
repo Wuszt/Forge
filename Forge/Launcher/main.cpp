@@ -6,13 +6,24 @@
 #include <Windows.h>
 
 #include "../Renderer/PublicDefaults.h"
+#include <iostream>
 
 Int32 main()
 {
+	Time::Initialize();
+
+	StopWatch stopWatch;
+
 	auto renderer = IRenderer::CreateRenderer( 700, 700 );
+
+	std::cout << "Renderer creating time duration: " << stopWatch.GetDuration() << "\n";
+
+	stopWatch.Reset();
 
 	auto vertexShader = renderer->GetVertexShader( "Effects.fx" );
 	auto pixelShader = renderer->GetPixelShader( "Effects.fx" );
+
+	std::cout << "Shaders compilation time: " << stopWatch.GetDuration() << "\n";
 
 	vertexShader->Set();
 	pixelShader->Set();
@@ -26,8 +37,12 @@ Int32 main()
 		{ InputPosition( 0.5f, -0.5f, 0.5f ), InputColor( 0.0f, 1.0f, 0.0f, 1.0f ) },
 	};
 
+	stopWatch.Reset();
+
 	auto vertexBuffer = renderer->GetVertexBuffer( vertices );
 	vertexBuffer->Set();
+
+	std::cout << "VertexBuffer creation time: " << stopWatch.GetDuration() << "\n";
 
 	auto inputLayout = renderer->GetInputLayout( *vertexShader, *vertexBuffer );
 	inputLayout->Set();
@@ -44,6 +59,8 @@ Int32 main()
 	ZeroMemory( &msg, sizeof( MSG ) );
 	while( true )
 	{
+		Time::Update();
+
 		BOOL PeekMessageL(
 			LPMSG lpMsg,
 			HWND hWnd,

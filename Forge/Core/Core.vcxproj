@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core.h" />
+    <ClInclude Include="Time.h" />
+    <ClInclude Include="WindowsTime.h" />
     <ClInclude Include="ExternalIncludes.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="InternalDefaults.h" />
@@ -27,6 +29,8 @@
     <ClInclude Include="Types.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Time.cpp" />
+    <ClCompile Include="WindowsTime.cpp" />
     <ClCompile Include="Fpch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
