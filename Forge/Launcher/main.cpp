@@ -2,10 +2,11 @@
 
 #include "../Core/PublicDefaults.h"
 #include "../Math/PublicDefaults.h"
-
-#include <Windows.h>
-
 #include "../Renderer/PublicDefaults.h"
+
+#include "../Core/IWindow.h"
+#include "../Core/IInput.h"
+
 #include <iostream>
 
 Int32 main()
@@ -14,7 +15,9 @@ Int32 main()
 
 	StopWatch stopWatch;
 
-	auto renderer = IRenderer::CreateRenderer( 700, 700 );
+	auto window = IWindow::CreateNewWindow( 700, 700 );
+
+	auto renderer = IRenderer::CreateRenderer( *window );
 
 	std::cout << "Renderer creating time duration: " << stopWatch.GetDuration() << "\n";
 
@@ -55,32 +58,13 @@ Int32 main()
 	auto indexBuffer = renderer->GetIndexBuffer( indices, sizeof( indices ) / sizeof( Uint32 ) );
 	indexBuffer->Set( 0 );
 
-	MSG msg;
-	ZeroMemory( &msg, sizeof( MSG ) );
 	while( true )
 	{
 		Time::Update();
+		window->Update();
 
-		BOOL PeekMessageL(
-			LPMSG lpMsg,
-			HWND hWnd,
-			Uint32 wMsgFilterMin,
-			Uint32 wMsgFilterMax,
-			Uint32 wRemoveMsg
-		);
-
-		if( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
-		{
-			if( msg.message == WM_QUIT )
-				break;
-			TranslateMessage( &msg );
-			DispatchMessage( &msg );
-		}
-		else
-		{
-			renderer->GetRenderTargetView()->Clear( Vector4( 0.0f, 0.0f, 0.0f, 1.0f ) );
-			renderer->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
-			renderer->GetSwapchain()->Present();
-		}
+		renderer->GetRenderTargetView()->Clear( Vector4( 0.0f, 0.0f, 0.0f, 1.0f ) );
+		renderer->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
+		renderer->GetSwapchain()->Present();
 	}
 }

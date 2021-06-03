@@ -1,5 +1,7 @@
 #include "Fpch.h"
-#include "D3D11Window.h"
+#include "WindowsWindow.h"
+#include <Windows.h>
+#include "WindowsInput.h"
 
 namespace
 {
@@ -11,7 +13,7 @@ namespace
 		LONG_PTR ptr = GetWindowLongPtr( hwnd, GWLP_USERDATA );
 
 
-		D3D11Window* windowPtr = reinterpret_cast<D3D11Window*>( ptr );
+		WindowsWindow* windowPtr = reinterpret_cast< WindowsWindow* >( ptr );
 		if( windowPtr->OnWindowEvent( msg, wParam, lParam ) )
 		{
 			return 0;
@@ -24,9 +26,9 @@ namespace
 	}
 }
 
-const LPCTSTR c_windowClassName = "Window";
+const LPCTSTR c_windowClassName = L"Window";
 
-D3D11Window::InitializationState InternalInitialize( HINSTANCE hInstance, Uint32 width, Uint32 height, HWND& outHWND )
+WindowsWindow::InitializationState InternalInitialize( HINSTANCE hInstance, Uint32 width, Uint32 height, HWND& outHWND )
 {
 	typedef struct _WNDCLASS {
 		Uint32 cbSize;
@@ -61,16 +63,19 @@ D3D11Window::InitializationState InternalInitialize( HINSTANCE hInstance, Uint32
 	{
 		//MessageBox( NULL, "Error registering class",
 		//	"Error", MB_OK | MB_ICONERROR );
-		return D3D11Window::InitializationState::Error_Registering_Class;
+		return WindowsWindow::InitializationState::Error_Registering_Class;
 	}
+
+	RECT wr = { 0, 0, static_cast< Int32 >( width ), static_cast< Int32 >( height ) };
+	AdjustWindowRect( &wr, WS_OVERLAPPEDWINDOW, false );
 
 	outHWND = CreateWindowEx(
 		NULL,
 		c_windowClassName,
-		"Window",
+		L"Window",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
-		width, height,
+		wr.right - wr.left, wr.bottom - wr.top,
 		NULL,
 		NULL,
 		hInstance,
@@ -81,29 +86,72 @@ D3D11Window::InitializationState InternalInitialize( HINSTANCE hInstance, Uint32
 	{
 		//MessageBox( NULL, "Error creating window",
 		//	"Error", MB_OK | MB_ICONERROR );
-		return D3D11Window::InitializationState::Error_Creating_Window;
+		return WindowsWindow::InitializationState::Error_Creating_Window;
 	}
 
 	ShowWindow( outHWND, SW_SHOWDEFAULT );
 	UpdateWindow( outHWND );
 
-	return D3D11Window::InitializationState::Initialized;
+	return WindowsWindow::InitializationState::Initialized;
 }
 
-D3D11Window::D3D11Window( HINSTANCE hInstance, Uint32 width, Uint32 height )
+WindowsWindow::WindowsWindow( Uint32 width, Uint32 height )
+	: m_width( width )
+	, m_height( height )
 {
-	Initialize( hInstance, width, height );
+	auto hInstance = GetModuleHandle( NULL );
+
+	Initialize( hInstance );
 	FORGE_ASSERT( IsInitialized() );
 
 	SetWindowLongPtr( m_hwnd, GWLP_USERDATA, HandleToLong( this ) );
+
+
+	m_input = std::make_unique< WindowsInput >( hInstance, *this );
 }
 
-void D3D11Window::Initialize( HINSTANCE hInstance, Uint32 width, Uint32 height )
+WindowsWindow::~WindowsWindow() = default;
+
+void WindowsWindow::Initialize( HINSTANCE hInstance )
 {
-	m_initializationState = InternalInitialize( hInstance, width, height, m_hwnd );
+	m_initializationState = InternalInitialize( hInstance, m_width, m_height, m_hwnd );
 }
 
-Bool D3D11Window::OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam )
+void WindowsWindow::Update()
+{
+	m_input->OnBeforeUpdate();
+
+	while( true )
+	{
+		MSG msg;
+		ZeroMemory( &msg, sizeof( MSG ) );
+
+		BOOL PeekMessageL(
+			LPMSG lpMsg,
+			HWND hWnd,
+			Uint32 wMsgFilterMin,
+			Uint32 wMsgFilterMax,
+			Uint32 wRemoveMsg
+		);
+
+		if( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+		{
+			//if( msg.message == WM_QUIT )
+			//	break;
+
+			m_input->OnEvent( msg );
+
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
+		}
+		else
+		{
+			break;
+		}
+	}
+}
+
+Bool WindowsWindow::OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam )
 {
 	switch( msg )
 	{
@@ -120,4 +168,9 @@ Bool D3D11Window::OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam )
 	}
 
 	return false;
+}
+
+IInput* WindowsWindow::GetInput() const
+{
+	return m_input.get();
 }

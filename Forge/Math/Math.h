@@ -34,4 +34,22 @@ namespace Math
 	{
 		return Abs( val ) <= epsilon;
 	}
+
+	template< class T >
+	FORGE_INLINE const T& Min( const T& l, const T& r )
+	{
+		return r > l ? l : r;
+	}
+
+	template< class T >
+	FORGE_INLINE const T& Max( const T& l, const T& r )
+	{
+		return r > l ? r : l;
+	}
+
+	template< class T >
+	FORGE_INLINE const T& Clamp( const T& min, const T& max, const T& value )
+	{
+		return Min( Max( min, value ), max );
+	}
 }

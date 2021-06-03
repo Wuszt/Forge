@@ -1,4 +1,5 @@
 #pragma once
+#include "IWindow.h"
 
 struct HINSTANCE__;
 typedef HINSTANCE__* HINSTANCE;
@@ -6,7 +7,9 @@ typedef HINSTANCE__* HINSTANCE;
 struct HWND__;
 typedef HWND__* HWND;
 
-class D3D11Window
+class WindowsInput;
+
+class WindowsWindow : public IWindow
 {
 public:
 	enum class InitializationState
@@ -17,7 +20,8 @@ public:
 		Error_Registering_Class
 	};
 
-	D3D11Window( HINSTANCE hInstance, Uint32 width, Uint32 height );
+	WindowsWindow( Uint32 width, Uint32 height );
+	~WindowsWindow();
 
 	FORGE_INLINE HWND GetHWND() const
 	{
@@ -36,13 +40,33 @@ public:
 		return m_initializationState;
 	}
 
+	virtual void Update() override;
+
 	Bool OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam );
+
+	FORGE_INLINE virtual Uint32 GetHeight() const override
+	{
+		return m_height;
+	}
+
+	FORGE_INLINE virtual Uint32 GetWidth() const override
+	{
+		return m_width;
+	}
+
+
+	virtual IInput* GetInput() const override;
 
 private:
 
-	void Initialize( HINSTANCE hInstance, Uint32 width, Uint32 height );
+	void Initialize( HINSTANCE hInstance );
 
 	HWND m_hwnd = nullptr;
 	InitializationState m_initializationState = InitializationState::NotInitialized;
+
+	Uint32 m_width = 0u;
+	Uint32 m_height = 0u;
+
+	std::unique_ptr< WindowsInput > m_input;
 };
 

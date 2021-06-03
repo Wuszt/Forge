@@ -1,0 +1,53 @@
+#pragma once
+#include "IInput.h"
+#include "../Math/Vector2.h"
+#include "../Math/Vector3.h"
+
+class WindowsWindow;
+struct IDirectInputDevice8;
+struct Vector2;
+struct Vector3;
+
+struct HINSTANCE__;
+typedef HINSTANCE__* HINSTANCE;
+
+struct HWND__;
+typedef HWND__* HWND;
+
+struct tagMSG;
+
+class WindowsInput : public IInput
+{
+public:
+	WindowsInput( HINSTANCE hInstance, const WindowsWindow& window );
+	~WindowsInput();
+
+	void OnBeforeUpdate();
+
+	void OnEvent( const tagMSG& msg );
+	virtual Bool GetKey( IInput::Key key ) const override;
+	virtual Bool GetKeyDown( IInput::Key key ) const override;
+	virtual Bool GetKeyUp( IInput::Key key ) const override;
+	virtual const Vector3& GetMouseDeltaAxises() const override;
+	virtual Bool GetMouseButton( MouseButton button ) const override;
+	virtual Bool GetMouseButtonDown( MouseButton button ) const override;
+	virtual Bool GetMouseButtonUp( MouseButton button ) const override;
+	virtual const Vector2& GetMouseCurrentAxises() const override;
+
+private:
+	void OnKeyboardUpdate( IInput::Key key, Bool pressed );
+	void OnMouseUpdate( IInput::Key key, Bool pressed );
+	void OnMouseWheelUpdate( Int32 delta );
+
+	static const Uint32 c_keysAmount = 256;
+
+	std::array< Bool, c_keysAmount > m_keys;
+	std::array< Bool, c_keysAmount > m_keysPressed;
+	std::array< Bool, c_keysAmount > m_keysReleased;
+
+	Vector2 m_mouseCurrentAxises;
+	Vector3 m_mouseDeltaAxises;
+
+	const WindowsWindow& m_window;
+};
+

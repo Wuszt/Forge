@@ -1,0 +1,147 @@
+#include "Fpch.h"
+#include "../Math/PublicDefaults.h"
+#include <dinput.h>
+#include "WindowsInput.h"
+#include "WindowsWindow.h"
+#include <iostream>
+#include <winuser.h>
+
+#pragma comment (lib, "dinput8.lib")
+#pragma comment (lib, "dxguid.lib")
+
+WindowsInput::WindowsInput( HINSTANCE hInstance, const WindowsWindow& window )
+	: m_window( window )
+{
+	memset( m_keys.data(), 0, sizeof( Bool ) * 256 );
+	memset( m_keysPressed.data(), 0, sizeof( Bool ) * 256 );
+	memset( m_keysReleased.data(), 0, sizeof( Bool ) * 256 );
+}
+
+WindowsInput::~WindowsInput() = default;
+
+void WindowsInput::OnBeforeUpdate()
+{
+	memset( m_keysPressed.data(), 0, sizeof( Bool ) * 256 );
+	memset( m_keysReleased.data(), 0, sizeof( Bool ) * 256 );
+
+	POINT tmp;
+	GetCursorPos( &tmp );
+	ScreenToClient( m_window.GetHWND(), &tmp );
+
+	Vector2 prevPos = m_mouseCurrentAxises;
+
+	m_mouseCurrentAxises = Vector2( static_cast<Float>( tmp.x ), static_cast<Float>( tmp.y ) );
+	m_mouseCurrentAxises.X = Math::Clamp( 0.0f, static_cast<Float>( m_window.GetWidth() ), m_mouseCurrentAxises.X ) - static_cast<Float>( m_window.GetWidth() ) * 0.5f;
+	m_mouseCurrentAxises.Y = -( Math::Clamp( 0.0f, static_cast<Float>( m_window.GetHeight() ), m_mouseCurrentAxises.Y ) - static_cast<Float>( m_window.GetHeight() ) * 0.5f );
+
+	m_mouseDeltaAxises = Vector3( m_mouseCurrentAxises - prevPos, 0.0f );
+}
+
+void WindowsInput::OnEvent( const tagMSG& msg )
+{
+	switch( msg.message )
+	{
+	case WM_SYSKEYDOWN:
+	case WM_KEYDOWN:
+		OnKeyboardUpdate( static_cast<IInput::Key>( msg.wParam ), true );
+		break;
+
+	case WM_SYSKEYUP:
+	case WM_KEYUP:
+		OnKeyboardUpdate( static_cast<IInput::Key>( msg.wParam ), false );
+		break;
+
+	case WM_LBUTTONDOWN:
+		OnMouseUpdate( IInput::Key::LeftMouseBtn, true );
+		break;
+
+	case WM_RBUTTONDOWN:
+		OnMouseUpdate( IInput::Key::RightMouseBtn, true );
+		break;
+
+	case WM_MBUTTONDOWN:
+		OnMouseUpdate( IInput::Key::MidMouseBtn, true );
+		break;
+
+	case WM_LBUTTONUP:
+		OnMouseUpdate( IInput::Key::LeftMouseBtn, false );
+		break;
+
+	case WM_RBUTTONUP:
+		OnMouseUpdate( IInput::Key::RightMouseBtn, false );
+		break;
+
+	case WM_MBUTTONUP:
+		OnMouseUpdate( IInput::Key::MidMouseBtn, false );
+		break;
+
+	case WM_MOUSEWHEEL:
+		OnMouseWheelUpdate( GET_WHEEL_DELTA_WPARAM( msg.wParam ) );
+		break;
+	}
+}
+
+void WindowsInput::OnKeyboardUpdate( IInput::Key key, Bool pressed )
+{
+	FORGE_ASSERT( key != IInput::Key::LeftMouseBtn && key != IInput::Key::MidMouseBtn && key != IInput::Key::RightMouseBtn );
+
+	m_keysPressed[ static_cast<Uint32>( key ) ] = !m_keys[ static_cast< Uint32 >( key ) ] && pressed;
+	m_keysReleased[ static_cast<Uint32>( key ) ] = m_keys[ static_cast<Uint32>( key ) ] && !pressed;
+
+	m_keys[ static_cast<Uint32>( key ) ] = pressed;
+}
+
+void WindowsInput::OnMouseUpdate( IInput::Key key, Bool pressed )
+{
+	FORGE_ASSERT( key == IInput::Key::LeftMouseBtn || key == IInput::Key::MidMouseBtn || key == IInput::Key::RightMouseBtn );
+
+	m_keysPressed[ static_cast< Uint32 >( key ) ] = !m_keys[ static_cast< Uint32 >( key ) ] && pressed;
+	m_keysReleased[ static_cast< Uint32 >( key ) ] = m_keys[ static_cast< Uint32 >( key ) ] && !pressed;
+
+	m_keys[ static_cast< Uint32 >( key ) ] = pressed;
+}
+
+void WindowsInput::OnMouseWheelUpdate( Int32 delta )
+{
+	m_mouseDeltaAxises.Z += static_cast< Float >( delta );
+}
+
+Bool WindowsInput::GetKey( IInput::Key key ) const
+{
+	return m_keys[ static_cast< Uint32>( key ) ];
+}
+
+Bool WindowsInput::GetKeyDown( IInput::Key key ) const
+{
+	return m_keysPressed[ static_cast< Uint32 >( key ) ];
+}
+
+Bool WindowsInput::GetKeyUp( IInput::Key key ) const
+{
+	return m_keysReleased[ static_cast< Uint32 >( key ) ];
+}
+
+const Vector3& WindowsInput::GetMouseDeltaAxises() const
+{
+	return m_mouseDeltaAxises;
+}
+
+Bool WindowsInput::GetMouseButton( MouseButton button ) const
+{
+	return m_keys[ static_cast< Uint32 >( button ) ];
+}
+
+Bool WindowsInput::GetMouseButtonDown( MouseButton button ) const
+{
+	return m_keysPressed[ static_cast< Uint32 >( button ) ];
+}
+
+Bool WindowsInput::GetMouseButtonUp( MouseButton button ) const
+{
+	return m_keysReleased[ static_cast< Uint32 >( button ) ];
+}
+
+const Vector2& WindowsInput::GetMouseCurrentAxises() const
+{
+	return m_mouseCurrentAxises;
+}

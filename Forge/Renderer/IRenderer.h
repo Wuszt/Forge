@@ -8,12 +8,13 @@ class IPixelShader;
 class IVertexBuffer;
 class IInputLayout;
 class IIndexBuffer;
+class IWindow;
 struct IVertices;
 
 class IRenderer
 {
 public:
-	static std::unique_ptr< IRenderer > CreateRenderer( Uint32 width, Uint32 height );
+	static std::unique_ptr< IRenderer > CreateRenderer( const IWindow& window );
 
 	virtual ~IRenderer() = default;
 

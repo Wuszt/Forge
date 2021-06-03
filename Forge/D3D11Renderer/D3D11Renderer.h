@@ -18,11 +18,12 @@ class IVertexShader;
 class IVertexBuffer;
 class IInputLayout;
 class IIndexBuffer;
+class WindowsWindow;
 
 class D3D11Renderer : public IRenderer
 {
 public:
-	D3D11Renderer( Uint32 width, Uint32 height );
+	D3D11Renderer( const IWindow& window );
 	~D3D11Renderer();
 
 	virtual FORGE_INLINE D3D11RenderContext* GetContext() const override
@@ -48,10 +49,9 @@ public:
 	virtual std::unique_ptr< IIndexBuffer > GetIndexBuffer( const Uint32* indices, Uint32 amount ) const override;
 
 private:
-	void InitializeSwapChainAndContext( Uint32 width, Uint32 height, const D3D11Window& window );
+	void InitializeSwapChainAndContext( const WindowsWindow& window );
 	void InitializeViewport( Uint32 width, Uint32 height );
 
-	std::unique_ptr< D3D11Window > m_window;
 	std::unique_ptr< D3D11Device > m_device;
 	std::unique_ptr< D3D11RenderContext > m_context;
 	std::unique_ptr< D3D11Swapchain > m_swapChain;

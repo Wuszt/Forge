@@ -21,10 +21,10 @@ struct Vector2
 
 	FORGE_INLINE static Vector2 ZEROS() { return Vector2( 0.0f ); }
 	FORGE_INLINE static Vector2 ONES() { return Vector2( 1.0f ); }
-	FORGE_INLINE static Vector2 PLUS_MAX() { return Vector2( std::numeric_limits< Float >::max() ); }
-	FORGE_INLINE static Vector2 PLUS_INF() { return Vector2( std::numeric_limits< Float >::infinity() ); }
-	FORGE_INLINE static Vector2 MINUS_MAX() { return Vector2( -std::numeric_limits< Float >::max() ); }
-	FORGE_INLINE static Vector2 MINUS_INF() { return Vector2( -std::numeric_limits< Float >::infinity() ); }
+	static Vector2 PLUS_MAX();
+	static Vector2 PLUS_INF();
+	static Vector2 MINUS_MAX();
+	static Vector2 MINUS_INF();
 	FORGE_INLINE static Vector2 EX() { return Vector2( 1.0f, 0.0f ); }
 	FORGE_INLINE static Vector2 EY() { return Vector2( 0.0f, 1.0f ); }
 

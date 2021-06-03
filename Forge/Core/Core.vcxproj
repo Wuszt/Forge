@@ -20,16 +20,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core.h" />
+    <ClInclude Include="IInput.h" />
+    <ClInclude Include="IWindow.h" />
     <ClInclude Include="Time.h" />
+    <ClInclude Include="WindowsInput.h" />
     <ClInclude Include="WindowsTime.h" />
     <ClInclude Include="ExternalIncludes.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="PublicDefaults.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="IInput.cpp" />
+    <ClCompile Include="IWindow.cpp" />
     <ClCompile Include="Time.cpp" />
+    <ClCompile Include="WindowsInput.cpp" />
     <ClCompile Include="WindowsTime.cpp" />
     <ClCompile Include="Fpch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -37,6 +44,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="WindowsWindow.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

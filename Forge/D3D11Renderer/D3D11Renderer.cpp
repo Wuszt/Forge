@@ -1,24 +1,22 @@
 #include "Fpch.h"
 #include "D3D11Renderer.h"
-#include "D3D11Window.h"
 #include "D3D11Device.h"
 #include "D3D11RenderContext.h"
 #include "D3D11Swapchain.h"
 #include "D3D11RenderTargetView.h"
 #include "D3D11VertexBuffer.h"
+#include "../Core/WindowsWindow.h"
 
-D3D11Renderer::D3D11Renderer( Uint32 width, Uint32 height )
+D3D11Renderer::D3D11Renderer( const IWindow& window )
 {
-	m_window = std::make_unique< D3D11Window >( GetModuleHandle( NULL ), width, height );
-	FORGE_ASSERT( m_window->IsInitialized() );
-
-	InitializeSwapChainAndContext( width, height, *m_window );
+	FORGE_ASSERT( dynamic_cast< const WindowsWindow* >( &window ) );
+	InitializeSwapChainAndContext( static_cast< const WindowsWindow& >( window ) );
 
 	m_renderTargetView = std::make_unique< D3D11RenderTargetView >( GetContext(), *m_device, *m_swapChain );
 
 	m_renderTargetView->Set();
 
-	InitializeViewport( width, height );
+	InitializeViewport( window.GetWidth(), window.GetHeight() );
 }
 
 D3D11Renderer::~D3D11Renderer() = default;
@@ -37,6 +35,7 @@ D3D11PixelShader* D3D11Renderer::GetPixelShader( const std::string& path )
 
 std::unique_ptr< IInputLayout > D3D11Renderer::GetInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const
 {
+	FORGE_ASSERT( dynamic_cast< const D3D11VertexShader* >( &vertexShader ) );
 	return std::make_unique< D3D11InputLayout >( GetContext(), *m_device, static_cast< const D3D11VertexShader& >( vertexShader ), static_cast<const D3D11VertexBuffer&>( vertexBuffer )  );
 }
 
@@ -50,9 +49,9 @@ std::unique_ptr< IIndexBuffer > D3D11Renderer::GetIndexBuffer( const Uint32* ind
 	return std::make_unique< D3D11IndexBuffer >( GetContext(), *m_device, indices, amount );
 }
 
-void D3D11Renderer::InitializeSwapChainAndContext( Uint32 width, Uint32 height, const D3D11Window& window )
+void D3D11Renderer::InitializeSwapChainAndContext( const WindowsWindow& window )
 {
-	auto swapChainDesc = D3D11Swapchain::GetSwapChainDescription( width, height, window.GetHWND() );
+	auto swapChainDesc = D3D11Swapchain::GetSwapChainDescription( window.GetWidth(), window.GetHeight(), window.GetHWND() );
 
 	IDXGISwapChain* swapChain;
 	ID3D11Device* d3d11Device;

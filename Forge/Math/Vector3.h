@@ -4,21 +4,39 @@ struct Vector4;
 
 struct Vector3
 {
-	Float X = 0.0f;
-	Float Y = 0.0f;
-	Float Z = 0.0f;
+	union
+	{
+		struct
+		{
+			Float X;
+			Float Y;
+		};
+		Vector2 vec2;
+	};
+
+	Float Z;
 
 	FORGE_INLINE static Vector3 EX() { return Vector3( 1.0f, 0.0f, 0.0f ); }
 	FORGE_INLINE static Vector3 EY() { return Vector3( 0.0f, 1.0f, 0.0f ); }
 	FORGE_INLINE static Vector3 EZ() { return Vector3( 0.0f, 0.0f, 1.0f ); }
 	FORGE_INLINE static Vector3 ZEROS() { return Vector3(); }
 	FORGE_INLINE static Vector3 ONES() { return Vector3( 1.0f, 1.0f, 1.0f ); }
-	FORGE_INLINE static Vector3 PLUS_MAX() { return Vector3( std::numeric_limits< Float >::max() ); }
-	FORGE_INLINE static Vector3 MINUS_MAX() { return -Vector3( std::numeric_limits< Float >::max() ); }
-	FORGE_INLINE static Vector3 PLUS_INF() { return Vector3( std::numeric_limits< Float >::infinity() ); }
-	FORGE_INLINE static Vector3 MINUS_INF() { return -Vector3( std::numeric_limits< Float >::infinity() ); }
+	static Vector3 PLUS_MAX();
+	static Vector3 MINUS_MAX();
+	static Vector3 PLUS_INF();
+	static Vector3 MINUS_INF();
 
-	Vector3() {}
+	Vector3()
+	: X( 0.0f )
+	, Y( 0.0f )
+	, Z( 0.0f )
+	{}
+
+	Vector3( Vector2 vec, Float z )
+		: X( vec.X )
+		, Y( vec.Y )
+		, Z( z )
+	{}
 
 	Vector3( Float x, Float y, Float z )
 		: X( x )
@@ -146,6 +164,11 @@ struct Vector3
 		   Y * vec.Z - Z * vec.Y,
 		   Z * vec.X - X * vec.Z,
 		   X * vec.Y - Y * vec.X );
+   }
+
+   FORGE_INLINE const Vector2& AsVector2() const
+   {
+	   return vec2;
    }
 };
 
