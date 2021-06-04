@@ -170,5 +170,7 @@ struct Vector3
    {
 	   return vec2;
    }
+
+   std::string ToDebugString() const;
 };
 

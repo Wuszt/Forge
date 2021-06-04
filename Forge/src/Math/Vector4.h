@@ -235,5 +235,7 @@ struct Vector4
 	{
 		return &X;
 	}
+
+	std::string ToDebugString() const;
 };
 

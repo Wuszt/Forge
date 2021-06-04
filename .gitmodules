@@ -1,0 +1,3 @@
+[submodule "Forge/External/spdlog"]
+	path = Forge/External/spdlog
+	url = https://github.com/gabime/spdlog.git

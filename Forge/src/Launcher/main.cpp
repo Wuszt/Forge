@@ -7,26 +7,27 @@
 #include "../Core/IWindow.h"
 #include "../Core/IInput.h"
 
-#include <iostream>
-
 Int32 main()
 {
 	Time::Initialize();
 
 	StopWatch stopWatch;
 
+	stopWatch.Reset();
 	auto window = IWindow::CreateNewWindow( 700, 700 );
+	FORGE_LOG( "Window creating time duration: %f sec", stopWatch.GetDuration() );
 
+	stopWatch.Reset();
 	auto renderer = IRenderer::CreateRenderer( *window );
 
-	std::cout << "Renderer creating time duration: " << stopWatch.GetDuration() << "\n";
+	FORGE_LOG( "Renderer creating time duration: %f sec", stopWatch.GetDuration() );
 
 	stopWatch.Reset();
 
 	auto vertexShader = renderer->GetVertexShader( "Effects.fx" );
 	auto pixelShader = renderer->GetPixelShader( "Effects.fx" );
 
-	std::cout << "Shaders compilation time: " << stopWatch.GetDuration() << "\n";
+	FORGE_LOG( "Shaders compilation time: %f sec", stopWatch.GetDuration() );
 
 	vertexShader->Set();
 	pixelShader->Set();
@@ -45,7 +46,7 @@ Int32 main()
 	auto vertexBuffer = renderer->GetVertexBuffer( vertices );
 	vertexBuffer->Set();
 
-	std::cout << "VertexBuffer creation time: " << stopWatch.GetDuration() << "\n";
+	FORGE_LOG( "VertexBuffer creation time: %f sec", stopWatch.GetDuration() );
 
 	auto inputLayout = renderer->GetInputLayout( *vertexShader, *vertexBuffer );
 	inputLayout->Set();
@@ -62,6 +63,11 @@ Int32 main()
 	{
 		Time::Update();
 		window->Update();
+
+		if( window->GetInput()->GetMouseButtonDown( IInput::MouseButton::LeftButton ) )
+		{
+			FORGE_LOG( "Clicked on: %s", window->GetInput()->GetMouseCurrentAxises().ToDebugString().c_str() );
+		}
 
 		renderer->GetRenderTargetView()->Clear( Vector4( 0.0f, 0.0f, 0.0f, 1.0f ) );
 		renderer->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );

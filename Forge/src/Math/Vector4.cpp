@@ -19,3 +19,10 @@ Bool Vector4::IsAlmostZero( Float eps ) const
 {
 	return Math::IsAlmostZero( X, eps ) && Math::IsAlmostZero( Y, eps ) && Math::IsAlmostZero( Z, eps ) && Math::IsAlmostZero( W, eps );
 }
+
+std::string Vector4::ToDebugString() const
+{
+	std::ostringstream stringStream;
+	stringStream << "[" << X << ", " << Y << ", " << Z << ", " << W << "]";
+	return stringStream.str();
+}
