@@ -16,6 +16,16 @@ namespace Math
 		return cos( rad );
 	}
 
+	FORGE_INLINE Float Ctg( Float rad )
+	{
+		return 1.0f / tan( rad );
+	}
+
+	FORGE_INLINE Float Tg( Float rad )
+	{
+		return tan( rad );
+	}
+
 	template< class T >
 	FORGE_INLINE void Swap( T& l, T& r )
 	{

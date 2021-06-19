@@ -19,6 +19,7 @@ class IVertexBuffer;
 class IInputLayout;
 class IIndexBuffer;
 class WindowsWindow;
+class ICamera;
 
 class D3D11Renderer : public IRenderer
 {
@@ -47,6 +48,8 @@ public:
 	virtual std::unique_ptr< IInputLayout > GetInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const override;
 	virtual std::unique_ptr< IVertexBuffer > GetVertexBuffer( const IVertices& vertices ) const;
 	virtual std::unique_ptr< IIndexBuffer > GetIndexBuffer( const Uint32* indices, Uint32 amount ) const override;
+
+	virtual void BeginScene( const ICamera& camera ) override;
 
 private:
 	void InitializeSwapChainAndContext( const WindowsWindow& window );

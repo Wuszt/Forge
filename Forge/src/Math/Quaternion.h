@@ -58,7 +58,7 @@ struct Quaternion
 
 	Quaternion( const Vector4& vec );
 
-	Quaternion( Float yaw, Float pitch, Float roll );
+	Quaternion( Float xRotation, Float yRotation, Float zRotation );
 
 	~Quaternion();
 

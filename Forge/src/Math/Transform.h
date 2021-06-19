@@ -13,6 +13,16 @@ public:
 
 	~Transform();
 
+	FORGE_INLINE void SetPosition( const Vector3& position )
+	{
+		m_position = position;
+	}
+
+	FORGE_INLINE void SetOrientation( const Quaternion& orientation )
+	{
+		m_orientation = orientation;
+	}
+
 	FORGE_INLINE const Vector4& GetPosition() const
 	{
 		return m_position;

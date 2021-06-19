@@ -6,6 +6,7 @@
 #include "D3D11RenderTargetView.h"
 #include "D3D11VertexBuffer.h"
 #include "../Core/WindowsWindow.h"
+#include "../Renderer/ICamera.h"
 
 D3D11Renderer::D3D11Renderer( const IWindow& window )
 {
@@ -23,13 +24,13 @@ D3D11Renderer::~D3D11Renderer() = default;
 
 D3D11VertexShader* D3D11Renderer::GetVertexShader( const std::string& path )
 {
-	m_vertexShaders.emplace_back( std::make_unique< D3D11VertexShader >( GetContext(), *m_device, path ) );
+	m_vertexShaders.emplace_back( std::make_unique< D3D11VertexShader >( GetContext(), *m_device, "Shaders\\" + path ) );
 	return m_vertexShaders.back().get();
 }
 
 D3D11PixelShader* D3D11Renderer::GetPixelShader( const std::string& path )
 {
-	m_pixelShaders.emplace_back( std::make_unique< D3D11PixelShader >( GetContext(), *m_device, path ) );
+	m_pixelShaders.emplace_back( std::make_unique< D3D11PixelShader >( GetContext(), *m_device, "Shaders\\" + path ) );
 	return m_pixelShaders.back().get();
 }
 
@@ -47,6 +48,38 @@ std::unique_ptr< IVertexBuffer > D3D11Renderer::GetVertexBuffer( const IVertices
 std::unique_ptr< IIndexBuffer > D3D11Renderer::GetIndexBuffer( const Uint32* indices, Uint32 amount ) const
 {
 	return std::make_unique< D3D11IndexBuffer >( GetContext(), *m_device, indices, amount );
+}
+
+struct cbPerObject
+{
+	Matrix WVP;
+};
+
+ID3D11Buffer* m_buff;
+cbPerObject m_cb;
+
+void D3D11Renderer::BeginScene( const ICamera& camera )
+{
+	static Bool initialized = false;
+
+	if( !initialized )
+	{
+		D3D11_BUFFER_DESC cbbd;
+		ZeroMemory( &cbbd, sizeof( D3D11_BUFFER_DESC ) );
+
+		cbbd.Usage = D3D11_USAGE_DEFAULT;
+		cbbd.ByteWidth = sizeof( cbPerObject );
+		cbbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+		m_device->GetDevice()->CreateBuffer( &cbbd, nullptr, &m_buff );
+
+		initialized = true;
+	}
+
+	m_cb.WVP = camera.GetViewProjectionMatrix();
+
+	GetContext()->GetDeviceContext()->UpdateSubresource( m_buff, 0, nullptr, &m_cb, 0, 0 );
+	GetContext()->GetDeviceContext()->VSSetConstantBuffers( 0, 1, &m_buff );
 }
 
 void D3D11Renderer::InitializeSwapChainAndContext( const WindowsWindow& window )

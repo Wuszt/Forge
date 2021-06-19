@@ -25,6 +25,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ICamera.cpp" />
     <ClCompile Include="IIndexBuffer.cpp" />
     <ClCompile Include="IInputLayout.cpp" />
     <ClCompile Include="IPixelShader.cpp" />
@@ -34,9 +35,11 @@
     <ClCompile Include="ISwapchain.cpp" />
     <ClCompile Include="IVertexBuffer.cpp" />
     <ClCompile Include="IVertexShader.cpp" />
+    <ClCompile Include="PerspectiveCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fpch.h" />
+    <ClInclude Include="ICamera.h" />
     <ClInclude Include="IIndexBuffer.h" />
     <ClInclude Include="IInputLayout.h" />
     <ClInclude Include="InternalDefaults.h" />
@@ -47,6 +50,7 @@
     <ClInclude Include="ISwapchain.h" />
     <ClInclude Include="IVertexBuffer.h" />
     <ClInclude Include="IVertexShader.h" />
+    <ClInclude Include="PerspectiveCamera.h" />
     <ClInclude Include="PublicDefaults.h" />
   </ItemGroup>
   <ItemGroup>
