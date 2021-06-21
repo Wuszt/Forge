@@ -1,3 +1,6 @@
 [submodule "Forge/External/spdlog"]
 	path = Forge/External/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "Forge/src/UnitTests"]
+	path = Forge/src/UnitTests
+	url = https://github.com/Wuszt/ForgeUTs.git
