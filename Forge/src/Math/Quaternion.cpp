@@ -9,13 +9,9 @@ Vector4 Quaternion::Transform( const Vector4& vec ) const
 	float crossMult = 2.0f*r;
 	float pMult = crossMult * r - 1.0f;
 
-	Vector4 result( pMult*vec.X + vMult * i + crossMult * ( j*vec.Z - k * vec.Y ),
+	return Vector4( pMult*vec.X + vMult * i + crossMult * ( j*vec.Z - k * vec.Y ),
 		pMult*vec.Y + vMult * j + crossMult * ( k*vec.X - i * vec.Z ),
 		pMult*vec.Z + vMult * k + crossMult * ( i*vec.Y - j * vec.X ), vec.W );
-
-	result.Normalize4();
-
-	return result;
 }
 
 void Quaternion::SetAxisAngle( const Vector4& vec, Float angle )
