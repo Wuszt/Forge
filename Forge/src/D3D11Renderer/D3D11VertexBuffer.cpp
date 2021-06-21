@@ -71,11 +71,13 @@ D3D11_INPUT_CLASSIFICATION InputClassificationToD3D11Classification( InputClassi
 
 void ConstructLayout( const std::vector< InputElement >& inputElements, std::vector< D3D11_INPUT_ELEMENT_DESC >& outLayout )
 {
+	Uint32 semanticIndices[ static_cast< Uint32 >( InputType::Count ) ] = { 0 };
+
 	Uint32 currentOffset = 0u;
-	for( auto it : inputElements )
+	for( auto it = inputElements.begin(); it != inputElements.end(); ++it )
 	{
-		outLayout.push_back( { InputTypeToString( it.m_inputType ), 0, InputFormatToD3D11Format( it.m_inputFormat ), 0, currentOffset, InputClassificationToD3D11Classification( it.m_classification ), 0 } );
-		currentOffset += it.m_size;
+		outLayout.push_back( { InputTypeToString( it->m_inputType ), semanticIndices[ static_cast< Uint32 >( it->m_inputType ) ]++, InputFormatToD3D11Format( it->m_inputFormat ), 0, currentOffset, InputClassificationToD3D11Classification( it->m_classification ), 0 } );
+		currentOffset += it->m_size;
 	}
 }
 

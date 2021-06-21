@@ -3,7 +3,8 @@
 enum class InputType
 {
 	Position,
-	Color
+	Color,
+	Count
 };
 
 enum class InputFormat
