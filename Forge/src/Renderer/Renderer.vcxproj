@@ -26,6 +26,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ICamera.cpp" />
+    <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="IIndexBuffer.cpp" />
     <ClCompile Include="IInputLayout.cpp" />
     <ClCompile Include="IPixelShader.cpp" />
@@ -40,6 +41,7 @@
   <ItemGroup>
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="ICamera.h" />
+    <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="IIndexBuffer.h" />
     <ClInclude Include="IInputLayout.h" />
     <ClInclude Include="InternalDefaults.h" />

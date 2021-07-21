@@ -1,4 +1,5 @@
 #pragma once
+#include "ConstantBuffer.h"
 
 class IRenderContext;
 class IRenderTargetView;
@@ -11,6 +12,7 @@ class IIndexBuffer;
 class IWindow;
 class ICamera;
 struct IVertices;
+class IConstantBufferImpl;
 
 class IRenderer
 {
@@ -26,10 +28,23 @@ public:
 	virtual IVertexShader* GetVertexShader( const std::string& path ) = 0;
 	virtual IPixelShader* GetPixelShader( const std::string& path ) = 0;
 
-	virtual std::unique_ptr< IInputLayout > GetInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const = 0;
-	virtual std::unique_ptr< IVertexBuffer > GetVertexBuffer( const IVertices& vertices ) const = 0;
-	virtual std::unique_ptr< IIndexBuffer > GetIndexBuffer( const Uint32* indices, Uint32 amount ) const = 0;
+	virtual std::unique_ptr< IInputLayout > CreateInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const = 0;
+	virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const IVertices& vertices ) const = 0;
+	virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const = 0;
 
-	virtual void BeginScene( const ICamera& camera ) = 0;
+	virtual void BeginScene() = 0;
+
+protected:
+	virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl( void* data, Uint32 dataSize ) const = 0;
+
+public:
+	template< class T >
+	std::unique_ptr< ConstantBuffer< T > > GetConstantBuffer() const
+	{
+		auto constBuffer = std::make_unique< ConstantBuffer< T > >();
+		auto& data = constBuffer->GetData();
+		constBuffer->SetImpl( std::move( CreateConstantBufferImpl( &data, sizeof( data ) ) ) );
+		return constBuffer;
+	}
 };
 

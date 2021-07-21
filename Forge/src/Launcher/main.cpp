@@ -56,12 +56,12 @@ Int32 main()
 
 	stopWatch.Reset();
 
-	auto vertexBuffer = renderer->GetVertexBuffer( vertices );
+	auto vertexBuffer = renderer->CreateVertexBuffer( vertices );
 	vertexBuffer->Set();
 
 	FORGE_LOG( "VertexBuffer creation time: %f sec", stopWatch.GetDuration() );
 
-	auto inputLayout = renderer->GetInputLayout( *vertexShader, *vertexBuffer );
+	auto inputLayout = renderer->CreateInputLayout( *vertexShader, *vertexBuffer );
 	inputLayout->Set();
 
 	Uint32 indices[ 6 * 6 ] =
@@ -74,7 +74,7 @@ Int32 main()
 		4, 0, 5, 0, 1, 5
 	};
 
-	auto indexBuffer = renderer->GetIndexBuffer( indices, sizeof( indices ) / sizeof( Uint32 ) );
+	auto indexBuffer = renderer->CreateIndexBuffer( indices, sizeof( indices ) / sizeof( Uint32 ) );
 	indexBuffer->Set( 0 );
 
 	camera->SetPosition( { 0.0f, 0.0f, 0.0f } );
@@ -172,7 +172,19 @@ Int32 main()
 
 		FORGE_LOG( "Camera pos: %s", pos.ToDebugString().c_str() );
 
-		renderer->BeginScene( *camera );
+		{
+			struct cbPerObject
+			{
+				Matrix WVP;
+			};
+
+			auto buff = renderer->GetConstantBuffer< cbPerObject >();
+
+			buff->GetData().WVP = camera->GetViewProjectionMatrix();
+			buff->SetVS( 1 );
+		}
+
+		renderer->BeginScene();
 		renderer->GetRenderTargetView()->Clear( Vector4( 0.0f, 0.0f, 0.0f, 1.0f ) );
 		renderer->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
 		renderer->GetSwapchain()->Present();

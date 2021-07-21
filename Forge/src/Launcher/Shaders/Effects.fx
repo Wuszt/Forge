@@ -1,4 +1,9 @@
-cbuffer cbPerObject
+cbuffer cbPerFrame : register(b0)
+{
+    float time;
+};
+
+cbuffer cbPerObject : register(b1)
 {
     float4x4 WVP;
 };

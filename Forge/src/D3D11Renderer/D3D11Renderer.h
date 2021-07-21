@@ -45,11 +45,14 @@ public:
 	virtual D3D11VertexShader* GetVertexShader( const std::string& path ) override;
 	virtual D3D11PixelShader* GetPixelShader( const std::string& path ) override;
 
-	virtual std::unique_ptr< IInputLayout > GetInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const override;
-	virtual std::unique_ptr< IVertexBuffer > GetVertexBuffer( const IVertices& vertices ) const;
-	virtual std::unique_ptr< IIndexBuffer > GetIndexBuffer( const Uint32* indices, Uint32 amount ) const override;
+	virtual std::unique_ptr< IInputLayout > CreateInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const override;
+	virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const IVertices& vertices ) const;
+	virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const override;
 
-	virtual void BeginScene( const ICamera& camera ) override;
+	virtual void BeginScene() override;
+
+protected:
+	virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl( void* data, Uint32 dataSize ) const override;
 
 private:
 	void InitializeSwapChainAndContext( const WindowsWindow& window );

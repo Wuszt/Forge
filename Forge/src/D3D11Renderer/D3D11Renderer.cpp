@@ -7,11 +7,12 @@
 #include "D3D11VertexBuffer.h"
 #include "../Core/WindowsWindow.h"
 #include "../Renderer/ICamera.h"
+#include "D3D11ConstantBufferImpl.h"
 
 D3D11Renderer::D3D11Renderer( const IWindow& window )
 {
-	FORGE_ASSERT( dynamic_cast< const WindowsWindow* >( &window ) );
-	InitializeSwapChainAndContext( static_cast< const WindowsWindow& >( window ) );
+	FORGE_ASSERT( dynamic_cast<const WindowsWindow*>( &window ) );
+	InitializeSwapChainAndContext( static_cast<const WindowsWindow&>( window ) );
 
 	m_renderTargetView = std::make_unique< D3D11RenderTargetView >( GetContext(), *m_device, *m_swapChain );
 
@@ -34,52 +35,41 @@ D3D11PixelShader* D3D11Renderer::GetPixelShader( const std::string& path )
 	return m_pixelShaders.back().get();
 }
 
-std::unique_ptr< IInputLayout > D3D11Renderer::GetInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const
+std::unique_ptr< IInputLayout > D3D11Renderer::CreateInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const
 {
-	FORGE_ASSERT( dynamic_cast< const D3D11VertexShader* >( &vertexShader ) );
-	return std::make_unique< D3D11InputLayout >( GetContext(), *m_device, static_cast< const D3D11VertexShader& >( vertexShader ), static_cast<const D3D11VertexBuffer&>( vertexBuffer )  );
+	FORGE_ASSERT( dynamic_cast<const D3D11VertexShader*>( &vertexShader ) );
+	return std::make_unique< D3D11InputLayout >( GetContext(), *m_device, static_cast<const D3D11VertexShader&>( vertexShader ), static_cast<const D3D11VertexBuffer&>( vertexBuffer ) );
 }
 
-std::unique_ptr< IVertexBuffer > D3D11Renderer::GetVertexBuffer( const IVertices& vertices ) const
+std::unique_ptr< IVertexBuffer > D3D11Renderer::CreateVertexBuffer( const IVertices& vertices ) const
 {
 	return std::make_unique< D3D11VertexBuffer >( GetContext(), *m_device, vertices );
 }
 
-std::unique_ptr< IIndexBuffer > D3D11Renderer::GetIndexBuffer( const Uint32* indices, Uint32 amount ) const
+std::unique_ptr< IIndexBuffer > D3D11Renderer::CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const
 {
 	return std::make_unique< D3D11IndexBuffer >( GetContext(), *m_device, indices, amount );
 }
 
-struct cbPerObject
+void D3D11Renderer::BeginScene()
 {
-	Matrix WVP;
-};
-
-ID3D11Buffer* m_buff;
-cbPerObject m_cb;
-
-void D3D11Renderer::BeginScene( const ICamera& camera )
-{
-	static Bool initialized = false;
-
-	if( !initialized )
 	{
-		D3D11_BUFFER_DESC cbbd;
-		ZeroMemory( &cbbd, sizeof( D3D11_BUFFER_DESC ) );
+		struct cbPerFrame
+		{
+			Float time;
+			Float padding[ 3 ];
+		};
 
-		cbbd.Usage = D3D11_USAGE_DEFAULT;
-		cbbd.ByteWidth = sizeof( cbPerObject );
-		cbbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		auto buff = GetConstantBuffer< cbPerFrame >();
 
-		m_device->GetDevice()->CreateBuffer( &cbbd, nullptr, &m_buff );
-
-		initialized = true;
+		buff->GetData().time = Time::GetTime();
+		buff->SetVS( 0 );
 	}
+}
 
-	m_cb.WVP = camera.GetViewProjectionMatrix();
-
-	GetContext()->GetDeviceContext()->UpdateSubresource( m_buff, 0, nullptr, &m_cb, 0, 0 );
-	GetContext()->GetDeviceContext()->VSSetConstantBuffers( 0, 1, &m_buff );
+std::unique_ptr< IConstantBufferImpl > D3D11Renderer::CreateConstantBufferImpl( void* data, Uint32 dataSize ) const
+{
+	return std::make_unique< D3D11ConstantBufferImpl >( m_context.get(), m_device.get(), data, dataSize );
 }
 
 void D3D11Renderer::InitializeSwapChainAndContext( const WindowsWindow& window )
@@ -107,8 +97,8 @@ void D3D11Renderer::InitializeViewport( Uint32 width, Uint32 height )
 
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
-	viewport.Width = static_cast< Float >( width );
-	viewport.Height = static_cast< Float >( height );
+	viewport.Width = static_cast<Float>( width );
+	viewport.Height = static_cast<Float>( height );
 
 	m_context->GetDeviceContext()->RSSetViewports( 1, &viewport );
 }
