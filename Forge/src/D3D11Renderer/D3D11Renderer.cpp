@@ -1,12 +1,6 @@
 #include "Fpch.h"
 #include "D3D11Renderer.h"
-#include "D3D11Device.h"
-#include "D3D11RenderContext.h"
-#include "D3D11Swapchain.h"
-#include "D3D11RenderTargetView.h"
-#include "D3D11VertexBuffer.h"
 #include "../Core/WindowsWindow.h"
-#include "../Renderer/ICamera.h"
 #include "D3D11ConstantBufferImpl.h"
 
 D3D11Renderer::D3D11Renderer( const IWindow& window )
@@ -14,14 +8,22 @@ D3D11Renderer::D3D11Renderer( const IWindow& window )
 	FORGE_ASSERT( dynamic_cast<const WindowsWindow*>( &window ) );
 	InitializeSwapChainAndContext( static_cast<const WindowsWindow&>( window ) );
 
-	m_renderTargetView = std::make_unique< D3D11RenderTargetView >( GetContext(), *m_device, *m_swapChain );
+	m_renderTargetView = std::make_unique< D3D11RenderTargetView >( GetContext(), *m_device, std::move( m_swapChain->GetBackBuffer() ) );
+	m_depthStencilBuffer = std::make_unique< D3D11DepthStencilBuffer >( *m_device, m_context.get(), window.GetWidth(), window.GetHeight() );
 
-	m_renderTargetView->Set();
+	std::vector< IRenderTargetView* > views{ m_renderTargetView.get() };
+
+	SetRenderTargets( views, m_depthStencilBuffer.get() );
 
 	InitializeViewport( window.GetWidth(), window.GetHeight() );
+
+	InitializeRasterizer();
 }
 
-D3D11Renderer::~D3D11Renderer() = default;
+D3D11Renderer::~D3D11Renderer()
+{
+	m_rasterizerState->Release();
+}
 
 D3D11VertexShader* D3D11Renderer::GetVertexShader( const std::string& path )
 {
@@ -49,6 +51,26 @@ std::unique_ptr< IVertexBuffer > D3D11Renderer::CreateVertexBuffer( const IVerti
 std::unique_ptr< IIndexBuffer > D3D11Renderer::CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const
 {
 	return std::make_unique< D3D11IndexBuffer >( GetContext(), *m_device, indices, amount );
+}
+
+void D3D11Renderer::SetRenderTargets( std::vector< IRenderTargetView* > rendererTargetViews, IDepthStencilBuffer* depthStencilBuffer )
+{
+	FORGE_ASSERT( dynamic_cast< D3D11DepthStencilBuffer* >( depthStencilBuffer ) );
+	SetRenderTargets( rendererTargetViews, static_cast< D3D11DepthStencilBuffer* >( depthStencilBuffer ) );
+}
+
+void D3D11Renderer::SetRenderTargets( std::vector< IRenderTargetView* > rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer )
+{
+	std::vector< ID3D11RenderTargetView* > views;
+	views.reserve( rendererTargetViews.size() );
+
+	for( const auto& target : rendererTargetViews )
+	{
+		FORGE_ASSERT( dynamic_cast<D3D11RenderTargetView*>( target ) );
+		views.emplace_back( static_cast<D3D11RenderTargetView*>( target )->GetRenderTargetView() );
+	}
+
+	m_context->GetDeviceContext()->OMSetRenderTargets( static_cast< Uint32 >( views.size() ), views.data(), m_depthStencilBuffer->GetView() );
 }
 
 void D3D11Renderer::BeginScene()
@@ -99,6 +121,27 @@ void D3D11Renderer::InitializeViewport( Uint32 width, Uint32 height )
 	viewport.TopLeftY = 0;
 	viewport.Width = static_cast<Float>( width );
 	viewport.Height = static_cast<Float>( height );
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
 
 	m_context->GetDeviceContext()->RSSetViewports( 1, &viewport );
+}
+
+void D3D11Renderer::InitializeRasterizer()
+{
+	D3D11_RASTERIZER_DESC rasterizerDesc;
+	ZeroMemory( &rasterizerDesc, sizeof( D3D11_RASTERIZER_DESC ) );
+	rasterizerDesc.AntialiasedLineEnable = false;
+	rasterizerDesc.CullMode = D3D11_CULL_BACK;;
+	rasterizerDesc.FrontCounterClockwise = true;
+	rasterizerDesc.DepthBias = 0;
+	rasterizerDesc.DepthBiasClamp = 0.0f;
+	rasterizerDesc.SlopeScaledDepthBias = 0.0f;
+	rasterizerDesc.DepthClipEnable = true;
+	rasterizerDesc.ScissorEnable = false;
+	rasterizerDesc.MultisampleEnable = false;
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+
+	m_device->GetDevice()->CreateRasterizerState( &rasterizerDesc, &m_rasterizerState );
+	m_context->GetDeviceContext()->RSSetState( m_rasterizerState );
 }

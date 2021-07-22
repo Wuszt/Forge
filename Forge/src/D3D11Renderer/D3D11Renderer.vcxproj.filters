@@ -54,6 +54,9 @@
     <ClCompile Include="D3D11ConstantBufferImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D3D11DepthStencilBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InternalDefaults.h">
@@ -99,6 +102,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D3D11ConstantBufferImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11DepthStencilBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

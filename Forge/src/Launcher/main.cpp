@@ -6,7 +6,7 @@
 
 #include "../Core/IWindow.h"
 #include "../Core/IInput.h"
-#include "../Renderer/PerspectiveCamera.h"
+#include "../Math/Random.h"
 
 Int32 main()
 {
@@ -14,7 +14,8 @@ Int32 main()
 	const Uint32 height = 900;
 	const Float aspectRatio = static_cast< Float >( width ) / static_cast< Float >( height );
 
-	std::unique_ptr< ICamera > camera = std::make_unique< PerspectiveCamera >( aspectRatio, FORGE_PI / 3.0f, 0.1f, 100.0f );
+	std::unique_ptr< ICamera > camera = std::make_unique< PerspectiveCamera >( aspectRatio, FORGE_PI / 3.0f, 0.1f, 2000.0f );
+	camera->SetPosition( { 0.0f, 0.0f, 50.0f } );
 
 	Time::Initialize();
 
@@ -77,8 +78,8 @@ Int32 main()
 	auto indexBuffer = renderer->CreateIndexBuffer( indices, sizeof( indices ) / sizeof( Uint32 ) );
 	indexBuffer->Set( 0 );
 
-	camera->SetPosition( { 0.0f, 0.0f, 0.0f } );
-
+	Math::Random rng;
+	Uint32 seed = rng.GetRaw();
 	while( true )
 	{
 		Time::Update();
@@ -123,7 +124,13 @@ Int32 main()
 		}
 
 		Vector3 pos = camera->GetPosition();
-		delta *= 4.0f;
+		delta *= 16.0f;
+
+		if( window->GetInput()->GetKey( IInput::Key::Shift ) )
+		{
+			delta *= 4.0f;
+		}
+
 		delta = camera->GetOrientation().Transform( delta );
 		pos += delta * Time::GetDeltaTime();
 		camera->SetPosition( pos );
@@ -170,23 +177,60 @@ Int32 main()
 			camera->SetTransform( Transform::IDENTITY() );
 		}
 
-		FORGE_LOG( "Camera pos: %s", pos.ToDebugString().c_str() );
-
-		{
-			struct cbPerObject
-			{
-				Matrix WVP;
-			};
-
-			auto buff = renderer->GetConstantBuffer< cbPerObject >();
-
-			buff->GetData().WVP = camera->GetViewProjectionMatrix();
-			buff->SetVS( 1 );
-		}
+		//FORGE_LOG( "Camera pos: %s", pos.ToDebugString().c_str() );
 
 		renderer->BeginScene();
 		renderer->GetRenderTargetView()->Clear( Vector4( 0.0f, 0.0f, 0.0f, 1.0f ) );
-		renderer->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
+		renderer->GetDepthStencilBuffer()->Clear();
+
+		struct cbPerObject
+		{
+			Matrix WVP;
+			Vector4 color;
+		};
+
+
+		//Ground
+		{
+			auto buff = renderer->GetConstantBuffer< cbPerObject >();
+
+			Matrix m;
+			m.SetTranslation( 0.0f, 0.0f, 0.0f );
+			m.SetScale( { 1000.0f, 1000.0f, 0.01f } );
+			buff->GetData().WVP = m * camera->GetViewProjectionMatrix();
+			buff->GetData().color = Vector4( 0.0f, 0.6f, 0.0f, 1.0f );
+			buff->SetVS( 1 );
+			renderer->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
+		}		
+
+		Math::Random rng( seed );
+		const Uint32 dim = 50u;
+		for( Uint32 i = 0; i < dim * dim; ++i )
+		{
+			if( rng.GetFloat() > 0.9f )
+			{
+				continue;
+			}
+
+			auto buff = renderer->GetConstantBuffer< cbPerObject >();
+
+			Matrix m;
+
+			Float scaleZ = rng.GetFloat( 20.0f, 100.0f );
+			Float scaleXY = rng.GetFloat( 10.0f, 20.0f );
+			m.SetScale( { scaleXY, scaleXY, scaleZ } );
+
+			Float x = static_cast<Float>( i % dim ) * 50.0f;
+			Float y = static_cast<Float>( i / dim ) * 50.0f;
+			m.SetTranslation( x - dim * 25, y - dim * 25, scaleZ );
+
+			buff->GetData().WVP = m * camera->GetViewProjectionMatrix();
+			buff->GetData().color = Vector4( rng.GetFloat(), rng.GetFloat(), rng.GetFloat(), 1.0f );
+			buff->SetVS( 1 );
+
+			renderer->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
+		}
+
 		renderer->GetSwapchain()->Present();
 	}
 }

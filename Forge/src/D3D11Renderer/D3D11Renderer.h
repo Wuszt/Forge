@@ -5,6 +5,7 @@
 #include "D3D11SwapChain.h"
 #include "D3D11VertexShader.h"
 #include "D3D11PixelShader.h"
+#include "D3D11DepthStencilBuffer.h"
 
 class D3D11Window;
 class D3D11Device;
@@ -20,6 +21,8 @@ class IInputLayout;
 class IIndexBuffer;
 class WindowsWindow;
 class ICamera;
+class D3D11DepthStencilBuffer;
+struct ID3D11RasterizerState;
 
 class D3D11Renderer : public IRenderer
 {
@@ -37,6 +40,11 @@ public:
 		return m_renderTargetView.get();
 	}
 
+	virtual FORGE_INLINE D3D11DepthStencilBuffer* GetDepthStencilBuffer() const override
+	{
+		return m_depthStencilBuffer.get();
+	}
+
 	virtual FORGE_INLINE D3D11Swapchain* GetSwapchain() const override
 	{
 		return m_swapChain.get();
@@ -49,14 +57,18 @@ public:
 	virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const IVertices& vertices ) const;
 	virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const override;
 
+	virtual void SetRenderTargets( std::vector< IRenderTargetView* > rendererTargetViews, IDepthStencilBuffer* depthStencilBuffer ) override;
+
 	virtual void BeginScene() override;
 
 protected:
 	virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl( void* data, Uint32 dataSize ) const override;
 
 private:
+	void SetRenderTargets( std::vector< IRenderTargetView* > rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer );
 	void InitializeSwapChainAndContext( const WindowsWindow& window );
 	void InitializeViewport( Uint32 width, Uint32 height );
+	void InitializeRasterizer();
 
 	std::unique_ptr< D3D11Device > m_device;
 	std::unique_ptr< D3D11RenderContext > m_context;
@@ -66,5 +78,9 @@ private:
 	//todo: create separate class for handling shaders
 	std::vector< std::unique_ptr< D3D11VertexShader > > m_vertexShaders;
 	std::vector< std::unique_ptr< D3D11PixelShader > > m_pixelShaders;
+
+	std::unique_ptr< D3D11DepthStencilBuffer > m_depthStencilBuffer;
+
+	ID3D11RasterizerState* m_rasterizerState = nullptr;
 };
 

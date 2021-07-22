@@ -132,6 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="D3D11ConstantBufferImpl.cpp" />
+    <ClCompile Include="D3D11DepthStencilBuffer.cpp" />
     <ClCompile Include="D3D11RenderContext.cpp" />
     <ClCompile Include="D3D11Device.cpp" />
     <ClCompile Include="D3D11IndexBuffer.cpp" />
@@ -152,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3D11ConstantBufferImpl.h" />
+    <ClInclude Include="D3D11DepthStencilBuffer.h" />
     <ClInclude Include="D3D11RenderContext.h" />
     <ClInclude Include="D3D11Device.h" />
     <ClInclude Include="D3D11IndexBuffer.h" />

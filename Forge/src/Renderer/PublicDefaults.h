@@ -8,3 +8,5 @@
 #include "ISwapchain.h"
 #include "IVertexBuffer.h"
 #include "IVertexShader.h"
+#include "IDepthStencilBuffer.h"
+#include "PerspectiveCamera.h"

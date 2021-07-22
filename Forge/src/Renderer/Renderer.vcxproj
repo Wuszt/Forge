@@ -27,6 +27,7 @@
     </ClCompile>
     <ClCompile Include="ICamera.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="IDepthStencilBuffer.cpp" />
     <ClCompile Include="IIndexBuffer.cpp" />
     <ClCompile Include="IInputLayout.cpp" />
     <ClCompile Include="IPixelShader.cpp" />
@@ -42,6 +43,7 @@
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="ICamera.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="IDepthStencilBuffer.h" />
     <ClInclude Include="IIndexBuffer.h" />
     <ClInclude Include="IInputLayout.h" />
     <ClInclude Include="InternalDefaults.h" />

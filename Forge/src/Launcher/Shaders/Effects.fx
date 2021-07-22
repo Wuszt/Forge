@@ -6,6 +6,7 @@ cbuffer cbPerFrame : register(b0)
 cbuffer cbPerObject : register(b1)
 {
     float4x4 WVP;
+    float4 color;
 };
 
 struct VS_OUTPUT
@@ -19,7 +20,7 @@ VS_OUTPUT VS(float4 inPos : POSITION0, float4 inColor : COLOR )
     VS_OUTPUT output;
 
     output.Pos = mul(WVP, inPos);
-    output.Color = inColor;
+    output.Color = color;
 
     return output;
 }
