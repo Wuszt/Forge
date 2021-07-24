@@ -20,19 +20,19 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{062BAC3D-0EA5-48E2-98EA-58215896E1EA}</ProjectGuid>
-    <RootNamespace>D3D11Renderer</RootNamespace>
+    <ProjectGuid>{45B22060-1716-4C8B-8844-C873202ADCB2}</ProjectGuid>
+    <RootNamespace>IMGUI</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -78,8 +78,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Fpch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(SolutionDir)/External/imgui</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -93,8 +92,6 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Fpch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -106,8 +103,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Fpch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(SolutionDir)/External/imgui</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,8 +117,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Fpch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,50 +125,60 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="D3D11ConstantBufferImpl.cpp" />
-    <ClCompile Include="D3D11DepthStencilBuffer.cpp" />
-    <ClCompile Include="D3D11RenderContext.cpp" />
-    <ClCompile Include="D3D11Device.cpp" />
-    <ClCompile Include="D3D11IndexBuffer.cpp" />
-    <ClCompile Include="D3D11InputLayout.cpp" />
-    <ClCompile Include="D3D11PixelShader.cpp" />
-    <ClCompile Include="D3D11Renderer.cpp" />
-    <ClCompile Include="D3D11RenderTargetView.cpp" />
-    <ClCompile Include="D3D11VertexShader.cpp" />
-    <ClCompile Include="D3D11Swapchain.cpp" />
-    <ClCompile Include="D3D11Texture.cpp" />
+    <ClCompile Include="..\..\External\imgui\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\..\External\imgui\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\..\External\imgui\imgui.cpp" />
+    <ClCompile Include="..\..\External\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\..\External\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\External\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\..\External\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Fpch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Fpch.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Fpch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="D3D11VertexBuffer.cpp" />
+    <ClCompile Include="IMGUIPlatformAdapters.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Fpch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Fpch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="IMGUIRenderAPIAdapters.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Fpch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Fpch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="IMGUISystem.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Fpch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Fpch.h</PrecompiledHeaderFile>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="D3D11ConstantBufferImpl.h" />
-    <ClInclude Include="D3D11DepthStencilBuffer.h" />
-    <ClInclude Include="D3D11RenderContext.h" />
-    <ClInclude Include="D3D11Device.h" />
-    <ClInclude Include="D3D11IndexBuffer.h" />
-    <ClInclude Include="D3D11InputLayout.h" />
-    <ClInclude Include="D3D11PixelShader.h" />
-    <ClInclude Include="D3D11Renderer.h" />
-    <ClInclude Include="D3D11RenderTargetView.h" />
-    <ClInclude Include="D3D11VertexShader.h" />
-    <ClInclude Include="D3D11Swapchain.h" />
-    <ClInclude Include="D3D11Texture.h" />
+    <ClInclude Include="..\..\External\imgui\backends\imgui_impl_dx11.h" />
+    <ClInclude Include="..\..\External\imgui\backends\imgui_impl_win32.h" />
+    <ClInclude Include="..\..\External\imgui\imconfig.h" />
+    <ClInclude Include="..\..\External\imgui\imgui.h" />
+    <ClInclude Include="..\..\External\imgui\imgui_internal.h" />
+    <ClInclude Include="..\..\External\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\..\External\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\..\External\imgui\imstb_truetype.h" />
     <ClInclude Include="Fpch.h" />
+    <ClInclude Include="IMGUIPlatformAdapters.h" />
+    <ClInclude Include="IMGUIRenderAPIAdapters.h" />
+    <ClInclude Include="IMGUISystem.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="PublicDefaults.h" />
-    <ClInclude Include="D3D11VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">
       <Project>{38e97199-f4e4-4704-b916-dd286525c84b}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\Math\Math.vcxproj">
-      <Project>{4ee1f241-1190-4a8f-be2a-2054bcab3709}</Project>
+    <ProjectReference Include="..\D3D11Renderer\D3D11Renderer.vcxproj">
+      <Project>{062bac3d-0ea5-48e2-98ea-58215896e1ea}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Renderer\Renderer.vcxproj">
       <Project>{b80e49a4-1d06-4643-9ef0-34e4e56781ad}</Project>

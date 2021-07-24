@@ -1,5 +1,6 @@
 #pragma once
 #include "IWindow.h"
+#include <functional>
 
 struct HINSTANCE__;
 typedef HINSTANCE__* HINSTANCE;
@@ -12,6 +13,9 @@ class WindowsInput;
 class WindowsWindow : public IWindow
 {
 public:
+
+	using WindowEventCallback = std::function< void( HWND, Uint32, Uint64, Uint64 ) >;
+
 	enum class InitializationState
 	{
 		NotInitialized,
@@ -54,6 +58,8 @@ public:
 		return m_width;
 	}
 
+	Uint32 RegisterWindowEventCallback( const WindowEventCallback& callback );
+	void UnregisterWindowEventCallback( Uint32 id );
 
 	virtual IInput* GetInput() const override;
 
@@ -68,5 +74,7 @@ private:
 	Uint32 m_height = 0u;
 
 	std::unique_ptr< WindowsInput > m_input;
+	std::unordered_map< Uint32, WindowEventCallback > m_onWindowEventCallbacks;
+	Uint32 m_lastAvailableCallbackID = 0;
 };
 

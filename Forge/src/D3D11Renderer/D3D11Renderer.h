@@ -30,6 +30,11 @@ public:
 	D3D11Renderer( const IWindow& window );
 	~D3D11Renderer();
 
+	FORGE_INLINE D3D11Device* GetDevice() const
+	{
+		return m_device.get();
+	}
+
 	virtual FORGE_INLINE D3D11RenderContext* GetContext() const override
 	{
 		return m_context.get();
@@ -60,6 +65,11 @@ public:
 	virtual void SetRenderTargets( std::vector< IRenderTargetView* > rendererTargetViews, IDepthStencilBuffer* depthStencilBuffer ) override;
 
 	virtual void BeginScene() override;
+
+	virtual RendererType GetType() const override
+	{
+		return RendererType::D3D11;
+	}
 
 protected:
 	virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl( void* data, Uint32 dataSize ) const override;

@@ -22,3 +22,11 @@
 #endif
 
 #define FORGE_INLINE inline
+
+#if _WIN32 || _WIN64
+#define FORGE_PLATFORM_WINDOWS 
+#endif
+
+#ifdef FORGE_PLATFORM_WINDOWS
+#define FORGE_IMGUI_ENABLED
+#endif

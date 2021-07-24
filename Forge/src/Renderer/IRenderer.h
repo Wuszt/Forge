@@ -15,10 +15,16 @@ struct IVertices;
 class IConstantBufferImpl;
 class IDepthStencilBuffer;
 
+enum class RendererType
+{
+	D3D11,
+	Unknown
+};
+
 class IRenderer
 {
 public:
-	static std::unique_ptr< IRenderer > CreateRenderer( const IWindow& window );
+	static std::unique_ptr< IRenderer > CreateRenderer( const IWindow& window, RendererType type );
 
 	virtual ~IRenderer() = default;
 
@@ -37,6 +43,8 @@ public:
 	virtual void SetRenderTargets( std::vector< IRenderTargetView* > rendererTargetViews, IDepthStencilBuffer* depthStencilBuffer ) = 0;
 
 	virtual void BeginScene() = 0;
+
+	virtual RendererType GetType() const = 0;
 
 protected:
 	virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl( void* data, Uint32 dataSize ) const = 0;

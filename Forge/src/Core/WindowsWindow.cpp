@@ -143,6 +143,11 @@ void WindowsWindow::Update()
 
 			TranslateMessage( &msg );
 			DispatchMessage( &msg );
+
+			for( const auto& callback : m_onWindowEventCallbacks )
+			{
+				callback.second( msg.hwnd, msg.message, msg.wParam, msg.lParam );
+			}
 		}
 		else
 		{
@@ -168,6 +173,16 @@ Bool WindowsWindow::OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam )
 	}
 
 	return false;
+}
+
+Uint32 WindowsWindow::RegisterWindowEventCallback( const WindowEventCallback& callback )
+{
+	m_onWindowEventCallbacks.emplace( ++m_lastAvailableCallbackID, callback );
+}
+
+void WindowsWindow::UnregisterWindowEventCallback( Uint32 id )
+{
+	m_onWindowEventCallbacks.erase( id );
 }
 
 IInput* WindowsWindow::GetInput() const

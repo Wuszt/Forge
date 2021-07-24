@@ -8,6 +8,11 @@
 #include "../Core/IInput.h"
 #include "../Math/Random.h"
 
+#ifdef FORGE_IMGUI_ENABLED
+#include "../IMGUI/IMGUISystem.h"
+#include "../IMGUI/PublicDefaults.h"
+#endif
+
 Int32 main()
 {
 	const Uint32 width = 1600;
@@ -26,9 +31,11 @@ Int32 main()
 	FORGE_LOG( "Window creating time duration: %f sec", stopWatch.GetDuration() );
 
 	stopWatch.Reset();
-	auto renderer = IRenderer::CreateRenderer( *window );
+	auto renderer = IRenderer::CreateRenderer( *window, RendererType::D3D11 );
 
 	FORGE_LOG( "Renderer creating time duration: %f sec", stopWatch.GetDuration() );
+
+	std::unique_ptr< IMGUISystem > imguiSystem = std::make_unique< IMGUISystem >( *window, *renderer );
 
 	stopWatch.Reset();
 
@@ -78,12 +85,15 @@ Int32 main()
 	auto indexBuffer = renderer->CreateIndexBuffer( indices, sizeof( indices ) / sizeof( Uint32 ) );
 	indexBuffer->Set( 0 );
 
+	Bool imguiExample = false;
+
 	Math::Random rng;
 	Uint32 seed = rng.GetRaw();
 	while( true )
 	{
 		Time::Update();
 		window->Update();
+		imguiSystem->OnNewFrame();
 
 		if( window->GetInput()->GetMouseButtonDown( IInput::MouseButton::LeftButton ) )
 		{
@@ -196,7 +206,7 @@ Int32 main()
 
 			Matrix m;
 			m.SetTranslation( 0.0f, 0.0f, 0.0f );
-			m.SetScale( { 1000.0f, 1000.0f, 0.01f } );
+			m.SetScale( { 2000.0f, 2000.0f, 0.01f } );
 			buff->GetData().WVP = m * camera->GetViewProjectionMatrix();
 			buff->GetData().color = Vector4( 0.0f, 0.6f, 0.0f, 1.0f );
 			buff->SetVS( 1 );
@@ -230,6 +240,9 @@ Int32 main()
 
 			renderer->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
 		}
+
+		ImGui::ShowDemoWindow( &imguiExample );
+		imguiSystem->Render();
 
 		renderer->GetSwapchain()->Present();
 	}
