@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core.h" />
+    <ClInclude Include="FPSCounter.h" />
     <ClInclude Include="IInput.h" />
     <ClInclude Include="IWindow.h" />
     <ClInclude Include="Logger.h" />
@@ -34,6 +35,7 @@
     <ClInclude Include="WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FPSCounter.cpp" />
     <ClCompile Include="IInput.cpp" />
     <ClCompile Include="IWindow.cpp" />
     <ClCompile Include="Logger.cpp" />

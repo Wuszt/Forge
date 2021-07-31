@@ -178,10 +178,12 @@ Bool WindowsWindow::OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam )
 Uint32 WindowsWindow::RegisterWindowEventCallback( const WindowEventCallback& callback )
 {
 	m_onWindowEventCallbacks.emplace( ++m_lastAvailableCallbackID, callback );
+	return m_lastAvailableCallbackID;
 }
 
 void WindowsWindow::UnregisterWindowEventCallback( Uint32 id )
 {
+	FORGE_ASSERT( m_onWindowEventCallbacks.find( id ) != m_onWindowEventCallbacks.end() );
 	m_onWindowEventCallbacks.erase( id );
 }
 
