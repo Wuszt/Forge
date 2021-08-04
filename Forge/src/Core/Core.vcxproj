@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Callback.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="FPSCounter.h" />
     <ClInclude Include="IInput.h" />
@@ -35,6 +36,7 @@
     <ClInclude Include="WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Callback.cpp" />
     <ClCompile Include="FPSCounter.cpp" />
     <ClCompile Include="IInput.cpp" />
     <ClCompile Include="IWindow.cpp" />

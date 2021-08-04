@@ -53,6 +53,9 @@
     <ClInclude Include="FPSCounter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Callback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fpch.cpp">
@@ -80,6 +83,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FPSCounter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Callback.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

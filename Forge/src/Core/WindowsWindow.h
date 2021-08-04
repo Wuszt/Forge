@@ -74,7 +74,6 @@ private:
 	Uint32 m_height = 0u;
 
 	std::unique_ptr< WindowsInput > m_input;
-	std::unordered_map< Uint32, WindowEventCallback > m_onWindowEventCallbacks;
-	Uint32 m_lastAvailableCallbackID = 0;
+	Callback< HWND, Uint32, Uint64, Uint64 > m_onWindowEventCallback;
 };
 

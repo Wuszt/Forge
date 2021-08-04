@@ -144,10 +144,7 @@ void WindowsWindow::Update()
 			TranslateMessage( &msg );
 			DispatchMessage( &msg );
 
-			for( const auto& callback : m_onWindowEventCallbacks )
-			{
-				callback.second( msg.hwnd, msg.message, msg.wParam, msg.lParam );
-			}
+			m_onWindowEventCallback.Invoke( msg.hwnd, msg.message, msg.wParam, msg.lParam );
 		}
 		else
 		{
@@ -177,14 +174,12 @@ Bool WindowsWindow::OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam )
 
 Uint32 WindowsWindow::RegisterWindowEventCallback( const WindowEventCallback& callback )
 {
-	m_onWindowEventCallbacks.emplace( ++m_lastAvailableCallbackID, callback );
-	return m_lastAvailableCallbackID;
+	return m_onWindowEventCallback.AddListener( callback );
 }
 
 void WindowsWindow::UnregisterWindowEventCallback( Uint32 id )
 {
-	FORGE_ASSERT( m_onWindowEventCallbacks.find( id ) != m_onWindowEventCallbacks.end() );
-	m_onWindowEventCallbacks.erase( id );
+	m_onWindowEventCallback.RemoveListener( id );
 }
 
 IInput* WindowsWindow::GetInput() const
