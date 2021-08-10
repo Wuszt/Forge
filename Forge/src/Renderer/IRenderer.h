@@ -24,7 +24,7 @@ enum class RendererType
 class IRenderer
 {
 public:
-	static std::unique_ptr< IRenderer > CreateRenderer( const IWindow& window, RendererType type );
+	static std::unique_ptr< IRenderer > CreateRenderer( IWindow& window, RendererType type );
 
 	virtual ~IRenderer() = default;
 

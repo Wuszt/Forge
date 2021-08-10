@@ -3,21 +3,44 @@
 #include "../Core/WindowsWindow.h"
 #include "D3D11ConstantBufferImpl.h"
 
-D3D11Renderer::D3D11Renderer( const IWindow& window )
+D3D11Renderer::D3D11Renderer( IWindow& window )
 {
-	FORGE_ASSERT( dynamic_cast<const WindowsWindow*>( &window ) );
-	InitializeSwapChainAndContext( static_cast<const WindowsWindow&>( window ) );
+	FORGE_ASSERT( dynamic_cast< WindowsWindow* >( &window ) );
+	InitializeSwapChainAndContext( static_cast< WindowsWindow& >( window ) );
 
-	m_renderTargetView = std::make_unique< D3D11RenderTargetView >( GetContext(), *m_device, std::move( m_swapChain->GetBackBuffer() ) );
-	m_depthStencilBuffer = std::make_unique< D3D11DepthStencilBuffer >( *m_device, m_context.get(), window.GetWidth(), window.GetHeight() );
+	m_renderTargetView = std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), std::move( m_swapChain->GetBackBuffer() ) );
+	m_depthStencilBuffer = std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), window.GetWidth(), window.GetHeight() );
 
-	std::vector< IRenderTargetView* > views{ m_renderTargetView.get() };
+	std::vector< IRenderTargetView* > views{ GetRenderTargetView() };
 
 	SetRenderTargets( views, m_depthStencilBuffer.get() );
 
 	InitializeViewport( window.GetWidth(), window.GetHeight() );
 
 	InitializeRasterizer();
+
+	m_windowCallbackToken = window.RegisterEventListener( 
+		[ & ]( const IWindow::IEvent& event )
+	{
+		switch( event.GetEventType() )
+		{
+		case IWindow::EventType::OnWindowResized:
+			FORGE_ASSERT( dynamic_cast< const IWindow::OnResizedWindowEvent* >( &event ) );
+			const IWindow::OnResizedWindowEvent& resizedEvent = static_cast< const IWindow::OnResizedWindowEvent& >( event );
+		
+			m_renderTargetView = nullptr;
+			GetSwapchain()->Resize( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
+
+			m_renderTargetView = std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), std::move( GetSwapchain()->GetBackBuffer() ) );
+			m_depthStencilBuffer = std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), resizedEvent.GetWidth(), resizedEvent.GetHeight() );
+
+			std::vector< IRenderTargetView* > views{ GetRenderTargetView() };
+			SetRenderTargets( views, m_depthStencilBuffer.get() );
+
+			InitializeViewport( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
+			break;
+		}
+	} );
 }
 
 D3D11Renderer::~D3D11Renderer()
@@ -70,7 +93,7 @@ void D3D11Renderer::SetRenderTargets( std::vector< IRenderTargetView* > renderer
 		views.emplace_back( static_cast<D3D11RenderTargetView*>( target )->GetRenderTargetView() );
 	}
 
-	m_context->GetDeviceContext()->OMSetRenderTargets( static_cast< Uint32 >( views.size() ), views.data(), m_depthStencilBuffer->GetView() );
+	m_context->GetDeviceContext()->OMSetRenderTargets( static_cast< Uint32 >( views.size() ), views.data(), m_depthStencilBuffer ? m_depthStencilBuffer->GetView() : nullptr );
 }
 
 void D3D11Renderer::BeginScene()
@@ -102,10 +125,8 @@ void D3D11Renderer::InitializeSwapChainAndContext( const WindowsWindow& window )
 	ID3D11Device* d3d11Device;
 	ID3D11DeviceContext* d3d11DevCon;
 
-	auto result = D3D11CreateDeviceAndSwapChain( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL,
-		D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &d3d11Device, NULL, &d3d11DevCon );
-
-	FORGE_ASSERT( result == S_OK );
+	FORGE_ASSURE( D3D11CreateDeviceAndSwapChain( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL,
+		D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &d3d11Device, NULL, &d3d11DevCon ) == S_OK );
 
 	m_device = std::make_unique< D3D11Device >( d3d11Device );
 	m_context = std::make_unique< D3D11RenderContext >( d3d11DevCon );

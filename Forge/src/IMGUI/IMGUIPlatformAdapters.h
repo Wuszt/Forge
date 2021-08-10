@@ -23,7 +23,7 @@ public:
 
 private:
 	WindowsWindow* m_windowsWindow = nullptr;
-	Uint32 m_windowEventCallbackId = 0;
+	std::unique_ptr< CallbackToken > m_windowEventCallbackToken;
 
 };
 #endif

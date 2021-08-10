@@ -27,7 +27,7 @@ struct ID3D11RasterizerState;
 class D3D11Renderer : public IRenderer
 {
 public:
-	D3D11Renderer( const IWindow& window );
+	D3D11Renderer( IWindow& window );
 	~D3D11Renderer();
 
 	FORGE_INLINE D3D11Device* GetDevice() const
@@ -92,5 +92,7 @@ private:
 	std::unique_ptr< D3D11DepthStencilBuffer > m_depthStencilBuffer;
 
 	ID3D11RasterizerState* m_rasterizerState = nullptr;
+
+	std::unique_ptr< CallbackToken > m_windowCallbackToken;
 };
 

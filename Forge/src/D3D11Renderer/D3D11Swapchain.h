@@ -24,6 +24,8 @@ public:
 	virtual void Present() override;
 	std::unique_ptr< D3D11Texture > GetBackBuffer() const;
 
+	virtual void Resize( Uint32 width, Uint32 height ) override;
+
 private:
 	IDXGISwapChain* m_swapChain = nullptr;
 };

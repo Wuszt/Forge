@@ -17,7 +17,7 @@ IMGUIWindowsAdapter::IMGUIWindowsAdapter( IWindow& window )
 
 	WindowsWindow& windowsWindow = static_cast< WindowsWindow& >( window );
 	ImGui_ImplWin32_Init( windowsWindow.GetHWND() );
-	windowsWindow.RegisterWindowEventCallback( []( HWND hwnd, Uint32 msg, Uint64 wParam, Uint64 lParam )
+	m_windowEventCallbackToken = windowsWindow.RegisterWindowRawEventListener( []( HWND hwnd, Uint32 msg, Uint64 wParam, Uint64 lParam )
 	{
 		ImGui_ImplWin32_WndProcHandler( hwnd, msg, wParam, lParam );
 	} );
@@ -33,8 +33,6 @@ void IMGUIWindowsAdapter::OnNewFrame()
 IMGUIWindowsAdapter::~IMGUIWindowsAdapter()
 {
 	ImGui_ImplWin32_Shutdown();
-	m_windowsWindow->UnregisterWindowEventCallback( m_windowEventCallbackId );
-	m_windowEventCallbackId = 0u;
 }
 
 #endif

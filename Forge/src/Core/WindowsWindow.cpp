@@ -12,11 +12,10 @@ namespace
 	{
 		LONG_PTR ptr = GetWindowLongPtr( hwnd, GWLP_USERDATA );
 
-
-		WindowsWindow* windowPtr = reinterpret_cast< WindowsWindow* >( ptr );
-		if( windowPtr->OnWindowEvent( msg, wParam, lParam ) )
+		if( ptr != NULL )
 		{
-			return 0;
+			WindowsWindow* windowPtr = reinterpret_cast< WindowsWindow* >( ptr );
+			windowPtr->OnWindowEvent( msg, wParam, lParam );
 		}
 
 		return DefWindowProc( hwnd,
@@ -61,8 +60,6 @@ WindowsWindow::InitializationState InternalInitialize( HINSTANCE hInstance, Uint
 
 	if( !RegisterClassEx( &wc ) )
 	{
-		//MessageBox( NULL, "Error registering class",
-		//	"Error", MB_OK | MB_ICONERROR );
 		return WindowsWindow::InitializationState::Error_Registering_Class;
 	}
 
@@ -84,8 +81,6 @@ WindowsWindow::InitializationState InternalInitialize( HINSTANCE hInstance, Uint
 
 	if( !outHWND )
 	{
-		//MessageBox( NULL, "Error creating window",
-		//	"Error", MB_OK | MB_ICONERROR );
 		return WindowsWindow::InitializationState::Error_Creating_Window;
 	}
 
@@ -104,8 +99,7 @@ WindowsWindow::WindowsWindow( Uint32 width, Uint32 height )
 	Initialize( hInstance );
 	FORGE_ASSERT( IsInitialized() );
 
-	SetWindowLongPtr( m_hwnd, GWLP_USERDATA, HandleToLong( this ) );
-
+	SetWindowLongPtr( m_hwnd, GWLP_USERDATA, reinterpret_cast< LONG_PTR >( this ) );
 
 	m_input = std::make_unique< WindowsInput >( hInstance, *this );
 }
@@ -136,15 +130,12 @@ void WindowsWindow::Update()
 
 		if( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
 		{
-			//if( msg.message == WM_QUIT )
-			//	break;
-
 			m_input->OnEvent( msg );
 
 			TranslateMessage( &msg );
 			DispatchMessage( &msg );
 
-			m_onWindowEventCallback.Invoke( msg.hwnd, msg.message, msg.wParam, msg.lParam );
+			m_rawEventCallback.Invoke( msg.hwnd, msg.message, msg.wParam, msg.lParam );
 		}
 		else
 		{
@@ -167,19 +158,20 @@ Bool WindowsWindow::OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam )
 	case WM_DESTROY:
 		PostQuitMessage( 0 );
 		return true;
+
+	case WM_SIZE:
+		RECT rect;
+		::GetClientRect( m_hwnd, &rect );
+
+		m_width = rect.right - rect.left;
+		m_height = rect.bottom - rect.top;
+
+		DispatchEvent( OnResizedWindowEvent( *this, m_width, m_height ) );
+		m_rawEventCallback.Invoke( m_hwnd, msg, wParam, lParam );
+		return true;
 	}
 
 	return false;
-}
-
-Uint32 WindowsWindow::RegisterWindowEventCallback( const WindowEventCallback& callback )
-{
-	return m_onWindowEventCallback.AddListener( callback );
-}
-
-void WindowsWindow::UnregisterWindowEventCallback( Uint32 id )
-{
-	m_onWindowEventCallback.RemoveListener( id );
 }
 
 IInput* WindowsWindow::GetInput() const

@@ -2,6 +2,7 @@
 
 #define FORGE_ASSERTIONS_ENABLED
 #define FORGE_FATALS_ENABLED
+#define FORGE_ASSURES_ENABLED
 
 #ifdef FORGE_ASSERTIONS_ENABLED
 	#include <assert.h>
@@ -29,4 +30,10 @@
 
 #ifdef FORGE_PLATFORM_WINDOWS
 #define FORGE_IMGUI_ENABLED
+#endif
+
+#ifdef FORGE_ASSURES_ENABLED
+#define FORGE_ASSURE( ... ) assert( __VA_ARGS__ )
+#else
+#define FORGE_ASSURE( ... ) __VA_ARGS__
 #endif

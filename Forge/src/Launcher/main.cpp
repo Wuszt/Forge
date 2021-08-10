@@ -42,17 +42,13 @@ Int32 main()
 {
 	const Uint32 width = 1600;
 	const Uint32 height = 900;
-	const Float aspectRatio = static_cast< Float >( width ) / static_cast< Float >( height );
-
-	std::unique_ptr< ICamera > camera = std::make_unique< PerspectiveCamera >( aspectRatio, FORGE_PI / 3.0f, 0.1f, 2000.0f );
-	camera->SetPosition( { 0.0f, 0.0f, 50.0f } );
 
 	Time::Initialize();
 
 	StopWatch stopWatch;
 
 	stopWatch.Reset();
-	auto window = IWindow::CreateNewWindow( 1600, 900 );
+	auto window = IWindow::CreateNewWindow( width, height );
 	FORGE_LOG( "Window creating time duration: %f sec", stopWatch.GetDuration() );
 
 	stopWatch.Reset();
@@ -61,6 +57,19 @@ Int32 main()
 	FORGE_LOG( "Renderer creating time duration: %f sec", stopWatch.GetDuration() );
 
 	std::unique_ptr< IMGUISystem > imguiSystem = std::make_unique< IMGUISystem >( *window, *renderer );
+
+	std::unique_ptr< ICamera > camera = std::make_unique< PerspectiveCamera >( window->GetAspectRatio(), FORGE_PI / 3.0f, 0.1f, 2000.0f );
+	camera->SetPosition( { 0.0f, 0.0f, 50.0f } );
+
+	std::unique_ptr< CallbackToken > windowEventCallback = window->RegisterEventListener( [&]( const IWindow::IEvent& event )
+	{
+		if( event.GetEventType() == IWindow::EventType::OnWindowResized )
+		{
+			auto prevCamera = std::move( camera );
+			camera = std::make_unique< PerspectiveCamera >( window->GetAspectRatio(), FORGE_PI / 3.0f, 0.1f, 2000.0f );
+			camera->SetTransform( prevCamera->GetTransform() );
+		}
+	} );
 
 	stopWatch.Reset();
 
@@ -217,7 +226,10 @@ Int32 main()
 
 		renderer->BeginScene();
 		renderer->GetRenderTargetView()->Clear( Vector4( 0.0f, 0.0f, 0.0f, 1.0f ) );
-		renderer->GetDepthStencilBuffer()->Clear();
+		if( renderer->GetDepthStencilBuffer() )
+		{
+			renderer->GetDepthStencilBuffer()->Clear();
+		}
 
 		struct cbPerObject
 		{

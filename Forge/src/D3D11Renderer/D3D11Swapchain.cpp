@@ -50,8 +50,14 @@ void D3D11Swapchain::Present()
 std::unique_ptr< D3D11Texture > D3D11Swapchain::GetBackBuffer() const
 {
 	ID3D11Texture2D* backBuffer;
-	auto result = m_swapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)&backBuffer );
-	FORGE_ASSERT( result == S_OK );
+	FORGE_ASSURE( m_swapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)&backBuffer ) == S_OK );
 
 	return std::make_unique< D3D11Texture >( backBuffer );
+}
+
+void D3D11Swapchain::Resize( Uint32 width, Uint32 height )
+{
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	m_swapChain->GetDesc( &swapChainDesc );
+	FORGE_ASSURE( m_swapChain->ResizeBuffers( swapChainDesc.BufferCount, width, height, swapChainDesc.BufferDesc.Format, swapChainDesc.Flags ) == S_OK );
 }

@@ -6,10 +6,8 @@
 D3D11InputLayout::D3D11InputLayout( D3D11RenderContext* contextPtr, const D3D11Device& device, const D3D11VertexShader& vertexShader, const D3D11VertexBuffer& vertexBuffer )
 	: m_contextPtr( contextPtr )
 {
-	auto hr = device.GetDevice()->CreateInputLayout( vertexBuffer.GetLayout(), vertexBuffer.GetElementsAmount(),
-		vertexShader.GetBuffer()->GetBufferPointer(), vertexShader.GetBuffer()->GetBufferSize(), &m_layout );
-
-	FORGE_ASSERT( hr == S_OK );
+	FORGE_ASSURE( device.GetDevice()->CreateInputLayout( vertexBuffer.GetLayout(), vertexBuffer.GetElementsAmount(),
+		vertexShader.GetBuffer()->GetBufferPointer(), vertexShader.GetBuffer()->GetBufferSize(), &m_layout ) == S_OK );
 }
 
 D3D11InputLayout::~D3D11InputLayout()

@@ -2,7 +2,7 @@
 #include "IRenderer.h"
 #include "../D3D11Renderer/D3D11Renderer.h"
 
-std::unique_ptr< IRenderer > IRenderer::CreateRenderer( const IWindow& window, RendererType type )
+std::unique_ptr< IRenderer > IRenderer::CreateRenderer( IWindow& window, RendererType type )
 {
 	switch( type )
 	{

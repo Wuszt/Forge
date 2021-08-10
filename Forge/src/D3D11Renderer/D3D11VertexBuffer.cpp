@@ -98,9 +98,7 @@ D3D11VertexBuffer::D3D11VertexBuffer( D3D11RenderContext* contextPtr, const D3D1
 
 	ZeroMemory( &vertexBufferData, sizeof( vertexBufferData ) );
 	vertexBufferData.pSysMem = vertices.GetData();
-	auto hr = device.GetDevice()->CreateBuffer( &vertexBufferDesc, &vertexBufferData, &m_buffer );
-
-	FORGE_ASSERT( hr == S_OK );
+	FORGE_ASSURE( device.GetDevice()->CreateBuffer( &vertexBufferDesc, &vertexBufferData, &m_buffer ) == S_OK );
 
 	ConstructLayout( vertices.GetInputElements(), m_layout );
 }

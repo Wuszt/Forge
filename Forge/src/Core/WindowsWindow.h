@@ -14,7 +14,7 @@ class WindowsWindow : public IWindow
 {
 public:
 
-	using WindowEventCallback = std::function< void( HWND, Uint32, Uint64, Uint64 ) >;
+	using WindowRawEventCallback = Callback< HWND, Uint32, Uint64, Uint64 >;
 
 	enum class InitializationState
 	{
@@ -58,8 +58,10 @@ public:
 		return m_width;
 	}
 
-	Uint32 RegisterWindowEventCallback( const WindowEventCallback& callback );
-	void UnregisterWindowEventCallback( Uint32 id );
+	FORGE_INLINE std::unique_ptr< CallbackToken > RegisterWindowRawEventListener( const WindowRawEventCallback::TFunc& callback )
+	{
+		return m_rawEventCallback.AddListener( callback );
+	}
 
 	virtual IInput* GetInput() const override;
 
@@ -74,6 +76,6 @@ private:
 	Uint32 m_height = 0u;
 
 	std::unique_ptr< WindowsInput > m_input;
-	Callback< HWND, Uint32, Uint64, Uint64 > m_onWindowEventCallback;
+	WindowRawEventCallback m_rawEventCallback;
 };
 

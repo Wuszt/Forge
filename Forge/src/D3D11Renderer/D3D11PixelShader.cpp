@@ -5,17 +5,11 @@
 D3D11PixelShader::D3D11PixelShader( D3D11RenderContext* contextPtr, const D3D11Device& device, const std::string& path )
 	: m_contextPtr( contextPtr )
 {
-	HRESULT result;
 	auto wstr = std::wstring( path.begin(), path.end() );
 	LPCWSTR wPath = wstr.c_str();
-	result = D3DCompileFromFile( wPath, 0, 0, "PS", "ps_4_0", D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG, 0, &m_buffer, 0 );
+	FORGE_ASSURE( D3DCompileFromFile( wPath, 0, 0, "PS", "ps_4_0", D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG, 0, &m_buffer, 0 ) == S_OK );
 
-	if( result == S_OK )
-	{
-		result = device.GetDevice()->CreatePixelShader( m_buffer->GetBufferPointer(), m_buffer->GetBufferSize(), NULL, &m_pixelShader );
-	}
-
-	FORGE_ASSERT( result == S_OK );
+	FORGE_ASSURE( device.GetDevice()->CreatePixelShader( m_buffer->GetBufferPointer(), m_buffer->GetBufferSize(), NULL, &m_pixelShader ) == S_OK );
 }
 
 D3D11PixelShader::~D3D11PixelShader()
