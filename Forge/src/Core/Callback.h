@@ -71,15 +71,15 @@ public:
 		
 		if( m_nextFreeID == GetInvalidCallbackID() )
 		{	
-			m_idToFunc.emplace_back( m_funcs.size() - 1u );
+			m_idToFunc.emplace_back( static_cast< Uint32 >( m_funcs.size() - 1u ) );
 			m_funcToID.emplace_back( m_idToFunc.back() );
-			return std::make_unique< CallbackToken >( static_cast< CallbackID >( m_funcs.size() - 1u ), *this );
+			return std::make_unique< CallbackToken >( static_cast< CallbackID >( static_cast< Uint32 >( m_funcs.size() ) - 1u ), *this );
 		}
 		else
 		{
 			CallbackID nextFreeID = m_nextFreeID;
 			m_nextFreeID = m_idToFunc[ m_nextFreeID ];
-			m_idToFunc[ nextFreeID ] = m_funcs.size() - 1;
+			m_idToFunc[ nextFreeID ] = static_cast< Uint32 >( m_funcs.size() ) - 1;
 			m_funcToID.emplace_back( nextFreeID );
 			return std::make_unique< CallbackToken >( nextFreeID, *this );
 		}
@@ -100,7 +100,7 @@ public:
 
 	Uint32 GetListenersAmount() const
 	{
-		return m_funcs.size();
+		return static_cast< Uint32 >( m_funcs.size() );
 	}
 
 private:
