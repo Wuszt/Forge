@@ -109,6 +109,27 @@ WindowsWindow::~WindowsWindow() = default;
 void WindowsWindow::Initialize( HINSTANCE hInstance )
 {
 	m_initializationState = InternalInitialize( hInstance, m_width, m_height, m_hwnd );
+	UpdatePositionAndSize();
+}
+
+void WindowsWindow::UpdatePositionAndSize()
+{
+	RECT rect;
+	::GetClientRect( m_hwnd, &rect );
+
+	m_width = rect.right - rect.left;
+	m_height = rect.bottom - rect.top;
+
+	::GetWindowRect( m_hwnd, &rect );
+
+	Int32 windowWidth = rect.right - rect.left;
+	Int32 windowHeight = rect.bottom - rect.top;
+
+	Uint32 xDiff = windowWidth - m_width;
+	Uint32 yDiff = windowHeight - m_height;
+
+	m_positionX = rect.left + static_cast< Int32 >( xDiff / 2 );
+	m_positionY = rect.top + static_cast<Int32>( yDiff - xDiff / 2 );
 }
 
 void WindowsWindow::Update()
@@ -160,14 +181,13 @@ Bool WindowsWindow::OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam )
 		return true;
 
 	case WM_SIZE:
-		RECT rect;
-		::GetClientRect( m_hwnd, &rect );
-
-		m_width = rect.right - rect.left;
-		m_height = rect.bottom - rect.top;
-
+		UpdatePositionAndSize();
 		DispatchEvent( OnResizedWindowEvent( *this, m_width, m_height ) );
 		m_rawEventCallback.Invoke( m_hwnd, msg, wParam, lParam );
+		return true;
+
+	case WM_EXITSIZEMOVE:
+		UpdatePositionAndSize();
 		return true;
 	}
 

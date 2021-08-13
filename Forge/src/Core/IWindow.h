@@ -64,6 +64,9 @@ public:
 	virtual Uint32 GetWidth() const = 0;
 	virtual Uint32 GetHeight() const = 0;
 
+	virtual Uint32 GetPosX() const = 0;
+	virtual Uint32 GetPosY() const = 0;
+
 	FORGE_INLINE Float GetAspectRatio() const
 	{
 		return static_cast< Float >( GetWidth() ) / static_cast< Float >( GetHeight() );

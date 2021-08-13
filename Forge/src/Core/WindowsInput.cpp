@@ -31,10 +31,25 @@ void WindowsInput::OnBeforeUpdate()
 	Vector2 prevPos = m_mouseCurrentAxises;
 
 	m_mouseCurrentAxises = Vector2( static_cast<Float>( tmp.x ), static_cast<Float>( tmp.y ) );
-	m_mouseCurrentAxises.X = Math::Clamp( 0.0f, static_cast<Float>( m_window.GetWidth() ), m_mouseCurrentAxises.X ) - static_cast<Float>( m_window.GetWidth() ) * 0.5f;
-	m_mouseCurrentAxises.Y = -( Math::Clamp( 0.0f, static_cast<Float>( m_window.GetHeight() ), m_mouseCurrentAxises.Y ) - static_cast<Float>( m_window.GetHeight() ) * 0.5f );
+	m_mouseCurrentAxises.X = Math::Clamp( 0.0f, static_cast<Float>( m_window.GetWidth() ), m_mouseCurrentAxises.X ) - static_cast<Float>( m_window.GetWidth() / 2u );
+	m_mouseCurrentAxises.Y = -( Math::Clamp( 0.0f, static_cast<Float>( m_window.GetHeight() ), m_mouseCurrentAxises.Y ) - static_cast<Float>( m_window.GetHeight() / 2u ) );
 
 	m_mouseDeltaAxises = Vector3( m_mouseCurrentAxises - prevPos, 0.0f );
+
+	if( m_lockCursor )
+	{
+		m_mouseCurrentAxises = Vector2::ZEROS();
+
+		Uint32 x = m_window.GetPosX() + m_window.GetWidth() / 2u;
+		Uint32 y = m_window.GetPosY() + m_window.GetHeight() / 2u;
+
+		SetCursorPos( x, y );
+		while( ShowCursor( false ) >= 0 );
+	}
+	else
+	{
+		while( ShowCursor( true ) < 0 );
+	}
 }
 
 void WindowsInput::OnEvent( const tagMSG& msg )

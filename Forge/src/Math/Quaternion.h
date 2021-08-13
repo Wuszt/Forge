@@ -51,14 +51,16 @@ struct Quaternion
 		, r( 1.0f )
 	{}
 
-	Quaternion( const Vector3 vec, Float r )
+	Quaternion( const Vector3& vec, Float r )
 	{
 		SetAxisAngle( vec, r );
 	}
 
-	Quaternion( const Vector4& vec );
+	explicit Quaternion( const Vector4& vec );
 
 	Quaternion( Float xRotation, Float yRotation, Float zRotation );
+
+	explicit Quaternion( const Vector3& eulerAngles );
 
 	~Quaternion();
 

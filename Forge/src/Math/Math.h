@@ -62,4 +62,10 @@ namespace Math
 	{
 		return Min( Max( min, value ), max );
 	}
+
+	template< class T0, class T1 >
+	FORGE_INLINE const T0& Pow( const T0& val, const T1& pow )
+	{
+		return std::pow( val, pow );
+	}
 }

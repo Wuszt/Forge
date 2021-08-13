@@ -51,6 +51,10 @@ Quaternion::Quaternion( const Vector4& vec )
 	vec4 = vec;
 }
 
+Quaternion::Quaternion( const Vector3& eulerAngles )
+	: Quaternion( eulerAngles.X, eulerAngles.Y, eulerAngles.Z )
+{}
+
 Quaternion::~Quaternion() = default;
 
 Quaternion Quaternion::operator*( const Quaternion & q ) const

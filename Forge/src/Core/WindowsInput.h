@@ -34,10 +34,22 @@ public:
 	virtual Bool GetMouseButtonUp( MouseButton button ) const override;
 	virtual const Vector2& GetMouseCurrentAxises() const override;
 
+	FORGE_INLINE virtual void LockCursor( Bool lock ) override
+	{
+		m_lockCursor = lock;
+	}
+
+	FORGE_INLINE virtual Bool IsCursorLocked() const override
+	{
+		return m_lockCursor;
+	}
+
 private:
 	void OnKeyboardUpdate( IInput::Key key, Bool pressed );
 	void OnMouseUpdate( IInput::Key key, Bool pressed );
 	void OnMouseWheelUpdate( Int32 delta );
+
+	Bool m_lockCursor = false;
 
 	static const Uint32 c_keysAmount = 256;
 

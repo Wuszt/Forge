@@ -121,6 +121,12 @@ Int32 main()
 
 	Bool imguiExample = false;
 
+	Vector3 cameraEulerAngles;
+
+	Bool wasShiftAndWheelPressed = false;
+
+	Float currentSpeed = 3.0f;
+
 	Math::Random rng;
 	Uint32 seed = rng.GetRaw();
 	while( true )
@@ -134,95 +140,85 @@ Int32 main()
 		{
 			FORGE_LOG( "Clicked on: %s", window->GetInput()->GetMouseCurrentAxises().ToDebugString().c_str() );
 		}
-	
 
-		Vector3 delta;
-
-		if( window->GetInput()->GetKey( IInput::Key::D ) )
+		if( window->GetInput()->GetKey( IInput::Key::Shift ) && window->GetInput()->GetMouseButton( IInput::MouseButton::MiddleButton ) )
 		{
-			delta.X = 1.0f;
+			if( !wasShiftAndWheelPressed )
+			{
+				window->GetInput()->LockCursor( !window->GetInput()->IsCursorLocked() );
+			}
+
+			wasShiftAndWheelPressed = true;
+		}
+		else
+		{
+			wasShiftAndWheelPressed = false;
 		}
 
-		if( window->GetInput()->GetKey( IInput::Key::A ) )
+		if( window->GetInput()->IsCursorLocked() )
 		{
-			delta.X = -1.0f;
+			Vector3 delta;
+
+			if( window->GetInput()->GetKey( IInput::Key::D ) )
+			{
+				delta.X = 1.0f;
+			}
+
+			if( window->GetInput()->GetKey( IInput::Key::A ) )
+			{
+				delta.X = -1.0f;
+			}
+
+			if( window->GetInput()->GetKey( IInput::Key::W ) )
+			{
+				delta.Y = 1.0f;
+			}
+
+			if( window->GetInput()->GetKey( IInput::Key::S ) )
+			{
+				delta.Y = -1.0f;
+			}
+
+			if( window->GetInput()->GetKey( IInput::Key::Q ) )
+			{
+				delta.Z = -1.0f;
+			}
+
+			if( window->GetInput()->GetKey( IInput::Key::E ) )
+			{
+				delta.Z = 1.0f;
+			}
+
+			currentSpeed += static_cast< Float >( window->GetInput()->GetMouseDeltaAxises().Z ) * 0.003f;
+			currentSpeed = Math::Max( 0.1f, currentSpeed );
+
+			Vector3 pos = camera->GetPosition();
+			delta *= Math::Pow( 2.0f, currentSpeed );
+
+			if( window->GetInput()->GetKey( IInput::Key::Shift ) )
+			{
+				delta *= 4.0f;
+			}
+
+			delta = camera->GetOrientation().Transform( delta );
+			pos += delta * Time::GetDeltaTime();
+			camera->SetPosition( pos );
+
+			Vector3 deltaRot = window->GetInput()->GetMouseDeltaAxises() * 0.001f;
+
+			deltaRot.Z = -deltaRot.X;
+			deltaRot.X = deltaRot.Y;
+			deltaRot.Y = 0.0f;
+
+			cameraEulerAngles += deltaRot;
+
+			camera->SetOrientation( Quaternion( 0.0f, 0.0f, cameraEulerAngles.Z ) * Quaternion( cameraEulerAngles.X, 0.0f, 0.0f ) );
+
+			if( window->GetInput()->GetKey( IInput::Key::R ) )
+			{
+				camera->SetTransform( Transform::IDENTITY() );
+			}
 		}
-
-		if( window->GetInput()->GetKey( IInput::Key::W ) )
-		{
-			delta.Y = 1.0f;
-		}
-
-		if( window->GetInput()->GetKey( IInput::Key::S ) )
-		{
-			delta.Y = -1.0f;
-		}
-
-		if( window->GetInput()->GetKey( IInput::Key::Q ) )
-		{
-			delta.Z = -1.0f;
-		}
-
-		if( window->GetInput()->GetKey( IInput::Key::E ) )
-		{
-			delta.Z = 1.0f;
-		}
-
-		Vector3 pos = camera->GetPosition();
-		delta *= 16.0f;
-
-		if( window->GetInput()->GetKey( IInput::Key::Shift ) )
-		{
-			delta *= 4.0f;
-		}
-
-		delta = camera->GetOrientation().Transform( delta );
-		pos += delta * Time::GetDeltaTime();
-		camera->SetPosition( pos );
-
-		Float xRot = 0.0f;
-		Float yRot = 0.0f;
-		Float zRot = 0.0f;
-
-		if( window->GetInput()->GetKey( IInput::Key::UpArrow ) )
-		{
-			xRot += FORGE_PI_HALF;
-		}
-
-		if( window->GetInput()->GetKey( IInput::Key::DownArrow ) )
-		{
-			xRot -= FORGE_PI_HALF;
-		}
-
-		if( window->GetInput()->GetKey( IInput::Key::LeftArrow ) )
-		{
-			zRot += FORGE_PI_HALF;
-		}
-
-		if( window->GetInput()->GetKey( IInput::Key::RightArrow ) )
-		{
-			zRot -= FORGE_PI_HALF;
-		}
-
-		if( window->GetInput()->GetKey( IInput::Key::N ) )
-		{
-			yRot -= FORGE_PI_HALF;
-		}
-
-		if( window->GetInput()->GetKey( IInput::Key::M ) )
-		{
-			yRot += FORGE_PI_HALF;
-		}
-
-		Quaternion rot = camera->GetOrientation();
-		camera->SetOrientation( rot * Quaternion( xRot * Time::GetDeltaTime(), yRot * Time::GetDeltaTime(), zRot * Time::GetDeltaTime() ) );
-
-		if( window->GetInput()->GetKey( IInput::Key::R ) )
-		{
-			camera->SetTransform( Transform::IDENTITY() );
-		}
-
-		//FORGE_LOG( "Camera pos: %s", pos.ToDebugString().c_str() );
 
 		renderer->BeginScene();
 		renderer->GetRenderTargetView()->Clear( Vector4( 0.0f, 0.0f, 0.0f, 1.0f ) );

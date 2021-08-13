@@ -58,6 +58,16 @@ public:
 		return m_width;
 	}
 
+	FORGE_INLINE virtual Uint32 GetPosX() const override
+	{
+		return m_positionX;
+	}
+
+	FORGE_INLINE virtual Uint32 GetPosY() const override
+	{
+		return m_positionY;
+	}
+
 	FORGE_INLINE std::unique_ptr< CallbackToken > RegisterWindowRawEventListener( const WindowRawEventCallback::TFunc& callback )
 	{
 		return m_rawEventCallback.AddListener( callback );
@@ -69,11 +79,16 @@ private:
 
 	void Initialize( HINSTANCE hInstance );
 
+	void UpdatePositionAndSize();
+
 	HWND m_hwnd = nullptr;
 	InitializationState m_initializationState = InitializationState::NotInitialized;
 
 	Uint32 m_width = 0u;
 	Uint32 m_height = 0u;
+
+	Int32 m_positionX = 0;
+	Int32 m_positionY = 0;
 
 	std::unique_ptr< WindowsInput > m_input;
 	WindowRawEventCallback m_rawEventCallback;

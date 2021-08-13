@@ -161,4 +161,6 @@ public:
 	virtual Bool GetMouseButtonDown( MouseButton button ) const = 0;
 	virtual Bool GetMouseButtonUp( MouseButton button ) const = 0;
 	virtual const Vector2& GetMouseCurrentAxises() const = 0;
+	virtual void LockCursor( Bool lock ) = 0;
+	virtual Bool IsCursorLocked() const = 0;
 };
