@@ -5,17 +5,20 @@
 #include "D3D11IndexBuffer.h"
 #include "D3D11InputLayout.h"
 
-D3D11RenderContext::D3D11RenderContext( ID3D11DeviceContext* deviceContext )
+namespace d3d11
 {
-	m_deviceContext = deviceContext;
-}
+	D3D11RenderContext::D3D11RenderContext( ID3D11DeviceContext* deviceContext )
+	{
+		m_deviceContext = deviceContext;
+	}
 
-D3D11RenderContext::~D3D11RenderContext()
-{
-	m_deviceContext->Release();
-}
+	D3D11RenderContext::~D3D11RenderContext()
+	{
+		m_deviceContext->Release();
+	}
 
-void D3D11RenderContext::Draw( Uint32 indexCount, Uint32 offset )
-{
-	m_deviceContext->DrawIndexed( indexCount, offset, 0 );
+	void D3D11RenderContext::Draw( Uint32 indexCount, Uint32 offset )
+	{
+		m_deviceContext->DrawIndexed( indexCount, offset, 0 );
+	}
 }

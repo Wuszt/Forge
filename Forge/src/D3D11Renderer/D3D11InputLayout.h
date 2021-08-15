@@ -1,29 +1,34 @@
 #pragma once
 #include "../Renderer/IInputLayout.h"
 
-class D3D11Device;
-class D3D11VertexShader;
-class D3D11RenderContext;
+
 struct ID3D11InputLayout;
 enum D3D_PRIMITIVE_TOPOLOGY;
 
-class D3D11InputLayout : public IInputLayout
+namespace d3d11
 {
-public:
-	D3D11InputLayout( D3D11RenderContext* contextPtr, const D3D11Device& device, const D3D11VertexShader& vertexShader, const D3D11VertexBuffer& vertexBuffer );
-	~D3D11InputLayout();
+	class D3D11Device;
+	class D3D11VertexShader;
+	class D3D11RenderContext;
 
-	ID3D11InputLayout* const& GetLayout() const
+	class D3D11InputLayout : public renderer::IInputLayout
 	{
-		return m_layout;
-	}
+	public:
+		D3D11InputLayout( D3D11RenderContext* contextPtr, const D3D11Device& device, const D3D11VertexShader& vertexShader, const D3D11VertexBuffer& vertexBuffer );
+		~D3D11InputLayout();
 
-	D3D_PRIMITIVE_TOPOLOGY GetTopology() const;
+		ID3D11InputLayout* const& GetLayout() const
+		{
+			return m_layout;
+		}
 
-	virtual void Set() override;
+		D3D_PRIMITIVE_TOPOLOGY GetTopology() const;
 
-private:
-	ID3D11InputLayout* m_layout = nullptr;
-	D3D11RenderContext* m_contextPtr = nullptr;
-};
+		virtual void Set() override;
+
+	private:
+		ID3D11InputLayout* m_layout = nullptr;
+		D3D11RenderContext* m_contextPtr = nullptr;
+	};
+}
 

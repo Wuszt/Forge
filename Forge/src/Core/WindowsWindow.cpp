@@ -14,7 +14,7 @@ namespace
 
 		if( ptr != NULL )
 		{
-			WindowsWindow* windowPtr = reinterpret_cast< WindowsWindow* >( ptr );
+			windows::WindowsWindow* windowPtr = reinterpret_cast< windows::WindowsWindow* >( ptr );
 			windowPtr->OnWindowEvent( msg, wParam, lParam );
 		}
 
@@ -25,176 +25,179 @@ namespace
 	}
 }
 
-const LPCTSTR c_windowClassName = L"Window";
-
-WindowsWindow::InitializationState InternalInitialize( HINSTANCE hInstance, Uint32 width, Uint32 height, HWND& outHWND )
+namespace windows
 {
-	typedef struct _WNDCLASS {
-		Uint32 cbSize;
-		Uint32 style;
-		WNDPROC lpfnWndProc;
-		Int32 cbClsExtra;
-		Int32 cbWndExtra;
-		HANDLE hInstance;
-		HICON hIcon;
-		HCURSOR hCursor;
-		HBRUSH hbrBackground;
-		LPCTSTR lpszMenuName;
-		LPCTSTR lpszClassName;
-	} WNDCLASS;
+	const LPCTSTR c_windowClassName = L"Window";
 
-	WNDCLASSEX wc;
-
-	wc.cbSize = sizeof( WNDCLASSEX );
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = WindowCallbackHandler;
-	wc.cbClsExtra = NULL;
-	wc.cbWndExtra = NULL;
-	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon( NULL, IDI_APPLICATION );
-	wc.hCursor = LoadCursor( NULL, IDC_ARROW );
-	wc.hbrBackground = (HBRUSH)( COLOR_WINDOW + 2 );
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = c_windowClassName;
-	wc.hIconSm = LoadIcon( NULL, IDI_APPLICATION );
-
-	if( !RegisterClassEx( &wc ) )
+	WindowsWindow::InitializationState InternalInitialize( HINSTANCE hInstance, Uint32 width, Uint32 height, HWND& outHWND )
 	{
-		return WindowsWindow::InitializationState::Error_Registering_Class;
-	}
+		typedef struct _WNDCLASS {
+			Uint32 cbSize;
+			Uint32 style;
+			WNDPROC lpfnWndProc;
+			Int32 cbClsExtra;
+			Int32 cbWndExtra;
+			HANDLE hInstance;
+			HICON hIcon;
+			HCURSOR hCursor;
+			HBRUSH hbrBackground;
+			LPCTSTR lpszMenuName;
+			LPCTSTR lpszClassName;
+		} WNDCLASS;
 
-	RECT wr = { 0, 0, static_cast< Int32 >( width ), static_cast< Int32 >( height ) };
-	AdjustWindowRect( &wr, WS_OVERLAPPEDWINDOW, false );
+		WNDCLASSEX wc;
 
-	outHWND = CreateWindowEx(
-		NULL,
-		c_windowClassName,
-		L"Window",
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		wr.right - wr.left, wr.bottom - wr.top,
-		NULL,
-		NULL,
-		hInstance,
-		NULL
-	);
+		wc.cbSize = sizeof( WNDCLASSEX );
+		wc.style = CS_HREDRAW | CS_VREDRAW;
+		wc.lpfnWndProc = WindowCallbackHandler;
+		wc.cbClsExtra = NULL;
+		wc.cbWndExtra = NULL;
+		wc.hInstance = hInstance;
+		wc.hIcon = LoadIcon( NULL, IDI_APPLICATION );
+		wc.hCursor = LoadCursor( NULL, IDC_ARROW );
+		wc.hbrBackground = (HBRUSH)( COLOR_WINDOW + 2 );
+		wc.lpszMenuName = NULL;
+		wc.lpszClassName = c_windowClassName;
+		wc.hIconSm = LoadIcon( NULL, IDI_APPLICATION );
 
-	if( !outHWND )
-	{
-		return WindowsWindow::InitializationState::Error_Creating_Window;
-	}
+		if( !RegisterClassEx( &wc ) )
+		{
+			return WindowsWindow::InitializationState::Error_Registering_Class;
+		}
 
-	ShowWindow( outHWND, SW_SHOWDEFAULT );
-	UpdateWindow( outHWND );
+		RECT wr = { 0, 0, static_cast<Int32>( width ), static_cast<Int32>( height ) };
+		AdjustWindowRect( &wr, WS_OVERLAPPEDWINDOW, false );
 
-	return WindowsWindow::InitializationState::Initialized;
-}
-
-WindowsWindow::WindowsWindow( Uint32 width, Uint32 height )
-	: m_width( width )
-	, m_height( height )
-{
-	auto hInstance = GetModuleHandle( NULL );
-
-	Initialize( hInstance );
-	FORGE_ASSERT( IsInitialized() );
-
-	SetWindowLongPtr( m_hwnd, GWLP_USERDATA, reinterpret_cast< LONG_PTR >( this ) );
-
-	m_input = std::make_unique< WindowsInput >( hInstance, *this );
-}
-
-WindowsWindow::~WindowsWindow() = default;
-
-void WindowsWindow::Initialize( HINSTANCE hInstance )
-{
-	m_initializationState = InternalInitialize( hInstance, m_width, m_height, m_hwnd );
-	UpdatePositionAndSize();
-}
-
-void WindowsWindow::UpdatePositionAndSize()
-{
-	RECT rect;
-	::GetClientRect( m_hwnd, &rect );
-
-	m_width = rect.right - rect.left;
-	m_height = rect.bottom - rect.top;
-
-	::GetWindowRect( m_hwnd, &rect );
-
-	Int32 windowWidth = rect.right - rect.left;
-	Int32 windowHeight = rect.bottom - rect.top;
-
-	Uint32 xDiff = windowWidth - m_width;
-	Uint32 yDiff = windowHeight - m_height;
-
-	m_positionX = rect.left + static_cast< Int32 >( xDiff / 2 );
-	m_positionY = rect.top + static_cast<Int32>( yDiff - xDiff / 2 );
-}
-
-void WindowsWindow::Update()
-{
-	m_input->OnBeforeUpdate();
-
-	while( true )
-	{
-		MSG msg;
-		ZeroMemory( &msg, sizeof( MSG ) );
-
-		BOOL PeekMessageL(
-			LPMSG lpMsg,
-			HWND hWnd,
-			Uint32 wMsgFilterMin,
-			Uint32 wMsgFilterMax,
-			Uint32 wRemoveMsg
+		outHWND = CreateWindowEx(
+			NULL,
+			c_windowClassName,
+			L"Window",
+			WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT, CW_USEDEFAULT,
+			wr.right - wr.left, wr.bottom - wr.top,
+			NULL,
+			NULL,
+			hInstance,
+			NULL
 		);
 
-		if( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+		if( !outHWND )
 		{
-			m_input->OnEvent( msg );
-
-			TranslateMessage( &msg );
-			DispatchMessage( &msg );
-
-			m_rawEventCallback.Invoke( msg.hwnd, msg.message, msg.wParam, msg.lParam );
+			return WindowsWindow::InitializationState::Error_Creating_Window;
 		}
-		else
-		{
-			break;
-		}
+
+		ShowWindow( outHWND, SW_SHOWDEFAULT );
+		UpdateWindow( outHWND );
+
+		return WindowsWindow::InitializationState::Initialized;
 	}
-}
 
-Bool WindowsWindow::OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam )
-{
-	switch( msg )
+	WindowsWindow::WindowsWindow( Uint32 width, Uint32 height )
+		: m_width( width )
+		, m_height( height )
 	{
-	case WM_KEYDOWN:
-		if( wParam == VK_ESCAPE ) {
-			DestroyWindow( GetHWND() );
-		}
+		auto hInstance = GetModuleHandle( NULL );
 
-		return true;
+		Initialize( hInstance );
+		FORGE_ASSERT( IsInitialized() );
 
-	case WM_DESTROY:
-		PostQuitMessage( 0 );
-		return true;
+		SetWindowLongPtr( m_hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( this ) );
 
-	case WM_SIZE:
-		UpdatePositionAndSize();
-		DispatchEvent( OnResizedWindowEvent( *this, m_width, m_height ) );
-		m_rawEventCallback.Invoke( m_hwnd, msg, wParam, lParam );
-		return true;
-
-	case WM_EXITSIZEMOVE:
-		UpdatePositionAndSize();
-		return true;
+		m_input = std::make_unique< WindowsInput >( hInstance, *this );
 	}
 
-	return false;
-}
+	WindowsWindow::~WindowsWindow() = default;
 
-IInput* WindowsWindow::GetInput() const
-{
-	return m_input.get();
+	void WindowsWindow::Initialize( HINSTANCE hInstance )
+	{
+		m_initializationState = InternalInitialize( hInstance, m_width, m_height, m_hwnd );
+		UpdatePositionAndSize();
+	}
+
+	void WindowsWindow::UpdatePositionAndSize()
+	{
+		RECT rect;
+		::GetClientRect( m_hwnd, &rect );
+
+		m_width = rect.right - rect.left;
+		m_height = rect.bottom - rect.top;
+
+		::GetWindowRect( m_hwnd, &rect );
+
+		Int32 windowWidth = rect.right - rect.left;
+		Int32 windowHeight = rect.bottom - rect.top;
+
+		Uint32 xDiff = windowWidth - m_width;
+		Uint32 yDiff = windowHeight - m_height;
+
+		m_positionX = rect.left + static_cast<Int32>( xDiff / 2 );
+		m_positionY = rect.top + static_cast<Int32>( yDiff - xDiff / 2 );
+	}
+
+	void WindowsWindow::Update()
+	{
+		m_input->OnBeforeUpdate();
+
+		while( true )
+		{
+			MSG msg;
+			ZeroMemory( &msg, sizeof( MSG ) );
+
+			BOOL PeekMessageL(
+				LPMSG lpMsg,
+				HWND hWnd,
+				Uint32 wMsgFilterMin,
+				Uint32 wMsgFilterMax,
+				Uint32 wRemoveMsg
+			);
+
+			if( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+			{
+				m_input->OnEvent( msg );
+
+				TranslateMessage( &msg );
+				DispatchMessage( &msg );
+
+				m_rawEventCallback.Invoke( msg.hwnd, msg.message, msg.wParam, msg.lParam );
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+
+	Bool WindowsWindow::OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam )
+	{
+		switch( msg )
+		{
+		case WM_KEYDOWN:
+			if( wParam == VK_ESCAPE ) {
+				DestroyWindow( GetHWND() );
+			}
+
+			return true;
+
+		case WM_DESTROY:
+			PostQuitMessage( 0 );
+			return true;
+
+		case WM_SIZE:
+			UpdatePositionAndSize();
+			DispatchEvent( forge::IWindow::OnResizedWindowEvent( *this, m_width, m_height ) );
+			m_rawEventCallback.Invoke( m_hwnd, msg, wParam, lParam );
+			return true;
+
+		case WM_EXITSIZEMOVE:
+			UpdatePositionAndSize();
+			return true;
+		}
+
+		return false;
+	}
+
+	forge::IInput* WindowsWindow::GetInput() const
+	{
+		return m_input.get();
+	}
 }

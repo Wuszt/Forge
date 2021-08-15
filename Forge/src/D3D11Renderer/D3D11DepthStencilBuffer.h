@@ -3,23 +3,25 @@
 
 struct ID3D11DepthStencilView;
 
-class D3D11DepthStencilBuffer : public IDepthStencilBuffer
+namespace d3d11
 {
-public:
-	D3D11DepthStencilBuffer( const D3D11Device& device, const D3D11RenderContext& context, Uint32 width, Uint32 height );
-	~D3D11DepthStencilBuffer();
-
-	FORGE_INLINE ID3D11DepthStencilView* GetView() const
+	class D3D11DepthStencilBuffer : public renderer::IDepthStencilBuffer
 	{
-		return m_view;
-	}
+	public:
+		D3D11DepthStencilBuffer( const D3D11Device& device, const D3D11RenderContext& context, Uint32 width, Uint32 height );
+		~D3D11DepthStencilBuffer();
 
-	virtual void Clear() override;
+		FORGE_INLINE ID3D11DepthStencilView* GetView() const
+		{
+			return m_view;
+		}
 
-private:
-	std::shared_ptr< D3D11Texture > m_texture;
-	ID3D11DepthStencilView* m_view;
-	const D3D11Device& m_device;
-	const D3D11RenderContext& m_context;
-};
+		virtual void Clear() override;
 
+	private:
+		std::shared_ptr< D3D11Texture > m_texture;
+		ID3D11DepthStencilView* m_view;
+		const D3D11Device& m_device;
+		const D3D11RenderContext& m_context;
+	};
+}

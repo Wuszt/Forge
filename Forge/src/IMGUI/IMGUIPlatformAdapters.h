@@ -1,30 +1,39 @@
 #pragma once
 
-class WindowsWindow;
-
-class IIMGUIPlatformAdapter
+namespace forge
 {
-public:
-	virtual ~IIMGUIPlatformAdapter() {}
+	class IIMGUIPlatformAdapter
+	{
+	public:
+		virtual ~IIMGUIPlatformAdapter() {}
 
-	virtual void OnNewFrame() = 0;
-};
+		virtual void OnNewFrame() = 0;
+	};
+}
 
 #ifdef FORGE_PLATFORM_WINDOWS
 
-class IWindow;
-
-class IMGUIWindowsAdapter : public IIMGUIPlatformAdapter
+namespace forge
 {
-public:
-	IMGUIWindowsAdapter( IWindow& window );
-	virtual void OnNewFrame();
-	virtual ~IMGUIWindowsAdapter();
+	class IWindow;
+}
 
-private:
-	WindowsWindow* m_windowsWindow = nullptr;
-	std::unique_ptr< CallbackToken > m_windowEventCallbackToken;
+namespace windows
+{
+	class WindowsWindow;
 
-};
+	class IMGUIWindowsAdapter : public forge::IIMGUIPlatformAdapter
+	{
+	public:
+		IMGUIWindowsAdapter( forge::IWindow& window );
+		virtual void OnNewFrame();
+		virtual ~IMGUIWindowsAdapter();
+
+	private:
+		windows::WindowsWindow* m_windowsWindow = nullptr;
+		std::unique_ptr< forge::CallbackToken > m_windowEventCallbackToken;
+
+	};
+}
 #endif
 

@@ -64,7 +64,7 @@ namespace Math
 	}
 
 	template< class T0, class T1 >
-	FORGE_INLINE const T0& Pow( const T0& val, const T1& pow )
+	FORGE_INLINE T0 Pow( const T0& val, const T1& pow )
 	{
 		return std::pow( val, pow );
 	}

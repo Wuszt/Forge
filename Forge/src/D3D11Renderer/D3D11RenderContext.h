@@ -1,28 +1,31 @@
 #pragma once
 #include "../Renderer/IRenderContext.h"
 
-class D3D11RenderTargetView;
-class D3D11VertexShader;
-class D3D11PixelShader;
-class D3D11VertexBuffer;
-class D3D11IndexBuffer;
-class D3D11InputLayout;
 struct ID3D11DeviceContext;
 
-class D3D11RenderContext : public IRenderContext
+namespace d3d11
 {
-public:
-	D3D11RenderContext( ID3D11DeviceContext* deviceContext );
-	~D3D11RenderContext();
+	class D3D11RenderTargetView;
+	class D3D11VertexShader;
+	class D3D11PixelShader;
+	class D3D11VertexBuffer;
+	class D3D11IndexBuffer;
+	class D3D11InputLayout;
 
-	FORGE_INLINE ID3D11DeviceContext* const& GetDeviceContext() const
+	class D3D11RenderContext : public renderer::IRenderContext
 	{
-		return m_deviceContext;
-	}
+	public:
+		D3D11RenderContext( ID3D11DeviceContext* deviceContext );
+		~D3D11RenderContext();
 
-	virtual void Draw( Uint32 indexCount, Uint32 offset ) override;
+		FORGE_INLINE ID3D11DeviceContext* const& GetDeviceContext() const
+		{
+			return m_deviceContext;
+		}
 
-private:
-	ID3D11DeviceContext* m_deviceContext = nullptr;
-};
+		virtual void Draw( Uint32 indexCount, Uint32 offset ) override;
 
+	private:
+		ID3D11DeviceContext* m_deviceContext = nullptr;
+	};
+}

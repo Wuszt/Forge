@@ -2,19 +2,21 @@
 struct ID3D11Texture2D;
 struct D3D11_TEXTURE2D_DESC;
 
-class D3D11Texture
+namespace d3d11
 {
-public:
-	D3D11Texture( ID3D11Texture2D* texture );
-	D3D11Texture( const D3D11Device& device, const D3D11_TEXTURE2D_DESC& desc );
-	~D3D11Texture();
-
-	FORGE_INLINE ID3D11Texture2D* const& GetTexture() const
+	class D3D11Texture
 	{
-		return m_texture;
-	}
+	public:
+		D3D11Texture( ID3D11Texture2D* texture );
+		D3D11Texture( const D3D11Device& device, const D3D11_TEXTURE2D_DESC& desc );
+		~D3D11Texture();
 
-private:
-	ID3D11Texture2D* m_texture = nullptr;
-};
+		FORGE_INLINE ID3D11Texture2D* const& GetTexture() const
+		{
+			return m_texture;
+		}
 
+	private:
+		ID3D11Texture2D* m_texture = nullptr;
+	};
+}

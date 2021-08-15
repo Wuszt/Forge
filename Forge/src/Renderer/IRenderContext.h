@@ -1,9 +1,12 @@
 #pragma once
-class IRenderContext
+
+namespace renderer
 {
-public:
-	virtual ~IRenderContext() {}
+	class IRenderContext
+	{
+	public:
+		virtual ~IRenderContext() {}
 
-	virtual void Draw( Uint32 indexCount, Uint32 offset ) = 0;
-};
-
+		virtual void Draw( Uint32 indexCount, Uint32 offset ) = 0;
+	};
+}

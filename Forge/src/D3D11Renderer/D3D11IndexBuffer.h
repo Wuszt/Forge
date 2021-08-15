@@ -1,25 +1,29 @@
 #pragma once
 #include "../Renderer/IIndexBuffer.h"
 
-class D3D11Device;
-class D3D11RenderContext;
+
 struct ID3D11Buffer;
 
-class D3D11IndexBuffer : public IIndexBuffer
+namespace d3d11
 {
-public:
-	D3D11IndexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const Uint32* indices, Uint32 amount );
-	~D3D11IndexBuffer();
+	class D3D11Device;
+	class D3D11RenderContext;
 
-	FORGE_INLINE ID3D11Buffer* const& GetBuffer() const
+	class D3D11IndexBuffer : public renderer::IIndexBuffer
 	{
-		return m_buffer;
-	}
+	public:
+		D3D11IndexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const Uint32* indices, Uint32 amount );
+		~D3D11IndexBuffer();
 
-	void Set( Uint32 offset );
+		FORGE_INLINE ID3D11Buffer* const& GetBuffer() const
+		{
+			return m_buffer;
+		}
 
-private:
-	ID3D11Buffer* m_buffer = nullptr;
-	D3D11RenderContext* m_contextPtr = nullptr;
-};
+		void Set( Uint32 offset );
 
+	private:
+		ID3D11Buffer* m_buffer = nullptr;
+		D3D11RenderContext* m_contextPtr = nullptr;
+	};
+}

@@ -2,14 +2,17 @@
 #include "IRenderer.h"
 #include "../D3D11Renderer/D3D11Renderer.h"
 
-std::unique_ptr< IRenderer > IRenderer::CreateRenderer( IWindow& window, RendererType type )
+namespace renderer
 {
-	switch( type )
+	std::unique_ptr< IRenderer > IRenderer::CreateRenderer( forge::IWindow& window, RendererType type )
 	{
-	case RendererType::D3D11:
-		return std::make_unique< D3D11Renderer >( window );
-	default:
-		FORGE_FATAL( "Unknown renderer type" );
-		return nullptr;
+		switch( type )
+		{
+		case RendererType::D3D11:
+			return std::make_unique< d3d11::D3D11Renderer >( window );
+		default:
+			FORGE_FATAL( "Unknown renderer type" );
+			return nullptr;
+		}
 	}
 }

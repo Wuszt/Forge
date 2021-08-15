@@ -33,7 +33,7 @@ void DrawFPSOverlay()
 	Bool tmp = true;
 	if( ImGui::Begin( "Overlay", &tmp, window_flags ) )
 	{
-		ImGui::Text( "FPS: %.2f", FPSCounter::GetAverageFPS( 1u ) );
+		ImGui::Text( "FPS: %.2f", forge::FPSCounter::GetAverageFPS( 1u ) );
 	}
 	ImGui::End();
 }
@@ -43,67 +43,67 @@ Int32 main()
 	const Uint32 width = 1600;
 	const Uint32 height = 900;
 
-	Time::Initialize();
+	forge::Time::Initialize();
 
-	StopWatch stopWatch;
+	forge::StopWatch stopWatch;
 
 	stopWatch.Reset();
-	auto window = IWindow::CreateNewWindow( width, height );
+	auto window = forge::IWindow::CreateNewWindow( width, height );
 	FORGE_LOG( "Window creating time duration: %f sec", stopWatch.GetDuration() );
 
 	stopWatch.Reset();
-	auto renderer = IRenderer::CreateRenderer( *window, RendererType::D3D11 );
+	auto rendererInstance = renderer::IRenderer::CreateRenderer( *window, renderer::RendererType::D3D11 );
 
 	FORGE_LOG( "Renderer creating time duration: %f sec", stopWatch.GetDuration() );
 
-	std::unique_ptr< IMGUISystem > imguiSystem = std::make_unique< IMGUISystem >( *window, *renderer );
+	std::unique_ptr< forge::IMGUISystem > imguiSystem = std::make_unique< forge::IMGUISystem >( *window, *rendererInstance );
 
-	std::unique_ptr< ICamera > camera = std::make_unique< PerspectiveCamera >( window->GetAspectRatio(), FORGE_PI / 3.0f, 0.1f, 2000.0f );
+	std::unique_ptr< forge::ICamera > camera = std::make_unique< forge::PerspectiveCamera >( window->GetAspectRatio(), FORGE_PI / 3.0f, 0.1f, 2000.0f );
 	camera->SetPosition( { 0.0f, 0.0f, 50.0f } );
 
-	std::unique_ptr< CallbackToken > windowEventCallback = window->RegisterEventListener( [&]( const IWindow::IEvent& event )
+	std::unique_ptr< forge::CallbackToken > windowEventCallback = window->RegisterEventListener( [&]( const forge::IWindow::IEvent& event )
 	{
-		if( event.GetEventType() == IWindow::EventType::OnWindowResized )
+		if( event.GetEventType() == forge::IWindow::EventType::OnWindowResized )
 		{
 			auto prevCamera = std::move( camera );
-			camera = std::make_unique< PerspectiveCamera >( window->GetAspectRatio(), FORGE_PI / 3.0f, 0.1f, 2000.0f );
+			camera = std::make_unique< forge::PerspectiveCamera >( window->GetAspectRatio(), FORGE_PI / 3.0f, 0.1f, 2000.0f );
 			camera->SetTransform( prevCamera->GetTransform() );
 		}
 	} );
 
 	stopWatch.Reset();
 
-	auto vertexShader = renderer->GetVertexShader( "Effects.fx" );
-	auto pixelShader = renderer->GetPixelShader( "Effects.fx" );
+	auto vertexShader = rendererInstance->GetVertexShader( "Effects.fx" );
+	auto pixelShader = rendererInstance->GetPixelShader( "Effects.fx" );
 
 	FORGE_LOG( "Shaders compilation time: %f sec", stopWatch.GetDuration() );
 
 	vertexShader->Set();
 	pixelShader->Set();
 
-	Vertices< IVertex< InputPosition, InputColor > > vertices;
+	renderer::Vertices< renderer::IVertex< renderer::InputPosition, renderer::InputColor > > vertices;
 
 	vertices.m_vertices =
 	{
-		{ InputPosition( -1.0f, -1.0f, -1.0f ), InputColor( 1.0f, 0.0f, 0.0f, 1.0f ) },
-		{ InputPosition( 1.0f,	-1.0f, -1.0f ), InputColor( 0.0f, 1.0f, 0.0f, 1.0f ) },
-		{ InputPosition( 1.0f, 1.0f, -1.0f ), InputColor( 0.0f, 0.0f, 1.0f, 1.0f ) },
-		{ InputPosition( -1.0f, 1.0f, -1.0f ), InputColor( 0.0f, 1.0f, 0.0f, 1.0f ) },
+		{ renderer::InputPosition( -1.0f, -1.0f, -1.0f ), renderer::InputColor( 1.0f, 0.0f, 0.0f, 1.0f ) },
+		{ renderer::InputPosition( 1.0f,	-1.0f, -1.0f ), renderer::InputColor( 0.0f, 1.0f, 0.0f, 1.0f ) },
+		{ renderer::InputPosition( 1.0f, 1.0f, -1.0f ), renderer::InputColor( 0.0f, 0.0f, 1.0f, 1.0f ) },
+		{ renderer::InputPosition( -1.0f, 1.0f, -1.0f ), renderer::InputColor( 0.0f, 1.0f, 0.0f, 1.0f ) },
 
-		{ InputPosition( -1.0f, -1.0f, 1.0f ), InputColor( 0.0f, 1.0f, 1.0f, 1.0f ) },
-		{ InputPosition( 1.0f,	-1.0f, 1.0f ), InputColor( 1.0f, 1.0f, 0.0f, 1.0f ) },
-		{ InputPosition( 1.0f, 1.0f, 1.0f ), InputColor( 1.0f, 0.0f, 1.0f, 1.0f ) },
-		{ InputPosition( -1.0f, 1.0f, 1.0f ), InputColor( 0.3f, 0.7f, 0.6f, 1.0f ) },
+		{ renderer::InputPosition( -1.0f, -1.0f, 1.0f ), renderer::InputColor( 0.0f, 1.0f, 1.0f, 1.0f ) },
+		{ renderer::InputPosition( 1.0f,	-1.0f, 1.0f ), renderer::InputColor( 1.0f, 1.0f, 0.0f, 1.0f ) },
+		{ renderer::InputPosition( 1.0f, 1.0f, 1.0f ), renderer::InputColor( 1.0f, 0.0f, 1.0f, 1.0f ) },
+		{ renderer::InputPosition( -1.0f, 1.0f, 1.0f ), renderer::InputColor( 0.3f, 0.7f, 0.6f, 1.0f ) },
 	};
 
 	stopWatch.Reset();
 
-	auto vertexBuffer = renderer->CreateVertexBuffer( vertices );
+	auto vertexBuffer = rendererInstance->CreateVertexBuffer( vertices );
 	vertexBuffer->Set();
 
 	FORGE_LOG( "VertexBuffer creation time: %f sec", stopWatch.GetDuration() );
 
-	auto inputLayout = renderer->CreateInputLayout( *vertexShader, *vertexBuffer );
+	auto inputLayout = rendererInstance->CreateInputLayout( *vertexShader, *vertexBuffer );
 	inputLayout->Set();
 
 	Uint32 indices[ 6 * 6 ] =
@@ -116,7 +116,7 @@ Int32 main()
 		4, 0, 5, 0, 1, 5
 	};
 
-	auto indexBuffer = renderer->CreateIndexBuffer( indices, sizeof( indices ) / sizeof( Uint32 ) );
+	auto indexBuffer = rendererInstance->CreateIndexBuffer( indices, sizeof( indices ) / sizeof( Uint32 ) );
 	indexBuffer->Set( 0 );
 
 	Bool imguiExample = false;
@@ -131,17 +131,17 @@ Int32 main()
 	Uint32 seed = rng.GetRaw();
 	while( true )
 	{
-		Time::Update();
-		FPSCounter::OnUpdate( Time::GetDeltaTime() );
+		forge::Time::Update();
+		forge::FPSCounter::OnUpdate( forge::Time::GetDeltaTime() );
 		window->Update();
 		imguiSystem->OnNewFrame();
 
-		if( window->GetInput()->GetMouseButtonDown( IInput::MouseButton::LeftButton ) )
+		if( window->GetInput()->GetMouseButtonDown( forge::IInput::MouseButton::LeftButton ) )
 		{
 			FORGE_LOG( "Clicked on: %s", window->GetInput()->GetMouseCurrentAxises().ToDebugString().c_str() );
 		}
 
-		if( window->GetInput()->GetKey( IInput::Key::Shift ) && window->GetInput()->GetMouseButton( IInput::MouseButton::MiddleButton ) )
+		if( window->GetInput()->GetKey( forge::IInput::Key::Shift ) && window->GetInput()->GetMouseButton( forge::IInput::MouseButton::MiddleButton ) )
 		{
 			if( !wasShiftAndWheelPressed )
 			{
@@ -159,32 +159,32 @@ Int32 main()
 		{
 			Vector3 delta;
 
-			if( window->GetInput()->GetKey( IInput::Key::D ) )
+			if( window->GetInput()->GetKey( forge::IInput::Key::D ) )
 			{
 				delta.X = 1.0f;
 			}
 
-			if( window->GetInput()->GetKey( IInput::Key::A ) )
+			if( window->GetInput()->GetKey( forge::IInput::Key::A ) )
 			{
 				delta.X = -1.0f;
 			}
 
-			if( window->GetInput()->GetKey( IInput::Key::W ) )
+			if( window->GetInput()->GetKey( forge::IInput::Key::W ) )
 			{
 				delta.Y = 1.0f;
 			}
 
-			if( window->GetInput()->GetKey( IInput::Key::S ) )
+			if( window->GetInput()->GetKey( forge::IInput::Key::S ) )
 			{
 				delta.Y = -1.0f;
 			}
 
-			if( window->GetInput()->GetKey( IInput::Key::Q ) )
+			if( window->GetInput()->GetKey( forge::IInput::Key::Q ) )
 			{
 				delta.Z = -1.0f;
 			}
 
-			if( window->GetInput()->GetKey( IInput::Key::E ) )
+			if( window->GetInput()->GetKey( forge::IInput::Key::E ) )
 			{
 				delta.Z = 1.0f;
 			}
@@ -195,13 +195,13 @@ Int32 main()
 			Vector3 pos = camera->GetPosition();
 			delta *= Math::Pow( 2.0f, currentSpeed );
 
-			if( window->GetInput()->GetKey( IInput::Key::Shift ) )
+			if( window->GetInput()->GetKey( forge::IInput::Key::Shift ) )
 			{
 				delta *= 4.0f;
 			}
 
 			delta = camera->GetOrientation().Transform( delta );
-			pos += delta * Time::GetDeltaTime();
+			pos += delta * forge::Time::GetDeltaTime();
 			camera->SetPosition( pos );
 
 			Vector3 deltaRot = window->GetInput()->GetMouseDeltaAxises() * 0.001f;
@@ -214,17 +214,17 @@ Int32 main()
 
 			camera->SetOrientation( Quaternion( 0.0f, 0.0f, cameraEulerAngles.Z ) * Quaternion( cameraEulerAngles.X, 0.0f, 0.0f ) );
 
-			if( window->GetInput()->GetKey( IInput::Key::R ) )
+			if( window->GetInput()->GetKey( forge::IInput::Key::R ) )
 			{
 				camera->SetTransform( Transform::IDENTITY() );
 			}
 		}
 
-		renderer->BeginScene();
-		renderer->GetRenderTargetView()->Clear( Vector4( 0.0f, 0.0f, 0.0f, 1.0f ) );
-		if( renderer->GetDepthStencilBuffer() )
+		rendererInstance->BeginScene();
+		rendererInstance->GetRenderTargetView()->Clear( Vector4( 0.0f, 0.0f, 0.0f, 1.0f ) );
+		if( rendererInstance->GetDepthStencilBuffer() )
 		{
-			renderer->GetDepthStencilBuffer()->Clear();
+			rendererInstance->GetDepthStencilBuffer()->Clear();
 		}
 
 		struct cbPerObject
@@ -236,7 +236,7 @@ Int32 main()
 
 		//Ground
 		{
-			auto buff = renderer->GetConstantBuffer< cbPerObject >();
+			auto buff = rendererInstance->GetConstantBuffer< cbPerObject >();
 
 			Matrix m;
 			m.SetTranslation( 0.0f, 0.0f, 0.0f );
@@ -244,7 +244,7 @@ Int32 main()
 			buff->GetData().WVP = m * camera->GetViewProjectionMatrix();
 			buff->GetData().color = Vector4( 0.0f, 0.6f, 0.0f, 1.0f );
 			buff->SetVS( 1 );
-			renderer->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
+			rendererInstance->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
 		}		
 
 		Math::Random rng( seed );
@@ -256,7 +256,7 @@ Int32 main()
 				continue;
 			}
 
-			auto buff = renderer->GetConstantBuffer< cbPerObject >();
+			auto buff = rendererInstance->GetConstantBuffer< cbPerObject >();
 
 			Matrix m;
 
@@ -272,13 +272,13 @@ Int32 main()
 			buff->GetData().color = Vector4( rng.GetFloat(), rng.GetFloat(), rng.GetFloat(), 1.0f );
 			buff->SetVS( 1 );
 
-			renderer->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
+			rendererInstance->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
 		}
 
 		ImGui::ShowDemoWindow( &imguiExample );
 		DrawFPSOverlay();
 		imguiSystem->Render();
 
-		renderer->GetSwapchain()->Present();
+		rendererInstance->GetSwapchain()->Present();
 	}
 }

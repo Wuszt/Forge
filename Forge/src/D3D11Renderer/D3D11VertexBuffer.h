@@ -1,37 +1,40 @@
 #pragma once
 #include "../Renderer/IVertexBuffer.h"
 
-class D3D11RenderContext;
-class D3D11Device;
 struct D3D11_INPUT_ELEMENT_DESC;
 struct ID3D11Buffer;
 
-class D3D11VertexBuffer : public IVertexBuffer
+namespace d3d11
 {
-public:
-	D3D11VertexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const IVertices& vertices );
-	~D3D11VertexBuffer();
+	class D3D11RenderContext;
+	class D3D11Device;
 
-	ID3D11Buffer* const& GetBuffer() const
+	class D3D11VertexBuffer : public renderer::IVertexBuffer
 	{
-		return m_buffer;
-	}
+	public:
+		D3D11VertexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const renderer::IVertices& vertices );
+		~D3D11VertexBuffer();
 
-	Uint32 GetStride() const
-	{
-		return m_stride;
-	}
+		ID3D11Buffer* const& GetBuffer() const
+		{
+			return m_buffer;
+		}
 
-	virtual void Set() override;
+		Uint32 GetStride() const
+		{
+			return m_stride;
+		}
 
-	const D3D11_INPUT_ELEMENT_DESC* GetLayout() const;
+		virtual void Set() override;
 
-	Uint32 GetElementsAmount() const;
+		const D3D11_INPUT_ELEMENT_DESC* GetLayout() const;
 
-private:
-	ID3D11Buffer* m_buffer;
-	D3D11RenderContext* m_contextPtr;
-	Uint32 m_stride = 0u;
-	std::vector< D3D11_INPUT_ELEMENT_DESC > m_layout;
-};
+		Uint32 GetElementsAmount() const;
 
+	private:
+		ID3D11Buffer* m_buffer;
+		D3D11RenderContext* m_contextPtr;
+		Uint32 m_stride = 0u;
+		std::vector< D3D11_INPUT_ELEMENT_DESC > m_layout;
+	};
+}

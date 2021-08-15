@@ -1,9 +1,13 @@
 #pragma once
-class IVertexShader
-{
-public:
-	virtual ~IVertexShader() {}
 
-	virtual void Set() = 0;
-};
+namespace renderer
+{
+	class IVertexShader
+	{
+	public:
+		virtual ~IVertexShader() {}
+
+		virtual void Set() = 0;
+	};
+}
 

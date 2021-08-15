@@ -3,7 +3,6 @@
 #include "../Math/Vector2.h"
 #include "../Math/Vector3.h"
 
-class WindowsWindow;
 struct IDirectInputDevice8;
 struct Vector2;
 struct Vector3;
@@ -16,50 +15,55 @@ typedef HWND__* HWND;
 
 struct tagMSG;
 
-class WindowsInput : public IInput
+namespace windows
 {
-public:
-	WindowsInput( HINSTANCE hInstance, const WindowsWindow& window );
-	~WindowsInput();
+	class WindowsWindow;
 
-	void OnBeforeUpdate();
-
-	void OnEvent( const tagMSG& msg );
-	virtual Bool GetKey( IInput::Key key ) const override;
-	virtual Bool GetKeyDown( IInput::Key key ) const override;
-	virtual Bool GetKeyUp( IInput::Key key ) const override;
-	virtual const Vector3& GetMouseDeltaAxises() const override;
-	virtual Bool GetMouseButton( MouseButton button ) const override;
-	virtual Bool GetMouseButtonDown( MouseButton button ) const override;
-	virtual Bool GetMouseButtonUp( MouseButton button ) const override;
-	virtual const Vector2& GetMouseCurrentAxises() const override;
-
-	FORGE_INLINE virtual void LockCursor( Bool lock ) override
+	class WindowsInput : public forge::IInput
 	{
-		m_lockCursor = lock;
-	}
+	public:
+		WindowsInput( HINSTANCE hInstance, const WindowsWindow& window );
+		~WindowsInput();
 
-	FORGE_INLINE virtual Bool IsCursorLocked() const override
-	{
-		return m_lockCursor;
-	}
+		void OnBeforeUpdate();
 
-private:
-	void OnKeyboardUpdate( IInput::Key key, Bool pressed );
-	void OnMouseUpdate( IInput::Key key, Bool pressed );
-	void OnMouseWheelUpdate( Int32 delta );
+		void OnEvent( const tagMSG& msg );
+		virtual Bool GetKey( forge::IInput::Key key ) const override;
+		virtual Bool GetKeyDown( forge::IInput::Key key ) const override;
+		virtual Bool GetKeyUp( forge::IInput::Key key ) const override;
+		virtual const Vector3& GetMouseDeltaAxises() const override;
+		virtual Bool GetMouseButton( MouseButton button ) const override;
+		virtual Bool GetMouseButtonDown( MouseButton button ) const override;
+		virtual Bool GetMouseButtonUp( MouseButton button ) const override;
+		virtual const Vector2& GetMouseCurrentAxises() const override;
 
-	Bool m_lockCursor = false;
+		FORGE_INLINE virtual void LockCursor( Bool lock ) override
+		{
+			m_lockCursor = lock;
+		}
 
-	static const Uint32 c_keysAmount = 256;
+		FORGE_INLINE virtual Bool IsCursorLocked() const override
+		{
+			return m_lockCursor;
+		}
 
-	std::array< Bool, c_keysAmount > m_keys;
-	std::array< Bool, c_keysAmount > m_keysPressed;
-	std::array< Bool, c_keysAmount > m_keysReleased;
+	private:
+		void OnKeyboardUpdate( forge::IInput::Key key, Bool pressed );
+		void OnMouseUpdate( forge::IInput::Key key, Bool pressed );
+		void OnMouseWheelUpdate( Int32 delta );
 
-	Vector2 m_mouseCurrentAxises;
-	Vector3 m_mouseDeltaAxises;
+		Bool m_lockCursor = false;
 
-	const WindowsWindow& m_window;
-};
+		static const Uint32 c_keysAmount = 256;
+
+		std::array< Bool, c_keysAmount > m_keys;
+		std::array< Bool, c_keysAmount > m_keysPressed;
+		std::array< Bool, c_keysAmount > m_keysReleased;
+
+		Vector2 m_mouseCurrentAxises;
+		Vector3 m_mouseDeltaAxises;
+
+		const WindowsWindow& m_window;
+	};
+}
 

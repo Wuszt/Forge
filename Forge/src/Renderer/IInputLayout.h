@@ -1,9 +1,12 @@
 #pragma once
-class IInputLayout
+
+namespace renderer
 {
-public:
-	virtual ~IInputLayout() = default;
+	class IInputLayout
+	{
+	public:
+		virtual ~IInputLayout() = default;
 
-	virtual void Set() = 0;
-};
-
+		virtual void Set() = 0;
+	};
+}

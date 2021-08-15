@@ -1,9 +1,12 @@
 #pragma once
-class IRenderTargetView
+
+namespace renderer
 {
-public:
-	virtual ~IRenderTargetView() {}
+	class IRenderTargetView
+	{
+	public:
+		virtual ~IRenderTargetView() {}
 
-	virtual void Clear( const Vector4& bgColor = { 0.0f, 0.0f, 0.0f, 0.0f } ) = 0;
-};
-
+		virtual void Clear( const Vector4& bgColor = { 0.0f, 0.0f, 0.0f, 0.0f } ) = 0;
+	};
+}

@@ -1,9 +1,12 @@
 #pragma once
-class IIndexBuffer
+
+namespace renderer
 {
-public:
-	virtual ~IIndexBuffer() {}
+	class IIndexBuffer
+	{
+	public:
+		virtual ~IIndexBuffer() {}
 
-	virtual void Set( Uint32 offset ) = 0;
-};
-
+		virtual void Set( Uint32 offset ) = 0;
+	};
+}

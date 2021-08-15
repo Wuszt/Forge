@@ -4,45 +4,48 @@
 #include "IMGUIRenderAPIAdapters.h"
 #include "../Renderer/IRenderer.h"
 
-IMGUISystem::IMGUISystem( IWindow& window, IRenderer& renderer )
+namespace forge
 {
+	IMGUISystem::IMGUISystem( IWindow& window, renderer::IRenderer& renderer )
+	{
 #ifndef FORGE_IMGUI_ENABLED
-FORGE_FATAL( "Imgui is not implemented for this platform" );
+		FORGE_FATAL( "Imgui is not implemented for this platform" );
 #endif
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	ImGui::StyleColorsDark();
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO();
+		ImGui::StyleColorsDark();
 
 #ifdef FORGE_PLATFORM_WINDOWS
-	m_platformAdapter = std::make_unique< IMGUIWindowsAdapter >( window );
+		m_platformAdapter = std::make_unique< windows::IMGUIWindowsAdapter >( window );
 #endif
 
-	switch( renderer.GetType() )
-	{
-	case RendererType::D3D11:
-		m_renderAPIAdapter = std::make_unique< IMGUID3D11Adapter >( renderer );
-		break;
-	default:
-		FORGE_FATAL( "Unknown renderer type" );
+		switch( renderer.GetType() )
+		{
+		case renderer::RendererType::D3D11:
+			m_renderAPIAdapter = std::make_unique< d3d11::IMGUID3D11Adapter >( renderer );
+			break;
+		default:
+			FORGE_FATAL( "Unknown renderer type" );
+		}
 	}
-}
 
-IMGUISystem::~IMGUISystem()
-{
-	ImGui::DestroyContext();
-}
+	IMGUISystem::~IMGUISystem()
+	{
+		ImGui::DestroyContext();
+	}
 
-void IMGUISystem::OnNewFrame()
-{
-	m_renderAPIAdapter->OnNewFrame();
-	m_platformAdapter->OnNewFrame();
-	ImGui::NewFrame();
-}
+	void IMGUISystem::OnNewFrame()
+	{
+		m_renderAPIAdapter->OnNewFrame();
+		m_platformAdapter->OnNewFrame();
+		ImGui::NewFrame();
+	}
 
-void IMGUISystem::Render()
-{
-	ImGui::Render();
-	m_renderAPIAdapter->Render();
+	void IMGUISystem::Render()
+	{
+		ImGui::Render();
+		m_renderAPIAdapter->Render();
+	}
 }

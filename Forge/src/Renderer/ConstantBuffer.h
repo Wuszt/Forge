@@ -1,40 +1,42 @@
 #pragma once
 
-class IConstantBufferImpl
+namespace renderer
 {
-public:
-	IConstantBufferImpl();
-	virtual ~IConstantBufferImpl();
-
-	virtual void SetVS( Uint32 index ) = 0;
-	virtual void SetPS( Uint32 index ) = 0;
-};
-
-template< class T >
-class ConstantBuffer
-{
-public:
-	void SetImpl( std::unique_ptr< IConstantBufferImpl > impl )
+	class IConstantBufferImpl
 	{
-		m_impl = std::move( impl );
-	}
+	public:
+		virtual ~IConstantBufferImpl() {}
 
-	T& GetData()
+		virtual void SetVS( Uint32 index ) = 0;
+		virtual void SetPS( Uint32 index ) = 0;
+	};
+
+	template< class T >
+	class ConstantBuffer
 	{
-		return m_data;
-	}
+	public:
+		void SetImpl( std::unique_ptr< IConstantBufferImpl > impl )
+		{
+			m_impl = std::move( impl );
+		}
 
-	void SetVS( Uint32 index )
-	{
-		m_impl->SetVS( index );
-	}
+		T& GetData()
+		{
+			return m_data;
+		}
 
-	void SetPS( Uint32 index )
-	{
-		m_impl->SetPS( index );
-	}
+		void SetVS( Uint32 index )
+		{
+			m_impl->SetVS( index );
+		}
 
-private:
-	std::unique_ptr< IConstantBufferImpl > m_impl;
-	T m_data;
-};
+		void SetPS( Uint32 index )
+		{
+			m_impl->SetPS( index );
+		}
+
+	private:
+		std::unique_ptr< IConstantBufferImpl > m_impl;
+		T m_data;
+	};
+}

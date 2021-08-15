@@ -2,18 +2,21 @@
 #include "spdlog/spdlog.h"
 #include "Logger.h"
 
-void Logger::LogToConsole( LogType type, const std::string& str )
+namespace forge
 {
-	if( type == LogType::Info )
+	void Logger::LogToConsole( LogType type, const std::string& str )
 	{
-		spdlog::info( str );
-	}
-	else if( type == LogType::Warning )
-	{
-		spdlog::warn( str );
-	}
-	else if( type == LogType::Error )
-	{
-		spdlog::error( str );
+		if( type == LogType::Info )
+		{
+			spdlog::info( str );
+		}
+		else if( type == LogType::Warning )
+		{
+			spdlog::warn( str );
+		}
+		else if( type == LogType::Error )
+		{
+			spdlog::error( str );
+		}
 	}
 }

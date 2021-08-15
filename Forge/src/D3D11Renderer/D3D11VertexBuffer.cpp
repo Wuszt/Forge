@@ -20,108 +20,109 @@
 //	return ARRAYSIZE( c_layout );
 //}
 
-const char* InputTypeToString( InputType type )
+namespace d3d11
 {
-	if( type == InputType::Position )
+	const char* InputTypeToString( renderer::InputType type )
 	{
-		static const char* txt = "POSITION";
-		return txt;
+		if( type == renderer::InputType::Position )
+		{
+			return "POSITION";
+		}
+		else if( type == renderer::InputType::Color )
+		{
+			return "COLOR";
+		}
+		else
+		{
+			FORGE_FATAL( "Not known input type" );
+			return "";
+		}
 	}
-	else if( type == InputType::Color )
+
+	DXGI_FORMAT InputFormatToD3D11Format( renderer::InputFormat format )
 	{
-		static const char* txt = "COLOR";
-		return txt;
+		if( format == renderer::InputFormat::R32G32B32 )
+		{
+			return DXGI_FORMAT_R32G32B32_FLOAT;
+		}
+		else if( format == renderer::InputFormat::R32G32B32A32 )
+		{
+			return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		}
+		else
+		{
+			FORGE_FATAL( "Not known format" );
+			return DXGI_FORMAT_UNKNOWN;
+		}
 	}
-	else
+
+	D3D11_INPUT_CLASSIFICATION InputClassificationToD3D11Classification( renderer::InputClassification classification )
 	{
-		FORGE_FATAL( "Not known input type" );
-		return "";
+		if( classification == renderer::InputClassification::PerVertex )
+		{
+			return D3D11_INPUT_PER_VERTEX_DATA;
+		}
+		else
+		{
+			FORGE_FATAL( "Not known classification" );
+			return D3D11_INPUT_PER_VERTEX_DATA;
+		}
 	}
-}
 
-DXGI_FORMAT InputFormatToD3D11Format( InputFormat format )
-{
-	if( format == InputFormat::R32G32B32 )
+	void ConstructLayout( const std::vector< renderer::InputElement >& inputElements, std::vector< D3D11_INPUT_ELEMENT_DESC >& outLayout )
 	{
-		return DXGI_FORMAT_R32G32B32_FLOAT;
+		Uint32 semanticIndices[ static_cast<Uint32>( renderer::InputType::Count ) ] = { 0 };
+
+		Uint32 currentOffset = 0u;
+		for( auto it = inputElements.begin(); it != inputElements.end(); ++it )
+		{
+			outLayout.push_back( { InputTypeToString( it->m_inputType ), semanticIndices[ static_cast<Uint32>( it->m_inputType ) ]++, InputFormatToD3D11Format( it->m_inputFormat ), 0, currentOffset, InputClassificationToD3D11Classification( it->m_classification ), 0 } );
+			currentOffset += it->m_size;
+		}
 	}
-	else if( format == InputFormat::R32G32B32A32 )
+
+	D3D11VertexBuffer::D3D11VertexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const renderer::IVertices& vertices )
+		: m_contextPtr( contextPtr )
+		, m_stride( vertices.GetVertexByteWidth() )
 	{
-		return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		D3D11_BUFFER_DESC vertexBufferDesc;
+		ZeroMemory( &vertexBufferDesc, sizeof( vertexBufferDesc ) );
+
+		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		vertexBufferDesc.ByteWidth = vertices.GetVerticesByteWidth();
+		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vertexBufferDesc.CPUAccessFlags = 0;
+		vertexBufferDesc.MiscFlags = 0;
+
+		D3D11_SUBRESOURCE_DATA vertexBufferData;
+
+		ZeroMemory( &vertexBufferData, sizeof( vertexBufferData ) );
+		vertexBufferData.pSysMem = vertices.GetData();
+		FORGE_ASSURE( device.GetDevice()->CreateBuffer( &vertexBufferDesc, &vertexBufferData, &m_buffer ) == S_OK );
+
+		ConstructLayout( vertices.GetInputElements(), m_layout );
 	}
-	else
+
+	D3D11VertexBuffer::~D3D11VertexBuffer()
 	{
-		FORGE_FATAL( "Not known format" );
-		return DXGI_FORMAT_UNKNOWN;
+		m_buffer->Release();
 	}
-}
 
-D3D11_INPUT_CLASSIFICATION InputClassificationToD3D11Classification( InputClassification classification )
-{
-	if( classification == InputClassification::PerVertex )
+	void D3D11VertexBuffer::Set()
 	{
-		return D3D11_INPUT_PER_VERTEX_DATA;
+		auto stride = GetStride();
+		Uint32 offset = 0u;
+
+		m_contextPtr->GetDeviceContext()->IASetVertexBuffers( 0, 1, &GetBuffer(), &stride, &offset );
 	}
-	else
+
+	const D3D11_INPUT_ELEMENT_DESC* D3D11VertexBuffer::GetLayout() const
 	{
-		FORGE_FATAL( "Not known classification" );
-		return D3D11_INPUT_PER_VERTEX_DATA;
+		return m_layout.data();
 	}
-}
 
-void ConstructLayout( const std::vector< InputElement >& inputElements, std::vector< D3D11_INPUT_ELEMENT_DESC >& outLayout )
-{
-	Uint32 semanticIndices[ static_cast< Uint32 >( InputType::Count ) ] = { 0 };
-
-	Uint32 currentOffset = 0u;
-	for( auto it = inputElements.begin(); it != inputElements.end(); ++it )
+	Uint32 D3D11VertexBuffer::GetElementsAmount() const
 	{
-		outLayout.push_back( { InputTypeToString( it->m_inputType ), semanticIndices[ static_cast< Uint32 >( it->m_inputType ) ]++, InputFormatToD3D11Format( it->m_inputFormat ), 0, currentOffset, InputClassificationToD3D11Classification( it->m_classification ), 0 } );
-		currentOffset += it->m_size;
+		return static_cast<Uint32>( m_layout.size() );
 	}
-}
-
-D3D11VertexBuffer::D3D11VertexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const IVertices& vertices )
-	: m_contextPtr( contextPtr )
-	, m_stride( vertices.GetVertexByteWidth() )
-{
-	D3D11_BUFFER_DESC vertexBufferDesc;
-	ZeroMemory( &vertexBufferDesc, sizeof( vertexBufferDesc ) );
-
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = vertices.GetVerticesByteWidth();
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = 0;
-	vertexBufferDesc.MiscFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA vertexBufferData;
-
-	ZeroMemory( &vertexBufferData, sizeof( vertexBufferData ) );
-	vertexBufferData.pSysMem = vertices.GetData();
-	FORGE_ASSURE( device.GetDevice()->CreateBuffer( &vertexBufferDesc, &vertexBufferData, &m_buffer ) == S_OK );
-
-	ConstructLayout( vertices.GetInputElements(), m_layout );
-}
-
-D3D11VertexBuffer::~D3D11VertexBuffer()
-{
-	m_buffer->Release();
-}
-
-void D3D11VertexBuffer::Set()
-{
-	auto stride = GetStride();
-	Uint32 offset = 0u;
-
-	m_contextPtr->GetDeviceContext()->IASetVertexBuffers( 0, 1, &GetBuffer(), &stride, &offset );
-}
-
-const D3D11_INPUT_ELEMENT_DESC* D3D11VertexBuffer::GetLayout() const
-{
-	return m_layout.data();
-}
-
-Uint32 D3D11VertexBuffer::GetElementsAmount() const
-{
-	return static_cast< Uint32 >( m_layout.size() );
 }

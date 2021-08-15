@@ -1,9 +1,12 @@
 #pragma once
-class IPixelShader
+
+namespace renderer
 {
-public:
-	~IPixelShader() {}
+	class IPixelShader
+	{
+	public:
+		~IPixelShader() {}
 
-	virtual void Set() = 0;
-};
-
+		virtual void Set() = 0;
+	};
+}

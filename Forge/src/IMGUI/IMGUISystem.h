@@ -4,20 +4,27 @@
 #define FORGE_IMGUI_ENABLED
 #endif
 
-class IRenderer;
-class IWindow;
-class IIMGUIPlatformAdapter;
-class IIMGUIRenderAPIAdapter;
-
-class IMGUISystem
+namespace renderer
 {
-public:
-	IMGUISystem( IWindow& window, IRenderer& renderer );
-	~IMGUISystem();
+	class IIMGUIRenderAPIAdapter;
+	class IRenderer;
+}
 
-	void OnNewFrame();
-	void Render();
+namespace forge
+{
+	class IIMGUIPlatformAdapter;
+	class IWindow;
 
-	std::unique_ptr< IIMGUIPlatformAdapter > m_platformAdapter;
-	std::unique_ptr< IIMGUIRenderAPIAdapter > m_renderAPIAdapter;
-};
+	class IMGUISystem
+	{
+	public:
+		IMGUISystem( IWindow& window, renderer::IRenderer& renderer );
+		~IMGUISystem();
+
+		void OnNewFrame();
+		void Render();
+
+		std::unique_ptr< IIMGUIPlatformAdapter > m_platformAdapter;
+		std::unique_ptr< renderer::IIMGUIRenderAPIAdapter > m_renderAPIAdapter;
+	};
+}

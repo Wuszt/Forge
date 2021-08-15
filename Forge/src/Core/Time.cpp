@@ -2,8 +2,11 @@
 #include "Time.h"
 #include "WindowsTime.h"
 
-TimeImpl& TimeImpl::GetTimeInstance()
+namespace forge
 {
-	static WindowsTime instance;
-	return instance;
+	TimeImpl& TimeImpl::GetTimeInstance()
+	{
+		static windows::WindowsTime instance;
+		return instance;
+	}
 }

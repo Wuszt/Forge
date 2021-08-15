@@ -1,18 +1,21 @@
 #pragma once
 struct ID3D11Device;
 
-class D3D11Device
+namespace d3d11
 {
-public:
-	D3D11Device( ID3D11Device* device );
-	~D3D11Device();
-
-	FORGE_INLINE ID3D11Device* const& GetDevice() const
+	class D3D11Device
 	{
-		return m_device;
-	}
+	public:
+		D3D11Device( ID3D11Device* device );
+		~D3D11Device();
 
-private:
-	ID3D11Device* m_device = nullptr;
-};
+		FORGE_INLINE ID3D11Device* const& GetDevice() const
+		{
+			return m_device;
+		}
+
+	private:
+		ID3D11Device* m_device = nullptr;
+	};
+}
 
