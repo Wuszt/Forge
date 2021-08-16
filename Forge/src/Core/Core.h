@@ -22,6 +22,8 @@
 #define FORGE_DEBUG
 #endif
 
+#define FORGE_DEBUG
+
 #define FORGE_INLINE inline
 
 #if _WIN32 || _WIN64

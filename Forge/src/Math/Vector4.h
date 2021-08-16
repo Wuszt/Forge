@@ -236,6 +236,8 @@ struct Vector4
 		return &X;
 	}
 
+#ifdef FORGE_DEBUG
 	std::string ToDebugString() const;
+#endif
 };
 

@@ -23,8 +23,17 @@ namespace forge
 
 		void OnNewFrame();
 		void Render();
+		FORGE_INLINE std::unique_ptr< forge::CallbackToken > AddOverlayListener( const forge::Callback<>::TFunc& func )
+		{
+			return m_overlayCallback.AddListener( func );
+		}
+
+	private:
+		void DrawOverlay();
 
 		std::unique_ptr< IIMGUIPlatformAdapter > m_platformAdapter;
 		std::unique_ptr< renderer::IIMGUIRenderAPIAdapter > m_renderAPIAdapter;
+
+		forge::Callback<> m_overlayCallback;
 	};
 }

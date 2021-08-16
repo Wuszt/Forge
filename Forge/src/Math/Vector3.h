@@ -171,6 +171,8 @@ struct Vector3
 	   return vec2;
    }
 
+#ifdef FORGE_DEBUG
    std::string ToDebugString() const;
+#endif
 };
 

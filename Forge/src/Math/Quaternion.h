@@ -71,6 +71,11 @@ struct Quaternion
 		return Transform( v );
 	}
 
+	FORGE_INLINE Vector3 operator*( const Vector3& v ) const
+	{
+		return Transform( v );
+	}
+
 	Quaternion operator*( Float val ) const;
 
 	Quaternion operator/( Float val ) const;

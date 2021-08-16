@@ -21,9 +21,11 @@ Vector2 Vector2::MINUS_INF()
 	return Vector2( -std::numeric_limits< Float >::infinity() );
 }
 
+#ifdef FORGE_DEBUG
 std::string Vector2::ToDebugString() const
 {
 	std::ostringstream stringStream;
 	stringStream << "[" << X << ", " << Y << "]";
 	return stringStream.str();
 }
+#endif

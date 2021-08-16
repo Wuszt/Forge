@@ -14,30 +14,6 @@
 #include "../IMGUI/PublicDefaults.h"
 #endif
 
-void DrawFPSOverlay()
-{
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-	const float PAD = 10.0f;
-	const ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImVec2 work_pos = viewport->WorkPos;
-	ImVec2 work_size = viewport->WorkSize;
-	ImVec2 window_pos, window_pos_pivot;
-	window_pos.x = work_pos.x + PAD;
-	window_pos.y = work_pos.y + PAD;
-	window_pos_pivot.x = 0.0f;
-	window_pos_pivot.y = 0.0f;
-	ImGui::SetNextWindowPos( window_pos, ImGuiCond_Always, window_pos_pivot );
-	window_flags |= ImGuiWindowFlags_NoMove;
-
-	ImGui::SetNextWindowBgAlpha( 0.35f );
-	Bool tmp = true;
-	if( ImGui::Begin( "Overlay", &tmp, window_flags ) )
-	{
-		ImGui::Text( "FPS: %.2f", forge::FPSCounter::GetAverageFPS( 1u ) );
-	}
-	ImGui::End();
-}
-
 Int32 main()
 {
 	const Uint32 width = 1600;
@@ -69,6 +45,37 @@ Int32 main()
 			camera = std::make_unique< forge::PerspectiveCamera >( window->GetAspectRatio(), FORGE_PI / 3.0f, 0.1f, 2000.0f );
 			camera->SetTransform( prevCamera->GetTransform() );
 		}
+	} );
+
+	auto fpsOverlayDrawingToken = imguiSystem->AddOverlayListener( []()
+	{
+		Float fps = forge::FPSCounter::GetAverageFPS( 1u );
+		Vector4 color{ 1.0f, 0.0f, 0.0f, 1.0f };
+
+		if( fps > 30.0f )
+		{
+			if( fps > 6.0f )
+			{
+				color = { 0.0f, 1.0f, 0.0f, 1.0f };
+			}
+			else
+			{
+				color = { 1.0f, 1.0f, 0.0f, 1.0f };
+			}
+		}
+
+		ImGui::SetWindowFontScale( 2.0f );
+		ImGui::PushStyleColor( ImGuiCol_Text, { color.X, color.Y, color.Z, color.W } );
+		ImGui::Text( "FPS: %.2f", fps );
+		ImGui::PopStyleColor();
+		ImGui::SetWindowFontScale( 1.0f );
+	} );
+
+	auto cameraDataOverlayDrawingToken = imguiSystem->AddOverlayListener( [ &camera ]()
+	{
+		std::string tmp = camera->GetPosition().ToDebugString();
+		ImGui::Text( "Camera pos: %s", tmp.c_str() );
+		ImGui::Text( "Camera forward: %s", ( camera->GetOrientation() * Vector3::EY() ).ToDebugString().c_str() );
 	} );
 
 	stopWatch.Reset();
@@ -276,7 +283,6 @@ Int32 main()
 		}
 
 		ImGui::ShowDemoWindow( &imguiExample );
-		DrawFPSOverlay();
 		imguiSystem->Render();
 
 		rendererInstance->GetSwapchain()->Present();

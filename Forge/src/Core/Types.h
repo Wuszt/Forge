@@ -9,12 +9,6 @@ typedef unsigned long long Uint64;
 typedef double Double;
 typedef char Char;
 
-
-
-
-
-
-
 static_assert( sizeof( Float ) == 4, "Int32 should be the size of 4 bytes" );
 static_assert( sizeof( Double ) == 8, "Double should be the size of 4 bytes" );
 static_assert( sizeof( Int32 ) == 4, "Int32 should be the size of 4 bytes" );
