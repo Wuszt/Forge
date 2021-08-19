@@ -21,10 +21,9 @@ Bool Vector4::IsAlmostZero( Float eps ) const
 }
 
 #ifdef FORGE_DEBUG
-std::string Vector4::ToDebugString() const
+std::string Vector4::ToDebugString( Uint32 precision ) const
 {
-	std::ostringstream stringStream;
-	stringStream << "[" << X << ", " << Y << ", " << Z << ", " << W << "]";
-	return stringStream.str();
+	std::string format = forge::String::Printf( "[%s%u%s, %s%u%s, %s%u%s, %s%u%s]", "%.", precision, "f", "%.", precision, "f", "%.", precision, "f", "%.", precision, "f" );
+	return forge::String::Printf( format.c_str(), X, Y, Z, W );
 }
 #endif

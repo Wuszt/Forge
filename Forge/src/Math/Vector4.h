@@ -237,7 +237,7 @@ struct Vector4
 	}
 
 #ifdef FORGE_DEBUG
-	std::string ToDebugString() const;
+	std::string ToDebugString( Uint32 precision = 2u ) const;
 #endif
 };
 

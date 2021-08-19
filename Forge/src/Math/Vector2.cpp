@@ -22,10 +22,9 @@ Vector2 Vector2::MINUS_INF()
 }
 
 #ifdef FORGE_DEBUG
-std::string Vector2::ToDebugString() const
+std::string Vector2::ToDebugString( Uint32 precision ) const
 {
-	std::ostringstream stringStream;
-	stringStream << "[" << X << ", " << Y << "]";
-	return stringStream.str();
+	std::string format = forge::String::Printf( "[%s%u%s, %s%u%s]", "%.", precision, "f", "%.", precision, "f" );
+	return forge::String::Printf( format.c_str(), X, Y );
 }
 #endif

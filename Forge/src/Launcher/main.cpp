@@ -25,12 +25,12 @@ Int32 main()
 
 	stopWatch.Reset();
 	auto window = forge::IWindow::CreateNewWindow( width, height );
-	FORGE_LOG( "Window creating time duration: %f sec", stopWatch.GetDuration() );
+	FORGE_LOG( "Window creating time duration: %.2f sec", stopWatch.GetDuration() );
 
 	stopWatch.Reset();
 	auto rendererInstance = renderer::IRenderer::CreateRenderer( *window, renderer::RendererType::D3D11 );
 
-	FORGE_LOG( "Renderer creating time duration: %f sec", stopWatch.GetDuration() );
+	FORGE_LOG( "Renderer creating time duration: %.2f sec", stopWatch.GetDuration() );
 
 	std::unique_ptr< forge::IMGUISystem > imguiSystem = std::make_unique< forge::IMGUISystem >( *window, *rendererInstance );
 
@@ -73,9 +73,8 @@ Int32 main()
 
 	auto cameraDataOverlayDrawingToken = imguiSystem->AddOverlayListener( [ &camera ]()
 	{
-		std::string tmp = camera->GetPosition().ToDebugString();
-		ImGui::Text( "Camera pos: %s", tmp.c_str() );
-		ImGui::Text( "Camera forward: %s", ( camera->GetOrientation() * Vector3::EY() ).ToDebugString().c_str() );
+		ImGui::Text( "Camera pos: %s", camera->GetPosition().ToDebugString().c_str() );
+		ImGui::Text( "Camera forward: %s", ( camera->GetOrientation() * Vector3::EY() ).ToDebugString( 4 ).c_str() );
 	} );
 
 	stopWatch.Reset();
@@ -83,7 +82,7 @@ Int32 main()
 	auto vertexShader = rendererInstance->GetVertexShader( "Effects.fx" );
 	auto pixelShader = rendererInstance->GetPixelShader( "Effects.fx" );
 
-	FORGE_LOG( "Shaders compilation time: %f sec", stopWatch.GetDuration() );
+	FORGE_LOG( "Shaders compilation time: %.2f sec", stopWatch.GetDuration() );
 
 	vertexShader->Set();
 	pixelShader->Set();
@@ -108,7 +107,7 @@ Int32 main()
 	auto vertexBuffer = rendererInstance->CreateVertexBuffer( vertices );
 	vertexBuffer->Set();
 
-	FORGE_LOG( "VertexBuffer creation time: %f sec", stopWatch.GetDuration() );
+	FORGE_LOG( "VertexBuffer creation time: %.2f sec", stopWatch.GetDuration() );
 
 	auto inputLayout = rendererInstance->CreateInputLayout( *vertexShader, *vertexBuffer );
 	inputLayout->Set();
@@ -145,7 +144,7 @@ Int32 main()
 
 		if( window->GetInput()->GetMouseButtonDown( forge::IInput::MouseButton::LeftButton ) )
 		{
-			FORGE_LOG( "Clicked on: %s", window->GetInput()->GetMouseCurrentAxises().ToDebugString().c_str() );
+			FORGE_LOG( "Clicked on: %s", window->GetInput()->GetMouseCurrentAxises().ToDebugString( 0u ).c_str() );
 		}
 
 		if( window->GetInput()->GetKey( forge::IInput::Key::Shift ) && window->GetInput()->GetMouseButton( forge::IInput::MouseButton::MiddleButton ) )

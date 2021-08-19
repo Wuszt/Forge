@@ -32,9 +32,8 @@ Bool Vector3::IsAlmostZero( Float eps ) const
 	return Math::IsAlmostZero( X, eps ) && Math::IsAlmostZero( Y, eps ) && Math::IsAlmostZero( Z, eps );
 }
 
-std::string Vector3::ToDebugString() const
-{
-	std::ostringstream stringStream;
-	stringStream << "[" << X << ", " << Y << ", " << Z << "]";
-	return stringStream.str();
+std::string Vector3::ToDebugString( Uint32 precision ) const
+{	
+	std::string format = forge::String::Printf( "[%s%u%s, %s%u%s, %s%u%s]", "%.", precision, "f", "%.", precision, "f", "%.", precision, "f" );
+	return forge::String::Printf( format.c_str(), X, Y, Z );
 }

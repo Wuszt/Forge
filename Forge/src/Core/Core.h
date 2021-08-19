@@ -5,17 +5,17 @@
 #define FORGE_ASSURES_ENABLED
 
 #ifdef FORGE_ASSERTIONS_ENABLED
-	#include <assert.h>
-	#define FORGE_ASSERT( ... ) assert( __VA_ARGS__ )
+#include <assert.h>
+#define FORGE_ASSERT( ... ) assert( __VA_ARGS__ )
 #else
-	#define FORGE_ASSERT( ... )
+#define FORGE_ASSERT( ... )
 #endif
 
 #ifdef FORGE_FATALS_ENABLED
-	#include <assert.h>
-	#define FORGE_FATAL( msg ) assert(((void)msg, false ))
+#include <assert.h>
+#define FORGE_FATAL( msg ) assert(((void)msg, false ))
 #else
-	#define FORGE_FATAL( msg )
+#define FORGE_FATAL( msg )
 #endif
 
 #if _DEBUG
@@ -39,3 +39,11 @@
 #else
 #define FORGE_ASSURE( ... ) __VA_ARGS__
 #endif
+
+#define FORGE_ARRAY_COUNT( arr ) sizeof( arr ) / sizeof( arr[ 0 ] )
+
+namespace
+{
+	int testArr[ 5 ];
+	static_assert( FORGE_ARRAY_COUNT( testArr ) == 5, "Array count is incorrect" );
+}

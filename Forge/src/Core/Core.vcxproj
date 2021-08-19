@@ -25,6 +25,7 @@
     <ClInclude Include="IInput.h" />
     <ClInclude Include="IWindow.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="StringUtils.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="WindowsInput.h" />
     <ClInclude Include="WindowsTime.h" />
@@ -41,6 +42,7 @@
     <ClCompile Include="IInput.cpp" />
     <ClCompile Include="IWindow.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="StringUtils.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="WindowsInput.cpp" />
     <ClCompile Include="WindowsTime.cpp" />

@@ -20,39 +20,12 @@ namespace forge
 
 		static void LogToConsole( LogType type, const std::string& str );
 
-		template< class... Args >
-		static std::string CombineToString( const char* str, Args... args )
-		{
-			char buff[ 200 ];
-			snprintf( buff, sizeof( buff ), str, args... );
-			std::string buffAsStdStr = buff;
-
-			return buffAsStdStr;
-		}
-
-		static std::string CombineToString( const char* str )
-		{
-			return str;
-		}
-
 	public:
-		template< class... Args >
-		static void LogInfo( const char* str, Args... args )
-		{
-			LogToConsole( LogType::Info, CombineToString( str, args... ) );
-		}
+		static void LogInfo( const char* str, ... );
 
-		template< class... Args >
-		static void LogWarning( const char* str, Args... args )
-		{
-			LogToConsole( LogType::Warning, CombineToString( str, std::forward< Args >( args )... ) );
-		}
+		static void LogWarning( const char* str, ... );
 
-		template< class... Args >
-		static void LogError( const char* str, Args... args )
-		{
-			LogToConsole( LogType::Error, CombineToString( str, std::forward< Args >( args )... ) );
-		}
+		static void LogError( const char* str, ... );
 	};
 }
 
