@@ -64,7 +64,14 @@ Int32 main()
 			}
 		}
 
-		ImGui::SetWindowFontScale( 2.0f );
+		Uint32 bufferSize = 0u;
+		Uint32 currentOffset = 0u;
+		Float* buff = forge::FPSCounter::GetFPSCounter().GetBuffer( currentOffset, bufferSize );
+
+		ImGui::PlotHistogram( "", buff, bufferSize, currentOffset, NULL, 0.0f, 120.0f, ImVec2( 100.0f, 40.0f ) );
+		ImGui::SameLine();
+
+		ImGui::SetWindowFontScale( 1.5f );
 		ImGui::PushStyleColor( ImGuiCol_Text, { color.X, color.Y, color.Z, color.W } );
 		ImGui::Text( "FPS: %.2f", fps );
 		ImGui::PopStyleColor();
@@ -73,8 +80,8 @@ Int32 main()
 
 	auto cameraDataOverlayDrawingToken = imguiSystem->AddOverlayListener( [ &camera ]()
 	{
-		ImGui::Text( "Camera pos: %s", camera->GetPosition().ToDebugString().c_str() );
-		ImGui::Text( "Camera forward: %s", ( camera->GetOrientation() * Vector3::EY() ).ToDebugString( 4 ).c_str() );
+		ImGui::Text( "Cam Pos:%s", camera->GetPosition().ToDebugString().c_str() );
+		ImGui::Text( "Cam Fwd:%s", ( camera->GetOrientation() * Vector3::EY() ).ToDebugString( 3 ).c_str() );
 	} );
 
 	stopWatch.Reset();

@@ -48,6 +48,14 @@ namespace forge
 			return c_bufferSize;
 		}
 
+		FORGE_INLINE Float* GetBuffer( Uint32& outOffset, Uint32& outSize )
+		{
+			outOffset = ( m_bufferIndex + 1u ) % c_bufferSize;
+			outSize = c_bufferSize;
+
+			return m_buffer;
+		}
+
 	private:
 		Uint32 m_counter = 0u;
 		Float m_accumulator = 0.0f;
