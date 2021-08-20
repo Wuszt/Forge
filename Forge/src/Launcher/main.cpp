@@ -37,7 +37,7 @@ Int32 main()
 	std::unique_ptr< forge::ICamera > camera = std::make_unique< forge::PerspectiveCamera >( window->GetAspectRatio(), FORGE_PI / 3.0f, 0.1f, 2000.0f );
 	camera->SetPosition( { 0.0f, 0.0f, 50.0f } );
 
-	std::unique_ptr< forge::CallbackToken > windowEventCallback = window->RegisterEventListener( [&]( const forge::IWindow::IEvent& event )
+	forge::CallbackToken windowEventCallback = window->RegisterEventListener( [&]( const forge::IWindow::IEvent& event )
 	{
 		if( event.GetEventType() == forge::IWindow::EventType::OnWindowResized )
 		{

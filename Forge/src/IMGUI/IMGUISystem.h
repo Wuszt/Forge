@@ -23,7 +23,7 @@ namespace forge
 
 		void OnNewFrame();
 		void Render();
-		FORGE_INLINE std::unique_ptr< forge::CallbackToken > AddOverlayListener( const forge::Callback<>::TFunc& func )
+		FORGE_INLINE forge::CallbackToken AddOverlayListener( const forge::Callback<>::TFunc& func )
 		{
 			return m_overlayCallback.AddListener( func );
 		}

@@ -21,7 +21,7 @@ namespace forge
 	public:
 		CallbackToken( CallbackID id, ICallback& callback )
 			: m_id( id )
-			, m_callback( callback )
+			, m_callback( &callback )
 		{}
 
 		CallbackToken( const CallbackToken& t ) = delete;
@@ -30,6 +30,13 @@ namespace forge
 			, m_callback( t.m_callback )
 		{
 			t.m_id = GetInvalidCallbackID();
+		}
+
+		CallbackToken& operator=( CallbackToken&& t )
+		{
+			swap( *this, t );
+
+			return *this;
 		}
 
 		~CallbackToken()
@@ -42,13 +49,19 @@ namespace forge
 
 		void Unregister()
 		{
-			m_callback.RemoveListener( m_id );
+			m_callback->RemoveListener( m_id );
 			m_id = GetInvalidCallbackID();
 		}
 
 	private:
 		CallbackID m_id = GetInvalidCallbackID();
-		ICallback& m_callback;
+		ICallback* m_callback;
+		
+		FORGE_INLINE friend void swap( CallbackToken& l, CallbackToken& r )
+		{
+			std::swap( l.m_callback, r.m_callback );
+			std::swap( l.m_id, r.m_id );
+		}
 	};
 
 	template< class ...TParams >
@@ -68,7 +81,7 @@ namespace forge
 			}
 		}
 
-		FORGE_INLINE std::unique_ptr< CallbackToken > AddListener( const TFunc& func )
+		FORGE_INLINE CallbackToken AddListener( const TFunc& func )
 		{
 			m_funcs.emplace_back( func );
 
@@ -76,7 +89,7 @@ namespace forge
 			{
 				m_idToFunc.emplace_back( static_cast<Uint32>( m_funcs.size() - 1u ) );
 				m_funcToID.emplace_back( m_idToFunc.back() );
-				return std::make_unique< CallbackToken >( static_cast<CallbackID>( static_cast<Uint32>( m_funcs.size() ) - 1u ), *this );
+				return CallbackToken( static_cast< CallbackID >( static_cast<Uint32>( m_funcs.size() ) - 1u ), *this );
 			}
 			else
 			{
@@ -84,7 +97,7 @@ namespace forge
 				m_nextFreeID = m_idToFunc[ m_nextFreeID ];
 				m_idToFunc[ nextFreeID ] = static_cast<Uint32>( m_funcs.size() ) - 1;
 				m_funcToID.emplace_back( nextFreeID );
-				return std::make_unique< CallbackToken >( nextFreeID, *this );
+				return CallbackToken( nextFreeID, *this );
 			}
 		}
 

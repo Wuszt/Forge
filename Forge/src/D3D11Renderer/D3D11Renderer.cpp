@@ -21,7 +21,7 @@ namespace d3d11
 
 		InitializeRasterizer();
 
-		m_windowCallbackToken = window.RegisterEventListener(
+		m_windowCallbackToken = std::make_unique< forge::CallbackToken >( window.RegisterEventListener(
 			[ & ]( const forge::IWindow::IEvent& event )
 		{
 			switch( event.GetEventType() )
@@ -42,7 +42,7 @@ namespace d3d11
 				InitializeViewport( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
 				break;
 			}
-		} );
+		} ) );
 	}
 
 	D3D11Renderer::~D3D11Renderer()

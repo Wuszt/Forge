@@ -19,10 +19,10 @@ namespace windows
 
 		windows::WindowsWindow& windowsWindow = static_cast<windows::WindowsWindow&>( window );
 		ImGui_ImplWin32_Init( windowsWindow.GetHWND() );
-		m_windowEventCallbackToken = windowsWindow.RegisterWindowRawEventListener( []( HWND hwnd, Uint32 msg, Uint64 wParam, Uint64 lParam )
+		m_windowEventCallbackToken = std::make_unique< forge::CallbackToken >( windowsWindow.RegisterWindowRawEventListener( []( HWND hwnd, Uint32 msg, Uint64 wParam, Uint64 lParam )
 		{
 			ImGui_ImplWin32_WndProcHandler( hwnd, msg, wParam, lParam );
-		} );
+		} ) );
 
 		m_windowsWindow = &windowsWindow;
 	}

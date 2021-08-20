@@ -69,7 +69,7 @@ namespace windows
 			return m_positionY;
 		}
 
-		FORGE_INLINE std::unique_ptr< forge::CallbackToken > RegisterWindowRawEventListener( const WindowRawEventCallback::TFunc& callback )
+		FORGE_INLINE forge::CallbackToken RegisterWindowRawEventListener( const WindowRawEventCallback::TFunc& callback )
 		{
 			return m_rawEventCallback.AddListener( callback );
 		}

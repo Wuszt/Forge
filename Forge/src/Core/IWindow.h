@@ -80,7 +80,7 @@ namespace forge
 
 		typedef forge::Callback< const IEvent& > CallbackType;
 
-		FORGE_INLINE std::unique_ptr< forge::CallbackToken > RegisterEventListener( const CallbackType::TFunc& func )
+		FORGE_INLINE forge::CallbackToken RegisterEventListener( const CallbackType::TFunc& func )
 		{
 			return m_windowCallbacks.AddListener( func );
 		}
