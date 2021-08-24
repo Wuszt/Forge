@@ -3,6 +3,7 @@
 #include "../Core/PublicDefaults.h"
 #include "../Math/PublicDefaults.h"
 #include "../Renderer/PublicDefaults.h"
+#include "../ECS/PublicDefaults.h"
 
 #include "../Core/IWindow.h"
 #include "../Core/IInput.h"
@@ -18,6 +19,8 @@ Int32 main()
 {
 	const Uint32 width = 1600;
 	const Uint32 height = 900;
+
+	ecs::SystemsManager systemManager;
 
 	forge::Time::Initialize();
 
