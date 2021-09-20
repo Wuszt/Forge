@@ -55,6 +55,16 @@ namespace systems
 			m_data.emplace_back( std::forward< Ts >( data )... );
 		}
 
+		FORGE_INLINE typename std::vector< T >::iterator begin()
+		{
+			return m_data.begin();
+		}
+
+		FORGE_INLINE typename std::vector< T >::iterator end()
+		{
+			return m_data.end();
+		}
+
 	private:
 		std::vector< T > m_data;
 	};

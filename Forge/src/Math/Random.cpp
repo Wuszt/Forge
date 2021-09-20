@@ -28,12 +28,16 @@ Uint32 Math::Random::GetRaw()
     return ( *m_randomEngine )();
 }
 
+void Math::Random::SetSeed( Uint32 seed )
+{
+	m_randomEngine->seed( seed );
+}
+
 Math::Random::Random( Uint32 seed )
 {
-	m_randomEngine = std::make_unique<std::mt19937>( seed );
+	m_randomEngine = std::make_unique<std::mt19937>( static_cast< Uint32 >( seed ) );
 }
 
 Math::Random::Random()
-{
-	m_randomEngine = std::make_unique<std::mt19937>( static_cast< Uint32 >( time( NULL ) ) );
-}
+	: Random( time( NULL ) )
+{}

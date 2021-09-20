@@ -14,6 +14,7 @@
 #include "../IMGUI/IMGUISystem.h"
 #include "../IMGUI/PublicDefaults.h"
 #endif
+#include "../Systems/TransformSystem.h"
 
 Int32 main()
 {
@@ -147,7 +148,30 @@ Int32 main()
 	Float currentSpeed = 3.0f;
 
 	Math::Random rng;
-	Uint32 seed = rng.GetRaw();
+
+	const Uint32 dim = 50u;
+	for( Uint32 i = 0; i < dim * dim; ++i )
+	{
+		if( rng.GetFloat() > 0.9f )
+		{
+			continue;
+		}
+
+		forge::Entity* entity = gameInstance.GetEntitiesManager().CreateEntity();
+		auto* transformComponent = entity->AddComponent< forge::DataComponent< forge::TransformComponentData > >();
+
+		Matrix m;
+
+		Float scaleZ = rng.GetFloat( 20.0f, 100.0f );
+		Float scaleXY = rng.GetFloat( 10.0f, 20.0f );
+		transformComponent->GetData().m_scale = { scaleXY, scaleXY, scaleZ };
+
+		Float x = static_cast<Float>( i % dim ) * 50.0f;
+		Float y = static_cast<Float>( i / dim ) * 50.0f;
+		transformComponent->GetData().m_transform.SetPosition( { x - dim * 25, y - dim * 25, scaleZ } );
+	}
+
+	Uint32 colorSeed = rng.GetRaw();
 	while( true )
 	{
 		forge::Time::Update();
@@ -252,6 +276,24 @@ Int32 main()
 			Vector4 color;
 		};
 
+		auto& archetypes = gameInstance.GetSystemsManager().GetArchetypesWithDataType< forge::TransformComponentData >();
+
+		rng.SetSeed( colorSeed );
+		for( systems::Archetype* archetype : archetypes )
+		{
+			systems::DataPackage< forge::TransformComponentData >& dataPackage = archetype->GetData< forge::TransformComponentData >();
+
+			for( forge::TransformComponentData& transform : dataPackage )
+			{
+				auto buff = rendererInstance->GetConstantBuffer< cbPerObject >();
+
+				buff->GetData().WVP = transform.ToMatrix() * camera->GetViewProjectionMatrix();
+				buff->GetData().color = Vector4( rng.GetFloat(), rng.GetFloat(), rng.GetFloat(), 1.0f );
+				buff->SetVS( 1 );
+
+				rendererInstance->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
+			}
+		}
 
 		//Ground
 		{
@@ -265,34 +307,6 @@ Int32 main()
 			buff->SetVS( 1 );
 			rendererInstance->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
 		}		
-
-		Math::Random rng( seed );
-		const Uint32 dim = 50u;
-		for( Uint32 i = 0; i < dim * dim; ++i )
-		{
-			if( rng.GetFloat() > 0.9f )
-			{
-				continue;
-			}
-
-			auto buff = rendererInstance->GetConstantBuffer< cbPerObject >();
-
-			Matrix m;
-
-			Float scaleZ = rng.GetFloat( 20.0f, 100.0f );
-			Float scaleXY = rng.GetFloat( 10.0f, 20.0f );
-			m.SetScale( { scaleXY, scaleXY, scaleZ } );
-
-			Float x = static_cast<Float>( i % dim ) * 50.0f;
-			Float y = static_cast<Float>( i / dim ) * 50.0f;
-			m.SetTranslation( x - dim * 25, y - dim * 25, scaleZ );
-
-			buff->GetData().WVP = m * camera->GetViewProjectionMatrix();
-			buff->GetData().color = Vector4( rng.GetFloat(), rng.GetFloat(), rng.GetFloat(), 1.0f );
-			buff->SetVS( 1 );
-
-			rendererInstance->GetContext()->Draw( sizeof( indices ) / sizeof( Uint32 ), 0 );
-		}
 
 		ImGui::ShowDemoWindow( &imguiExample );
 		imguiSystem->Render();

@@ -20,12 +20,13 @@ namespace forge
 		virtual void OnDetach();
 
 		template< class T >
-		void AddComponent()
+		T* AddComponent()
 		{
 			auto comp = std::make_unique< T >( *this );
 			auto* rawcomp = comp.get();
 			m_components.emplace( typeid( T ), std::move( comp ) );
 			rawcomp->OnAttach();
+			return rawcomp;
 		}
 
 		template< class T >

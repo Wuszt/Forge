@@ -11,7 +11,7 @@ namespace forge
 	public:
 		using IManager::IManager;
 
-		template< class T >
+		template< class T = forge::Entity >
 		FORGE_INLINE T* CreateEntity()
 		{
 			EntityID id = ++m_lastUsedEntityID;
@@ -42,6 +42,11 @@ namespace forge
 		template< class TEntity = Entity >
 		FORGE_INLINE TEntity* GetEntity( const EntityID& id ) const
 		{
+			if( m_entities.count( id ) == 0u )
+			{
+				return nullptr;
+			}
+
 			return static_cast< TEntity* >( m_entities[ id ].get() );
 		}
 
