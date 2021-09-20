@@ -68,4 +68,9 @@ namespace Math
 	{
 		return std::pow( val, pow );
 	}
+
+	FORGE_INLINE Uint32 CombineHashes( Uint32 l, Uint32 r )
+	{
+		return r ^( r + 0x9e3779b9 + ( l << 6 ) + ( l >> 2 ) );
+	}
 }

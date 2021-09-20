@@ -78,6 +78,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -91,6 +92,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -106,6 +108,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -123,6 +126,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,9 +141,6 @@
     <ProjectReference Include="..\Core\Core.vcxproj">
       <Project>{38e97199-f4e4-4704-b916-dd286525c84b}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\ECS\ECS.vcxproj">
-      <Project>{0b43dd17-1a4e-4aa0-a4be-505ffb676cd6}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\IMGUI\IMGUI.vcxproj">
       <Project>{45b22060-1716-4c8b-8844-c873202adcb2}</Project>
     </ProjectReference>
@@ -148,6 +149,9 @@
     </ProjectReference>
     <ProjectReference Include="..\Renderer\Renderer.vcxproj">
       <Project>{b80e49a4-1d06-4643-9ef0-34e4e56781ad}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Systems\Systems.vcxproj">
+      <Project>{0b43dd17-1a4e-4aa0-a4be-505ffb676cd6}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

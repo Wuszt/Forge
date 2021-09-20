@@ -23,7 +23,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Launcher", "src\Launcher\La
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IMGUI", "src\IMGUI\IMGUI.vcxproj", "{45B22060-1716-4C8B-8844-C873202ADCB2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ECS", "src\ECS\ECS.vcxproj", "{0B43DD17-1A4E-4AA0-A4BE-505FFB676CD6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Systems", "src\Systems\Systems.vcxproj", "{0B43DD17-1A4E-4AA0-A4BE-505FFB676CD6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

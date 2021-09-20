@@ -10,3 +10,4 @@
 #include <set>
 #include <unordered_set>
 #include <functional>
+#include <typeindex>
