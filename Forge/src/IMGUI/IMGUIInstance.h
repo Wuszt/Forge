@@ -15,25 +15,17 @@ namespace forge
 	class IIMGUIPlatformAdapter;
 	class IWindow;
 
-	class IMGUISystem
+	class IMGUIInstance
 	{
 	public:
-		IMGUISystem( IWindow& window, renderer::IRenderer& renderer );
-		~IMGUISystem();
+		IMGUIInstance( IWindow& window, renderer::IRenderer& renderer );
+		~IMGUIInstance();
 
 		void OnNewFrame();
 		void Render();
-		FORGE_INLINE forge::CallbackToken AddOverlayListener( const forge::Callback<>::TFunc& func )
-		{
-			return m_overlayCallback.AddListener( func );
-		}
 
 	private:
-		void DrawOverlay();
-
 		std::unique_ptr< IIMGUIPlatformAdapter > m_platformAdapter;
 		std::unique_ptr< renderer::IIMGUIRenderAPIAdapter > m_renderAPIAdapter;
-
-		forge::Callback<> m_overlayCallback;
 	};
 }

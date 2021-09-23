@@ -150,7 +150,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Fpch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="IMGUISystem.cpp">
+    <ClCompile Include="IMGUIInstance.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Fpch.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
@@ -169,7 +169,7 @@
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="IMGUIPlatformAdapters.h" />
     <ClInclude Include="IMGUIRenderAPIAdapters.h" />
-    <ClInclude Include="IMGUISystem.h" />
+    <ClInclude Include="IMGUIInstance.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="PublicDefaults.h" />
   </ItemGroup>

@@ -4,7 +4,7 @@
 
 void systems::SystemsManager::Initialize()
 {
-	m_onEntityCreated = std::make_unique< forge::CallbackToken >( m_gameInstance.GetEntitiesManager().GetEntityCreationCallback().AddListener(
+	m_onEntityCreated = std::make_unique< forge::CallbackToken >( m_engineInstance.GetEntitiesManager().GetEntityCreationCallback().AddListener(
 		[ this ]( forge::EntityID id )
 	{
 		for( auto& archetype : m_archetypes )
@@ -83,7 +83,7 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::type_index ty
 	auto found = m_typesHashToArchetypeLUT.find( typesHash );
 	if( found == m_typesHashToArchetypeLUT.end() )
 	{
-		m_archetypes.emplace_back( std::make_unique< Archetype >( m_gameInstance.GetEntitiesManager().GetEntitiesAmount() ) );
+		m_archetypes.emplace_back( std::make_unique< Archetype >( m_engineInstance.GetEntitiesManager().GetEntitiesAmount() ) );
 		archetype = m_archetypes.back().get();
 		m_typesHashToArchetypeLUT.emplace( typesHash, archetype );
 
@@ -131,7 +131,7 @@ void systems::SystemsManager::Boot( const BootContext& ctx )
 	const auto& systemsCreations = ctx.GetSystemsCreations();
 	for( const auto& systemCreation : systemsCreations )
 	{
-		std::unique_ptr< ISystem > sys = systemCreation( GetGameInstance() );
+		std::unique_ptr< ISystem > sys = systemCreation( GetEngineInstance() );
 
 		ISystem* rawSys = nullptr;
 

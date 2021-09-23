@@ -1,5 +1,10 @@
 #pragma once
 
+namespace forge
+{
+	class EngineInstance;
+}
+
 namespace systems
 {
 	class IDataPackage
@@ -21,6 +26,11 @@ namespace systems
 		{}
 
 		FORGE_INLINE T& operator[]( Uint32 index )
+		{
+			return m_data[ index ];
+		}
+
+		FORGE_INLINE const T& operator[]( Uint32 index ) const
 		{
 			return m_data[ index ];
 		}
@@ -63,6 +73,11 @@ namespace systems
 		FORGE_INLINE typename std::vector< T >::iterator end()
 		{
 			return m_data.end();
+		}
+
+		FORGE_INLINE Uint32 GetDataSize() const
+		{
+			return static_cast< Uint32 >( m_data.size() );
 		}
 
 	private:
@@ -155,8 +170,8 @@ namespace systems
 	class ISystem
 	{
 	public:
-		ISystem( forge::GameInstance& gameInstance )
-			: m_gameInstance( gameInstance )
+		ISystem( forge::EngineInstance& engineInstance )
+			: m_engineInstance( engineInstance )
 		{}
 
 		virtual ~ISystem() = default;
@@ -165,13 +180,13 @@ namespace systems
 		virtual void Update() {}
 		virtual void OnDeinitialize() {}
 
-		FORGE_INLINE forge::GameInstance& GetGameInstance() const
+		FORGE_INLINE forge::EngineInstance& GetEngineInstance() const
 		{
-			return m_gameInstance;
+			return m_engineInstance;
 		}
 
 	private:
-		forge::GameInstance& m_gameInstance;
+		forge::EngineInstance& m_engineInstance;
 	};
 
 	class IECSSystem : public ISystem

@@ -1,7 +1,12 @@
 #pragma once
 #include "EntityID.h"
-#include "GameInstance.h"
 #include "ISystem.h" //todo - data package to separate header
+#include "EngineInstance.h" // todo - separate IManager and EngineInstance
+
+namespace forge
+{
+	class EngineInstance;
+}
 
 namespace systems
 {
@@ -19,13 +24,13 @@ namespace systems
 		class BootContext
 		{
 		public:
-			using CreationFunc = std::function < std::unique_ptr< ISystem >( forge::GameInstance& ) >;
+			using CreationFunc = std::function < std::unique_ptr< ISystem >( forge::EngineInstance& ) >;
 			using ArchetypeFunc = std::function < std::unique_ptr< Archetype >() >;
 
 			template< class T >
 			FORGE_INLINE void AddSystem()
 			{
-				m_systemsCreations.emplace_back( []( forge::GameInstance& gameInstance ) { return std::make_unique< T >( gameInstance ); } );
+				m_systemsCreations.emplace_back( []( forge::EngineInstance& engineInstance ) { return std::make_unique< T >( engineInstance ); } );
 			}
 
 			FORGE_INLINE const std::vector< CreationFunc >& GetSystemsCreations() const

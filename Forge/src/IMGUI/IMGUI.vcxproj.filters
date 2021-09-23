@@ -21,9 +21,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="IMGUISystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Fpch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -53,6 +50,9 @@
     </ClCompile>
     <ClCompile Include="..\..\External\imgui\imgui_widgets.cpp">
       <Filter>Source Files\External</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUIInstance.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -86,9 +86,6 @@
     <ClInclude Include="..\..\External\imgui\imstb_textedit.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="IMGUISystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PublicDefaults.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -96,6 +93,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IMGUIRenderAPIAdapters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUIInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

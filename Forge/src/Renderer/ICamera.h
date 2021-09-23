@@ -5,6 +5,12 @@ namespace forge
 	class ICamera
 	{
 	public:
+		enum class Type
+		{
+			Perspective,
+			Orthographic
+		};
+
 		virtual ~ICamera() {}
 
 		virtual Matrix GetViewMatrix() const = 0;
@@ -19,5 +25,7 @@ namespace forge
 
 		virtual void SetTransform( Transform transform ) = 0;
 		virtual const Transform& GetTransform() const = 0;
+
+		virtual Type GetType() const = 0;
 	};
 }

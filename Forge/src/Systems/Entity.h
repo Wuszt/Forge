@@ -3,13 +3,13 @@
 namespace forge
 {
 	class IComponent;
-	class EntitiesManager;
+	class EngineInstance;
 
 	class Entity
 	{
 	public:
-		Entity( EntitiesManager& entitiesManager, EntityID id );
-		virtual ~Entity() {}
+		Entity( EngineInstance& engineInstance, EntityID id );
+		virtual ~Entity();
 
 		FORGE_INLINE EntityID GetEntityID() const
 		{
@@ -25,7 +25,7 @@ namespace forge
 			auto comp = std::make_unique< T >( *this );
 			auto* rawcomp = comp.get();
 			m_components.emplace( typeid( T ), std::move( comp ) );
-			rawcomp->OnAttach();
+			rawcomp->OnAttach( m_engineInstance );
 			return rawcomp;
 		}
 
@@ -35,14 +35,14 @@ namespace forge
 			return static_cast< T* >( m_components.at( typeid( T ) ).get() ); 
 		}
 
-		EntitiesManager& GetEntitiesManager() const
+		EngineInstance& GetEngineInstance() const
 		{
-			return m_entitiesManager;
+			return m_engineInstance;
 		}
 
 	private:
 		EntityID m_id;
-		EntitiesManager& m_entitiesManager;
+		EngineInstance& m_engineInstance;
 
 		std::unordered_map< std::type_index, std::unique_ptr< IComponent > > m_components;
 	};

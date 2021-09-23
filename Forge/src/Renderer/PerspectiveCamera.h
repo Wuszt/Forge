@@ -24,9 +24,14 @@ namespace forge
 			m_transform = transform;
 		}
 
-		virtual const Transform& GetTransform() const override
+		FORGE_INLINE virtual const Transform& GetTransform() const override
 		{
 			return m_transform;
+		}
+
+		FORGE_INLINE virtual ICamera::Type GetType() const override
+		{
+			return ICamera::Type::Perspective;
 		}
 
 	private:

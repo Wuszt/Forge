@@ -135,6 +135,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="CamerasSystem.cpp" />
     <ClCompile Include="EntitiesManager.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityID.cpp" />
@@ -144,30 +146,50 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="GameInstance.cpp" />
+    <ClCompile Include="EngineInstance.cpp" />
     <ClCompile Include="IComponent.cpp" />
+    <ClCompile Include="IMGUISystem.cpp" />
     <ClCompile Include="ISystem.cpp" />
+    <ClCompile Include="PlayerControllerComponent.cpp" />
+    <ClCompile Include="PlayerSystem.cpp" />
+    <ClCompile Include="RenderingComponent.cpp" />
+    <ClCompile Include="RenderingSystem.cpp" />
     <ClCompile Include="SystemsManager.cpp" />
     <ClCompile Include="TransformComponent.cpp" />
     <ClCompile Include="TransformSystem.cpp" />
+    <ClCompile Include="UpdateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CameraComponent.h" />
+    <ClInclude Include="CamerasSystem.h" />
     <ClInclude Include="EntitiesManager.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityID.h" />
     <ClInclude Include="Fpch.h" />
-    <ClInclude Include="GameInstance.h" />
+    <ClInclude Include="EngineInstance.h" />
     <ClInclude Include="IComponent.h" />
+    <ClInclude Include="IMGUISystem.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="ISystem.h" />
+    <ClInclude Include="PlayerControllerComponent.h" />
+    <ClInclude Include="PlayerSystem.h" />
     <ClInclude Include="PublicDefaults.h" />
+    <ClInclude Include="RenderingComponent.h" />
+    <ClInclude Include="RenderingSystem.h" />
     <ClInclude Include="SystemsManager.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="TransformSystem.h" />
+    <ClInclude Include="UpdateManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">
       <Project>{38e97199-f4e4-4704-b916-dd286525c84b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\IMGUI\IMGUI.vcxproj">
+      <Project>{45b22060-1716-4c8b-8844-c873202adcb2}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Renderer\Renderer.vcxproj">
+      <Project>{b80e49a4-1d06-4643-9ef0-34e4e56781ad}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -8,8 +8,8 @@ namespace forge
 		IComponent( Entity& owner );
 		virtual ~IComponent() {}
 
-		virtual void OnAttach() {}
-		virtual void OnDetach() {}
+		virtual void OnAttach( EngineInstance& engineInstance ) {}
+		virtual void OnDetach( EngineInstance& engineInstance ) {}
 
 		Entity& GetOwner() const
 		{
@@ -26,18 +26,17 @@ namespace forge
 	public:
 		using IComponent::IComponent;
 		
-		virtual void OnAttach() override
+		virtual void OnAttach( EngineInstance& engineInstance ) override
 		{
-			auto& gi = GetOwner().GetEntitiesManager().GetGameInstance();
-			auto& systemsManager = gi.GetSystemsManager();
+			auto& systemsManager = engineInstance.GetSystemsManager();
 
 			systemsManager.AddECSData< TData >( GetOwner().GetEntityID() );
 		}
 
 		TData& GetData()
 		{
-			auto& gi = GetOwner().GetEntitiesManager().GetGameInstance();
-			systems::SystemsManager& sm = gi.GetSystemsManager();
+			auto& ei = GetOwner().GetEngineInstance();
+			systems::SystemsManager& sm = ei.GetSystemsManager();
 			const auto& archetypes = sm.GetArchetypesOfEntity( GetOwner().GetEntityID() );
 
 			auto found = std::find_if( archetypes.begin(), archetypes.end(), []( auto* archetype ) { return archetype->ContainsData< TData >(); } );

@@ -22,8 +22,11 @@ namespace d3d11
 
 		void Set( Uint32 offset );
 
+		virtual Uint32 GetIndicesAmount() const override;
+
 	private:
 		ID3D11Buffer* m_buffer = nullptr;
 		D3D11RenderContext* m_contextPtr = nullptr;
+		Uint32 m_indicesAmount = 0u;
 	};
 }

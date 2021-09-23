@@ -1,10 +1,9 @@
 #pragma once
-#include "GameInstance.h"
 
 namespace forge
 {
 	class Entity;
-	class GameInstance;
+	class EngineInstance;
 
 	class EntitiesManager : public IManager
 	{
@@ -15,7 +14,7 @@ namespace forge
 		FORGE_INLINE T* CreateEntity()
 		{
 			EntityID id = ++m_lastUsedEntityID;
-			auto ent = std::make_unique< T >( *this, id );
+			auto ent = std::make_unique< T >( GetEngineInstance(), id );
 			auto* rawEnt = ent.get();
 
 			m_entities.emplace( id, std::move( ent ) );
