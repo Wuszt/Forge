@@ -15,11 +15,12 @@ namespace forge
 	class EntitiesManager;
 	class UpdateManager;
 	class IWindow;
+	class ApplicationInstance;
 
 	class EngineInstance
 	{
 	public:
-		EngineInstance( Bool withRenderering = true );
+		EngineInstance( ApplicationInstance& gameInstance );
 		EngineInstance( const EngineInstance& ei ) = delete;
 		~EngineInstance();
 
@@ -59,6 +60,8 @@ namespace forge
 		std::unique_ptr< IWindow > m_window;
 
 		std::unique_ptr< forge::CallbackToken > m_windowUpdateUpdateToken;
+
+		ApplicationInstance& m_appInstance;
 	};
 
 	class IManager

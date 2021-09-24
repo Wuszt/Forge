@@ -148,6 +148,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="EngineInstance.cpp" />
+    <ClCompile Include="ApplicationInstance.cpp" />
     <ClCompile Include="IComponent.cpp" />
     <ClCompile Include="IMGUISystem.cpp" />
     <ClCompile Include="ISystem.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="EntityID.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="EngineInstance.h" />
+    <ClInclude Include="ApplicationInstance.h" />
     <ClInclude Include="IComponent.h" />
     <ClInclude Include="IMGUISystem.h" />
     <ClInclude Include="InternalDefaults.h" />

@@ -4,7 +4,8 @@
 #include "../Core/IWindow.h"
 #include "../Renderer/PublicDefaults.h"
 
-forge::EngineInstance::EngineInstance( Bool withRendering )
+forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
+	: m_appInstance( appInstance )
 {
 	forge::Time::Initialize();
 
@@ -16,7 +17,7 @@ forge::EngineInstance::EngineInstance( Bool withRendering )
 	m_entitiesManager->Initialize();
 	m_updateManager->Initialize();
 
-	if( withRendering )
+	if( m_appInstance.WithRendering() )
 	{
 		const Uint32 width = 1600;
 		const Uint32 height = 900;
@@ -41,12 +42,18 @@ forge::EngineInstance::~EngineInstance()
 
 void forge::EngineInstance::Run()
 {
-	while( true )
+	m_appInstance.Initialize( *this );
+
+	while( !m_appInstance.ShouldShutdown() )
 	{
 		forge::Time::Update();
 		forge::FPSCounter::OnUpdate( forge::Time::GetDeltaTime() );
 		m_window->Update();
 
+		m_appInstance.OnUpdate( *this );
+
 		m_updateManager->Update();
 	}
+
+	m_appInstance.Deinitialize( *this );
 }

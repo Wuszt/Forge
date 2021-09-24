@@ -8,3 +8,4 @@
 #include "Entity.h"
 #include "IComponent.h"
 #include "UpdateManager.h"
+#include "ApplicationInstance.h"
