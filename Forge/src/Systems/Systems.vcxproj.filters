@@ -75,6 +75,9 @@
     <ClInclude Include="IMGUISystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DebugSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fpch.cpp">
@@ -129,6 +132,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IMGUISystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

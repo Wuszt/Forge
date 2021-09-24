@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="CamerasSystem.cpp" />
+    <ClCompile Include="DebugSystem.cpp" />
     <ClCompile Include="EntitiesManager.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityID.cpp" />
@@ -162,6 +163,7 @@
   <ItemGroup>
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="CamerasSystem.h" />
+    <ClInclude Include="DebugSystem.h" />
     <ClInclude Include="EntitiesManager.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityID.h" />

@@ -7,16 +7,13 @@
 #include "../Core/IWindow.h"
 #include "../Core/FPSCounter.h"
 
-#ifdef FORGE_IMGUI_ENABLED
-#include "../IMGUI/IMGUIInstance.h"
-#include "../IMGUI/PublicDefaults.h"
-#endif
 #include "../Systems/CamerasSystem.h"
 #include "../Systems/PlayerControllerComponent.h"
 #include "../Systems/PlayerSystem.h"
 #include "../Systems/CameraComponent.h"
 #include "../Systems/RenderingSystem.h"
 #include "../Systems/IMGUISystem.h"
+#include "../Systems/DebugSystem.h"
 
 Int32 main()
 {
@@ -27,6 +24,7 @@ Int32 main()
 	ctx.AddSystem< systems::PlayerSystem >();
 	ctx.AddSystem< systems::RenderingSystem >();
 	ctx.AddSystem< systems::IMGUISystem >();
+	ctx.AddSystem< systems::DebugSystem >();
 
 	engineInstance.GetSystemsManager().Boot( ctx );
 
@@ -43,39 +41,6 @@ Int32 main()
 	auto* freeCameraController = player->AddComponent< forge::FreeCameraControllerComponent >();
 	engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent( *freeCameraController );
 
-	auto fpsOverlayDrawingToken = engineInstance.GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( []()
-	{
-		Float fps = forge::FPSCounter::GetAverageFPS( 1u );
-		Vector4 color{ 1.0f, 0.0f, 0.0f, 1.0f };
-
-		if( fps > 30.0f )
-		{
-			if( fps > 6.0f )
-			{
-				color = { 0.0f, 1.0f, 0.0f, 1.0f };
-			}
-			else
-			{
-				color = { 1.0f, 1.0f, 0.0f, 1.0f };
-			}
-		}
-
-		Uint32 bufferSize = 0u;
-		Uint32 currentOffset = 0u;
-		Float* buff = forge::FPSCounter::GetFPSCounter().GetBuffer( currentOffset, bufferSize );
-
-		ImGui::PlotHistogram( "", buff, bufferSize, currentOffset, NULL, 0.0f, 120.0f, ImVec2( 100.0f, 40.0f ) );
-		ImGui::SameLine();
-
-		ImGui::SetWindowFontScale( 1.5f );
-		ImGui::PushStyleColor( ImGuiCol_Text, { color.X, color.Y, color.Z, color.W } );
-		ImGui::Text( "FPS: %.2f", fps );
-		ImGui::PopStyleColor();
-		ImGui::SetWindowFontScale( 1.0f );
-	} );
-
-	Bool imguiExample = false;
-
 	Math::Random rng;
 
 	const Uint32 dim = 500u;
@@ -87,8 +52,10 @@ Int32 main()
 		}
 
 		forge::Entity* entity = engineInstance.GetEntitiesManager().CreateEntity();
-		auto* transformComponent = entity->AddComponent< forge::DataComponent< forge::TransformComponentData > >();
-		auto* renderingComponent = entity->AddComponent< forge::DataComponent< forge::RenderingComponentData > >();
+		entity->AddComponents< forge::TransformComponent, forge::RenderingComponent >();
+		auto* transformComponent = entity->GetComponent< forge::TransformComponent >();
+		auto* renderingComponent = entity->GetComponent< forge::RenderingComponent >();
+
 		renderingComponent->GetData().m_color = Vector4( rng.GetFloat(), rng.GetFloat(), rng.GetFloat(), 1.0f );
 
 		Matrix m;
@@ -104,8 +71,9 @@ Int32 main()
 
 	{
 		forge::Entity* ground = engineInstance.GetEntitiesManager().CreateEntity();
-		auto* transformComponent = ground->AddComponent< forge::DataComponent< forge::TransformComponentData > >();
-		auto* renderingComponent = ground->AddComponent< forge::DataComponent< forge::RenderingComponentData > >();
+		ground->AddComponents< forge::TransformComponent, forge::RenderingComponent >();
+		auto* transformComponent = ground->GetComponent< forge::TransformComponent >();
+		auto* renderingComponent = ground->GetComponent< forge::RenderingComponent >();
 
 		renderingComponent->GetData().m_color = Vector4( 0.0f, 0.6f, 0.0f, 1.0f );
 		transformComponent->GetData().m_scale = { 20000.0f, 20000.0f, 0.01f };
@@ -113,6 +81,4 @@ Int32 main()
 	}
 
 	engineInstance.Run();
-
-	//ImGui::ShowDemoWindow( &imguiExample );
 }

@@ -29,6 +29,17 @@ namespace forge
 			return rawcomp;
 		}
 
+		template< class... Ts >
+		FORGE_INLINE decltype( typename std::enable_if<sizeof...( Ts ) == 0, void>::type() ) AddComponents()
+		{}
+
+		template< class T, class... Ts >
+		void AddComponents()
+		{
+			AddComponent< T >();
+			AddComponents< Ts... >();
+		}
+
 		template< class T >
 		T* GetComponent()
 		{
