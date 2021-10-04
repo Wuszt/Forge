@@ -84,7 +84,7 @@ namespace d3d11
 		}
 
 	protected:
-		virtual std::unique_ptr< renderer::IConstantBufferImpl > CreateConstantBufferImpl( void* data, Uint32 dataSize ) const override;
+		virtual std::unique_ptr< renderer::IConstantBufferImpl > CreateConstantBufferImpl() const override;
 
 	private:
 		void SetRenderTargets( std::vector< renderer::IRenderTargetView* > rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer );

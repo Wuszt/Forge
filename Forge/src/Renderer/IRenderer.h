@@ -53,15 +53,21 @@ namespace renderer
 		virtual RendererType GetType() const = 0;
 
 	protected:
-		virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl( void* data, Uint32 dataSize ) const = 0;
+		virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl() const = 0;
 
 	public:
 		template< class T >
-		std::unique_ptr< ConstantBuffer< T > > GetConstantBuffer() const
+		std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const
 		{
-			auto constBuffer = std::make_unique< ConstantBuffer< T > >();
-			auto& data = constBuffer->GetData();
-			constBuffer->SetImpl( std::move( CreateConstantBufferImpl( &data, sizeof( data ) ) ) );
+			auto constBuffer = std::make_unique< StaticConstantBuffer< T > >();
+			constBuffer->SetImpl( CreateConstantBufferImpl() );
+			return constBuffer;
+		}
+
+		std::unique_ptr< ConstantBuffer > CreateConstantBuffer() const
+		{
+			auto constBuffer = std::make_unique< ConstantBuffer >();
+			constBuffer->SetImpl( CreateConstantBufferImpl() );
 			return constBuffer;
 		}
 	};

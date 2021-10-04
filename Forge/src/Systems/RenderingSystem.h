@@ -14,7 +14,7 @@ namespace renderer
 	class IInputLayout;
 
 	template< class T >
-	class ConstantBuffer;
+	class StaticConstantBuffer;
 }
 
 namespace systems
@@ -24,10 +24,9 @@ namespace systems
 	class RenderingSystem : public ECSSystem< forge::TransformComponentData, forge::RenderingComponentData >
 	{
 	public:
-		struct cbPerObject
+		struct cbMesh
 		{
 			Matrix WVP;
-			Vector4 color;
 		};
 
 		using ECSSystem::ECSSystem;
@@ -53,6 +52,6 @@ namespace systems
 		std::unique_ptr< renderer::IVertexBuffer > m_vertexBuffer;
 		std::unique_ptr< renderer::IInputLayout > m_inputLayout;
 		std::unique_ptr< renderer::IIndexBuffer > m_indexBuffer;
-		std::unique_ptr< renderer::ConstantBuffer< cbPerObject > > m_buffer;
+		std::unique_ptr< renderer::StaticConstantBuffer< cbMesh > > m_buffer;
 	};
 }

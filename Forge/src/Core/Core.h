@@ -5,6 +5,7 @@
 #define FORGE_ASSURES_ENABLED
 
 #ifdef FORGE_ASSERTIONS_ENABLED
+#undef NDEBUG
 #include <assert.h>
 #define FORGE_ASSERT( ... ) assert( __VA_ARGS__ )
 #else
@@ -12,6 +13,7 @@
 #endif
 
 #ifdef FORGE_FATALS_ENABLED
+#undef NDEBUG
 #include <assert.h>
 #define FORGE_FATAL( msg ) assert(((void)msg, false ))
 #else
@@ -35,6 +37,8 @@
 #endif
 
 #ifdef FORGE_ASSURES_ENABLED
+#undef NDEBUG
+#include <assert.h>
 #define FORGE_ASSURE( ... ) assert( __VA_ARGS__ )
 #else
 #define FORGE_ASSURE( ... ) __VA_ARGS__

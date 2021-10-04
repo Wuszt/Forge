@@ -1,6 +1,5 @@
 #pragma once
 #include "EntityID.h"
-#include "ISystem.h" //todo - data package to separate header
 #include "EngineInstance.h" // todo - separate IManager and EngineInstance
 
 namespace forge
@@ -72,13 +71,13 @@ namespace systems
 			return m_systemToArchetypesLUT[ typeid( T ) ];
 		}
 
-		void AddECSData( forge::EntityID id, std::type_index typeIndex, std::unique_ptr< IDataPackage > package );
+		void AddECSData( forge::EntityID id, std::type_index typeIndex, std::unique_ptr< forge::IDataPackage > package );
 
 		template< class T > //todo: do .cpp
 		FORGE_INLINE void AddECSData( forge::EntityID id )
 		{
 			const std::type_index typeIndex = typeid( T );
-			std::unique_ptr< DataPackage< T > > package = std::make_unique< DataPackage< T > >();
+			std::unique_ptr< forge::DataPackage< T > > package = std::make_unique< forge::DataPackage< T > >();
 			package->AddEmptyData();
 			AddECSData( id, typeIndex, std::move( package ) );
 		}

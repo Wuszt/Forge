@@ -4,6 +4,7 @@
 #include "../Renderer/IRenderer.h"
 #include "CamerasSystem.h"
 #include "CameraComponent.h"
+#include "../Renderer/ConstantBuffer.h"
 
 void systems::RenderingSystem::OnInitialize()
 {
@@ -20,9 +21,7 @@ void systems::RenderingSystem::OnInitialize()
 	m_vertexShader->Set();
 	m_pixelShader->Set();
 
-	renderer::Vertices< renderer::IVertex< renderer::InputPosition, renderer::InputColor > > vertices;
-
-	vertices.m_vertices =
+	renderer::Vertices< renderer::IVertex< renderer::InputPosition, renderer::InputColor > > vertices(
 	{
 		{ renderer::InputPosition( -1.0f, -1.0f, -1.0f ), renderer::InputColor( 1.0f, 0.0f, 0.0f, 1.0f ) },
 		{ renderer::InputPosition( 1.0f,	-1.0f, -1.0f ), renderer::InputColor( 0.0f, 1.0f, 0.0f, 1.0f ) },
@@ -33,7 +32,7 @@ void systems::RenderingSystem::OnInitialize()
 		{ renderer::InputPosition( 1.0f,	-1.0f, 1.0f ), renderer::InputColor( 1.0f, 1.0f, 0.0f, 1.0f ) },
 		{ renderer::InputPosition( 1.0f, 1.0f, 1.0f ), renderer::InputColor( 1.0f, 0.0f, 1.0f, 1.0f ) },
 		{ renderer::InputPosition( -1.0f, 1.0f, 1.0f ), renderer::InputColor( 0.3f, 0.7f, 0.6f, 1.0f ) },
-	};
+	} );
 
 	m_vertexBuffer = m_renderer->CreateVertexBuffer( vertices );
 	m_vertexBuffer->Set();
@@ -54,7 +53,7 @@ void systems::RenderingSystem::OnInitialize()
 	m_indexBuffer = m_renderer->CreateIndexBuffer( indices, sizeof( indices ) / sizeof( Uint32 ) );
 	m_indexBuffer->Set( 0 );
 
-	m_buffer = m_renderer->GetConstantBuffer< cbPerObject >();
+	m_buffer = m_renderer->CreateStaticConstantBuffer< cbMesh >();
 }
 
 void systems::RenderingSystem::OnBeforeDraw()
@@ -75,14 +74,16 @@ void systems::RenderingSystem::OnDraw()
 
 	for( systems::Archetype* archetype : archetypes )
 	{
-		const DataPackage< forge::TransformComponentData >& transforms = archetype->GetData< forge::TransformComponentData >();
-		const DataPackage< forge::RenderingComponentData >& renderables = archetype->GetData< forge::RenderingComponentData >();
+		const forge::DataPackage< forge::TransformComponentData >& transforms = archetype->GetData< forge::TransformComponentData >();
+		const forge::DataPackage< forge::RenderingComponentData >& renderables = archetype->GetData< forge::RenderingComponentData >();
 
 		for( Uint32 i = 0; i < transforms.GetDataSize(); ++i )
 		{
 			m_buffer->GetData().WVP = transforms[ i ].ToMatrix() * vp;
-			m_buffer->GetData().color = renderables[ i ].m_color;
-			m_buffer->SetVS( 1 );
+			m_buffer->UpdateBuffer();
+			m_buffer->SetVS( renderer::VSConstantBufferType::Mesh );
+
+			renderables[ i ].m_constantBufferImplementation->SetVS( static_cast< Uint32 >( renderer::VSConstantBufferType::Material ) );
 
 			m_renderer->GetContext()->Draw( m_indexBuffer->GetIndicesAmount(), 0 );
 		}

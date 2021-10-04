@@ -14,13 +14,13 @@ void systems::SystemsManager::Initialize()
 	} ) );
 }
 
-void systems::SystemsManager::AddECSData( forge::EntityID id, std::type_index typeIndex, std::unique_ptr< IDataPackage > package )
+void systems::SystemsManager::AddECSData( forge::EntityID id, std::type_index typeIndex, std::unique_ptr< forge::IDataPackage > package )
 {
 	m_entityDataTypesLUT[ id ].emplace_back( typeIndex );
 
 	auto& entityTypes = m_entityDataTypesLUT.at( id );
 
-	std::vector< std::unique_ptr< IDataPackage > > newArchetypePackages;
+	std::vector< std::unique_ptr< forge::IDataPackage > > newArchetypePackages;
 	newArchetypePackages.emplace_back( std::move( package ) );
 
 	for( auto& system : m_ecsSystems )

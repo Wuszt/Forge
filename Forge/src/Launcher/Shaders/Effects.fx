@@ -1,12 +1,16 @@
-cbuffer cbPerFrame : register(b0)
+cbuffer cbMaterial : register(b0)
+{
+    float4 color;
+};
+
+cbuffer cbFrame : register(b1)
 {
     float time;
 };
 
-cbuffer cbPerObject : register(b1)
+cbuffer cbMesh : register(b2)
 {
     float4x4 WVP;
-    float4 color;
 };
 
 struct VS_OUTPUT

@@ -7,84 +7,6 @@ namespace forge
 
 namespace systems
 {
-	class IDataPackage
-	{
-	public:
-		virtual ~IDataPackage() = default;
-		virtual void AddEmptyData() = 0;
-		virtual void RemoveDataReorder( Uint32 index ) = 0;
-		virtual std::type_index GetTypeIndex() const = 0;
-		virtual void MoveTo( Uint32 index, IDataPackage& destination ) = 0;
-	};
-
-	template< class T >
-	class DataPackage : public IDataPackage
-	{
-	public:
-		DataPackage( Uint32 initialSize = 0u )
-			: m_data( initialSize )
-		{}
-
-		FORGE_INLINE T& operator[]( Uint32 index )
-		{
-			return m_data[ index ];
-		}
-
-		FORGE_INLINE const T& operator[]( Uint32 index ) const
-		{
-			return m_data[ index ];
-		}
-
-		FORGE_INLINE virtual void AddEmptyData() override
-		{
-			AddData();
-		}
-
-		FORGE_INLINE virtual void RemoveDataReorder( Uint32 index ) override
-		{
-			std::swap( m_data[ index ], m_data.back() );
-			m_data.pop_back();
-		}
-
-		FORGE_INLINE virtual std::type_index GetTypeIndex() const override
-		{
-			return typeid( T );
-		}
-
-		FORGE_INLINE virtual void MoveTo( Uint32 index, IDataPackage& destination ) override
-		{
-			FORGE_ASSERT( dynamic_cast< DataPackage< T >* >( &destination ) );
-			DataPackage< T >* realType = static_cast< DataPackage< T >* >( &destination );
-			realType->m_data.emplace_back( std::move( m_data[ index ] ) );
-			RemoveDataReorder( index );
-		}
-
-		template< class... Ts >
-		FORGE_INLINE void AddData( Ts... data )
-		{
-			m_data.emplace_back( std::forward< Ts >( data )... );
-		}
-
-		FORGE_INLINE typename std::vector< T >::iterator begin()
-		{
-			return m_data.begin();
-		}
-
-		FORGE_INLINE typename std::vector< T >::iterator end()
-		{
-			return m_data.end();
-		}
-
-		FORGE_INLINE Uint32 GetDataSize() const
-		{
-			return static_cast< Uint32 >( m_data.size() );
-		}
-
-	private:
-		std::vector< T > m_data;
-	};
-
-
 	class Archetype
 	{
 	public:
@@ -93,10 +15,10 @@ namespace systems
 		{}
 
 		template< class T >
-		FORGE_INLINE DataPackage< T >& GetData()
+		FORGE_INLINE forge::DataPackage< T >& GetData()
 		{
-			FORGE_ASSERT( dynamic_cast< DataPackage< T >* >( m_data.at( typeid( T ) ).get() ) );
-			return *static_cast< DataPackage< T >* >( m_data.at( typeid( T ) ).get() );
+			FORGE_ASSERT( dynamic_cast< forge::DataPackage< T >* >( m_data.at( typeid( T ) ).get() ) );
+			return *static_cast< forge::DataPackage< T >* >( m_data.at( typeid( T ) ).get() );
 		}
 
 		template< class T >
@@ -113,7 +35,7 @@ namespace systems
 			return GetData< T >()[ index ];
 		}
 
-		FORGE_INLINE IDataPackage& GetData( std::type_index typeIndex )
+		FORGE_INLINE forge::IDataPackage& GetData( std::type_index typeIndex )
 		{
 			return *m_data.at( typeIndex );
 		}
@@ -147,10 +69,10 @@ namespace systems
 		template< class T >
 		FORGE_INLINE void AddDataPackage()
 		{
-			m_data.emplace( typeid( T ), std::make_unique< DataPackage< T > >( m_dataSize ) );
+			m_data.emplace( typeid( T ), std::make_unique< forge::DataPackage< T > >( m_dataSize ) );
 		}
 
-		FORGE_INLINE void AddDataPackage( std::unique_ptr< IDataPackage > package )
+		FORGE_INLINE void AddDataPackage( std::unique_ptr< forge::IDataPackage > package )
 		{
 			m_data.emplace( package->GetTypeIndex(), std::move( package ) );
 		}
@@ -162,7 +84,7 @@ namespace systems
 		void RemoveEntity( forge::EntityID id );
 
 	private:
-		std::unordered_map< std::type_index, std::unique_ptr< IDataPackage > > m_data;
+		std::unordered_map< std::type_index, std::unique_ptr< forge::IDataPackage > > m_data;
 		std::vector< Int32 > m_sparseSet;
 		Uint32 m_dataSize = 0u;
 	};
@@ -193,7 +115,7 @@ namespace systems
 	{
 	public:
 		virtual const std::vector< std::type_index >& GetRequiredDataTypes() const = 0;
-		virtual std::vector< std::unique_ptr< IDataPackage > > CreateRequiredDataPackages() const = 0;
+		virtual std::vector< std::unique_ptr< forge::IDataPackage > > CreateRequiredDataPackages() const = 0;
 
 	private:
 		using ISystem::ISystem;
@@ -236,20 +158,20 @@ namespace systems
 		}
 
 		template< class... Args >
-		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherDataPackages( std::vector< std::unique_ptr< IDataPackage > >& packages )
+		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherDataPackages( std::vector< std::unique_ptr< forge::IDataPackage > >& packages )
 		{}
 
 		template< class T, class... Args >
-		FORGE_INLINE static void GatherDataPackages( std::vector< std::unique_ptr< IDataPackage > >& packages )
+		FORGE_INLINE static void GatherDataPackages( std::vector< std::unique_ptr< forge::IDataPackage > >& packages )
 		{
-			packages.emplace_back( std::make_unique< DataPackage< T > >() );
+			packages.emplace_back( std::make_unique< forge::DataPackage< T > >() );
 
 			GatherDataPackages< Args... >( packages );
 		}
 
-		FORGE_INLINE virtual std::vector< std::unique_ptr< IDataPackage > > CreateRequiredDataPackages() const override
+		FORGE_INLINE virtual std::vector< std::unique_ptr< forge::IDataPackage > > CreateRequiredDataPackages() const override
 		{
-			std::vector< std::unique_ptr< IDataPackage > > packages;
+			std::vector< std::unique_ptr< forge::IDataPackage > > packages;
 			GatherDataPackages< Ts... >( packages );
 			return packages;
 		}

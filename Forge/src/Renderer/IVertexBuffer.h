@@ -104,6 +104,10 @@ namespace renderer
 	template< class VertexType >
 	struct Vertices : IVertices
 	{
+		Vertices( std::vector< VertexType >&& vertices )
+			: m_vertices( std::move( vertices ) )
+		{}
+
 		std::vector< VertexType > m_vertices;
 
 		virtual Uint32 GetVertexByteWidth() const override

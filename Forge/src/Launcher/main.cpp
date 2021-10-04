@@ -46,7 +46,7 @@ Int32 main()
 
 			Math::Random rng;
 
-			const Uint32 dim = 500u;
+			const Uint32 dim = 300u;
 			for( Uint32 i = 0; i < dim * dim; ++i )
 			{
 				if( rng.GetFloat() > 0.9f )
@@ -59,7 +59,8 @@ Int32 main()
 				auto* transformComponent = entity->GetComponent< forge::TransformComponent >();
 				auto* renderingComponent = entity->GetComponent< forge::RenderingComponent >();
 
-				renderingComponent->GetData().m_color = Vector4( rng.GetFloat(), rng.GetFloat(), rng.GetFloat(), 1.0f );
+				renderingComponent->GetConstantBuffer()->AddData( "m_color", Vector4( rng.GetFloat(), rng.GetFloat(), rng.GetFloat(), 1.0f ) );
+				renderingComponent->GetConstantBuffer()->UpdateBuffer();
 
 				Matrix m;
 
@@ -78,7 +79,9 @@ Int32 main()
 				auto* transformComponent = ground->GetComponent< forge::TransformComponent >();
 				auto* renderingComponent = ground->GetComponent< forge::RenderingComponent >();
 
-				renderingComponent->GetData().m_color = Vector4( 0.0f, 0.6f, 0.0f, 1.0f );
+				renderingComponent->GetConstantBuffer()->AddData( "m_color", Vector4( 0.0f, 0.6f, 0.0f, 1.0f ) );
+				renderingComponent->GetConstantBuffer()->UpdateBuffer();
+
 				transformComponent->GetData().m_scale = { 20000.0f, 20000.0f, 0.01f };
 				transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 			}

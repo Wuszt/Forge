@@ -101,22 +101,22 @@ namespace d3d11
 	void D3D11Renderer::BeginScene()
 	{
 		{
-			struct cbPerFrame
+			struct cbFrame
 			{
 				Float time;
 				Float padding[ 3 ];
 			};
 
-			auto buff = GetConstantBuffer< cbPerFrame >();
+			auto buff = CreateStaticConstantBuffer< cbFrame >();
 
 			buff->GetData().time = forge::Time::GetTime();
-			buff->SetVS( 0 );
+			buff->SetVS( renderer::VSConstantBufferType::Frame );
 		}
 	}
 
-	std::unique_ptr< renderer::IConstantBufferImpl > D3D11Renderer::CreateConstantBufferImpl( void* data, Uint32 dataSize ) const
+	std::unique_ptr< renderer::IConstantBufferImpl > D3D11Renderer::CreateConstantBufferImpl() const
 	{
-		return std::make_unique< D3D11ConstantBufferImpl >( m_context.get(), m_device.get(), data, dataSize );
+		return std::make_unique< D3D11ConstantBufferImpl >( *m_context, *m_device );
 	}
 
 	void D3D11Renderer::InitializeSwapChainAndContext( const windows::WindowsWindow& window )
