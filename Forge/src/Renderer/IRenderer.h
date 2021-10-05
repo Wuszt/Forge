@@ -52,10 +52,6 @@ namespace renderer
 
 		virtual RendererType GetType() const = 0;
 
-	protected:
-		virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl() const = 0;
-
-	public:
 		template< class T >
 		std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const
 		{
@@ -70,6 +66,9 @@ namespace renderer
 			constBuffer->SetImpl( CreateConstantBufferImpl() );
 			return constBuffer;
 		}
+
+	protected:
+		virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl() const = 0;
 	};
 }
 

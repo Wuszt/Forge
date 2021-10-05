@@ -79,7 +79,8 @@ void systems::RenderingSystem::OnDraw()
 
 		for( Uint32 i = 0; i < transforms.GetDataSize(); ++i )
 		{
-			m_buffer->GetData().WVP = transforms[ i ].ToMatrix() * vp;
+			m_buffer->GetData().W = transforms[ i ].ToMatrix();
+			m_buffer->GetData().VP = vp;
 			m_buffer->UpdateBuffer();
 			m_buffer->SetVS( renderer::VSConstantBufferType::Mesh );
 

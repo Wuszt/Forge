@@ -47,22 +47,22 @@ namespace d3d11
 			return m_device.get();
 		}
 
-		virtual FORGE_INLINE D3D11RenderContext* GetContext() const override
+		FORGE_INLINE virtual D3D11RenderContext* GetContext() const override
 		{
 			return m_context.get();
 		}
 
-		virtual FORGE_INLINE D3D11RenderTargetView* GetRenderTargetView() const override
+		FORGE_INLINE virtual D3D11RenderTargetView* GetRenderTargetView() const override
 		{
 			return m_renderTargetView.get();
 		}
 
-		virtual FORGE_INLINE D3D11DepthStencilBuffer* GetDepthStencilBuffer() const override
+		FORGE_INLINE virtual D3D11DepthStencilBuffer* GetDepthStencilBuffer() const override
 		{
 			return m_depthStencilBuffer.get();
 		}
 
-		virtual FORGE_INLINE D3D11Swapchain* GetSwapchain() const override
+		FORGE_INLINE virtual D3D11Swapchain* GetSwapchain() const override
 		{
 			return m_swapChain.get();
 		}
@@ -78,7 +78,7 @@ namespace d3d11
 
 		virtual void BeginScene() override;
 
-		virtual renderer::RendererType GetType() const override
+		FORGE_INLINE virtual renderer::RendererType GetType() const override
 		{
 			return renderer::RendererType::D3D11;
 		}

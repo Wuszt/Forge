@@ -16,15 +16,15 @@ namespace renderer
 
 	enum class VSConstantBufferType
 	{
-		Material,
 		Frame,
+		Material,
 		Mesh,
 	};
 
 	enum class PSVertexConstantBufferType
 	{
-		Material,
 		Frame,
+		Material,
 		Mesh,
 	};
 
@@ -48,12 +48,17 @@ namespace renderer
 			m_impl->SetPS( static_cast< Uint32 >( type ) );
 		}
 
-		virtual void UpdateBuffer() = 0;
+		FORGE_INLINE void UpdateBuffer()
+		{
+			GetImpl()->UpdateBuffer( GetRawData() );
+		}
 
 		FORGE_INLINE IConstantBufferImpl* GetImpl() const
 		{
 			return m_impl.get();
 		}
+
+		virtual void* GetRawData() = 0;
 
 	protected:
 		virtual void CreateBuffer() = 0;
@@ -72,14 +77,14 @@ namespace renderer
 			CreateBuffer();
 		}
 
-		T& GetData()
+		FORGE_INLINE T& GetData()
 		{
 			return m_data;
 		}
 
-		virtual void UpdateBuffer() override
+		FORGE_INLINE virtual void* GetRawData() override
 		{
-			GetImpl()->UpdateBuffer( &m_data );
+			return &m_data;
 		}
 
 	protected:
@@ -141,7 +146,10 @@ namespace renderer
 			return false;
 		}
 
-		virtual void UpdateBuffer() override;
+		FORGE_INLINE virtual void* GetRawData() override
+		{
+			return m_rawData.m_data;
+		}
 
 	protected:
 		FORGE_INLINE virtual void CreateBuffer() override

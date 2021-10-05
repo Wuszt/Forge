@@ -26,7 +26,8 @@ namespace systems
 	public:
 		struct cbMesh
 		{
-			Matrix WVP;
+			Matrix W;
+			Matrix VP;
 		};
 
 		using ECSSystem::ECSSystem;

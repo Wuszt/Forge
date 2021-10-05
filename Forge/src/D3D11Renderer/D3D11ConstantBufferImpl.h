@@ -18,6 +18,11 @@ namespace d3d11
 		virtual void CreateBuffer( Uint32 dataSize ) override;
 		virtual void UpdateBuffer( void* data ) override;
 
+		FORGE_INLINE ID3D11Buffer* GetBuffer() const
+		{
+			return m_buff;
+		}
+
 	private:
 		ID3D11Buffer* m_buff;
 		D3D11RenderContext& m_context;
