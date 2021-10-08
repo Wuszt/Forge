@@ -11,7 +11,7 @@ namespace d3d11
 	class D3D11VertexShader : public renderer::IVertexShader
 	{
 	public:
-		D3D11VertexShader( D3D11RenderContext* contextPtr, const D3D11Device& device, const std::string& path );
+		D3D11VertexShader( D3D11RenderContext& context, const D3D11Device& device, const std::string& path );
 		~D3D11VertexShader();
 
 		FORGE_INLINE ID3D11VertexShader* const& GetShader() const
@@ -24,12 +24,12 @@ namespace d3d11
 			return m_buffer;
 		}
 
-		virtual void Set() override;
+		virtual void Set() const override;
 
 	private:
 		ID3D10Blob* m_buffer = nullptr;
 		ID3D11VertexShader* m_vertexShader = nullptr;
-		D3D11RenderContext* m_contextPtr = nullptr;
+		D3D11RenderContext& m_context;
 	};
 }
 

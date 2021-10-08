@@ -15,44 +15,6 @@ void systems::RenderingSystem::OnInitialize()
 	m_drawToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::RenderingSystem::OnDraw, this ) ) );
 	m_presentToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Present, std::bind( &systems::RenderingSystem::OnPresent, this ) ) );
 
-	m_vertexShader = m_renderer->GetVertexShader( "Effects.fx" );
-	m_pixelShader = m_renderer->GetPixelShader( "Effects.fx" );
-
-	m_vertexShader->Set();
-	m_pixelShader->Set();
-
-	renderer::Vertices< renderer::IVertex< renderer::InputPosition, renderer::InputColor > > vertices(
-	{
-		{ renderer::InputPosition( -1.0f, -1.0f, -1.0f ), renderer::InputColor( 1.0f, 0.0f, 0.0f, 1.0f ) },
-		{ renderer::InputPosition( 1.0f,	-1.0f, -1.0f ), renderer::InputColor( 0.0f, 1.0f, 0.0f, 1.0f ) },
-		{ renderer::InputPosition( 1.0f, 1.0f, -1.0f ), renderer::InputColor( 0.0f, 0.0f, 1.0f, 1.0f ) },
-		{ renderer::InputPosition( -1.0f, 1.0f, -1.0f ), renderer::InputColor( 0.0f, 1.0f, 0.0f, 1.0f ) },
-
-		{ renderer::InputPosition( -1.0f, -1.0f, 1.0f ), renderer::InputColor( 0.0f, 1.0f, 1.0f, 1.0f ) },
-		{ renderer::InputPosition( 1.0f,	-1.0f, 1.0f ), renderer::InputColor( 1.0f, 1.0f, 0.0f, 1.0f ) },
-		{ renderer::InputPosition( 1.0f, 1.0f, 1.0f ), renderer::InputColor( 1.0f, 0.0f, 1.0f, 1.0f ) },
-		{ renderer::InputPosition( -1.0f, 1.0f, 1.0f ), renderer::InputColor( 0.3f, 0.7f, 0.6f, 1.0f ) },
-	} );
-
-	m_vertexBuffer = m_renderer->CreateVertexBuffer( vertices );
-	m_vertexBuffer->Set();
-
-	m_inputLayout = m_renderer->CreateInputLayout( *m_vertexShader, *m_vertexBuffer );
-	m_inputLayout->Set();
-
-	Uint32 indices[ 6 * 6 ] =
-	{
-		0, 3, 1, 3, 2, 1,
-		1, 2, 5, 2, 6, 5,
-		5, 6, 4, 6, 7, 4,
-		4, 7, 0, 7, 3, 0,
-		3, 7, 2, 7, 6, 2,
-		4, 0, 5, 0, 1, 5
-	};
-
-	m_indexBuffer = m_renderer->CreateIndexBuffer( indices, sizeof( indices ) / sizeof( Uint32 ) );
-	m_indexBuffer->Set( 0 );
-
 	m_buffer = m_renderer->CreateStaticConstantBuffer< cbMesh >();
 }
 
@@ -84,9 +46,7 @@ void systems::RenderingSystem::OnDraw()
 			m_buffer->UpdateBuffer();
 			m_buffer->SetVS( renderer::VSConstantBufferType::Mesh );
 
-			renderables[ i ].m_constantBufferImplementation->SetVS( static_cast< Uint32 >( renderer::VSConstantBufferType::Material ) );
-
-			m_renderer->GetContext()->Draw( m_indexBuffer->GetIndicesAmount(), 0 );
+			m_renderer->Draw( *renderables[ i ].m_renderable );
 		}
 	}
 }

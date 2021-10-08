@@ -9,3 +9,4 @@
 #include "D3D11InputLayout.h"
 #include "D3D11RenderTargetView.h"
 #include "D3D11Swapchain.h"
+#include "D3D11ShadersManager.h"

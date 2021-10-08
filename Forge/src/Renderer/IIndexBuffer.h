@@ -7,7 +7,7 @@ namespace renderer
 	public:
 		virtual ~IIndexBuffer() {}
 
-		virtual void Set( Uint32 offset ) = 0;
+		virtual void Set( Uint32 offset ) const = 0;
 		virtual Uint32 GetIndicesAmount() const = 0;
 	};
 }

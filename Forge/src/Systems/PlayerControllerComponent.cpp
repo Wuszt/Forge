@@ -72,6 +72,8 @@ void forge::FreeCameraControllerComponent::Update()
 
 		m_eulerAngles += deltaRot;
 
+		m_eulerAngles.X = Math::Clamp( -FORGE_PI_HALF, FORGE_PI_HALF, m_eulerAngles.X );
+
 		m_ownerTransform->GetData().m_transform.SetOrientation( Quaternion( 0.0f, 0.0f, m_eulerAngles.Z ) * Quaternion( m_eulerAngles.X, 0.0f, 0.0f ) );
 	}
 

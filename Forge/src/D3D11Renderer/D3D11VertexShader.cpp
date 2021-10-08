@@ -4,8 +4,8 @@
 
 namespace d3d11
 {
-	D3D11VertexShader::D3D11VertexShader( D3D11RenderContext* contextPtr, const D3D11Device& device, const std::string& path )
-		: m_contextPtr( contextPtr )
+	D3D11VertexShader::D3D11VertexShader( D3D11RenderContext& context, const D3D11Device& device, const std::string& path )
+		: m_context( context )
 	{
 		auto wstr = std::wstring( path.begin(), path.end() );
 		LPCWSTR wPath = wstr.c_str();
@@ -20,8 +20,8 @@ namespace d3d11
 		m_vertexShader->Release();
 	}
 
-	void D3D11VertexShader::Set()
+	void D3D11VertexShader::Set() const
 	{
-		m_contextPtr->GetDeviceContext()->VSSetShader( m_vertexShader, 0, 0 );
+		m_context.GetDeviceContext()->VSSetShader( m_vertexShader, 0, 0 );
 	}
 }

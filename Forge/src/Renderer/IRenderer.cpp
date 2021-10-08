@@ -15,4 +15,20 @@ namespace renderer
 			return nullptr;
 		}
 	}
+
+	void IRenderer::Draw( const renderer::Renderable& renderable )
+	{
+		renderable.GetMesh()->GetVertexBuffer()->Set();
+		renderable.GetMesh()->GetIndexBuffer()->Set( 0 );
+
+		renderable.GetMaterial()->GetVertexShader()->Set();
+		renderable.GetMaterial()->GetPixelShader()->Set();
+
+		renderable.GetInputLayout()->Set();
+
+		renderable.GetConstantBuffer()->SetVS( renderer::VSConstantBufferType::Material );
+
+		GetContext()->Draw( renderable.GetMesh()->GetIndexBuffer()->GetIndicesAmount(), 0 );
+	}
+
 }

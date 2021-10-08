@@ -6,8 +6,8 @@
 #include "D3D11VertexShader.h"
 #include "D3D11PixelShader.h"
 #include "D3D11DepthStencilBuffer.h"
+#include "D3D11ShadersManager.h"
 
-class D3D11DepthStencilBuffer;
 struct ID3D11RasterizerState;
 
 namespace windows
@@ -35,6 +35,7 @@ namespace d3d11
 	class D3D11InputLayout;
 	class D3D11VertexBuffer;
 	class D3D11IndexBuffer;
+	class D3D11ShadersManager;
 
 	class D3D11Renderer : public renderer::IRenderer
 	{
@@ -67,8 +68,10 @@ namespace d3d11
 			return m_swapChain.get();
 		}
 
-		virtual D3D11VertexShader* GetVertexShader( const std::string& path ) override;
-		virtual D3D11PixelShader* GetPixelShader( const std::string& path ) override;
+		FORGE_INLINE virtual D3D11ShadersManager* GetShadersManager() const override
+		{
+			return m_shadersManager.get();
+		}
 
 		virtual std::unique_ptr< renderer::IInputLayout > CreateInputLayout( const renderer::IVertexShader& vertexShader, const renderer::IVertexBuffer& vertexBuffer ) const override;
 		virtual std::unique_ptr< renderer::IVertexBuffer > CreateVertexBuffer( const renderer::IVertices& vertices ) const;
@@ -96,10 +99,7 @@ namespace d3d11
 		std::unique_ptr< D3D11RenderContext > m_context;
 		std::unique_ptr< D3D11Swapchain > m_swapChain;
 		std::unique_ptr< D3D11RenderTargetView > m_renderTargetView;
-
-		//todo: create separate class for handling shaders
-		std::vector< std::unique_ptr< D3D11VertexShader > > m_vertexShaders;
-		std::vector< std::unique_ptr< D3D11PixelShader > > m_pixelShaders;
+		std::unique_ptr< D3D11ShadersManager > m_shadersManager;
 
 		std::unique_ptr< D3D11DepthStencilBuffer > m_depthStencilBuffer;
 

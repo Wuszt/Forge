@@ -7,7 +7,7 @@ namespace renderer
 	public:
 		virtual ~IVertexShader() {}
 
-		virtual void Set() = 0;
+		virtual void Set() const = 0;
 	};
 }
 

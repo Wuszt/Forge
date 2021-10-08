@@ -20,7 +20,7 @@ namespace d3d11
 			return m_buffer;
 		}
 
-		void Set( Uint32 offset );
+		virtual void Set( Uint32 offset ) const override;
 
 		virtual Uint32 GetIndicesAmount() const override;
 

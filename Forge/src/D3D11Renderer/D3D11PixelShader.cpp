@@ -4,8 +4,8 @@
 
 namespace d3d11
 {
-	D3D11PixelShader::D3D11PixelShader( D3D11RenderContext* contextPtr, const D3D11Device& device, const std::string& path )
-		: m_contextPtr( contextPtr )
+	D3D11PixelShader::D3D11PixelShader( D3D11RenderContext& context, const D3D11Device& device, const std::string& path )
+		: m_context( context )
 	{
 		auto wstr = std::wstring( path.begin(), path.end() );
 		LPCWSTR wPath = wstr.c_str();
@@ -20,8 +20,8 @@ namespace d3d11
 		m_pixelShader->Release();
 	}
 
-	void D3D11PixelShader::Set()
+	void D3D11PixelShader::Set() const
 	{
-		m_contextPtr->GetDeviceContext()->PSSetShader( m_pixelShader, 0, 0 );
+		m_context.GetDeviceContext()->PSSetShader( m_pixelShader, 0, 0 );
 	}
 }

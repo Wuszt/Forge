@@ -22,7 +22,7 @@ namespace d3d11
 		return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	}
 
-	void D3D11InputLayout::Set()
+	void D3D11InputLayout::Set() const
 	{
 		m_contextPtr->GetDeviceContext()->IASetInputLayout( m_layout );
 		m_contextPtr->GetDeviceContext()->IASetPrimitiveTopology( GetTopology() );

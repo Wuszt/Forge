@@ -30,6 +30,8 @@
     <ClCompile Include="IDepthStencilBuffer.cpp" />
     <ClCompile Include="IIndexBuffer.cpp" />
     <ClCompile Include="IInputLayout.cpp" />
+    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="IMesh.cpp" />
     <ClCompile Include="IPixelShader.cpp" />
     <ClCompile Include="IRenderContext.cpp" />
     <ClCompile Include="IRenderer.cpp" />
@@ -38,6 +40,8 @@
     <ClCompile Include="IVertexBuffer.cpp" />
     <ClCompile Include="IVertexShader.cpp" />
     <ClCompile Include="PerspectiveCamera.cpp" />
+    <ClCompile Include="Renderable.cpp" />
+    <ClCompile Include="IShadersManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fpch.h" />
@@ -46,6 +50,8 @@
     <ClInclude Include="IDepthStencilBuffer.h" />
     <ClInclude Include="IIndexBuffer.h" />
     <ClInclude Include="IInputLayout.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="IMesh.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="IPixelShader.h" />
     <ClInclude Include="IRenderContext.h" />
@@ -56,6 +62,8 @@
     <ClInclude Include="IVertexShader.h" />
     <ClInclude Include="PerspectiveCamera.h" />
     <ClInclude Include="PublicDefaults.h" />
+    <ClInclude Include="Renderable.h" />
+    <ClInclude Include="IShadersManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">

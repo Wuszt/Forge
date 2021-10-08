@@ -24,7 +24,7 @@ namespace d3d11
 		m_buffer->Release();
 	}
 
-	void D3D11IndexBuffer::Set( Uint32 offset )
+	void D3D11IndexBuffer::Set( Uint32 offset ) const
 	{
 		m_contextPtr->GetDeviceContext()->IASetIndexBuffer( m_buffer, DXGI_FORMAT_R32_UINT, offset );
 	}

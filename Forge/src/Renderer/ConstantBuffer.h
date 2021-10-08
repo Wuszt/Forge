@@ -38,12 +38,12 @@ namespace renderer
 			m_impl = std::move( impl );
 		}
 
-		FORGE_INLINE void SetVS( VSConstantBufferType type )
+		FORGE_INLINE void SetVS( VSConstantBufferType type ) const
 		{
 			m_impl->SetVS( static_cast< Uint32 >( type ) );
 		}
 
-		FORGE_INLINE void SetPS( PSVertexConstantBufferType type )
+		FORGE_INLINE void SetPS( PSVertexConstantBufferType type ) const
 		{
 			m_impl->SetPS( static_cast< Uint32 >( type ) );
 		}

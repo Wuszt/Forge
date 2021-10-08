@@ -139,7 +139,7 @@ namespace renderer
 	public:
 		~IVertexBuffer() {}
 
-		virtual void Set() = 0;
+		virtual void Set() const = 0;
 	};
 }
 

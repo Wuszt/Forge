@@ -47,12 +47,6 @@ namespace systems
 		std::unique_ptr< forge::CallbackToken > m_presentToken;
 		renderer::IRenderer* m_renderer;
 
-		renderer::IVertexShader* m_vertexShader;
-		renderer::IPixelShader* m_pixelShader;
-
-		std::unique_ptr< renderer::IVertexBuffer > m_vertexBuffer;
-		std::unique_ptr< renderer::IInputLayout > m_inputLayout;
-		std::unique_ptr< renderer::IIndexBuffer > m_indexBuffer;
 		std::unique_ptr< renderer::StaticConstantBuffer< cbMesh > > m_buffer;
 	};
 }

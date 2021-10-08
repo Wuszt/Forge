@@ -20,6 +20,8 @@ namespace renderer
 	struct IVertices;
 	class IConstantBufferImpl;
 	class IDepthStencilBuffer;
+	class Renderable;
+	class IShadersManager;
 
 	enum class RendererType
 	{
@@ -38,9 +40,7 @@ namespace renderer
 		virtual IRenderTargetView* GetRenderTargetView() const = 0;
 		virtual IDepthStencilBuffer* GetDepthStencilBuffer() const = 0;
 		virtual ISwapchain* GetSwapchain() const = 0;
-
-		virtual IVertexShader* GetVertexShader( const std::string& path ) = 0;
-		virtual IPixelShader* GetPixelShader( const std::string& path ) = 0;
+		virtual IShadersManager* GetShadersManager() const = 0;
 
 		virtual std::unique_ptr< IInputLayout > CreateInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const = 0;
 		virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const IVertices& vertices ) const = 0;
@@ -51,6 +51,8 @@ namespace renderer
 		virtual void BeginScene() = 0;
 
 		virtual RendererType GetType() const = 0;
+
+		void Draw( const renderer::Renderable& renderable );
 
 		template< class T >
 		std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const

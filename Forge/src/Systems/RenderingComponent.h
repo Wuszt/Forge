@@ -4,13 +4,16 @@ namespace renderer
 {
 	class ConstantBuffer;
 	class IConstantBufferImpl;
+	class IMesh;
+	class Renderable;
+	class Material;
 }
 
 namespace forge
 {
 	struct RenderingComponentData
 	{
-		renderer::IConstantBufferImpl* m_constantBufferImplementation;
+		renderer::Renderable* m_renderable;
 	};
 
 	class RenderingComponent : public DataComponent< RenderingComponentData >
@@ -20,13 +23,18 @@ namespace forge
 
 		virtual void OnAttach( EngineInstance& engineInstance ) override;
 
-		renderer::ConstantBuffer* GetConstantBuffer() const
+		FORGE_INLINE const renderer::Renderable* GetRenderable() const
 		{
-			return m_constantBuffer.get();
+			return m_renderable.get();
+		}
+
+		FORGE_INLINE renderer::Renderable* GetRenderable()
+		{
+			return m_renderable.get();
 		}
 
 	private:
-		std::unique_ptr< renderer::ConstantBuffer > m_constantBuffer;
+		std::unique_ptr< renderer::Renderable > m_renderable;
 	};
 }
 

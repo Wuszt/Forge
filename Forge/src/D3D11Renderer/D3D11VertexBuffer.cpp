@@ -108,7 +108,7 @@ namespace d3d11
 		m_buffer->Release();
 	}
 
-	void D3D11VertexBuffer::Set()
+	void D3D11VertexBuffer::Set() const
 	{
 		auto stride = GetStride();
 		Uint32 offset = 0u;

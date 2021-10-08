@@ -7,6 +7,6 @@ namespace renderer
 	public:
 		virtual ~IInputLayout() = default;
 
-		virtual void Set() = 0;
+		virtual void Set() const = 0;
 	};
 }

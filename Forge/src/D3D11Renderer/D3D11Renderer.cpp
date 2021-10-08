@@ -12,6 +12,7 @@ namespace d3d11
 
 		m_renderTargetView = std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), std::move( m_swapChain->GetBackBuffer() ) );
 		m_depthStencilBuffer = std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), window.GetWidth(), window.GetHeight() );
+		m_shadersManager = std::make_unique< D3D11ShadersManager >( *GetDevice(), *GetContext() );
 
 		std::vector< renderer::IRenderTargetView* > views{ GetRenderTargetView() };
 
@@ -48,18 +49,6 @@ namespace d3d11
 	D3D11Renderer::~D3D11Renderer()
 	{
 		m_rasterizerState->Release();
-	}
-
-	D3D11VertexShader* D3D11Renderer::GetVertexShader( const std::string& path )
-	{
-		m_vertexShaders.emplace_back( std::make_unique< D3D11VertexShader >( GetContext(), *m_device, "Shaders\\" + path ) );
-		return m_vertexShaders.back().get();
-	}
-
-	D3D11PixelShader* D3D11Renderer::GetPixelShader( const std::string& path )
-	{
-		m_pixelShaders.emplace_back( std::make_unique< D3D11PixelShader >( GetContext(), *m_device, "Shaders\\" + path ) );
-		return m_pixelShaders.back().get();
 	}
 
 	std::unique_ptr< renderer::IInputLayout > D3D11Renderer::CreateInputLayout( const renderer::IVertexShader& vertexShader, const renderer::IVertexBuffer& vertexBuffer ) const

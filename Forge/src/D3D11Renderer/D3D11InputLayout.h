@@ -24,7 +24,7 @@ namespace d3d11
 
 		D3D_PRIMITIVE_TOPOLOGY GetTopology() const;
 
-		virtual void Set() override;
+		virtual void Set() const override;
 
 	private:
 		ID3D11InputLayout* m_layout = nullptr;

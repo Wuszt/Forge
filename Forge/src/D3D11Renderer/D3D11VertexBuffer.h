@@ -25,7 +25,7 @@ namespace d3d11
 			return m_stride;
 		}
 
-		virtual void Set() override;
+		virtual void Set() const override;
 
 		const D3D11_INPUT_ELEMENT_DESC* GetLayout() const;
 
