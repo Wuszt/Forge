@@ -12,6 +12,7 @@ namespace renderer
 	class IVertexBuffer;
 	class IIndexBuffer;
 	class IInputLayout;
+	struct cbMesh;
 
 	template< class T >
 	class StaticConstantBuffer;
@@ -24,11 +25,6 @@ namespace systems
 	class RenderingSystem : public ECSSystem< forge::TransformComponentData, forge::RenderingComponentData >
 	{
 	public:
-		struct cbMesh
-		{
-			Matrix W;
-			Matrix VP;
-		};
 
 		using ECSSystem::ECSSystem;
 
@@ -47,6 +43,7 @@ namespace systems
 		std::unique_ptr< forge::CallbackToken > m_presentToken;
 		renderer::IRenderer* m_renderer;
 
-		std::unique_ptr< renderer::StaticConstantBuffer< cbMesh > > m_buffer;
+		std::unique_ptr< forge::IDataPackage > m_rawRenderablesPackage;
+		std::unique_ptr< renderer::StaticConstantBuffer< renderer::cbCamera > > m_cameraCB;
 	};
 }

@@ -6,4 +6,5 @@ renderer::Material::Material( renderer::IRenderer& renderer, const std::string& 
 {
 	m_vertexShader = renderer.GetShadersManager()->GetVertexShader( vsPath );
 	m_pixelShader = renderer.GetShadersManager()->GetPixelShader( psPath );
+	m_constantBuffer = renderer.CreateConstantBuffer();
 }

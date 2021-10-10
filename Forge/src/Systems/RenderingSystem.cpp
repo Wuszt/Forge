@@ -5,6 +5,7 @@
 #include "CamerasSystem.h"
 #include "CameraComponent.h"
 #include "../Renderer/ConstantBuffer.h"
+#include "../Renderer/Renderable.h"
 
 void systems::RenderingSystem::OnInitialize()
 {
@@ -14,8 +15,7 @@ void systems::RenderingSystem::OnInitialize()
 	m_beforeDrawToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::RenderingSystem::OnBeforeDraw, this ) ) );
 	m_drawToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::RenderingSystem::OnDraw, this ) ) );
 	m_presentToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Present, std::bind( &systems::RenderingSystem::OnPresent, this ) ) );
-
-	m_buffer = m_renderer->CreateStaticConstantBuffer< cbMesh >();
+	m_cameraCB = m_renderer->CreateStaticConstantBuffer< renderer::cbCamera >();
 }
 
 void systems::RenderingSystem::OnBeforeDraw()
@@ -32,23 +32,50 @@ void systems::RenderingSystem::OnDraw()
 {
 	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypeOfSystem< systems::RenderingSystem >();
 
-	Matrix vp = m_camerasSystem->GetActiveCamera()->GetCamera().GetViewProjectionMatrix();
+	m_cameraCB->GetData().VP = m_camerasSystem->GetActiveCamera()->GetCamera().GetViewProjectionMatrix();
+	m_cameraCB->UpdateBuffer();
+	m_cameraCB->SetVS( renderer::VSConstantBufferType::Camera );
+
+	if( !m_rawRenderablesPackage )
+	{
+		for( systems::Archetype* archetype : archetypes )
+		{
+			const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
+			const forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
+
+			std::vector< const renderer::Renderable* > renderables;
+
+			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
+			{
+				renderables.emplace_back( renderableComponents[ i ].m_renderable );
+			}
+
+			m_rawRenderablesPackage = m_renderer->CreateRawRenderablesPackage( renderables );
+		}
+	}
 
 	for( systems::Archetype* archetype : archetypes )
 	{
-		const forge::DataPackage< forge::TransformComponentData >& transforms = archetype->GetData< forge::TransformComponentData >();
-		const forge::DataPackage< forge::RenderingComponentData >& renderables = archetype->GetData< forge::RenderingComponentData >();
+		const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
+		const forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
 
-		for( Uint32 i = 0; i < transforms.GetDataSize(); ++i )
+		for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
 		{
-			m_buffer->GetData().W = transforms[ i ].ToMatrix();
-			m_buffer->GetData().VP = vp;
-			m_buffer->UpdateBuffer();
-			m_buffer->SetVS( renderer::VSConstantBufferType::Mesh );
+			auto& cb = renderableComponents[ i ].m_renderable->GetCBMesh();
+			auto prev = cb.GetData().W;
+			cb.GetData().W = transformComponents[ i ].ToMatrix();
 
-			m_renderer->Draw( *renderables[ i ].m_renderable );
+			// It's stupid, but UpdateBuffer takes so much time that it makes sense for now
+			// I should probably separate static and dynamic objects in the future or/and keep an information which entity changed
+			// it's transform somehow
+			if( prev != cb.GetData().W )
+			{
+				cb.UpdateBuffer();
+			}
 		}
 	}
+
+	m_renderer->Draw( *m_rawRenderablesPackage );
 }
 
 void systems::RenderingSystem::OnPresent()

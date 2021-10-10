@@ -208,6 +208,11 @@ struct Matrix
 		return X == m.X && Y == m.Y && Z == m.Z && W == m.W;
 	}
 
+	FORGE_INLINE Bool operator!=( const Matrix& m ) const
+	{
+		return !( *this == m );
+	}
+
 	FORGE_INLINE Matrix operator*( const Matrix& m ) const
 	{
 		Matrix result;

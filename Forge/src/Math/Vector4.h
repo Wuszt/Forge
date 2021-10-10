@@ -236,7 +236,7 @@ struct Vector4
 		return &X;
 	}
 
-#ifdef FORGE_DEBUG
+#ifndef FORGE_FINAL
 	std::string ToDebugString( Uint32 precision = 2u ) const;
 #endif
 };

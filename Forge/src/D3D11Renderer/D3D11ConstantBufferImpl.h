@@ -27,5 +27,6 @@ namespace d3d11
 		ID3D11Buffer* m_buff;
 		D3D11RenderContext& m_context;
 		D3D11Device& m_device;
+		Uint32 m_dataSize = 0u;
 	};
 }

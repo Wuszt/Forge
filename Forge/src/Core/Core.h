@@ -24,7 +24,7 @@
 #define FORGE_DEBUG
 #endif
 
-#define FORGE_DEBUG
+//#define FORGE_FINAL
 
 #define FORGE_INLINE inline
 

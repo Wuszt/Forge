@@ -5,6 +5,25 @@
 
 namespace d3d11
 {
+	struct RawRenderable
+	{
+		Uint32 m_VBStride : 16; // 2
+		Uint32 m_IBOffset : 16; // 4
+		Uint32 m_indicesAmount; //8
+		ID3D11Buffer* m_vertexBuffer; // 16
+
+		ID3D11Buffer* m_indexBuffer; // 24;
+		ID3D11VertexShader* m_vertexShader; // 32
+
+		ID3D11PixelShader* m_pixelShader; // 40
+		ID3D11InputLayout* m_inputLayout; // 48
+
+		ID3D11Buffer* m_meshCB; // 56
+		ID3D11Buffer* m_materialCB; // 64;
+	};
+
+	static_assert( sizeof( RawRenderable ) == 64, "RawRenderable is larger than before!" );
+
 	D3D11Renderer::D3D11Renderer( forge::IWindow& window )
 	{
 		FORGE_ASSERT( dynamic_cast<windows::WindowsWindow*>( &window ) );
@@ -103,6 +122,51 @@ namespace d3d11
 		}
 	}
 
+	std::unique_ptr< forge::IDataPackage > D3D11Renderer::CreateRawRenderablesPackage( const std::vector< const renderer::Renderable* >& renderables ) const
+	{
+		auto result = std::make_unique< forge::DataPackage< RawRenderable > >();
+
+		for( auto& renderable : renderables )
+		{
+			const D3D11VertexBuffer* vb = static_cast< const D3D11VertexBuffer* >( renderable->GetMesh()->GetVertexBuffer() );
+			const D3D11IndexBuffer* ib = static_cast< const D3D11IndexBuffer* >( renderable->GetMesh()->GetIndexBuffer() );
+			const D3D11VertexShader* vs = static_cast< const D3D11VertexShader* >( renderable->GetMaterial()->GetVertexShader() );
+			const D3D11PixelShader* ps = static_cast< const D3D11PixelShader* >( renderable->GetMaterial()->GetPixelShader() );
+			const D3D11InputLayout* il = static_cast< const D3D11InputLayout* >( renderable->GetInputLayout() );
+			const D3D11ConstantBufferImpl* meshCBImpl = static_cast< const D3D11ConstantBufferImpl* >( renderable->GetCBMesh().GetImpl() );
+			const D3D11ConstantBufferImpl* materialCBImpl = static_cast<const D3D11ConstantBufferImpl*>( renderable->GetMaterial()->GetConstantBuffer()->GetImpl() );
+			result->AddData( RawRenderable{ vb->GetStride(), 0u, ib->GetIndicesAmount(), vb->GetBuffer(), ib->GetBuffer(), vs->GetShader(), ps->GetShader(), il->GetLayout(), meshCBImpl->GetBuffer(), materialCBImpl->GetBuffer() } );
+		}
+
+		return result;
+	}
+
+	void D3D11Renderer::Draw( const forge::IDataPackage& rawRenderables )
+	{
+		auto* context = GetContext()->GetDeviceContext();
+
+		const forge::DataPackage < RawRenderable >& renderables = static_cast< const forge::DataPackage < RawRenderable >& >( rawRenderables );
+
+		Uint32 dataSize = renderables.GetDataSize();
+
+		for( Uint32 i = 0; i < dataSize; ++i )
+		{
+			Uint32 offset = 0u;
+			Uint32 stride = renderables[ i ].m_VBStride;
+
+			context->IASetVertexBuffers( 0, 1, &renderables[ i ].m_vertexBuffer, &stride, &offset );
+			context->IASetIndexBuffer( renderables[ i ].m_indexBuffer, DXGI_FORMAT_R32_UINT, renderables[ i ].m_IBOffset );
+			context->VSSetShader( renderables[ i ].m_vertexShader, 0, 0 );
+			context->PSSetShader( renderables[ i ].m_pixelShader, 0, 0 );
+			context->IASetInputLayout( renderables[ i ].m_inputLayout );
+			context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+			context->VSSetConstantBuffers( static_cast< Uint32 >( renderer::VSConstantBufferType::Mesh ), 1, &renderables[ i ].m_meshCB );
+			context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Material ), 1, &renderables[ i ].m_materialCB );
+
+			GetContext()->Draw( renderables[ i ].m_indicesAmount, 0 );
+		}
+	}
+
 	std::unique_ptr< renderer::IConstantBufferImpl > D3D11Renderer::CreateConstantBufferImpl() const
 	{
 		return std::make_unique< D3D11ConstantBufferImpl >( *m_context, *m_device );
@@ -116,7 +180,13 @@ namespace d3d11
 		ID3D11Device* d3d11Device;
 		ID3D11DeviceContext* d3d11DevCon;
 
-		FORGE_ASSURE( D3D11CreateDeviceAndSwapChain( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL,
+		Uint32 flags = 0u;
+		
+#ifdef FORGE_DEBUG
+		flags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
+		FORGE_ASSURE( D3D11CreateDeviceAndSwapChain( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, NULL, NULL,
 			D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &d3d11Device, NULL, &d3d11DevCon ) == S_OK );
 
 		m_device = std::make_unique< D3D11Device >( d3d11Device );

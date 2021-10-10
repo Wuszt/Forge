@@ -20,7 +20,7 @@ Bool Vector4::IsAlmostZero( Float eps ) const
 	return Math::IsAlmostZero( X, eps ) && Math::IsAlmostZero( Y, eps ) && Math::IsAlmostZero( Z, eps ) && Math::IsAlmostZero( W, eps );
 }
 
-#ifdef FORGE_DEBUG
+#ifndef FORGE_FINAL
 std::string Vector4::ToDebugString( Uint32 precision ) const
 {
 	std::string format = forge::String::Printf( "[%s%u%s, %s%u%s, %s%u%s, %s%u%s]", "%.", precision, "f", "%.", precision, "f", "%.", precision, "f", "%.", precision, "f" );

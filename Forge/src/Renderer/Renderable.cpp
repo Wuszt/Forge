@@ -4,7 +4,7 @@
 renderer::Renderable::Renderable( IRenderer& renderer )
 	: m_renderer( renderer )
 {
-	m_constantBuffer = renderer.CreateConstantBuffer();
+	m_cbMesh.SetImpl( renderer.CreateConstantBufferImpl() );
 }
 
 renderer::Renderable::~Renderable() = default;

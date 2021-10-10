@@ -81,12 +81,15 @@ namespace d3d11
 
 		virtual void BeginScene() override;
 
+		virtual std::unique_ptr< forge::IDataPackage > CreateRawRenderablesPackage( const std::vector< const renderer::Renderable* >& renderables ) const;
+
+		virtual void Draw( const forge::IDataPackage& rawRenderables ) override;
+
 		FORGE_INLINE virtual renderer::RendererType GetType() const override
 		{
 			return renderer::RendererType::D3D11;
 		}
 
-	protected:
 		virtual std::unique_ptr< renderer::IConstantBufferImpl > CreateConstantBufferImpl() const override;
 
 	private:

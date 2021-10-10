@@ -1,8 +1,17 @@
 #pragma once
-#pragma optimize( "", off )
 
 namespace renderer
 {
+	struct cbMesh
+	{
+		Matrix W;
+	};
+
+	struct cbCamera
+	{
+		Matrix VP;
+	};
+
 	class IConstantBufferImpl
 	{
 	public:
@@ -19,6 +28,7 @@ namespace renderer
 		Frame,
 		Material,
 		Mesh,
+		Camera
 	};
 
 	enum class PSVertexConstantBufferType

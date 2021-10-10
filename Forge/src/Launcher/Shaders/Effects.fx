@@ -11,6 +11,10 @@ cbuffer cbFrame : register(b0)
 cbuffer cbMesh : register(b2)
 {
     float4x4 W;
+};
+
+cbuffer cbMesh : register(b3)
+{
     float4x4 VP;
 };
 
@@ -20,7 +24,7 @@ struct VS_OUTPUT
 	float4 Color : COLOR;
 };
 
-VS_OUTPUT VS(float4 inPos : POSITION0, float4 inColor : COLOR )
+VS_OUTPUT VS(float4 inPos : POSITION0 )
 {
     VS_OUTPUT output;
 

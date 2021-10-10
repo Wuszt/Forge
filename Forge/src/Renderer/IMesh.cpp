@@ -6,17 +6,17 @@
 
 renderer::CubeMesh::CubeMesh( renderer::IRenderer& renderer )
 {
-	renderer::Vertices< renderer::IVertex< renderer::InputPosition, renderer::InputColor > > vertices(
+	renderer::Vertices< renderer::IVertex< renderer::InputPosition > > vertices(
 		{
-			{ renderer::InputPosition( -1.0f, -1.0f, -1.0f ), renderer::InputColor( 1.0f, 0.0f, 0.0f, 1.0f ) },
-			{ renderer::InputPosition( 1.0f,	-1.0f, -1.0f ), renderer::InputColor( 0.0f, 1.0f, 0.0f, 1.0f ) },
-			{ renderer::InputPosition( 1.0f, 1.0f, -1.0f ), renderer::InputColor( 0.0f, 0.0f, 1.0f, 1.0f ) },
-			{ renderer::InputPosition( -1.0f, 1.0f, -1.0f ), renderer::InputColor( 0.0f, 1.0f, 0.0f, 1.0f ) },
+			{ renderer::InputPosition( -1.0f, -1.0f, -1.0f ) },
+			{ renderer::InputPosition( 1.0f,	-1.0f, -1.0f ) },
+			{ renderer::InputPosition( 1.0f, 1.0f, -1.0f ) },
+			{ renderer::InputPosition( -1.0f, 1.0f, -1.0f ) },
 
-			{ renderer::InputPosition( -1.0f, -1.0f, 1.0f ), renderer::InputColor( 0.0f, 1.0f, 1.0f, 1.0f ) },
-			{ renderer::InputPosition( 1.0f,	-1.0f, 1.0f ), renderer::InputColor( 1.0f, 1.0f, 0.0f, 1.0f ) },
-			{ renderer::InputPosition( 1.0f, 1.0f, 1.0f ), renderer::InputColor( 1.0f, 0.0f, 1.0f, 1.0f ) },
-			{ renderer::InputPosition( -1.0f, 1.0f, 1.0f ), renderer::InputColor( 0.3f, 0.7f, 0.6f, 1.0f ) },
+			{ renderer::InputPosition( -1.0f, -1.0f, 1.0f ) },
+			{ renderer::InputPosition( 1.0f,	-1.0f, 1.0f ) },
+			{ renderer::InputPosition( 1.0f, 1.0f, 1.0f ) },
+			{ renderer::InputPosition( -1.0f, 1.0f, 1.0f ) },
 		} );
 
 	m_vertexBuffer = renderer.CreateVertexBuffer( vertices );

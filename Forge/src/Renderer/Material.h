@@ -21,9 +21,20 @@ namespace renderer
 			return m_pixelShader;
 		}
 
+		const renderer::ConstantBuffer* GetConstantBuffer() const
+		{
+			return m_constantBuffer.get();
+		}
+
+		renderer::ConstantBuffer* GetConstantBuffer()
+		{
+			return m_constantBuffer.get();
+		}
+
 	private:
 		const renderer::IVertexShader* m_vertexShader = nullptr;
 		const renderer::IPixelShader* m_pixelShader = nullptr;
+		std::unique_ptr< renderer::ConstantBuffer > m_constantBuffer;
 	};
 }
 

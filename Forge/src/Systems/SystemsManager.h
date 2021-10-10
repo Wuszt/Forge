@@ -73,7 +73,7 @@ namespace systems
 
 		void AddECSData( forge::EntityID id, std::type_index typeIndex, std::unique_ptr< forge::IDataPackage > package );
 
-		template< class T > //todo: do .cpp
+		template< class T >
 		FORGE_INLINE void AddECSData( forge::EntityID id )
 		{
 			const std::type_index typeIndex = typeid( T );

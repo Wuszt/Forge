@@ -171,7 +171,7 @@ struct Vector3
 	   return vec2;
    }
 
-#ifdef FORGE_DEBUG
+#ifndef FORGE_FINAL
    std::string ToDebugString( Uint32 precision = 2u ) const;
 #endif
 };

@@ -21,7 +21,7 @@ Vector2 Vector2::MINUS_INF()
 	return Vector2( -std::numeric_limits< Float >::infinity() );
 }
 
-#ifdef FORGE_DEBUG
+#ifndef FORGE_FINAL
 std::string Vector2::ToDebugString( Uint32 precision ) const
 {
 	std::string format = forge::String::Printf( "[%s%u%s, %s%u%s]", "%.", precision, "f", "%.", precision, "f" );

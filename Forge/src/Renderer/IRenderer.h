@@ -53,6 +53,9 @@ namespace renderer
 		virtual RendererType GetType() const = 0;
 
 		void Draw( const renderer::Renderable& renderable );
+		virtual void Draw( const forge::IDataPackage& rawRenderables ) = 0;
+
+		virtual std::unique_ptr< forge::IDataPackage > CreateRawRenderablesPackage( const std::vector< const Renderable* >& renderables ) const = 0;
 
 		template< class T >
 		std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const
@@ -69,7 +72,6 @@ namespace renderer
 			return constBuffer;
 		}
 
-	protected:
 		virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl() const = 0;
 	};
 }

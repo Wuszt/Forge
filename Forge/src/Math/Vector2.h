@@ -101,7 +101,7 @@ struct Vector2
 		return abs( X ) <= std::numeric_limits< decltype( X ) >::epsilon() && abs( Y ) <= std::numeric_limits< decltype( Y ) >::epsilon();
 	}
 
-#ifdef FORGE_DEBUG
+#ifndef FORGE_FINAL
 	std::string ToDebugString( Uint32 precision = 2u ) const;
 #endif
 };

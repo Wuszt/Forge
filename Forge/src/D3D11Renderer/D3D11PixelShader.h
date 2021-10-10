@@ -21,6 +21,11 @@ namespace d3d11
 
 		virtual void Set() const override;
 
+		FORGE_INLINE ID3D10Blob* const& GetBuffer() const
+		{
+			return m_buffer;
+		}
+
 	private:
 		ID3D10Blob* m_buffer = nullptr;
 		ID3D11PixelShader* m_pixelShader = nullptr;

@@ -110,7 +110,7 @@ namespace d3d11
 
 	void D3D11VertexBuffer::Set() const
 	{
-		auto stride = GetStride();
+		Uint32 stride = GetStride();
 		Uint32 offset = 0u;
 
 		m_contextPtr->GetDeviceContext()->IASetVertexBuffers( 0, 1, &GetBuffer(), &stride, &offset );

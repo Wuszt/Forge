@@ -1,10 +1,12 @@
 #pragma once
+
 namespace renderer
 {
 	class IMesh;
 	class Material;
 	class IRenderer;
 	class IInputLayout;
+	struct cbMesh;
 
 	class Renderable
 	{
@@ -27,7 +29,7 @@ namespace renderer
 			return m_mesh.get();
 		}
 
-		FORGE_INLINE void SetMaterial( std::unique_ptr< const Material >&& material )
+		FORGE_INLINE void SetMaterial( std::unique_ptr< Material >&& material )
 		{
 			m_material = std::move( material );
 
@@ -42,19 +44,25 @@ namespace renderer
 			return m_material.get();
 		}
 
+		FORGE_INLINE Material* GetMaterial()
+		{
+			return m_material.get();
+		}
+
+
 		FORGE_INLINE const IInputLayout* GetInputLayout() const
 		{
 			return m_inputLayout.get();
 		}
 
-		FORGE_INLINE const renderer::ConstantBuffer* GetConstantBuffer() const
+		FORGE_INLINE const renderer::StaticConstantBuffer< renderer::cbMesh >& GetCBMesh() const
 		{
-			return m_constantBuffer.get();
+			return m_cbMesh;
 		}
 
-		FORGE_INLINE renderer::ConstantBuffer* GetConstantBuffer()
+		FORGE_INLINE renderer::StaticConstantBuffer< renderer::cbMesh >& GetCBMesh()
 		{
-			return m_constantBuffer.get();
+			return m_cbMesh;
 		}
 
 		void UpdateInputLayout();
@@ -62,9 +70,9 @@ namespace renderer
 	private:
 		IRenderer& m_renderer;
 		std::unique_ptr< const IMesh > m_mesh;
-		std::unique_ptr < const Material > m_material;
+		std::unique_ptr < Material > m_material;
 		std::unique_ptr< const IInputLayout > m_inputLayout;
-		std::unique_ptr< renderer::ConstantBuffer > m_constantBuffer;
+		StaticConstantBuffer< cbMesh > m_cbMesh;
 	};
 }
 

@@ -26,7 +26,7 @@ namespace renderer
 
 		renderable.GetInputLayout()->Set();
 
-		renderable.GetConstantBuffer()->SetVS( renderer::VSConstantBufferType::Material );
+		renderable.GetMaterial()->GetConstantBuffer()->SetVS( renderer::VSConstantBufferType::Material );
 
 		GetContext()->Draw( renderable.GetMesh()->GetIndexBuffer()->GetIndicesAmount(), 0 );
 	}
