@@ -32,8 +32,10 @@
 #define FORGE_PLATFORM_WINDOWS 
 #endif
 
+#ifndef FORGE_UTS
 #ifdef FORGE_PLATFORM_WINDOWS
 #define FORGE_IMGUI_ENABLED
+#endif
 #endif
 
 #ifdef FORGE_ASSURES_ENABLED

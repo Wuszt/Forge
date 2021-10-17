@@ -15,3 +15,8 @@ void forge::Entity::OnDetach()
 		comp.second->OnDetach( m_engineInstance );
 	}
 }
+
+void forge::Entity::RequestAddingComponentsInternal( const std::function< void() >& creationFunc )
+{
+	GetEngineInstance().GetEntitiesManager().RequestAddingComponentsToEntity( creationFunc );
+}

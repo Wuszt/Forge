@@ -19,6 +19,7 @@ namespace systems
 		using forge::IManager::IManager;
 
 		virtual void Initialize() override;
+		virtual void Deinitialize() override;
 
 		class BootContext
 		{
@@ -55,6 +56,19 @@ namespace systems
 		}
 
 		template< class T >
+		T* GetSystemPtr() const
+		{
+			auto it = m_systemsLUT.find( typeid( T ) );
+
+			if( it != m_systemsLUT.end() )
+			{
+				return static_cast<T*>( it->second );
+			}
+
+			return nullptr;
+		}
+
+		template< class T >
 		FORGE_INLINE const std::vector< Archetype* >& GetArchetypesWithDataType()
 		{
 			return m_dataToArchetypesLUT.at( typeid( T ) );
@@ -82,6 +96,11 @@ namespace systems
 			AddECSData( id, typeIndex, std::move( package ) );
 		}
 
+		forge::CallbackToken RegisterToOnBootCallback( const std::function< void() >& callback )
+		{
+			return m_onBootCallback.AddListener( callback );
+		}
+
 		void Boot( const BootContext& ctx );
 
 		void Update();
@@ -101,6 +120,8 @@ namespace systems
 		std::unordered_map< std::type_index, std::vector< Archetype* > > m_systemToArchetypesLUT;
 
 		std::unique_ptr< forge::CallbackToken > m_onEntityCreated;
+		std::unique_ptr< forge::CallbackToken > m_onTick;
+		forge::Callback<> m_onBootCallback;
 	};
 }
 

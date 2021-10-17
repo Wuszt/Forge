@@ -16,6 +16,7 @@ void systems::RenderingSystem::OnInitialize()
 	m_drawToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::RenderingSystem::OnDraw, this ) ) );
 	m_presentToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Present, std::bind( &systems::RenderingSystem::OnPresent, this ) ) );
 	m_cameraCB = m_renderer->CreateStaticConstantBuffer< renderer::cbCamera >();
+	m_rawRenderablesPackage = m_renderer->CreateRawRenderablesPackage( {} );
 }
 
 void systems::RenderingSystem::OnBeforeDraw()
@@ -32,11 +33,24 @@ void systems::RenderingSystem::OnDraw()
 {
 	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypeOfSystem< systems::RenderingSystem >();
 
-	m_cameraCB->GetData().VP = m_camerasSystem->GetActiveCamera()->GetCamera().GetViewProjectionMatrix();
+	auto* activeCamera = m_camerasSystem->GetActiveCamera();
+
+	if( !activeCamera )
+	{
+		return;
+	}
+
+	m_cameraCB->GetData().VP = activeCamera->GetCamera().GetViewProjectionMatrix();
 	m_cameraCB->UpdateBuffer();
 	m_cameraCB->SetVS( renderer::VSConstantBufferType::Camera );
 
-	if( !m_rawRenderablesPackage )
+	Bool anyArchetypeDirty = false;
+	for( auto& archetype : archetypes )
+	{
+		anyArchetypeDirty |= archetype->IsDirty();
+	}
+
+	if( anyArchetypeDirty )
 	{
 		for( systems::Archetype* archetype : archetypes )
 		{

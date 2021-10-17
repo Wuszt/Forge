@@ -19,6 +19,31 @@ namespace forge
 		virtual void OnAttach() {}
 		virtual void OnDetach();
 
+		template< class T, class... Ts >
+		void RequestAddingComponents( const std::function< void() >& initializeFunc = nullptr )
+		{
+			RequestAddingComponentsInternal( [ this, initializeFunc ]()
+			{
+				AddComponents< T, Ts... >();
+				if( initializeFunc )
+				{
+					initializeFunc();
+				}
+			} );
+		}
+
+		template< class T >
+		T* GetComponent()
+		{
+			return static_cast< T* >( m_components.at( typeid( T ) ).get() ); 
+		}
+
+		EngineInstance& GetEngineInstance() const
+		{
+			return m_engineInstance;
+		}
+
+	private:
 		template< class T >
 		T* AddComponent()
 		{
@@ -40,18 +65,8 @@ namespace forge
 			AddComponents< Ts... >();
 		}
 
-		template< class T >
-		T* GetComponent()
-		{
-			return static_cast< T* >( m_components.at( typeid( T ) ).get() ); 
-		}
+		void RequestAddingComponentsInternal( const std::function< void() >& creationFunc );
 
-		EngineInstance& GetEngineInstance() const
-		{
-			return m_engineInstance;
-		}
-
-	private:
 		EntityID m_id;
 		EngineInstance& m_engineInstance;
 

@@ -12,6 +12,20 @@ void systems::SystemsManager::Initialize()
 			archetype->OnEntityCreation();
 		}
 	} ) );
+
+	m_onTick = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [ this ]()
+	{
+		for( auto& archetype : m_archetypes )
+		{
+			archetype->SetDirty( false );
+		}
+	} ) );
+}
+
+void systems::SystemsManager::Deinitialize()
+{
+	m_onEntityCreated = nullptr;
+	m_onTick = nullptr;
 }
 
 void systems::SystemsManager::AddECSData( forge::EntityID id, std::type_index typeIndex, std::unique_ptr< forge::IDataPackage > package )
@@ -65,6 +79,7 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::type_index ty
 		{
 			if( ( *it )->ContainsData( package->GetTypeIndex() ) )
 			{
+				( *it )->SetDirty( true );
 				donors.emplace_back( *it );
 				std::swap( **it, **entityArchetypes.rbegin() );
 
@@ -122,6 +137,7 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::type_index ty
 	archetype->MoveEntityFrom( id, donors );
 
 	m_entityArchetypesLUT[ id ].emplace_back( archetype );
+	archetype->SetDirty( true );
 }
 
 void systems::SystemsManager::Boot( const BootContext& ctx )
@@ -158,6 +174,8 @@ void systems::SystemsManager::Boot( const BootContext& ctx )
 	{
 		sys->OnInitialize();
 	}
+
+	m_onBootCallback.Invoke();
 }
 
 void systems::SystemsManager::Update()

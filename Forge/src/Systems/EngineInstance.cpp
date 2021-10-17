@@ -48,7 +48,11 @@ void forge::EngineInstance::Run()
 	{
 		forge::Time::Update();
 		forge::FPSCounter::OnUpdate( forge::Time::GetDeltaTime() );
-		m_window->Update();
+
+		if( m_window )
+		{
+			m_window->Update();
+		}
 
 		m_appInstance.OnUpdate( *this );
 

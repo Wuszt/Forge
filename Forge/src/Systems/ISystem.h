@@ -77,6 +77,16 @@ namespace systems
 			m_data.emplace( package->GetTypeIndex(), std::move( package ) );
 		}
 
+		FORGE_INLINE void SetDirty( Bool dirty )
+		{
+			m_dirty = dirty;
+		}
+
+		FORGE_INLINE Bool IsDirty() const
+		{
+			return m_dirty;
+		}
+
 		void MoveEntityTo( forge::EntityID entityId, Archetype* destination );
 		void MoveEntityFrom( forge::EntityID entityId, std::vector< Archetype* > donorArchetypes );
 
@@ -87,6 +97,7 @@ namespace systems
 		std::unordered_map< std::type_index, std::unique_ptr< forge::IDataPackage > > m_data;
 		std::vector< Int32 > m_sparseSet;
 		Uint32 m_dataSize = 0u;
+		Bool m_dirty = false;
 	};
 
 	class ISystem

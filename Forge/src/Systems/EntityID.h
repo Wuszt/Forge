@@ -4,9 +4,13 @@ namespace forge
 {
 	struct EntityID
 	{
+		EntityID() = default;
+
 		EntityID( Uint32 id )
 			: m_id( id )
 		{}
+
+		~EntityID() = default;
 
 		Uint32 m_id = 0u;
 
