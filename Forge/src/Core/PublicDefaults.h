@@ -2,6 +2,8 @@
 
 #include "ExternalIncludes.h"
 #include "Core.h"
+
+#include "Profiling.h"
 #include "Types.h"
 #include "Time.h"
 #include "Logger.h"

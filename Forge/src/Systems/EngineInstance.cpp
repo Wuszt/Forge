@@ -46,6 +46,7 @@ void forge::EngineInstance::Run()
 
 	while( !m_appInstance.ShouldShutdown() )
 	{
+		PC_SCOPE( "Frame" );
 		forge::Time::Update();
 		forge::FPSCounter::OnUpdate( forge::Time::GetDeltaTime() );
 
@@ -57,6 +58,8 @@ void forge::EngineInstance::Run()
 		m_appInstance.OnUpdate( *this );
 
 		m_updateManager->Update();
+
+		PC_FRAME_END();
 	}
 
 	m_appInstance.Deinitialize( *this );

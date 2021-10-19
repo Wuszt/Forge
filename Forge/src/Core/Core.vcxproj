@@ -26,6 +26,7 @@
     <ClInclude Include="IInput.h" />
     <ClInclude Include="IWindow.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="Profiling.h" />
     <ClInclude Include="StringUtils.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="WindowsInput.h" />
@@ -55,6 +56,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="WindowsWindow.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Profiling\Profiling.vcxproj">
+      <Project>{737bed4c-8378-4d33-b8dd-93940b0490bf}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
