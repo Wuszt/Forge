@@ -9,3 +9,11 @@
 #include "IComponent.h"
 #include "UpdateManager.h"
 #include "ApplicationInstance.h"
+
+#ifdef FORGE_DEBUGGING
+#include "../Systems/DebugSystem.h"
+#endif
+
+#ifdef FORGE_IMGUI_ENABLED
+#include "../Systems/IMGUISystem.h"
+#endif

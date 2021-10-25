@@ -1,4 +1,6 @@
 #include "Fpch.h"
+
+#ifdef FORGE_IMGUI_ENABLED
 #include "IMGUISystem.h"
 #include "../../External/imgui/imgui.h"
 #include "../IMGUI/IMGUIInstance.h"
@@ -51,3 +53,5 @@ void systems::IMGUISystem::DrawOverlay()
 
 	ImGui::End();
 }
+
+#endif

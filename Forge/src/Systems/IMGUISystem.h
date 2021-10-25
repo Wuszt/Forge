@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef FORGE_IMGUI_ENABLED
+
 namespace forge
 {
 	class IMGUIInstance;
@@ -32,3 +34,4 @@ namespace systems
 	};
 }
 
+#endif

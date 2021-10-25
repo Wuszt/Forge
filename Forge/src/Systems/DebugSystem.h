@@ -1,4 +1,6 @@
 #pragma once
+#ifdef FORGE_DEBUGGING
+
 namespace systems
 {
 	class DebugSystem : public ISystem
@@ -9,7 +11,10 @@ namespace systems
 		virtual void OnInitialize() override;
 
 	private:
+#ifdef FORGE_IMGUI_ENABLED
 		std::unique_ptr< forge::CallbackToken > m_fpsCounterDrawingToken;
+#endif
 	};
 }
 
+#endif

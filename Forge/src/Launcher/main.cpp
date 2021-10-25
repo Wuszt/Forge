@@ -5,15 +5,12 @@
 #include "../Systems/PublicDefaults.h"
 
 #include "../Core/IWindow.h"
-#include "../Core/FPSCounter.h"
 
 #include "../Systems/CamerasSystem.h"
 #include "../Systems/PlayerControllerComponent.h"
 #include "../Systems/PlayerSystem.h"
 #include "../Systems/CameraComponent.h"
 #include "../Systems/RenderingSystem.h"
-#include "../Systems/IMGUISystem.h"
-#include "../Systems/DebugSystem.h"
 
 Int32 main()
 {
@@ -29,8 +26,14 @@ Int32 main()
 			ctx.AddSystem< systems::CamerasSystem >();
 			ctx.AddSystem< systems::PlayerSystem >();
 			ctx.AddSystem< systems::RenderingSystem >();
-			ctx.AddSystem< systems::IMGUISystem >();
+
+#ifdef FORGE_DEBUGGING
 			ctx.AddSystem< systems::DebugSystem >();
+#endif
+
+#ifdef FORGE_IMGUI_ENABLED
+			ctx.AddSystem< systems::IMGUISystem >();
+#endif
 
 			engineInstance.GetSystemsManager().Boot( ctx );
 

@@ -1,11 +1,18 @@
 #include "Fpch.h"
+
+#ifdef FORGE_DEBUGGING
 #include "DebugSystem.h"
-#include "IMGUISystem.h"
 #include "../Core/FPSCounter.h"
+
+#ifdef FORGE_IMGUI_ENABLED
+#include "IMGUISystem.h"
 #include "../../External/imgui/imgui.h"
+#endif
 
 void systems::DebugSystem::OnInitialize()
 {
+
+#ifdef FORGE_IMGUI_ENABLED
 	m_fpsCounterDrawingToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( []()
 	{
 		Float fps = forge::FPSCounter::GetAverageFPS( 1u );
@@ -36,4 +43,6 @@ void systems::DebugSystem::OnInitialize()
 		ImGui::PopStyleColor();
 		ImGui::SetWindowFontScale( 1.0f );
 	} ) );
+#endif
 }
+#endif

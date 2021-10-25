@@ -11,11 +11,14 @@ namespace d3d11
 		D3D11_BUFFER_DESC indexBufferDesc;
 		ZeroMemory( &indexBufferDesc, sizeof( indexBufferDesc ) );
 
+		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		indexBufferDesc.ByteWidth = sizeof( Uint32 ) * amount;
+
 		D3D11_SUBRESOURCE_DATA iinitData;
 		iinitData.pSysMem = indices;
 
-		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		indexBufferDesc.ByteWidth = sizeof( Uint32 ) * amount;
 		device.GetDevice()->CreateBuffer( &indexBufferDesc, &iinitData, &m_buffer );
 	}
 

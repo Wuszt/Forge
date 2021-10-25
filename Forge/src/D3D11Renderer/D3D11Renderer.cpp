@@ -182,7 +182,7 @@ namespace d3d11
 
 		Uint32 flags = 0u;
 		
-#ifdef FORGE_DEBUG
+#ifdef FORGE_GPU_DEBUGGING
 		flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
