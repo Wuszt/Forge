@@ -31,7 +31,7 @@ void systems::RenderingSystem::OnBeforeDraw()
 
 void systems::RenderingSystem::OnDraw()
 {
-	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypeOfSystem< systems::RenderingSystem >();
+	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesOfSystem< systems::RenderingSystem >();
 
 	auto* activeCamera = m_camerasSystem->GetActiveCamera();
 

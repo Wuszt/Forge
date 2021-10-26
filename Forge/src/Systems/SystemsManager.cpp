@@ -83,7 +83,7 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::type_index ty
 				donors.emplace_back( *it );
 				std::swap( **it, **entityArchetypes.rbegin() );
 
-				Uint32 index = it - entityArchetypes.begin();
+				Uint32 index = static_cast< Uint32 >( it - entityArchetypes.begin() );
 				entityArchetypes.pop_back();
 				it = entityArchetypes.begin() + index;
 			}

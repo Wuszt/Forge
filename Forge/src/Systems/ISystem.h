@@ -87,6 +87,11 @@ namespace systems
 			return m_dirty;
 		}
 
+		FORGE_INLINE Uint32 GetDataSize() const
+		{
+			return m_dataSize;
+		}
+
 		void MoveEntityTo( forge::EntityID entityId, Archetype* destination );
 		void MoveEntityFrom( forge::EntityID entityId, std::vector< Archetype* > donorArchetypes );
 

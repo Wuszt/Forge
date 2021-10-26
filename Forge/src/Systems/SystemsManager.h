@@ -80,7 +80,7 @@ namespace systems
 		}
 
 		template< class T >
-		FORGE_INLINE const std::vector< Archetype* >& GetArchetypeOfSystem()
+		FORGE_INLINE const std::vector< Archetype* >& GetArchetypesOfSystem()
 		{
 			return m_systemToArchetypesLUT[ typeid( T ) ];
 		}

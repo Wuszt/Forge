@@ -39,5 +39,5 @@ Math::Random::Random( Uint32 seed )
 }
 
 Math::Random::Random()
-	: Random( time( NULL ) )
+	: Random( static_cast< Uint32 >( time( NULL ) ) )
 {}
