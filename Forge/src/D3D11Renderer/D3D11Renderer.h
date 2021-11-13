@@ -74,16 +74,16 @@ namespace d3d11
 		}
 
 		virtual std::unique_ptr< renderer::IInputLayout > CreateInputLayout( const renderer::IVertexShader& vertexShader, const renderer::IVertexBuffer& vertexBuffer ) const override;
-		virtual std::unique_ptr< renderer::IVertexBuffer > CreateVertexBuffer( const renderer::IVertices& vertices ) const;
+		virtual std::unique_ptr< renderer::IVertexBuffer > CreateVertexBuffer( const renderer::Vertices& vertices ) const;
 		virtual std::unique_ptr< renderer::IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const override;
 
 		virtual void SetRenderTargets( std::vector< renderer::IRenderTargetView* > rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer ) override;
 
 		virtual void BeginScene() override;
 
-		virtual std::unique_ptr< forge::IDataPackage > CreateRawRenderablesPackage( const std::vector< const renderer::Renderable* >& renderables ) const;
+		virtual std::unique_ptr< renderer::IRawRenderablesPack > CreateRawRenderablesPackage( const std::vector< const renderer::Renderable* >& renderables ) const;
 
-		virtual void Draw( const forge::IDataPackage& rawRenderables ) override;
+		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables ) override;
 
 		FORGE_INLINE virtual renderer::RendererType GetType() const override
 		{

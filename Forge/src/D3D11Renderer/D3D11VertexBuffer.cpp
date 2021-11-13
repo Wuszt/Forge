@@ -69,7 +69,7 @@ namespace d3d11
 		}
 	}
 
-	void ConstructLayout( const std::vector< renderer::InputElement >& inputElements, std::vector< D3D11_INPUT_ELEMENT_DESC >& outLayout )
+	void ConstructLayout( const std::vector< renderer::InputElementDescription >& inputElements, std::vector< D3D11_INPUT_ELEMENT_DESC >& outLayout )
 	{
 		Uint32 semanticIndices[ static_cast<Uint32>( renderer::InputType::Count ) ] = { 0 };
 
@@ -81,7 +81,7 @@ namespace d3d11
 		}
 	}
 
-	D3D11VertexBuffer::D3D11VertexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const renderer::IVertices& vertices )
+	D3D11VertexBuffer::D3D11VertexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const renderer::Vertices& vertices )
 		: m_contextPtr( contextPtr )
 		, m_stride( vertices.GetVertexByteWidth() )
 	{

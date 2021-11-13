@@ -43,7 +43,7 @@ namespace systems
 		std::unique_ptr< forge::CallbackToken > m_presentToken;
 		renderer::IRenderer* m_renderer;
 
-		std::unique_ptr< forge::IDataPackage > m_rawRenderablesPackage;
+		std::unique_ptr< renderer::IRawRenderablesPack > m_rawRenderablesPackage;
 		std::unique_ptr< renderer::StaticConstantBuffer< renderer::cbCamera > > m_cameraCB;
 	};
 }

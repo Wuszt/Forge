@@ -17,11 +17,12 @@ namespace renderer
 	class IInputLayout;
 	class IIndexBuffer;
 	class ICamera;
-	struct IVertices;
+	class Vertices;
 	class IConstantBufferImpl;
 	class IDepthStencilBuffer;
 	class Renderable;
 	class IShadersManager;
+	class IModelsLoader;
 
 	enum class RendererType
 	{
@@ -29,12 +30,18 @@ namespace renderer
 		Unknown
 	};
 
+	struct IRawRenderablesPack
+	{
+		virtual ~IRawRenderablesPack() = default;
+	};
+
 	class IRenderer
 	{
 	public:
 		static std::unique_ptr< IRenderer > CreateRenderer( forge::IWindow& window, RendererType type );
 
-		virtual ~IRenderer() = default;
+		IRenderer();
+		virtual ~IRenderer();
 
 		virtual IRenderContext* GetContext() const = 0;
 		virtual IRenderTargetView* GetRenderTargetView() const = 0;
@@ -43,7 +50,7 @@ namespace renderer
 		virtual IShadersManager* GetShadersManager() const = 0;
 
 		virtual std::unique_ptr< IInputLayout > CreateInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const = 0;
-		virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const IVertices& vertices ) const = 0;
+		virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const Vertices& vertices ) const = 0;
 		virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const = 0;
 
 		virtual void SetRenderTargets( std::vector< IRenderTargetView* > rendererTargetViews, IDepthStencilBuffer* depthStencilBuffer ) = 0;
@@ -53,9 +60,9 @@ namespace renderer
 		virtual RendererType GetType() const = 0;
 
 		void Draw( const renderer::Renderable& renderable );
-		virtual void Draw( const forge::IDataPackage& rawRenderables ) = 0;
+		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables ) = 0;
 
-		virtual std::unique_ptr< forge::IDataPackage > CreateRawRenderablesPackage( const std::vector< const Renderable* >& renderables ) const = 0;
+		virtual std::unique_ptr< IRawRenderablesPack > CreateRawRenderablesPackage( const std::vector< const Renderable* >& renderables ) const = 0;
 
 		template< class T >
 		std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const
@@ -73,6 +80,11 @@ namespace renderer
 		}
 
 		virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl() const = 0;
+
+		IModelsLoader& GetModelsLoader() const;
+
+	private:
+		std::unique_ptr< IModelsLoader > m_modelsLoader;
 	};
 }
 

@@ -1,6 +1,6 @@
 cbuffer cbMaterial : register(b1)
 {
-    float4 color;
+    float4 diffuseColor;
 };
 
 cbuffer cbFrame : register(b0)
@@ -20,8 +20,8 @@ cbuffer cbMesh : register(b3)
 
 struct VS_OUTPUT
 {
-	float4 Pos : SV_POSITION;
-	float4 Color : COLOR;
+    float4 Pos : SV_POSITION;
+    float4 Color : COLOR;
 };
 
 VS_OUTPUT VS(float4 inPos : POSITION0 )
@@ -29,9 +29,8 @@ VS_OUTPUT VS(float4 inPos : POSITION0 )
     VS_OUTPUT output;
 
     float4x4 WVP = mul(VP, W);
-    
     output.Pos = mul(WVP, inPos);
-    output.Color = color;
+    output.Color = diffuseColor;
 
     return output;
 }

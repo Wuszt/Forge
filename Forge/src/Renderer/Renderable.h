@@ -2,7 +2,7 @@
 
 namespace renderer
 {
-	class IMesh;
+	class Model;
 	class Material;
 	class IRenderer;
 	class IInputLayout;
@@ -11,67 +11,34 @@ namespace renderer
 	class Renderable
 	{
 	public:
-		Renderable( IRenderer& renderer );
+		Renderable( IRenderer& renderer, const std::string& path );
 		~Renderable();
 
-		FORGE_INLINE void SetMesh( std::unique_ptr< const IMesh >&& mesh )
+		void SetModel( const std::string& path );
+		const Model& GetModel() const
 		{
-			m_mesh = std::move( mesh );
-
-			if( m_material )
-			{
-				UpdateInputLayout();
-			}
+			return *m_model;
 		}
 
-		FORGE_INLINE const IMesh* GetMesh() const
+		const std::vector< Material >& GetMaterials() const
 		{
-			return m_mesh.get();
+			return m_materials;
 		}
 
-		FORGE_INLINE void SetMaterial( std::unique_ptr< Material >&& material )
-		{
-			m_material = std::move( material );
-
-			if( m_mesh )
-			{
-				UpdateInputLayout();
-			}
-		}
-
-		FORGE_INLINE const Material* GetMaterial() const
-		{
-			return m_material.get();
-		}
-
-		FORGE_INLINE Material* GetMaterial()
-		{
-			return m_material.get();
-		}
-
-
-		FORGE_INLINE const IInputLayout* GetInputLayout() const
-		{
-			return m_inputLayout.get();
-		}
-
-		FORGE_INLINE const renderer::StaticConstantBuffer< renderer::cbMesh >& GetCBMesh() const
+		StaticConstantBuffer< cbMesh >& GetCBMesh()
 		{
 			return m_cbMesh;
 		}
 
-		FORGE_INLINE renderer::StaticConstantBuffer< renderer::cbMesh >& GetCBMesh()
+		const StaticConstantBuffer< cbMesh >& GetCBMesh() const
 		{
 			return m_cbMesh;
 		}
-
-		void UpdateInputLayout();
 
 	private:
 		IRenderer& m_renderer;
-		std::unique_ptr< const IMesh > m_mesh;
-		std::unique_ptr < Material > m_material;
-		std::unique_ptr< const IInputLayout > m_inputLayout;
+		std::shared_ptr< Model > m_model;
+		std::vector< Material > m_materials;
 		StaticConstantBuffer< cbMesh > m_cbMesh;
 	};
 }

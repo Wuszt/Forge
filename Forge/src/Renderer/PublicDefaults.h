@@ -10,7 +10,7 @@
 #include "IVertexShader.h"
 #include "IDepthStencilBuffer.h"
 #include "PerspectiveCamera.h"
-#include "IMesh.h"
+#include "Model.h"
 #include "Material.h"
 #include "Renderable.h"
 #include "IShadersManager.h"

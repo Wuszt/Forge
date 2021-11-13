@@ -26,6 +26,7 @@ void Quaternion::SetAxisAngle( const Vector4& vec, Float angle )
 
 Quaternion::Quaternion( Float xRotation, Float yRotation, Float zRotation )
 {
+	//yaw-pitch-roll order -> Z-X-Y order
 	xRotation *= 0.5f;
 	yRotation *= 0.5f;
 	zRotation *= 0.5f;
@@ -44,6 +45,7 @@ Quaternion::Quaternion( Float xRotation, Float yRotation, Float zRotation )
 	i = cY * sX * cZ + sY * cX * sZ;
 	k = cY * cX * sZ + sY * sX * cY;
 
+	Normalize(); //todo: is it necessary?
 }
 
 Quaternion::Quaternion( const Vector4& vec )

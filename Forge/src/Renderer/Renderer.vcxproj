@@ -50,8 +50,9 @@
     <ClCompile Include="IDepthStencilBuffer.cpp" />
     <ClCompile Include="IIndexBuffer.cpp" />
     <ClCompile Include="IInputLayout.cpp" />
+    <ClCompile Include="IModelsLoader.cpp" />
     <ClCompile Include="Material.cpp" />
-    <ClCompile Include="IMesh.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="IPixelShader.cpp" />
     <ClCompile Include="IRenderContext.cpp" />
     <ClCompile Include="IRenderer.cpp" />
@@ -59,19 +60,22 @@
     <ClCompile Include="ISwapchain.cpp" />
     <ClCompile Include="IVertexBuffer.cpp" />
     <ClCompile Include="IVertexShader.cpp" />
+    <ClCompile Include="TinyObjModelsLoader.cpp" />
     <ClCompile Include="PerspectiveCamera.cpp" />
     <ClCompile Include="Renderable.cpp" />
     <ClCompile Include="IShadersManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\External\tinyobjloader\tiny_obj_loader.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="ICamera.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="IDepthStencilBuffer.h" />
     <ClInclude Include="IIndexBuffer.h" />
     <ClInclude Include="IInputLayout.h" />
+    <ClInclude Include="IModelsLoader.h" />
     <ClInclude Include="Material.h" />
-    <ClInclude Include="IMesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="IPixelShader.h" />
     <ClInclude Include="IRenderContext.h" />
@@ -80,6 +84,7 @@
     <ClInclude Include="ISwapchain.h" />
     <ClInclude Include="IVertexBuffer.h" />
     <ClInclude Include="IVertexShader.h" />
+    <ClInclude Include="TinyObjModelsLoader.h" />
     <ClInclude Include="PerspectiveCamera.h" />
     <ClInclude Include="PublicDefaults.h" />
     <ClInclude Include="Renderable.h" />

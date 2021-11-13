@@ -5,24 +5,36 @@
 
 namespace d3d11
 {
-	struct RawRenderable
+	struct RawRenderablesPack : public renderer::IRawRenderablesPack
 	{
-		Uint32 m_VBStride : 16; // 2
-		Uint32 m_IBOffset : 16; // 4
-		Uint32 m_indicesAmount; //8
-		ID3D11Buffer* m_vertexBuffer; // 16
+		struct Vertices
+		{
+			Uint32 m_VBStride; // 4
+			Uint32 m_startIndex : 16; // 6
+			Uint32 m_endIndex : 16; // 8
+			ID3D11Buffer* m_vertexBuffer; //16
+			ID3D11Buffer* m_meshCB; // 24
+		};
+		static_assert( sizeof( Vertices ) == 24, "Vertices struct is larger than before!" );
 
-		ID3D11Buffer* m_indexBuffer; // 24;
-		ID3D11VertexShader* m_vertexShader; // 32
+		struct Shape
+		{
+			Uint32 m_IBOffset; // 4
+			Uint32 m_indicesAmount; // 8
 
-		ID3D11PixelShader* m_pixelShader; // 40
-		ID3D11InputLayout* m_inputLayout; // 48
+			ID3D11Buffer* m_indexBuffer; // 16;
 
-		ID3D11Buffer* m_meshCB; // 56
-		ID3D11Buffer* m_materialCB; // 64;
+			ID3D11VertexShader* m_vertexShader; // 24
+			ID3D11PixelShader* m_pixelShader; // 32
+
+			ID3D11Buffer* m_materialCB; // 40;
+			ID3D11InputLayout* m_inputLayout; // 48
+		};
+		static_assert( sizeof( Shape ) == 48, "Shape struct is larger than before!" );
+
+		std::vector< Shape > m_shapes;
+		std::vector< Vertices > m_vertices;
 	};
-
-	static_assert( sizeof( RawRenderable ) == 64, "RawRenderable is larger than before!" );
 
 	D3D11Renderer::D3D11Renderer( forge::IWindow& window )
 	{
@@ -76,7 +88,7 @@ namespace d3d11
 		return std::make_unique< D3D11InputLayout >( GetContext(), *m_device, static_cast<const D3D11VertexShader&>( vertexShader ), static_cast<const D3D11VertexBuffer&>( vertexBuffer ) );
 	}
 
-	std::unique_ptr< renderer::IVertexBuffer > D3D11Renderer::CreateVertexBuffer( const renderer::IVertices& vertices ) const
+	std::unique_ptr< renderer::IVertexBuffer > D3D11Renderer::CreateVertexBuffer( const renderer::Vertices& vertices ) const
 	{
 		return std::make_unique< D3D11VertexBuffer >( GetContext(), *m_device, vertices );
 	}
@@ -122,48 +134,61 @@ namespace d3d11
 		}
 	}
 
-	std::unique_ptr< forge::IDataPackage > D3D11Renderer::CreateRawRenderablesPackage( const std::vector< const renderer::Renderable* >& renderables ) const
+	std::unique_ptr< renderer::IRawRenderablesPack > D3D11Renderer::CreateRawRenderablesPackage( const std::vector< const renderer::Renderable* >& renderables ) const
 	{
-		auto result = std::make_unique< forge::DataPackage< RawRenderable > >();
+		auto result = std::make_unique< RawRenderablesPack >();
 
 		for( auto& renderable : renderables )
 		{
-			const D3D11VertexBuffer* vb = static_cast< const D3D11VertexBuffer* >( renderable->GetMesh()->GetVertexBuffer() );
-			const D3D11IndexBuffer* ib = static_cast< const D3D11IndexBuffer* >( renderable->GetMesh()->GetIndexBuffer() );
-			const D3D11VertexShader* vs = static_cast< const D3D11VertexShader* >( renderable->GetMaterial()->GetVertexShader() );
-			const D3D11PixelShader* ps = static_cast< const D3D11PixelShader* >( renderable->GetMaterial()->GetPixelShader() );
-			const D3D11InputLayout* il = static_cast< const D3D11InputLayout* >( renderable->GetInputLayout() );
-			const D3D11ConstantBufferImpl* meshCBImpl = static_cast< const D3D11ConstantBufferImpl* >( renderable->GetCBMesh().GetImpl() );
-			const D3D11ConstantBufferImpl* materialCBImpl = static_cast<const D3D11ConstantBufferImpl*>( renderable->GetMaterial()->GetConstantBuffer()->GetImpl() );
-			result->AddData( RawRenderable{ vb->GetStride(), 0u, ib->GetIndicesAmount(), vb->GetBuffer(), ib->GetBuffer(), vs->GetShader(), ps->GetShader(), il->GetLayout(), meshCBImpl->GetBuffer(), materialCBImpl->GetBuffer() } );
+			Uint32 startIndex = result->m_shapes.size();
+
+			const auto& shapes = renderable->GetModel().GetShapes();
+			for( const auto& shape : shapes )
+			{
+				const D3D11IndexBuffer* ib = static_cast<const D3D11IndexBuffer*>( shape.m_indexBuffer.get() );
+				const D3D11VertexShader* vs = static_cast<const D3D11VertexShader*>( renderable->GetMaterials()[ shape.m_materialIndex ].GetVertexShader() );
+				const D3D11PixelShader* ps = static_cast<const D3D11PixelShader*>( renderable->GetMaterials()[ shape.m_materialIndex ].GetPixelShader() );
+				const D3D11ConstantBufferImpl* materialCBImpl = static_cast<const D3D11ConstantBufferImpl*>( renderable->GetMaterials()[ shape.m_materialIndex ].GetConstantBuffer()->GetImpl() );
+				const D3D11InputLayout* il = static_cast<const D3D11InputLayout*>( renderable->GetMaterials()[ shape.m_materialIndex ].GetInputLayout() );
+
+				RawRenderablesPack::Shape shape{ 0u, ib->GetIndicesAmount(), ib->GetBuffer(), vs->GetShader(), ps->GetShader(), materialCBImpl->GetBuffer(), il->GetLayout() };
+				result->m_shapes.emplace_back( shape );
+			}
+
+			Uint32 endIndex = result->m_shapes.size();
+			const D3D11VertexBuffer* vb = static_cast<const D3D11VertexBuffer*>( renderable->GetModel().GetVertexBuffer() );
+			const D3D11ConstantBufferImpl* meshCBImpl = static_cast<const D3D11ConstantBufferImpl*>( renderable->GetCBMesh().GetImpl() );
+
+			RawRenderablesPack::Vertices vertices{ vb->GetStride(), startIndex, endIndex, vb->GetBuffer(), meshCBImpl->GetBuffer() };
+			result->m_vertices.emplace_back( vertices );
 		}
 
 		return result;
 	}
 
-	void D3D11Renderer::Draw( const forge::IDataPackage& rawRenderables )
+	void D3D11Renderer::Draw( const renderer::IRawRenderablesPack& rawRenderables )
 	{
 		auto* context = GetContext()->GetDeviceContext();
 
-		const forge::DataPackage < RawRenderable >& renderables = static_cast< const forge::DataPackage < RawRenderable >& >( rawRenderables );
+		const RawRenderablesPack& renderables = static_cast< const RawRenderablesPack& >( rawRenderables );
 
-		Uint32 dataSize = renderables.GetDataSize();
-
-		for( Uint32 i = 0; i < dataSize; ++i )
+		for( const RawRenderablesPack::Vertices& vertices : renderables.m_vertices )
 		{
 			Uint32 offset = 0u;
-			Uint32 stride = renderables[ i ].m_VBStride;
-
-			context->IASetVertexBuffers( 0, 1, &renderables[ i ].m_vertexBuffer, &stride, &offset );
-			context->IASetIndexBuffer( renderables[ i ].m_indexBuffer, DXGI_FORMAT_R32_UINT, renderables[ i ].m_IBOffset );
-			context->VSSetShader( renderables[ i ].m_vertexShader, 0, 0 );
-			context->PSSetShader( renderables[ i ].m_pixelShader, 0, 0 );
-			context->IASetInputLayout( renderables[ i ].m_inputLayout );
+			context->IASetVertexBuffers( 0, 1, &vertices.m_vertexBuffer, &vertices.m_VBStride, &offset );
 			context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-			context->VSSetConstantBuffers( static_cast< Uint32 >( renderer::VSConstantBufferType::Mesh ), 1, &renderables[ i ].m_meshCB );
-			context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Material ), 1, &renderables[ i ].m_materialCB );
+			context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Mesh ), 1, &vertices.m_meshCB );
 
-			GetContext()->Draw( renderables[ i ].m_indicesAmount, 0 );
+			for( Uint32 i = vertices.m_startIndex; i < vertices.m_endIndex; ++i )
+			{
+				context->IASetIndexBuffer( renderables.m_shapes[ i ].m_indexBuffer, DXGI_FORMAT_R32_UINT, renderables.m_shapes[ i ].m_IBOffset );
+				context->VSSetShader( renderables.m_shapes[ i ].m_vertexShader, 0, 0 );
+				context->PSSetShader( renderables.m_shapes[ i ].m_pixelShader, 0, 0 );
+				context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Material ), 1, &renderables.m_shapes[ i ].m_materialCB );
+				context->IASetInputLayout( renderables.m_shapes[ i ].m_inputLayout );
+
+				GetContext()->Draw( renderables.m_shapes[ i ].m_indicesAmount, 0 );
+			}
 		}
 	}
 
@@ -214,7 +239,7 @@ namespace d3d11
 		D3D11_RASTERIZER_DESC rasterizerDesc;
 		ZeroMemory( &rasterizerDesc, sizeof( D3D11_RASTERIZER_DESC ) );
 		rasterizerDesc.AntialiasedLineEnable = false;
-		rasterizerDesc.CullMode = D3D11_CULL_BACK;;
+		rasterizerDesc.CullMode = D3D11_CULL_BACK;
 		rasterizerDesc.FrontCounterClockwise = true;
 		rasterizerDesc.DepthBias = 0;
 		rasterizerDesc.DepthBiasClamp = 0.0f;

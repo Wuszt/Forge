@@ -12,7 +12,7 @@ namespace d3d11
 	class D3D11VertexBuffer : public renderer::IVertexBuffer
 	{
 	public:
-		D3D11VertexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const renderer::IVertices& vertices );
+		D3D11VertexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const renderer::Vertices& vertices );
 		~D3D11VertexBuffer();
 
 		ID3D11Buffer* const& GetBuffer() const

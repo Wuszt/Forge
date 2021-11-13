@@ -20,7 +20,7 @@ namespace renderer
 		PerVertex
 	};
 
-	struct InputElement
+	struct InputElementDescription
 	{
 		InputType m_inputType;
 		InputFormat m_inputFormat;
@@ -28,53 +28,12 @@ namespace renderer
 		Uint32 m_size;
 	};
 
-	template< typename... Types >
-	struct IVertex
-	{
-		using ElementType = void;
-	};
-
-	template< class T, class ... Types >
-	struct IVertex< T, Types... >
-	{
-		using ElementType = T;
-
-		IVertex() {}
-
-		IVertex( const T& val, Types... t )
-			: m_data( val )
-			, m_restOfData( std::forward< Types >( t )... )
-		{}
-
-		T m_data;
-		IVertex< Types... > m_restOfData;
-
-		static std::vector< InputElement > GetInputElements()
-		{
-			std::vector< InputElement > dynArray;
-			GetInputElementsInternal< IVertex< T, Types... > >( dynArray );
-			return dynArray;
-		}
-
-	private:
-		template< class T >
-		static void GetInputElementsInternal( std::vector< InputElement >& output )
-		{
-			output.emplace_back( T::ElementType::GetInputDescription() );
-			GetInputElementsInternal< decltype( T::m_restOfData ) >( output );
-		}
-
-		template<>
-		static void GetInputElementsInternal< IVertex<> >( std::vector< InputElement >& output )
-		{}
-	};
-
 	struct InputColor : Vector4
 	{
 		template< class... Types >
 		InputColor( Types... types ) : Vector4( std::forward< Types >( types )... ) {}
 
-		static constexpr InputElement GetInputDescription()
+		static constexpr InputElementDescription GetInputDescription()
 		{
 			return { InputType::Color, InputFormat::R32G32B32A32, InputClassification::PerVertex, sizeof( InputColor ) };
 		}
@@ -85,53 +44,91 @@ namespace renderer
 		template< class... Types >
 		InputPosition( Types... types ) : Vector3( std::forward< Types >( types )... ) {}
 
-		static constexpr InputElement GetInputDescription()
+		static constexpr InputElementDescription GetInputDescription()
 		{
 			return { InputType::Position, InputFormat::R32G32B32, InputClassification::PerVertex, sizeof( InputPosition ) };
 		}
 	};
 
-	struct IVertices
-	{
-		virtual ~IVertices() {}
+	using Indices = std::vector< Uint32 >;
 
-		virtual Uint32 GetVertexByteWidth() const = 0;
-		virtual Uint32 GetVerticesByteWidth() const = 0;
-		virtual const void* GetData() const = 0;
-		virtual std::vector< InputElement > GetInputElements() const = 0;
+	struct Shape
+	{
+		Indices m_indices;
+		Uint32 m_materialIndex = 0u;
 	};
 
-	template< class VertexType >
-	struct Vertices : IVertices
+	class Vertices
 	{
-		Vertices( std::vector< VertexType >&& vertices )
-			: m_vertices( std::move( vertices ) )
+	public:
+		Vertices() {}
+
+		template< class arrT, class... arrTs >
+		Vertices( const arrT& t0, const arrTs&... ts )
+		{
+			m_elementsAmount = t0.size();
+			m_elementSize = GetSingleVertexDataSize< arrT, arrTs... >();
+
+			m_buffer = std::make_unique< Char[] >( m_elementSize * m_elementsAmount );
+			AddData( 0u, t0, ts... );
+		}
+
+		Uint32 GetVertexByteWidth() const
+		{
+			return m_elementSize;
+		}
+
+		Uint32 GetVerticesByteWidth() const
+		{
+			return m_elementSize * m_elementsAmount;
+		}
+
+		const void* GetData() const
+		{
+			return m_buffer.get();
+		}
+
+		const std::vector< InputElementDescription >& GetInputElements() const
+		{
+			return m_inputElements;
+		}
+
+	private:
+		template< class... arrTs >
+		FORGE_INLINE decltype( typename std::enable_if<sizeof...( arrTs ) == 0, Uint32>::type() ) GetSingleVertexDataSize()
+		{
+			return 0u;
+		}
+
+		template< class arrT, class... arrTs >
+		Uint32 GetSingleVertexDataSize()
+		{
+			return sizeof( arrT::value_type ) + GetSingleVertexDataSize< arrTs... >();
+		}
+
+		template< class... arrTs >
+		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( arrTs ) == 0, void>::type() ) AddData( Uint32 offset, const arrTs&... arrs )
 		{}
 
-		std::vector< VertexType > m_vertices;
-
-		virtual Uint32 GetVertexByteWidth() const override
+		template< class arrT, class... arrTs >
+		void AddData( Uint32 offset, const arrT& arr, const arrTs&... arrs )
 		{
-			return sizeof( VertexType );
+			Uint32 tSize = sizeof( arr[ 0 ] );
+
+			for( Uint32 i = 0; i < m_elementsAmount; ++i )
+			{
+				memcpy( m_buffer.get() + i * m_elementSize + offset, &( arr[ 0 ] ) + i, tSize );
+			}
+
+			m_inputElements.emplace_back( arr[ 0 ].GetInputDescription() );
+
+			AddData( tSize + offset, arrs... );
 		}
 
-		virtual Uint32 GetVerticesByteWidth() const override
-		{
-			return static_cast<Uint32>( m_vertices.size() * sizeof( VertexType ) );
-		}
-
-
-		virtual const void* GetData() const override
-		{
-			return m_vertices.data();
-		}
-
-
-		virtual std::vector<InputElement> GetInputElements() const override
-		{
-			return VertexType::GetInputElements();
-		}
-
+		std::vector< InputElementDescription > m_inputElements;
+		std::unique_ptr< Char[] > m_buffer;
+		Uint32 m_elementSize = 0u;
+		Uint32 m_elementsAmount = 0u;
 	};
 
 	class IVertexBuffer

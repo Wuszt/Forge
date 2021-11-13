@@ -4,7 +4,6 @@ namespace renderer
 {
 	class ConstantBuffer;
 	class IConstantBufferImpl;
-	class IMesh;
 	class Renderable;
 	class Material;
 }
@@ -21,7 +20,7 @@ namespace forge
 	public:
 		using DataComponent::DataComponent;
 
-		virtual void OnAttach( EngineInstance& engineInstance ) override;
+		void LoadMeshAndMaterial( const std::string& path );
 
 		FORGE_INLINE const renderer::Renderable* GetRenderable() const
 		{
@@ -34,7 +33,7 @@ namespace forge
 		}
 
 	private:
-		std::unique_ptr< renderer::Renderable > m_renderable;
+		std::unique_ptr< renderer::Renderable > m_renderable; //todo: why pointer?
 	};
 }
 

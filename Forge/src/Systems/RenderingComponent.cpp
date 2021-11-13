@@ -2,14 +2,12 @@
 #include "../Renderer/ConstantBuffer.h"
 #include "RenderingComponent.h"
 #include "../Renderer/IRenderer.h"
-#include "../Renderer/IMesh.h"
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
+#include "../Renderer/IModelsLoader.h"
 
-void forge::RenderingComponent::OnAttach( EngineInstance& engineInstance )
+void forge::RenderingComponent::LoadMeshAndMaterial( const std::string& path )
 {
-	DataComponent< RenderingComponentData >::OnAttach( engineInstance );
-	m_renderable = std::make_unique< renderer::Renderable >( engineInstance.GetRenderer() );
-
+	m_renderable = std::make_unique < renderer::Renderable >( GetOwner().GetEngineInstance().GetRenderer(), path );
 	GetData().m_renderable = m_renderable.get();
 }

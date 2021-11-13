@@ -80,5 +80,6 @@ void forge::FreeCameraControllerComponent::Update()
 	if( m_input->GetKey( forge::IInput::Key::R ) )
 	{
 		m_ownerTransform->GetData().m_transform = Transform::IDENTITY();
+		m_eulerAngles = Vector3::ZEROS();
 	}
 }

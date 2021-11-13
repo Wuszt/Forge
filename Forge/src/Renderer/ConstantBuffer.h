@@ -4,12 +4,12 @@ namespace renderer
 {
 	struct cbMesh
 	{
-		Matrix W;
+		Matrix W = Matrix( Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS() );
 	};
 
 	struct cbCamera
 	{
-		Matrix VP;
+		Matrix VP = Matrix( Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS() );
 	};
 
 	class IConstantBufferImpl
