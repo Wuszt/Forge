@@ -1,7 +1,6 @@
 #include "Fpch.h"
 #include "IRenderer.h"
 #include "../D3D11Renderer/D3D11Renderer.h"
-#include "TinyObjModelsLoader.h"
 
 namespace renderer
 {
@@ -19,7 +18,7 @@ namespace renderer
 
 	IRenderer::IRenderer()
 	{
-		m_modelsLoader = std::make_unique< TinyObjModelsLoader >( *this );
+		m_resourcesManager = std::make_unique< ResourcesManager >( *this );
 	}
 
 	IRenderer::~IRenderer() = default;
@@ -27,21 +26,19 @@ namespace renderer
 	void IRenderer::Draw( const renderer::Renderable& renderable )
 	{
 		renderable.GetModel().GetVertexBuffer()->Set();
-		renderable.GetModel().GetShapes()[ 0 ].m_indexBuffer->Set( 0 );
 
-		renderable.GetMaterials()[ 0 ].GetVertexShader()->Set();
-		renderable.GetMaterials()[ 0 ].GetPixelShader()->Set();
+		for( Uint32 i = 0; renderable.GetModel().GetShapes().size(); ++i )
+		{
+			renderable.GetModel().GetShapes()[ i ].m_indexBuffer->Set( 0 );
 
-		renderable.GetMaterials()[ 0 ].GetInputLayout()->Set();
+			renderable.GetMaterials()[ i ].GetVertexShader()->Set();
+			renderable.GetMaterials()[ i ].GetPixelShader()->Set();
 
-		renderable.GetMaterials()[ 0 ].GetConstantBuffer()->SetVS( renderer::VSConstantBufferType::Material );
+			renderable.GetMaterials()[ i ].GetInputLayout()->Set();
 
-		GetContext()->Draw( renderable.GetModel().GetShapes()[ 0 ].m_indexBuffer->GetIndicesAmount(), 0 );
+			renderable.GetMaterials()[ i ].GetConstantBuffer()->SetVS( renderer::VSConstantBufferType::Material );
+
+			GetContext()->Draw( renderable.GetModel().GetShapes()[ i ].m_indexBuffer->GetIndicesAmount(), 0 );
+		}
 	}
-
-	renderer::IModelsLoader& IRenderer::GetModelsLoader() const
-	{
-		return *m_modelsLoader;
-	}
-
 }

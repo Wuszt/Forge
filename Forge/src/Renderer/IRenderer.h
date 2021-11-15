@@ -22,7 +22,7 @@ namespace renderer
 	class IDepthStencilBuffer;
 	class Renderable;
 	class IShadersManager;
-	class IModelsLoader;
+	class ResourcesManager;
 
 	enum class RendererType
 	{
@@ -39,7 +39,6 @@ namespace renderer
 	{
 	public:
 		static std::unique_ptr< IRenderer > CreateRenderer( forge::IWindow& window, RendererType type );
-
 		IRenderer();
 		virtual ~IRenderer();
 
@@ -65,26 +64,38 @@ namespace renderer
 		virtual std::unique_ptr< IRawRenderablesPack > CreateRawRenderablesPackage( const std::vector< const Renderable* >& renderables ) const = 0;
 
 		template< class T >
-		std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const
+		FORGE_INLINE std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const
 		{
 			auto constBuffer = std::make_unique< StaticConstantBuffer< T > >();
 			constBuffer->SetImpl( CreateConstantBufferImpl() );
 			return constBuffer;
 		}
 
-		std::unique_ptr< ConstantBuffer > CreateConstantBuffer() const
+		FORGE_INLINE std::unique_ptr< ConstantBuffer > CreateConstantBuffer() const
 		{
 			auto constBuffer = std::make_unique< ConstantBuffer >();
 			constBuffer->SetImpl( CreateConstantBufferImpl() );
 			return constBuffer;
 		}
 
+		FORGE_INLINE std::unique_ptr< ConstantBuffer > CreateConstantBufferFromOther( const ConstantBuffer& data ) const
+		{
+			auto buff = CreateConstantBuffer();
+			buff->CopyDataFrom( data );
+			buff->UpdateBuffer();
+			return buff;
+		}
+
+
 		virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl() const = 0;
 
-		IModelsLoader& GetModelsLoader() const;
+		FORGE_INLINE ResourcesManager& GetResourceManager() const
+		{
+			return *m_resourcesManager;
+		}
 
 	private:
-		std::unique_ptr< IModelsLoader > m_modelsLoader;
+		std::unique_ptr< ResourcesManager > m_resourcesManager;
 	};
 }
 

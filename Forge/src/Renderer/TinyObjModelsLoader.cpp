@@ -23,10 +23,12 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 
 	FORGE_ASSURE( reader.ParseFromFile( objFinalPath, readerConfig ) );
 
+	Transform transform = Transform( Quaternion{ 0.0f, -FORGE_PI_HALF, 0.0f } * Quaternion{ 0.0f, 0.0f, -FORGE_PI_HALF } );
+
 	std::vector< renderer::InputPosition > poses;
 	for( Uint32 i = 0; i < reader.GetAttrib().vertices.size(); i += 3 )
 	{
-		poses.emplace_back( reader.GetAttrib().vertices[ i ], reader.GetAttrib().vertices[ i + 1u ], reader.GetAttrib().vertices[ i + 2u ] );
+		poses.emplace_back( transform.TransformPoint( { reader.GetAttrib().vertices[ i ], reader.GetAttrib().vertices[ i + 1u ], reader.GetAttrib().vertices[ i + 2u ] } ) );
 	}
 
 	renderer::Vertices vertices( poses );

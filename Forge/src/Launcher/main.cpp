@@ -17,15 +17,8 @@ Int32 main()
 	class GameInstance : public forge::ApplicationInstance
 	{
 	public:
-
-		Math::Random m_rng;
-
 		virtual void Initialize( forge::EngineInstance& engineInstance )
 		{
-			Quaternion f0 = Quaternion( FORGE_PI_HALF, 0.0f, 0.0f );
-			Quaternion f1 = Quaternion( FORGE_PI_HALF, FORGE_PI_HALF, 0.0f );
-			Quaternion f2 = Quaternion( FORGE_PI_HALF, 0.0f, FORGE_PI_HALF );
-
 			systems::SystemsManager::BootContext ctx;
 			ctx.AddSystem< systems::CamerasSystem >();
 			ctx.AddSystem< systems::PlayerSystem >();
@@ -45,7 +38,7 @@ Int32 main()
 			{
 				player->RequestAddingComponents< forge::TransformComponent, forge::CameraComponent, forge::FreeCameraControllerComponent >( [ engineInstancePtr = &engineInstance, player ]()
 				{
-					player->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 0.0f } );
+					player->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -400.0f, 200.0f } );
 					auto* cameraComp = player->GetComponent< forge::CameraComponent >();
 					cameraComp->CreateImplementation< forge::PerspectiveCamera >( engineInstancePtr->GetWindow().GetAspectRatio(), FORGE_PI / 3.0f, 0.1f, 40000.0f );
 					auto& camerasSystem = engineInstancePtr->GetSystemsManager().GetSystem< systems::CamerasSystem >();
@@ -66,9 +59,7 @@ Int32 main()
 
 					renderingComponent->LoadMeshAndMaterial( "bmw.obj" );
 
-					transformComponent->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 10.0f } );
 					transformComponent->GetData().m_scale = { 0.1f, 0.1f, 0.1f };
-					transformComponent->GetData().m_transform.SetOrientation( { FORGE_PI_HALF, FORGE_PI_HALF, 0.0f } );
 				} );
 			} );
 
@@ -85,19 +76,31 @@ Int32 main()
 					transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 0.01f };
 				} );
 			} );
+
+			for( Uint32 i = 0; i < 1000; ++i )
+			{
+				engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* car )
+				{
+					car->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ &, engineInstancePtr = &engineInstance, car ]()
+					{
+						auto* transformComponent = car->GetComponent< forge::TransformComponent >();
+						auto* renderingComponent = car->GetComponent< forge::RenderingComponent >();
+
+						renderingComponent->LoadMeshAndMaterial( "bmw.obj" );
+
+						transformComponent->GetData().m_transform.SetPosition( { m_rng.GetFloat( -1000.0f, 1000.0f ), m_rng.GetFloat( -1000.0f, 1000.0f ), 0.0f } );
+						transformComponent->GetData().m_scale = { 0.1f, 0.1f, 0.1f };
+					} );
+				} );
+			}
 		}
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{
 			m_timeBuffer += forge::Time::GetDeltaTime();
-
 			if( m_timeBuffer > 1.0f )
 			{
-			}
-
-			if( m_car )
-			{
-				//m_car->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion( { 0.0f, m_timeBuffer, 0.0f } ) );
+				m_timeBuffer = 0.0f;
 			}
 		}
 
@@ -110,6 +113,8 @@ Int32 main()
 		Float m_timeBuffer = 0.0f;
 
 		forge::Entity* m_car = nullptr;
+
+		Math::Random m_rng;
 
 	} gameInstance;
 

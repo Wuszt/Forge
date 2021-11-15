@@ -110,6 +110,21 @@ namespace renderer
 	class ConstantBuffer : public IConstantBuffer
 	{
 	public:
+		ConstantBuffer() = default;
+
+		void CopyDataFrom( const ConstantBuffer& toCopy )
+		{
+			m_dataLUT = toCopy.m_dataLUT;
+			m_offsets = toCopy.m_offsets;
+			m_dataSize = toCopy.m_dataSize;
+			m_elementsAmount = toCopy.m_elementsAmount;
+			m_rawData = std::move( RawSmartPtr( m_dataSize ) );
+			memcpy( m_rawData.m_data, toCopy.m_rawData.m_data, m_dataSize );
+
+			CreateBuffer();
+			UpdateBuffer();
+		}
+
 		template< class T >
 		void AddData( const std::string& name, const T& data )
 		{	

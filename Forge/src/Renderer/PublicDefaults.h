@@ -14,3 +14,4 @@
 #include "Material.h"
 #include "Renderable.h"
 #include "IShadersManager.h"
+#include "ResourcesManager.h"

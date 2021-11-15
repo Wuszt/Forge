@@ -60,6 +60,7 @@
     <ClCompile Include="ISwapchain.cpp" />
     <ClCompile Include="IVertexBuffer.cpp" />
     <ClCompile Include="IVertexShader.cpp" />
+    <ClCompile Include="ResourcesManager.cpp" />
     <ClCompile Include="TinyObjModelsLoader.cpp" />
     <ClCompile Include="PerspectiveCamera.cpp" />
     <ClCompile Include="Renderable.cpp" />
@@ -84,6 +85,7 @@
     <ClInclude Include="ISwapchain.h" />
     <ClInclude Include="IVertexBuffer.h" />
     <ClInclude Include="IVertexShader.h" />
+    <ClInclude Include="ResourcesManager.h" />
     <ClInclude Include="TinyObjModelsLoader.h" />
     <ClInclude Include="PerspectiveCamera.h" />
     <ClInclude Include="PublicDefaults.h" />
