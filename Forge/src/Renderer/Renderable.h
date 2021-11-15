@@ -25,6 +25,11 @@ namespace renderer
 			return m_materials;
 		}
 
+		std::vector< Material >& GetMaterials()
+		{
+			return m_materials;
+		}
+
 		StaticConstantBuffer< cbMesh >& GetCBMesh()
 		{
 			return m_cbMesh;

@@ -140,7 +140,7 @@ namespace d3d11
 
 		for( auto& renderable : renderables )
 		{
-			Uint32 startIndex = result->m_shapes.size();
+			Uint32 startIndex = static_cast< Uint32 >( result->m_shapes.size() );
 
 			const auto& shapes = renderable->GetModel().GetShapes();
 			for( const auto& shape : shapes )
@@ -155,7 +155,7 @@ namespace d3d11
 				result->m_shapes.emplace_back( shape );
 			}
 
-			Uint32 endIndex = result->m_shapes.size();
+			Uint32 endIndex = static_cast< Uint32 >( result->m_shapes.size() );
 			const D3D11VertexBuffer* vb = static_cast<const D3D11VertexBuffer*>( renderable->GetModel().GetVertexBuffer() );
 			const D3D11ConstantBufferImpl* meshCBImpl = static_cast<const D3D11ConstantBufferImpl*>( renderable->GetCBMesh().GetImpl() );
 

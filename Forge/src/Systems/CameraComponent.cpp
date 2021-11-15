@@ -12,12 +12,11 @@ void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
 	{
 		if( event.GetEventType() == forge::IWindow::EventType::OnWindowResized )
 		{
-			auto prevCamera = std::move( m_implementation );
-
 			switch( GetType() )
 			{
 			case ICamera::Type::Perspective:
 				m_implementation = std::make_unique< forge::PerspectiveCamera >( window->GetAspectRatio(), FORGE_PI / 3.0f, 0.1f, 2000.0f );
+				break;
 
 			default:
 				FORGE_FATAL( "Unknown type" );

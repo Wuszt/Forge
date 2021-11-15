@@ -77,7 +77,7 @@ Int32 main()
 				} );
 			} );
 
-			for( Uint32 i = 0; i < 1000; ++i )
+			for( Uint32 i = 0; i < 10000; ++i )
 			{
 				engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* car )
 				{
@@ -86,10 +86,11 @@ Int32 main()
 						auto* transformComponent = car->GetComponent< forge::TransformComponent >();
 						auto* renderingComponent = car->GetComponent< forge::RenderingComponent >();
 
-						renderingComponent->LoadMeshAndMaterial( "bmw.obj" );
+						renderingComponent->LoadMeshAndMaterial( "cube.obj" );
 
 						transformComponent->GetData().m_transform.SetPosition( { m_rng.GetFloat( -1000.0f, 1000.0f ), m_rng.GetFloat( -1000.0f, 1000.0f ), 0.0f } );
-						transformComponent->GetData().m_scale = { 0.1f, 0.1f, 0.1f };
+						renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->SetData( "diffuseColor", Vector4( m_rng.GetFloat( 0.0f, 1.0f ), m_rng.GetFloat( 0.0f, 1.0f ), m_rng.GetFloat( 0.0f, 1.0f ), 1.0f ) );
+						renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->UpdateBuffer();
 					} );
 				} );
 			}
@@ -100,6 +101,24 @@ Int32 main()
 			m_timeBuffer += forge::Time::GetDeltaTime();
 			if( m_timeBuffer > 1.0f )
 			{
+				return;
+				for( Uint32 i = 0; i < 1000; ++i )
+				{
+					engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* car )
+					{
+						car->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ &, engineInstancePtr = &engineInstance, car ]()
+						{
+							auto* transformComponent = car->GetComponent< forge::TransformComponent >();
+							auto* renderingComponent = car->GetComponent< forge::RenderingComponent >();
+
+							renderingComponent->LoadMeshAndMaterial( "cube.obj" );
+
+							transformComponent->GetData().m_transform.SetPosition( { m_rng.GetFloat( -1000.0f, 1000.0f ), m_rng.GetFloat( -1000.0f, 1000.0f ), 0.0f } );
+							renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->SetData( "diffuseColor", Vector4( m_rng.GetFloat( 0.0f, 1.0f ), m_rng.GetFloat( 0.0f, 1.0f ), m_rng.GetFloat( 0.0f, 1.0f ), 1.0f ) );
+							renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->UpdateBuffer();
+						} );
+					} );
+				}
 				m_timeBuffer = 0.0f;
 			}
 		}

@@ -183,10 +183,13 @@ namespace windows
 			return true;
 
 		case WM_SIZE:
-			UpdatePositionAndSize();
-			DispatchEvent( forge::IWindow::OnResizedWindowEvent( *this, m_width, m_height ) );
-			m_rawEventCallback.Invoke( m_hwnd, msg, wParam, lParam );
-			return true;
+			if( wParam != SIZE_MINIMIZED )
+			{
+				UpdatePositionAndSize();
+				DispatchEvent( forge::IWindow::OnResizedWindowEvent( *this, m_width, m_height ) );
+				m_rawEventCallback.Invoke( m_hwnd, msg, wParam, lParam );
+				return true;
+			}
 
 		case WM_EXITSIZEMOVE:
 			UpdatePositionAndSize();

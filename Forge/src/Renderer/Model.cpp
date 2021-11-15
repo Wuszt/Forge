@@ -11,6 +11,6 @@ renderer::Model::Model( renderer::IRenderer& renderer, const renderer::Vertices&
 
 	for( const auto& shape : shapes )
 	{
-		m_shapes.emplace_back( Model::Shape{ renderer.CreateIndexBuffer( shape.m_indices.data(), shape.m_indices.size() ), shape.m_materialIndex } );
+		m_shapes.emplace_back( Model::Shape{ renderer.CreateIndexBuffer( shape.m_indices.data(), static_cast< Uint32 >( shape.m_indices.size() ) ), shape.m_materialIndex } );
 	}
 }

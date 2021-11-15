@@ -66,7 +66,7 @@ namespace renderer
 		template< class arrT, class... arrTs >
 		Vertices( const arrT& t0, const arrTs&... ts )
 		{
-			m_elementsAmount = t0.size();
+			m_elementsAmount = static_cast< Uint32 >( t0.size() );
 			m_elementSize = GetSingleVertexDataSize< arrT, arrTs... >();
 
 			m_buffer = std::make_unique< Char[] >( m_elementSize * m_elementsAmount );
