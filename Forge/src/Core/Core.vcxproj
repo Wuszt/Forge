@@ -45,6 +45,7 @@
     <ClInclude Include="Profiling.h" />
     <ClInclude Include="StringUtils.h" />
     <ClInclude Include="Time.h" />
+    <ClInclude Include="Utils.h" />
     <ClInclude Include="WindowsInput.h" />
     <ClInclude Include="WindowsTime.h" />
     <ClInclude Include="ExternalIncludes.h" />

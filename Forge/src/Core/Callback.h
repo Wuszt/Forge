@@ -103,15 +103,21 @@ namespace forge
 
 		FORGE_INLINE virtual void RemoveListener( CallbackID id ) override
 		{
-			std::swap( m_funcs[ m_idToFunc[ id ] ], m_funcs.back() );
-			m_funcs.pop_back();
+			forge::utils::RemoveReorder( m_funcs, m_idToFunc[ id ] );
 
-			std::swap( m_funcToID[ m_idToFunc[ id ] ], m_funcToID.back() );
-			m_idToFunc[ m_funcToID[ m_idToFunc[ id ] ] ] = m_idToFunc[ id ];
-			m_funcToID.pop_back();
+			m_idToFunc[ m_funcToID.back() ] = m_idToFunc[ id ];
 
-			m_idToFunc[ id ] = m_nextFreeID;
-			m_nextFreeID = id;
+			forge::utils::RemoveReorder( m_funcToID, m_idToFunc[ id ] );
+
+			if( id == m_idToFunc.size() - 1u )
+			{
+				m_idToFunc.pop_back();
+			}
+			else
+			{
+				m_idToFunc[ id ] = m_nextFreeID;
+				m_nextFreeID = id;
+			}
 		}
 
 		Uint32 GetListenersAmount() const

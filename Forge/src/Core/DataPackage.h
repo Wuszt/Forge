@@ -37,8 +37,7 @@ namespace forge
 
 		FORGE_INLINE virtual void RemoveDataReorder( Uint32 index ) override
 		{
-			std::swap( m_data[ index ], m_data.back() );
-			m_data.pop_back();
+			forge::utils::RemoveReorder( m_data, index );
 		}
 
 		FORGE_INLINE virtual std::type_index GetTypeIndex() const override
