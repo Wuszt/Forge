@@ -36,10 +36,13 @@ void forge::EntitiesManager::RemoveEntity( const EntityID& id )
 {
 	m_entities[ id ]->OnDetach();
 	m_entities.erase( id );
+	m_onEntityDestructed.Invoke( id );
 }
 
 void forge::EntitiesManager::HandleRequests()
 {
+	PC_SCOPE_FUNC();
+
 	for( const auto& request : m_entityDestructionRequests )
 	{
 		RemoveEntity( request.m_id );

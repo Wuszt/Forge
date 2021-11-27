@@ -108,16 +108,9 @@ namespace forge
 			m_idToFunc[ m_funcToID.back() ] = m_idToFunc[ id ];
 
 			forge::utils::RemoveReorder( m_funcToID, m_idToFunc[ id ] );
-
-			if( id == m_idToFunc.size() - 1u )
-			{
-				m_idToFunc.pop_back();
-			}
-			else
-			{
-				m_idToFunc[ id ] = m_nextFreeID;
-				m_nextFreeID = id;
-			}
+			
+			m_idToFunc[ id ] = m_nextFreeID;
+			m_nextFreeID = id;
 		}
 
 		Uint32 GetListenersAmount() const

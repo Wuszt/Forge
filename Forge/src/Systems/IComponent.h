@@ -33,6 +33,13 @@ namespace forge
 			systemsManager.AddECSData< TData >( GetOwner().GetEntityID() );
 		}
 
+		virtual void OnDetach( EngineInstance& engineInstance ) override
+		{
+			auto& systemsManager = engineInstance.GetSystemsManager();
+
+			systemsManager.RemoveECSData< TData >( GetOwner().GetEntityID() );
+		}
+
 		TData& GetData()
 		{
 			auto& ei = GetOwner().GetEngineInstance();

@@ -44,14 +44,24 @@ namespace forge
 			m_entityDestructionRequests.emplace_back( EntityDestructionRequest{ id } );
 		}
 
-		FORGE_INLINE Callback< EntityID >& GetEntityCreationCallback()
+		FORGE_INLINE Callback< EntityID >& GetEntityCreatedCallback()
 		{
 			return m_onEntityAdded;
+		}
+
+		FORGE_INLINE Callback< EntityID >& GetEntityDestructedCallback()
+		{
+			return m_onEntityDestructed;
 		}
 
 		FORGE_INLINE Uint32 GetEntitiesAmount() const
 		{
 			return static_cast< Uint32 >( m_entities.size() );
+		}
+
+		FORGE_INLINE Uint32 GetHighestID() const
+		{
+			return m_lastUsedEntityID;
 		}
 
 		template< class TEntity = Entity >
@@ -90,6 +100,7 @@ namespace forge
 		std::unordered_map< EntityID, std::unique_ptr< Entity > > m_entities;
 
 		Callback< EntityID > m_onEntityAdded;
+		Callback< EntityID > m_onEntityDestructed;
 
 		struct EntityCreationRequest
 		{

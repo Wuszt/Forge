@@ -10,6 +10,7 @@ namespace forge
 		virtual void RemoveDataReorder( Uint32 index ) = 0;
 		virtual std::type_index GetTypeIndex() const = 0;
 		virtual void MoveTo( Uint32 index, IDataPackage& destination ) = 0;
+		virtual std::unique_ptr< IDataPackage > CreateNewInstance() const = 0;
 	};
 
 	template< class T >
@@ -72,6 +73,11 @@ namespace forge
 		FORGE_INLINE Uint32 GetDataSize() const
 		{
 			return static_cast<Uint32>( m_data.size() );
+		}
+
+		FORGE_INLINE std::unique_ptr< IDataPackage > CreateNewInstance() const override
+		{
+			return std::make_unique< DataPackage< T > >();
 		}
 
 	private:

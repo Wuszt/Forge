@@ -76,49 +76,47 @@ Int32 main()
 					transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 0.01f };
 				} );
 			} );
-
-			for( Uint32 i = 0; i < 10000; ++i )
-			{
-				engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* car )
-				{
-					car->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ &, engineInstancePtr = &engineInstance, car ]()
-					{
-						auto* transformComponent = car->GetComponent< forge::TransformComponent >();
-						auto* renderingComponent = car->GetComponent< forge::RenderingComponent >();
-
-						renderingComponent->LoadMeshAndMaterial( "cube.obj" );
-
-						transformComponent->GetData().m_transform.SetPosition( { m_rng.GetFloat( -1000.0f, 1000.0f ), m_rng.GetFloat( -1000.0f, 1000.0f ), 0.0f } );
-						renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->SetData( "diffuseColor", Vector4( m_rng.GetFloat( 0.0f, 1.0f ), m_rng.GetFloat( 0.0f, 1.0f ), m_rng.GetFloat( 0.0f, 1.0f ), 1.0f ) );
-						renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->UpdateBuffer();
-					} );
-				} );
-			}
 		}
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{
 			m_timeBuffer += forge::Time::GetDeltaTime();
-			if( m_timeBuffer > 1.0f )
+
+			Math::Random rng;
+			if( m_timeBuffer > 0.2f )
 			{
-				return;
-				for( Uint32 i = 0; i < 1000; ++i )
+				if( ++m_qwe % 2u != 0u )
 				{
-					engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* car )
+					for( Uint32 i = 0; i < rng.GetUnsigned( 0u, 75u ); ++i )
 					{
-						car->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ &, engineInstancePtr = &engineInstance, car ]()
+						engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* car )
 						{
-							auto* transformComponent = car->GetComponent< forge::TransformComponent >();
-							auto* renderingComponent = car->GetComponent< forge::RenderingComponent >();
+							m_entities.emplace_back( car->GetEntityID() );
 
-							renderingComponent->LoadMeshAndMaterial( "cube.obj" );
+							car->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ &, engineInstancePtr = &engineInstance, car ]()
+							{
+								auto* transformComponent = car->GetComponent< forge::TransformComponent >();
+								auto* renderingComponent = car->GetComponent< forge::RenderingComponent >();
 
-							transformComponent->GetData().m_transform.SetPosition( { m_rng.GetFloat( -1000.0f, 1000.0f ), m_rng.GetFloat( -1000.0f, 1000.0f ), 0.0f } );
-							renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->SetData( "diffuseColor", Vector4( m_rng.GetFloat( 0.0f, 1.0f ), m_rng.GetFloat( 0.0f, 1.0f ), m_rng.GetFloat( 0.0f, 1.0f ), 1.0f ) );
-							renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->UpdateBuffer();
+								renderingComponent->LoadMeshAndMaterial( "bmw.obj" );
+
+								transformComponent->GetData().m_transform.SetPosition( { m_rng.GetFloat( -1000.0f, 1000.0f ), m_rng.GetFloat( -1000.0f, 1000.0f ), 0.0f } );
+								transformComponent->GetData().m_scale = { 0.1f, 0.1f, 0.1f };
+							} );
 						} );
-					} );
+					}
 				}
+				else
+				{
+					for( Uint32 i = 0; i < Math::Min( static_cast< Uint32 >( m_entities.size() ), rng.GetUnsigned( 0u, 100u ) ); ++i )
+					{
+						Uint32 index = rng.GetUnsigned( 0u, m_entities.size() - 1u );
+						engineInstance.GetEntitiesManager().RequestDestructingEntity( m_entities[ index ] );
+						forge::utils::RemoveReorder( m_entities, index );
+					}
+					
+				}
+
 				m_timeBuffer = 0.0f;
 			}
 		}
@@ -134,6 +132,10 @@ Int32 main()
 		forge::Entity* m_car = nullptr;
 
 		Math::Random m_rng;
+
+		std::vector< forge::EntityID > m_entities;
+
+		Uint32 m_qwe = 0u;
 
 	} gameInstance;
 

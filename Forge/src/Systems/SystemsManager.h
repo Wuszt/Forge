@@ -85,15 +85,23 @@ namespace systems
 			return m_systemToArchetypesLUT[ typeid( T ) ];
 		}
 
-		void AddECSData( forge::EntityID id, std::type_index typeIndex, std::unique_ptr< forge::IDataPackage > package );
+		void AddECSData( forge::EntityID id, std::unique_ptr< forge::IDataPackage > package );
 
 		template< class T >
 		FORGE_INLINE void AddECSData( forge::EntityID id )
 		{
-			const std::type_index typeIndex = typeid( T );
 			std::unique_ptr< forge::DataPackage< T > > package = std::make_unique< forge::DataPackage< T > >();
 			package->AddEmptyData();
-			AddECSData( id, typeIndex, std::move( package ) );
+			AddECSData( id, std::move( package ) );
+		}
+
+		void RemoveECSData( forge::EntityID id, std::type_index typeIndex );
+
+		template< class T >
+		FORGE_INLINE void RemoveECSData( forge::EntityID id )
+		{
+			const std::type_index typeIndex = typeid( T );
+			RemoveECSData( id, typeIndex );
 		}
 
 		forge::CallbackToken RegisterToOnBootCallback( const std::function< void() >& callback )
@@ -120,6 +128,7 @@ namespace systems
 		std::unordered_map< std::type_index, std::vector< Archetype* > > m_systemToArchetypesLUT;
 
 		std::unique_ptr< forge::CallbackToken > m_onEntityCreated;
+		std::unique_ptr< forge::CallbackToken > m_onEntityDestructed;
 		std::unique_ptr< forge::CallbackToken > m_onTick;
 		forge::Callback<> m_onBootCallback;
 	};

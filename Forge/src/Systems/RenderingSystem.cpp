@@ -31,6 +31,8 @@ void systems::RenderingSystem::OnBeforeDraw()
 
 void systems::RenderingSystem::OnDraw()
 {
+	PC_SCOPE_FUNC();
+
 	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesOfSystem< systems::RenderingSystem >();
 
 	auto* activeCamera = m_camerasSystem->GetActiveCamera();
@@ -44,28 +46,20 @@ void systems::RenderingSystem::OnDraw()
 	m_cameraCB->UpdateBuffer();
 	m_cameraCB->SetVS( renderer::VSConstantBufferType::Camera );
 
-	Bool anyArchetypeDirty = false;
-	for( auto& archetype : archetypes )
+	m_rawRenderablesPackage = nullptr;
+	for( systems::Archetype* archetype : archetypes )
 	{
-		anyArchetypeDirty |= archetype->IsDirty();
-	}
+		const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
+		const forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
 
-	if( anyArchetypeDirty )
-	{
-		for( systems::Archetype* archetype : archetypes )
+		std::vector< const renderer::Renderable* > renderables;
+
+		for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
 		{
-			const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
-			const forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
-
-			std::vector< const renderer::Renderable* > renderables;
-
-			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
-			{
-				renderables.emplace_back( renderableComponents[ i ].m_renderable );
-			}
-
-			m_rawRenderablesPackage = m_renderer->CreateRawRenderablesPackage( renderables );
+			renderables.emplace_back( renderableComponents[ i ].m_renderable );
 		}
+
+		m_rawRenderablesPackage = m_renderer->CreateRawRenderablesPackage( renderables );
 	}
 
 	for( systems::Archetype* archetype : archetypes )
@@ -89,7 +83,10 @@ void systems::RenderingSystem::OnDraw()
 		}
 	}
 
-	m_renderer->Draw( *m_rawRenderablesPackage );
+	if( m_rawRenderablesPackage )
+	{
+		m_renderer->Draw( *m_rawRenderablesPackage );
+	}
 }
 
 void systems::RenderingSystem::OnPresent()
