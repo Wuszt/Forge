@@ -47,8 +47,7 @@ namespace systems
 
 		FORGE_INLINE virtual void OnEntityDestructed( forge::EntityID id )
 		{
-			FORGE_ASSERT( m_sparseSet[ id.m_id ] != -1 ); // pls destroy components before you destroy their owner
-			m_sparseSet[ id.m_id ] = -1;
+			FORGE_ASSERT( m_sparseSet[ id.m_id ] == -1 ); // pls destroy components before you destroy their owner
 		}
 
 		FORGE_INLINE Bool ContainsEntity( forge::EntityID id ) const
@@ -101,9 +100,6 @@ namespace systems
 		void MoveEntityTo( forge::EntityID entityId, Archetype* destination );
 		void MoveEntityTo( forge::EntityID entityId, std::vector< std::unique_ptr< forge::IDataPackage > >& destination );
 		void MoveEntityFrom( forge::EntityID entityId, std::vector< Archetype* > donorArchetypes );
-
-		void AddEntity( forge::EntityID id );
-		void RemoveEntity( forge::EntityID id );
 
 	private:
 		std::unordered_map< std::type_index, std::unique_ptr< forge::IDataPackage > > m_data;
