@@ -14,12 +14,12 @@ namespace d3d11
 		D3D11VertexShader( D3D11RenderContext& context, const D3D11Device& device, const std::string& path );
 		~D3D11VertexShader();
 
-		FORGE_INLINE ID3D11VertexShader* const& GetShader() const
+		FORGE_INLINE ID3D11VertexShader* GetShader() const
 		{
 			return m_vertexShader;
 		}
 
-		FORGE_INLINE ID3D10Blob* const& GetBuffer() const
+		FORGE_INLINE ID3D10Blob* GetBuffer() const
 		{
 			return m_buffer;
 		}

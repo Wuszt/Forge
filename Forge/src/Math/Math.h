@@ -52,9 +52,15 @@ namespace Math
 	}
 
 	template< class T >
-	FORGE_INLINE const T& Max( const T& l, const T& r )
+	FORGE_INLINE const T& Max( const T& l )
 	{
-		return r > l ? r : l;
+		return l;
+	}
+
+	template< class T, class... Ts >
+	FORGE_INLINE const T& Max( const T& l, const T& r, const Ts&... args )
+	{
+		return Max( r > l ? r : l, args... );
 	}
 
 	template< class T >
@@ -72,5 +78,30 @@ namespace Math
 	FORGE_INLINE Uint32 CombineHashes( Uint32 l, Uint32 r )
 	{
 		return r ^( r + 0x9e3779b9 + ( l << 6 ) + ( l >> 2 ) );
+	}
+
+	template< class T >
+	FORGE_INLINE Uint32 CalculateHash( const T& value )
+	{
+		std::hash< T > hasher;
+		return static_cast< Uint32 >( hasher( value ) );
+	}
+
+	template<>
+	FORGE_INLINE Uint32 CalculateHash( const Vector2& value )
+	{
+		return Math::CombineHashes( Math::CalculateHash( value.X ), Math::CalculateHash( value.Y ) );
+	}
+
+	template<>
+	FORGE_INLINE Uint32 CalculateHash( const Vector3& value )
+	{
+		return Math::CombineHashes( Math::CombineHashes( Math::CalculateHash( value.X ), Math::CalculateHash( value.Y ) ), Math::CalculateHash( value.Z ) );
+	}
+
+	template<>
+	FORGE_INLINE Uint32 CalculateHash( const Vector4& value )
+	{
+		return Math::CombineHashes( Math::CombineHashes( Math::CombineHashes( Math::CalculateHash( value.X ), Math::CalculateHash( value.Y ) ), Math::CalculateHash( value.Z ) ), Math::CalculateHash( value.W ) );
 	}
 }

@@ -6,11 +6,13 @@ namespace renderer
 	{
 		Position,
 		Color,
+		TexCoord,
 		Count
 	};
 
 	enum class InputFormat
 	{
+		R32G32,
 		R32G32B32,
 		R32G32B32A32,
 	};
@@ -47,6 +49,17 @@ namespace renderer
 		static constexpr InputElementDescription GetInputDescription()
 		{
 			return { InputType::Position, InputFormat::R32G32B32, InputClassification::PerVertex, sizeof( InputPosition ) };
+		}
+	};
+
+	struct InputTexCoord : Vector2
+	{
+		template< class... Types >
+		InputTexCoord( Types... types ) : Vector2( std::forward< Types >( types )... ) {}
+
+		static constexpr InputElementDescription GetInputDescription()
+		{
+			return { InputType::TexCoord, InputFormat::R32G32, InputClassification::PerVertex, sizeof( InputTexCoord ) };
 		}
 	};
 

@@ -264,6 +264,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\External\WICTextureLoader\WICTextureLoader11.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="D3D11ConstantBufferImpl.cpp" />
     <ClCompile Include="D3D11DepthStencilBuffer.cpp" />
     <ClCompile Include="D3D11RenderContext.cpp" />
@@ -273,7 +283,9 @@
     <ClCompile Include="D3D11PixelShader.cpp" />
     <ClCompile Include="D3D11Renderer.cpp" />
     <ClCompile Include="D3D11RenderTargetView.cpp" />
+    <ClCompile Include="D3D11SamplerState.cpp" />
     <ClCompile Include="D3D11ShadersManager.cpp" />
+    <ClCompile Include="D3D11TexturesLoader.cpp" />
     <ClCompile Include="D3D11VertexShader.cpp" />
     <ClCompile Include="D3D11Swapchain.cpp" />
     <ClCompile Include="D3D11Texture.cpp" />
@@ -290,6 +302,7 @@
     <ClCompile Include="D3D11VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\External\WICTextureLoader\WICTextureLoader11.h" />
     <ClInclude Include="D3D11ConstantBufferImpl.h" />
     <ClInclude Include="D3D11DepthStencilBuffer.h" />
     <ClInclude Include="D3D11RenderContext.h" />
@@ -299,7 +312,9 @@
     <ClInclude Include="D3D11PixelShader.h" />
     <ClInclude Include="D3D11Renderer.h" />
     <ClInclude Include="D3D11RenderTargetView.h" />
+    <ClInclude Include="D3D11SamplerState.h" />
     <ClInclude Include="D3D11ShadersManager.h" />
+    <ClInclude Include="D3D11TexturesLoader.h" />
     <ClInclude Include="D3D11VertexShader.h" />
     <ClInclude Include="D3D11Swapchain.h" />
     <ClInclude Include="D3D11Texture.h" />

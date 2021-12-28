@@ -1,12 +1,13 @@
 #pragma once
 #include "../Renderer/ConstantBuffer.h"
-#include "D3D11Device.h"
-#include "D3D11RenderContext.h"
 
 struct ID3D11Buffer;
 
 namespace d3d11
 {
+	class D3D11Device;
+	class D3D11RenderContext;
+
 	class D3D11ConstantBufferImpl : public renderer::IConstantBufferImpl
 	{
 	public:

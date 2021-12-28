@@ -19,7 +19,7 @@ namespace d3d11
 		D3D11Swapchain( IDXGISwapChain* swapChain );
 		~D3D11Swapchain();
 
-		FORGE_INLINE IDXGISwapChain* const& GetSwapChain() const
+		FORGE_INLINE IDXGISwapChain* GetSwapChain() const
 		{
 			return m_swapChain;
 		}

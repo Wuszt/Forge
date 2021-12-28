@@ -6,22 +6,30 @@ namespace renderer
 {
 	std::unique_ptr< IRenderer > IRenderer::CreateRenderer( forge::IWindow& window, RendererType type )
 	{
+		std::unique_ptr< IRenderer > result = nullptr;
+
 		switch( type )
 		{
 		case RendererType::D3D11:
-			return std::make_unique< d3d11::D3D11Renderer >( window );
+			result = std::make_unique< d3d11::D3D11Renderer >( window );
+			break;
 		default:
 			FORGE_FATAL( "Unknown renderer type" );
 			return nullptr;
 		}
+
+		result->Initialize();
+		return result;
 	}
 
-	IRenderer::IRenderer()
+	IRenderer::IRenderer() = default;
+
+	IRenderer::~IRenderer() = default;
+
+	void IRenderer::Initialize()
 	{
 		m_resourcesManager = std::make_unique< ResourcesManager >( *this );
 	}
-
-	IRenderer::~IRenderer() = default;
 
 	void IRenderer::Draw( const renderer::Renderable& renderable )
 	{

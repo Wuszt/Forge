@@ -2,11 +2,9 @@
 #include "../Renderer/IRenderer.h"
 #include "D3D11RenderContext.h"
 #include "D3D11RenderTargetView.h"
-#include "D3D11SwapChain.h"
-#include "D3D11VertexShader.h"
-#include "D3D11PixelShader.h"
 #include "D3D11DepthStencilBuffer.h"
 #include "D3D11ShadersManager.h"
+#include "D3D11Swapchain.h"
 
 struct ID3D11RasterizerState;
 
@@ -22,20 +20,13 @@ namespace forge
 	class IVertexBuffer;
 	class IInputLayout;
 	class IIndexBuffer;
-	class ICamera;
 }
 
 namespace d3d11
 {
-	class D3D11Window;
 	class D3D11Device;
-	class D3D11Swapchain;
-	class D3D11VertexShader;
-	class D3D11PixelShader;
-	class D3D11InputLayout;
-	class D3D11VertexBuffer;
-	class D3D11IndexBuffer;
 	class D3D11ShadersManager;
+	class D3D11Swapchain;
 
 	class D3D11Renderer : public renderer::IRenderer
 	{
@@ -79,6 +70,9 @@ namespace d3d11
 
 		virtual void SetRenderTargets( std::vector< renderer::IRenderTargetView* > rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer ) override;
 
+		virtual std::unique_ptr< renderer::ISamplerState > CreateSamplerState( renderer::SamplerStateFilterType filterType ) override;
+		virtual void SetSamplerStates( const std::vector< renderer::ISamplerState* > samplerStates ) override;
+
 		virtual void BeginScene() override;
 
 		virtual std::unique_ptr< renderer::IRawRenderablesPack > CreateRawRenderablesPackage( const std::vector< const renderer::Renderable* >& renderables ) const;
@@ -91,6 +85,8 @@ namespace d3d11
 		}
 
 		virtual std::unique_ptr< renderer::IConstantBufferImpl > CreateConstantBufferImpl() const override;
+
+		virtual std::unique_ptr< renderer::ITexturesLoader > CreateTexturesLoader() const override;
 
 	private:
 		void SetRenderTargets( std::vector< renderer::IRenderTargetView* > rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer );

@@ -54,7 +54,7 @@ namespace d3d11
 		ID3D11Texture2D* backBuffer;
 		FORGE_ASSURE( m_swapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)&backBuffer ) == S_OK );
 
-		return std::make_unique< D3D11Texture >( backBuffer );
+		return std::make_unique< D3D11Texture >( backBuffer, nullptr );
 	}
 
 	void D3D11Swapchain::Resize( Uint32 width, Uint32 height )

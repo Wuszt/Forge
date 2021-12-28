@@ -23,6 +23,9 @@ namespace renderer
 	class Renderable;
 	class IShadersManager;
 	class ResourcesManager;
+	class ITexturesLoader;
+	class ISamplerState;
+	enum class SamplerStateFilterType;
 
 	enum class RendererType
 	{
@@ -52,7 +55,12 @@ namespace renderer
 		virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const Vertices& vertices ) const = 0;
 		virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const = 0;
 
+		void Initialize();
+
 		virtual void SetRenderTargets( std::vector< IRenderTargetView* > rendererTargetViews, IDepthStencilBuffer* depthStencilBuffer ) = 0;
+
+		virtual std::unique_ptr< ISamplerState > CreateSamplerState( SamplerStateFilterType filterType ) = 0;
+		virtual void SetSamplerStates( const std::vector< ISamplerState* > samplerStates ) = 0;
 
 		virtual void BeginScene() = 0;
 
@@ -93,6 +101,8 @@ namespace renderer
 		{
 			return *m_resourcesManager;
 		}
+
+		virtual std::unique_ptr< ITexturesLoader > CreateTexturesLoader() const = 0;
 
 	private:
 		std::unique_ptr< ResourcesManager > m_resourcesManager;

@@ -11,6 +11,8 @@
 #include "../Systems/PlayerSystem.h"
 #include "../Systems/CameraComponent.h"
 #include "../Systems/RenderingSystem.h"
+#include "../D3D11Renderer/D3D11TexturesLoader.h"
+#include "../Renderer/IRenderer.h"
 
 Int32 main()
 {
@@ -33,6 +35,8 @@ Int32 main()
 #endif
 
 			engineInstance.GetSystemsManager().Boot( ctx );
+
+			engineInstance.GetSystemsManager().GetSystem< systems::RenderingSystem >().SetSamplers( { renderer::SamplerStateFilterType::MIN_MAG_MIP_LINEAR } );
 
 			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* player )
 			{
@@ -72,6 +76,11 @@ Int32 main()
 
 					renderingComponent->LoadMeshAndMaterial( "cube.obj" );
 
+					auto renderable = renderingComponent->GetData().m_renderable;
+					renderable->GetMaterials()[ 0 ].SetVertexShader( "Texture.fx" );
+					renderable->GetMaterials()[ 0 ].SetPixelShader( "Texture.fx" );
+					renderable->GetMaterials()[ 0 ].SetTexture( "wall.png", 0 );
+
 					transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 					transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 0.01f };
 				} );
@@ -110,7 +119,7 @@ Int32 main()
 				{
 					for( Uint32 i = 0; i < Math::Min( static_cast< Uint32 >( m_entities.size() ), rng.GetUnsigned( 0u, 100u ) ); ++i )
 					{
-						Uint32 index = rng.GetUnsigned( 0u, m_entities.size() - 1u );
+						Uint32 index = rng.GetUnsigned( 0u, static_cast< Uint32 >( m_entities.size() ) - 1u );
 						engineInstance.GetEntitiesManager().RequestDestructingEntity( m_entities[ index ] );
 						forge::utils::RemoveReorder( m_entities, index );
 					}

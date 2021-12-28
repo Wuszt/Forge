@@ -1,5 +1,7 @@
 #include "Fpch.h"
 #include "D3D11ConstantBufferImpl.h"
+#include "D3D11Device.h"
+#include "D3D11RenderContext.h"
 
 namespace d3d11
 {

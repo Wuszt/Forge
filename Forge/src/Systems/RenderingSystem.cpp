@@ -93,3 +93,20 @@ void systems::RenderingSystem::OnPresent()
 {
 	m_renderer->GetSwapchain()->Present();
 }
+
+void systems::RenderingSystem::SetSamplers( const std::vector< renderer::SamplerStateFilterType >& filterTypes )
+{
+	std::vector< renderer::ISamplerState* > samplerStates;
+	for( auto filterType : filterTypes )
+	{
+		auto it = m_samplerStates.find( filterType );
+		if( it == m_samplerStates.end() )
+		{
+			it = m_samplerStates.emplace( filterType, m_renderer->CreateSamplerState( filterType ) ).first;
+		}
+
+		samplerStates.push_back( it->second.get() );
+	}
+
+	m_renderer->SetSamplerStates( samplerStates );
+}

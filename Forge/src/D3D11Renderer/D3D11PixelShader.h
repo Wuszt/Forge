@@ -14,14 +14,14 @@ namespace d3d11
 		D3D11PixelShader( D3D11RenderContext& context, const D3D11Device& device, const std::string& path );
 		~D3D11PixelShader();
 
-		FORGE_INLINE ID3D11PixelShader* const& GetShader() const
+		FORGE_INLINE ID3D11PixelShader* GetShader() const
 		{
 			return m_pixelShader;
 		}
 
 		virtual void Set() const override;
 
-		FORGE_INLINE ID3D10Blob* const& GetBuffer() const
+		FORGE_INLINE ID3D10Blob* GetBuffer() const
 		{
 			return m_buffer;
 		}

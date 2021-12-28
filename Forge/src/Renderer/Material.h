@@ -5,6 +5,7 @@ namespace renderer
 	class IVertexShader;
 	class IPixelShader;
 	class IRenderer;
+	class ITexture;
 
 	class Material
 	{
@@ -21,26 +22,47 @@ namespace renderer
 			return m_pixelShader;
 		}
 
-		const renderer::ConstantBuffer* GetConstantBuffer() const
+		FORGE_INLINE const renderer::ConstantBuffer* GetConstantBuffer() const
 		{
 			return m_constantBuffer.get();
 		}
 
-		renderer::ConstantBuffer* GetConstantBuffer()
+		FORGE_INLINE renderer::ConstantBuffer* GetConstantBuffer()
 		{
 			return m_constantBuffer.get();
 		}
 
-		const renderer::IInputLayout* GetInputLayout() const
+		FORGE_INLINE const renderer::IInputLayout* GetInputLayout() const
 		{
 			return m_inputLayout.get();
 		}
+
+		FORGE_INLINE Uint32 GetTexturesAmount() const
+		{
+			return static_cast< Uint32 >( m_textures.size() );
+		}
+
+		FORGE_INLINE const ITexture* GetTexture( Uint32 index ) const
+		{
+			if( index >= GetTexturesAmount() )
+			{
+				return nullptr;
+			}
+
+			return m_textures[ index ].get();
+		}
+
+		void SetVertexShader( const std::string& path );
+		void SetPixelShader( const std::string& path );
+		void SetTexture( const std::string& path, Uint32 index );
 
 	private:
 		const renderer::IVertexShader* m_vertexShader = nullptr;
 		const renderer::IPixelShader* m_pixelShader = nullptr;
 		std::unique_ptr< renderer::ConstantBuffer > m_constantBuffer;
 		std::unique_ptr< const IInputLayout > m_inputLayout;
+		std::vector< std::shared_ptr< const ITexture > > m_textures; 
+		IRenderer& m_renderer;
 	};
 }
 

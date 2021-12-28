@@ -5,7 +5,7 @@ namespace renderer
 	class IDepthStencilBuffer
 	{
 	public:
-		virtual ~IDepthStencilBuffer() {}
+		virtual ~IDepthStencilBuffer() = default;
 		virtual void Clear() = 0;
 	};
 }

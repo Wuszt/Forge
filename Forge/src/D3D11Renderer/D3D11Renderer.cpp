@@ -2,6 +2,10 @@
 #include "D3D11Renderer.h"
 #include "../Core/WindowsWindow.h"
 #include "D3D11ConstantBufferImpl.h"
+#include "D3D11TexturesLoader.h"
+#include "D3D11Device.h"
+#include "D3D11ShadersManager.h"
+#include "D3D11SamplerState.h"
 
 namespace d3d11
 {
@@ -9,31 +13,34 @@ namespace d3d11
 	{
 		struct Vertices
 		{
-			Uint32 m_VBStride; // 4
-			Uint32 m_startIndex : 16; // 6
-			Uint32 m_endIndex : 16; // 8
-			ID3D11Buffer* m_vertexBuffer; //16
-			ID3D11Buffer* m_meshCB; // 24
+			Uint16 m_VBStride; // 2
+			Uint16 m_startIndex; // 4
+			Uint16 m_endIndex; // 6
 		};
-		static_assert( sizeof( Vertices ) == 24, "Vertices struct is larger than before!" );
+		static_assert( sizeof( Vertices ) == 6, "Vertices struct is larger than before!" );
+
+		std::vector< Vertices > m_vertices;
+		std::vector< ID3D11Buffer* > m_vertexBuffers;
+		std::vector< ID3D11Buffer* > m_meshCBs;
 
 		struct Shape
 		{
-			Uint32 m_IBOffset; // 4
-			Uint32 m_indicesAmount; // 8
+			Uint64 m_IBOffset : 24 ;
+			Uint64 m_indicesAmount : 24;
 
-			ID3D11Buffer* m_indexBuffer; // 16;
-
-			ID3D11VertexShader* m_vertexShader; // 24
-			ID3D11PixelShader* m_pixelShader; // 32
-
-			ID3D11Buffer* m_materialCB; // 40;
-			ID3D11InputLayout* m_inputLayout; // 48
+			Uint64 m_resourcesStartIndex : 11;
+			Uint64 m_resourcesAmount : 5;
 		};
-		static_assert( sizeof( Shape ) == 48, "Shape struct is larger than before!" );
+		static_assert( sizeof( Shape ) == 8, "Shape struct is larger than before!" );
 
 		std::vector< Shape > m_shapes;
-		std::vector< Vertices > m_vertices;
+		std::vector< ID3D11Buffer* > m_indexBuffers;
+		std::vector< ID3D11VertexShader* > m_vertexShaders;
+		std::vector< ID3D11PixelShader* > m_pixelShaders;
+		std::vector< ID3D11Buffer* > m_materialCBs;
+		std::vector< ID3D11InputLayout* > m_inputLayouts;
+
+		std::vector< ID3D11ShaderResourceView* > m_resourceViews;
 	};
 
 	D3D11Renderer::D3D11Renderer( forge::IWindow& window )
@@ -109,13 +116,31 @@ namespace d3d11
 		std::vector< ID3D11RenderTargetView* > views;
 		views.reserve( rendererTargetViews.size() );
 
-		for( const auto& target : rendererTargetViews )
+		for( const renderer::IRenderTargetView* target : rendererTargetViews )
 		{
-			FORGE_ASSERT( dynamic_cast<D3D11RenderTargetView*>( target ) );
-			views.emplace_back( static_cast<D3D11RenderTargetView*>( target )->GetRenderTargetView() );
+			FORGE_ASSERT( dynamic_cast<const D3D11RenderTargetView*>( target ) );
+			views.emplace_back( static_cast< const D3D11RenderTargetView* >( target )->GetRenderTargetView() );
 		}
 
 		m_context->GetDeviceContext()->OMSetRenderTargets( static_cast<Uint32>( views.size() ), views.data(), m_depthStencilBuffer ? m_depthStencilBuffer->GetView() : nullptr );
+	}
+
+	std::unique_ptr< renderer::ISamplerState > D3D11Renderer::CreateSamplerState( renderer::SamplerStateFilterType filterType )
+	{
+		return std::make_unique< d3d11::D3D11SamplerState >( *GetDevice(), filterType );
+	}
+
+	void D3D11Renderer::SetSamplerStates( const std::vector< renderer::ISamplerState* > samplerStates )
+	{
+		std::vector< ID3D11SamplerState* > rawStates;
+		rawStates.reserve( samplerStates.size() );
+		for( const renderer::ISamplerState* samplerState : samplerStates )
+		{
+			FORGE_ASSERT( dynamic_cast< const D3D11SamplerState* >( samplerState ) );
+			rawStates.emplace_back( static_cast< const d3d11::D3D11SamplerState* >( samplerState )->GetSamplerState() );
+		}
+
+		GetContext()->GetDeviceContext()->PSSetSamplers( 0u, static_cast< Uint32 >( rawStates.size() ), rawStates.data() );
 	}
 
 	void D3D11Renderer::BeginScene()
@@ -140,27 +165,46 @@ namespace d3d11
 
 		for( auto& renderable : renderables )
 		{
-			Uint32 startIndex = static_cast< Uint32 >( result->m_shapes.size() );
+			Uint16 startIndex = static_cast< Uint16 >( result->m_shapes.size() );
 
 			const auto& shapes = renderable->GetModel().GetShapes();
 			for( const auto& shape : shapes )
 			{
+				const renderer::Material& material = renderable->GetMaterials()[ shape.m_materialIndex ];
+
 				const D3D11IndexBuffer* ib = static_cast<const D3D11IndexBuffer*>( shape.m_indexBuffer.get() );
 				const D3D11VertexShader* vs = static_cast<const D3D11VertexShader*>( renderable->GetMaterials()[ shape.m_materialIndex ].GetVertexShader() );
 				const D3D11PixelShader* ps = static_cast<const D3D11PixelShader*>( renderable->GetMaterials()[ shape.m_materialIndex ].GetPixelShader() );
-				const D3D11ConstantBufferImpl* materialCBImpl = static_cast<const D3D11ConstantBufferImpl*>( renderable->GetMaterials()[ shape.m_materialIndex ].GetConstantBuffer()->GetImpl() );
+				const D3D11ConstantBufferImpl* materialCBImpl = static_cast<const D3D11ConstantBufferImpl*>( material.GetConstantBuffer()->GetImpl() );
 				const D3D11InputLayout* il = static_cast<const D3D11InputLayout*>( renderable->GetMaterials()[ shape.m_materialIndex ].GetInputLayout() );
 
-				RawRenderablesPack::Shape shape{ 0u, ib->GetIndicesAmount(), ib->GetBuffer(), vs->GetShader(), ps->GetShader(), materialCBImpl->GetBuffer(), il->GetLayout() };
-				result->m_shapes.emplace_back( shape );
+				result->m_indexBuffers.emplace_back( ib->GetBuffer() );
+				result->m_vertexShaders.emplace_back( vs->GetShader() );
+				result->m_pixelShaders.emplace_back( ps->GetShader() );
+				result->m_materialCBs.emplace_back( materialCBImpl->GetBuffer() );
+				result->m_inputLayouts.emplace_back( il->GetLayout() );
+
+				Uint32 resourcesAmount = material.GetTexturesAmount();
+				Uint32 startIndex = static_cast< Uint32 >( result->m_resourceViews.size() );
+				FORGE_ASSERT( startIndex < 1 << 11 );
+				FORGE_ASSERT( resourcesAmount < 1 << 5 );
+				for( Uint32 resourcesIndex = 0u; resourcesIndex < resourcesAmount; ++resourcesIndex )
+				{
+					const D3D11Texture* texture = static_cast< const D3D11Texture* >( material.GetTexture( resourcesIndex ) );
+					result->m_resourceViews.emplace_back( texture->GetShaderResourceView() );
+				}
+
+				FORGE_ASSERT( ib->GetIndicesAmount() < 1 << 24 );
+				result->m_shapes.emplace_back( RawRenderablesPack::Shape{ 0u, ib->GetIndicesAmount(), Math::Min( startIndex, static_cast< Uint32 >( result->m_resourceViews.size() ) - 1u ), resourcesAmount } );
 			}
 
-			Uint32 endIndex = static_cast< Uint32 >( result->m_shapes.size() );
+			Uint16 endIndex = static_cast< Uint16 >( result->m_shapes.size() );
 			const D3D11VertexBuffer* vb = static_cast<const D3D11VertexBuffer*>( renderable->GetModel().GetVertexBuffer() );
 			const D3D11ConstantBufferImpl* meshCBImpl = static_cast<const D3D11ConstantBufferImpl*>( renderable->GetCBMesh().GetImpl() );
 
-			RawRenderablesPack::Vertices vertices{ vb->GetStride(), startIndex, endIndex, vb->GetBuffer(), meshCBImpl->GetBuffer() };
-			result->m_vertices.emplace_back( vertices );
+			result->m_vertexBuffers.emplace_back( vb->GetBuffer() );
+			result->m_meshCBs.emplace_back( meshCBImpl->GetBuffer() );
+			result->m_vertices.emplace_back( RawRenderablesPack::Vertices{ static_cast< Uint16 >( vb->GetStride() ), startIndex, endIndex } );
 		}
 
 		return result;
@@ -172,22 +216,25 @@ namespace d3d11
 
 		const RawRenderablesPack& renderables = static_cast< const RawRenderablesPack& >( rawRenderables );
 
-		for( const RawRenderablesPack::Vertices& vertices : renderables.m_vertices )
+		for( Uint32 verticesIndex = 0u; verticesIndex < renderables.m_vertices.size(); ++verticesIndex )
 		{
 			Uint32 offset = 0u;
-			context->IASetVertexBuffers( 0, 1, &vertices.m_vertexBuffer, &vertices.m_VBStride, &offset );
+			Uint32 stride = renderables.m_vertices[ verticesIndex ].m_VBStride;
+			context->IASetVertexBuffers( 0, 1, &renderables.m_vertexBuffers[ verticesIndex ], &stride, &offset );
 			context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-			context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Mesh ), 1, &vertices.m_meshCB );
+			context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Mesh ), 1, &renderables.m_meshCBs[ verticesIndex ] );
 
-			for( Uint32 i = vertices.m_startIndex; i < vertices.m_endIndex; ++i )
+			for( Uint16 shapesIndex = renderables.m_vertices[ verticesIndex ].m_startIndex; shapesIndex < renderables.m_vertices[ verticesIndex ].m_endIndex; ++shapesIndex )
 			{
-				context->IASetIndexBuffer( renderables.m_shapes[ i ].m_indexBuffer, DXGI_FORMAT_R32_UINT, renderables.m_shapes[ i ].m_IBOffset );
-				context->VSSetShader( renderables.m_shapes[ i ].m_vertexShader, 0, 0 );
-				context->PSSetShader( renderables.m_shapes[ i ].m_pixelShader, 0, 0 );
-				context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Material ), 1, &renderables.m_shapes[ i ].m_materialCB );
-				context->IASetInputLayout( renderables.m_shapes[ i ].m_inputLayout );
+				const RawRenderablesPack::Shape& shape = renderables.m_shapes[ shapesIndex ];
+				context->IASetIndexBuffer( renderables.m_indexBuffers[ shapesIndex ], DXGI_FORMAT_R32_UINT, renderables.m_shapes[ shapesIndex ].m_IBOffset );
+				context->VSSetShader( renderables.m_vertexShaders[ shapesIndex ], 0, 0 );
+				context->PSSetShader( renderables.m_pixelShaders[ shapesIndex ], 0, 0 );
+				context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Material ), 1, &renderables.m_materialCBs[ shapesIndex ] );
+				context->IASetInputLayout( renderables.m_inputLayouts[ shapesIndex ] );
+				context->PSSetShaderResources( 0, shape.m_resourcesAmount, &renderables.m_resourceViews[ shape.m_resourcesStartIndex ] );
 
-				GetContext()->Draw( renderables.m_shapes[ i ].m_indicesAmount, 0 );
+				GetContext()->Draw( renderables.m_shapes[ shapesIndex ].m_indicesAmount, 0 );
 			}
 		}
 	}
@@ -195,6 +242,11 @@ namespace d3d11
 	std::unique_ptr< renderer::IConstantBufferImpl > D3D11Renderer::CreateConstantBufferImpl() const
 	{
 		return std::make_unique< D3D11ConstantBufferImpl >( *m_context, *m_device );
+	}
+
+	std::unique_ptr< renderer::ITexturesLoader > D3D11Renderer::CreateTexturesLoader() const
+	{
+		return std::make_unique< d3d11::D3D11TexturesLoader >( *GetDevice() );
 	}
 
 	void D3D11Renderer::InitializeSwapChainAndContext( const windows::WindowsWindow& window )

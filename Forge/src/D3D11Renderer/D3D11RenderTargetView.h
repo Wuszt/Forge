@@ -14,7 +14,7 @@ namespace d3d11
 		D3D11RenderTargetView( const D3D11Device& device, const D3D11RenderContext& context, std::shared_ptr< D3D11Texture > texture );
 		~D3D11RenderTargetView();
 
-		FORGE_INLINE ID3D11RenderTargetView * const& GetRenderTargetView() const
+		FORGE_INLINE ID3D11RenderTargetView* GetRenderTargetView() const
 		{
 			return m_renderTargetView;
 		}

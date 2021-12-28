@@ -51,6 +51,9 @@
     <ClCompile Include="IIndexBuffer.cpp" />
     <ClCompile Include="IInputLayout.cpp" />
     <ClCompile Include="IModelsLoader.cpp" />
+    <ClCompile Include="ISamplerState.cpp" />
+    <ClCompile Include="ITexture.cpp" />
+    <ClCompile Include="ITexturesLoader.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="IPixelShader.cpp" />
@@ -75,6 +78,9 @@
     <ClInclude Include="IIndexBuffer.h" />
     <ClInclude Include="IInputLayout.h" />
     <ClInclude Include="IModelsLoader.h" />
+    <ClInclude Include="ISamplerState.h" />
+    <ClInclude Include="ITexture.h" />
+    <ClInclude Include="ITexturesLoader.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="InternalDefaults.h" />

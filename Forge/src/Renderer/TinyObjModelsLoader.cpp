@@ -21,27 +21,57 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 
 	tinyobj::ObjReader reader;
 
-	FORGE_ASSURE( reader.ParseFromFile( objFinalPath, readerConfig ) );
+	if( !reader.ParseFromFile( objFinalPath, readerConfig ) )
+	{
+		return nullptr;
+	}
 
 	Transform transform = Transform( Quaternion{ 0.0f, -FORGE_PI_HALF, 0.0f } * Quaternion{ 0.0f, 0.0f, -FORGE_PI_HALF } );
 
-	std::vector< renderer::InputPosition > poses;
-	for( Uint32 i = 0; i < reader.GetAttrib().vertices.size(); i += 3 )
+	std::vector< renderer::InputPosition > objPoses;
+	auto& rawPositions = reader.GetAttrib().vertices;
+	for( Uint32 i = 0; i < rawPositions.size(); i += 3 )
 	{
-		poses.emplace_back( transform.TransformPoint( { reader.GetAttrib().vertices[ i ], reader.GetAttrib().vertices[ i + 1u ], reader.GetAttrib().vertices[ i + 2u ] } ) );
+		objPoses.emplace_back( transform.TransformPoint( { rawPositions[ i ], rawPositions[ i + 1u ], rawPositions[ i + 2u ] } ) );
 	}
 
-	renderer::Vertices vertices( poses );
-	std::vector< renderer::Shape > shapes;
+	std::vector< renderer::InputTexCoord > objTexCoords;
+	auto& rawTexCoords = reader.GetAttrib().texcoords;
+	for( Uint32 i = 0; i < rawTexCoords.size(); i += 2 )
+	{
+		objTexCoords.emplace_back( rawTexCoords[ i ], rawTexCoords[ i + 1 ] );
+	}
+	objTexCoords.resize( Math::Max( 1u, static_cast< Uint32 >( objTexCoords.size() ) ) );
 
+	std::vector< renderer::InputPosition > poses;
+	std::vector< renderer::InputTexCoord > texCoords;
+
+	std::unordered_map< Uint32, Uint32 > uniqueVerticesIndices;
+	std::vector< renderer::Shape > shapes;
 	for( const auto& shape : reader.GetShapes() )
 	{
-		shapes.emplace_back( Shape{ Indices(), static_cast< Uint32 >( shape.mesh.material_ids[ 0 ] ) } );
+		shapes.emplace_back( Shape{ Indices(), static_cast<Uint32>( shape.mesh.material_ids[ 0 ] ) } );
 		for( auto index : shape.mesh.indices )
 		{
-			shapes.back().m_indices.emplace_back( index.vertex_index );
+			Vector3 pos = objPoses[ index.vertex_index ];
+			Vector2 uvs = objTexCoords[ Math::Max( 0, index.texcoord_index ) ];
+
+			Uint32 hash = Math::CombineHashes( Math::CalculateHash( pos ), Math::CalculateHash( uvs ) );
+
+			auto it = uniqueVerticesIndices.find( hash );
+			if( it == uniqueVerticesIndices.end() )
+			{
+				it = uniqueVerticesIndices.emplace( hash, poses.size() ).first;
+				poses.emplace_back( pos );
+				texCoords.emplace_back( uvs );
+			}
+
+			shapes.back().m_indices.emplace_back( it->second );
 		}
 	}
+
+	renderer::Vertices vertices( poses, texCoords );
+
 	Math::Random rng;
 	if( materialsData )
 	{

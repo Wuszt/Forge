@@ -17,7 +17,7 @@ namespace d3d11
 		D3D11InputLayout( D3D11RenderContext* contextPtr, const D3D11Device& device, const D3D11VertexShader& vertexShader, const D3D11VertexBuffer& vertexBuffer );
 		~D3D11InputLayout();
 
-		ID3D11InputLayout* const& GetLayout() const
+		ID3D11InputLayout* GetLayout() const
 		{
 			return m_layout;
 		}

@@ -31,7 +31,7 @@ namespace forge
 namespace std
 {
 	template<> struct std::hash<forge::EntityID> {
-		std::size_t operator()( forge::EntityID const& s ) const noexcept
+		std::size_t operator()( const forge::EntityID& s ) const noexcept
 		{
 			return s.m_id;
 		}

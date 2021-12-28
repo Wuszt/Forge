@@ -15,3 +15,5 @@
 #include "Renderable.h"
 #include "IShadersManager.h"
 #include "ResourcesManager.h"
+#include "ITexture.h"
+#include "ISamplerState.h"

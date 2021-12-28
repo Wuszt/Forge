@@ -2,58 +2,46 @@
 #include "D3D11VertexBuffer.h"
 #include "D3D11Device.h"
 
-//const D3D11_INPUT_ELEMENT_DESC D3D11Vertex::c_layout[] =
-//{
-//		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-//		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-//};
-//
-//const D3D11_INPUT_ELEMENT_DESC* const& D3D11Vertex::GetLayout()
-//{
-//	std::vector< D3D11_INPUT_ELEMENT_DESC > layout;
-//
-//	return c_layout;
-//}
-//
-//Uint32 D3D11Vertex::GetElementsAmount()
-//{
-//	return ARRAYSIZE( c_layout );
-//}
-
 namespace d3d11
 {
 	const char* InputTypeToString( renderer::InputType type )
 	{
-		if( type == renderer::InputType::Position )
+		switch( type )
 		{
+		case renderer::InputType::Position:
 			return "POSITION";
-		}
-		else if( type == renderer::InputType::Color )
-		{
+
+		case renderer::InputType::Color:
 			return "COLOR";
-		}
-		else
-		{
+
+		case renderer::InputType::TexCoord:
+			return "TEXCOORD";
+
+		default:
 			FORGE_FATAL( "Not known input type" );
-			return "";
 		}
+
+		return nullptr;
 	}
 
 	DXGI_FORMAT InputFormatToD3D11Format( renderer::InputFormat format )
 	{
-		if( format == renderer::InputFormat::R32G32B32 )
+		switch( format )
 		{
+		case renderer::InputFormat::R32G32B32:
 			return DXGI_FORMAT_R32G32B32_FLOAT;
-		}
-		else if( format == renderer::InputFormat::R32G32B32A32 )
-		{
+
+		case renderer::InputFormat::R32G32B32A32:
 			return DXGI_FORMAT_R32G32B32A32_FLOAT;
-		}
-		else
-		{
+
+		case renderer::InputFormat::R32G32:
+			return DXGI_FORMAT_R32G32_FLOAT;
+
+		default:
 			FORGE_FATAL( "Not known format" );
-			return DXGI_FORMAT_UNKNOWN;
 		}
+
+		return DXGI_FORMAT_UNKNOWN;
 	}
 
 	D3D11_INPUT_CLASSIFICATION InputClassificationToD3D11Classification( renderer::InputClassification classification )
@@ -113,7 +101,7 @@ namespace d3d11
 		Uint32 stride = GetStride();
 		Uint32 offset = 0u;
 
-		m_contextPtr->GetDeviceContext()->IASetVertexBuffers( 0, 1, &GetBuffer(), &stride, &offset );
+		m_contextPtr->GetDeviceContext()->IASetVertexBuffers( 0, 1, &m_buffer, &stride, &offset );
 	}
 
 	const D3D11_INPUT_ELEMENT_DESC* D3D11VertexBuffer::GetLayout() const

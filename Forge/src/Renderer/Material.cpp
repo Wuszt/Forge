@@ -3,9 +3,31 @@
 #include "IShadersManager.h"
 
 renderer::Material::Material( renderer::IRenderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath )
+	: m_renderer( renderer )
 {
-	m_vertexShader = renderer.GetShadersManager()->GetVertexShader( vsPath );
+	SetVertexShader( vsPath );
+	SetPixelShader( psPath );
 	m_pixelShader = renderer.GetShadersManager()->GetPixelShader( psPath );
 	m_constantBuffer = std::move( buffer );
 	m_inputLayout = renderer.CreateInputLayout( *m_vertexShader, *model.GetVertexBuffer() );
+}
+
+void renderer::Material::SetVertexShader( const std::string& path )
+{
+	m_vertexShader = m_renderer.GetShadersManager()->GetVertexShader( path );
+}
+
+void renderer::Material::SetPixelShader( const std::string& path )
+{
+	m_pixelShader = m_renderer.GetShadersManager()->GetPixelShader( path );
+}
+
+void renderer::Material::SetTexture( const std::string& path, Uint32 index )
+{
+	if( index >= GetTexturesAmount() )
+	{
+		m_textures.resize( index + 1u );
+	}
+
+	m_textures[ index ] = m_renderer.GetResourceManager().LoadTexture( path );
 }

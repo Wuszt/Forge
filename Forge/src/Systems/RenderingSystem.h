@@ -36,6 +36,8 @@ namespace systems
 
 		void OnPresent();
 
+		void SetSamplers( const std::vector< renderer::SamplerStateFilterType >& filterTypes );
+
 	private:
 		systems::CamerasSystem* m_camerasSystem = nullptr;
 		std::unique_ptr< forge::CallbackToken > m_beforeDrawToken;
@@ -45,5 +47,6 @@ namespace systems
 
 		std::unique_ptr< renderer::IRawRenderablesPack > m_rawRenderablesPackage;
 		std::unique_ptr< renderer::StaticConstantBuffer< renderer::cbCamera > > m_cameraCB;
+		std::unordered_map< renderer::SamplerStateFilterType, std::unique_ptr< renderer::ISamplerState > > m_samplerStates;
 	};
 }
