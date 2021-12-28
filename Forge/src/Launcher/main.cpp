@@ -53,42 +53,46 @@ Int32 main()
 				} );
 			} );
 
-			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* car )
+			//engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* car )
+			//{
+			//	m_car = car;
+			//	car->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, car ]()
+			//	{
+			//		auto* transformComponent = car->GetComponent< forge::TransformComponent >();
+			//		auto* renderingComponent = car->GetComponent< forge::RenderingComponent >();
+
+			//		renderingComponent->LoadMeshAndMaterial( "bmw.obj" );
+
+			//		transformComponent->GetData().m_scale = { 0.1f, 0.1f, 0.1f };
+			//	} );
+			//} );
+
+			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
 			{
-				m_car = car;
-				car->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, car ]()
+				obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
 				{
-					auto* transformComponent = car->GetComponent< forge::TransformComponent >();
-					auto* renderingComponent = car->GetComponent< forge::RenderingComponent >();
+					auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+					auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-					renderingComponent->LoadMeshAndMaterial( "bmw.obj" );
-
-					transformComponent->GetData().m_scale = { 0.1f, 0.1f, 0.1f };
-				} );
-			} );
-
-			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* ground )
-			{
-				ground->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, ground ]()
-				{
-					auto* transformComponent = ground->GetComponent< forge::TransformComponent >();
-					auto* renderingComponent = ground->GetComponent< forge::RenderingComponent >();
-
-					renderingComponent->LoadMeshAndMaterial( "cube.obj" );
+					renderingComponent->LoadMeshAndMaterial( "vokselia_spawn.obj" );
 
 					auto renderable = renderingComponent->GetData().m_renderable;
-					renderable->GetMaterials()[ 0 ].SetVertexShader( "Texture.fx" );
-					renderable->GetMaterials()[ 0 ].SetPixelShader( "Texture.fx" );
-					renderable->GetMaterials()[ 0 ].SetTexture( "wall.png", 0 );
+					for( auto& material : renderable->GetMaterials() )
+					{
+						material.SetVertexShader( "Texture.fx" );
+						material.SetPixelShader( "Texture.fx" );
+					}
 
 					transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
-					transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 0.01f };
+					//transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 0.01f };
+					transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 1000.0f };
 				} );
 			} );
 		}
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{
+			return;
 			m_timeBuffer += forge::Time::GetDeltaTime();
 
 			Math::Random rng;

@@ -75,32 +75,39 @@ namespace Math
 		return std::pow( val, pow );
 	}
 
-	FORGE_INLINE Uint32 CombineHashes( Uint32 l, Uint32 r )
+	FORGE_INLINE Uint64 CombineHashes( Uint64 l, Uint64 r )
 	{
-		return r ^( r + 0x9e3779b9 + ( l << 6 ) + ( l >> 2 ) );
+		std::hash<Uint64> hasher;
+		const Uint64 kMul = 0x9ddfea08eb382d69ULL;
+		Uint64 a = ( static_cast< Uint64 >( hasher( r ) ) ^ l ) * kMul;
+		a ^= ( a >> 47 );
+		Uint64 b = ( l ^ a ) * kMul;
+		b ^= ( b >> 47 );
+		l = b * kMul;
+		return l;
 	}
 
 	template< class T >
-	FORGE_INLINE Uint32 CalculateHash( const T& value )
+	FORGE_INLINE Uint64 CalculateHash( const T& value )
 	{
 		std::hash< T > hasher;
-		return static_cast< Uint32 >( hasher( value ) );
+		return static_cast< Uint64 >( hasher( value ) );
 	}
 
 	template<>
-	FORGE_INLINE Uint32 CalculateHash( const Vector2& value )
+	FORGE_INLINE Uint64 CalculateHash( const Vector2& value )
 	{
 		return Math::CombineHashes( Math::CalculateHash( value.X ), Math::CalculateHash( value.Y ) );
 	}
 
 	template<>
-	FORGE_INLINE Uint32 CalculateHash( const Vector3& value )
+	FORGE_INLINE Uint64 CalculateHash( const Vector3& value )
 	{
 		return Math::CombineHashes( Math::CombineHashes( Math::CalculateHash( value.X ), Math::CalculateHash( value.Y ) ), Math::CalculateHash( value.Z ) );
 	}
 
 	template<>
-	FORGE_INLINE Uint32 CalculateHash( const Vector4& value )
+	FORGE_INLINE Uint64 CalculateHash( const Vector4& value )
 	{
 		return Math::CombineHashes( Math::CombineHashes( Math::CombineHashes( Math::CalculateHash( value.X ), Math::CalculateHash( value.Y ) ), Math::CalculateHash( value.Z ) ), Math::CalculateHash( value.W ) );
 	}

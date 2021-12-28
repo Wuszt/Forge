@@ -42,14 +42,14 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 	auto& rawTexCoords = reader.GetAttrib().texcoords;
 	for( Uint32 i = 0; i < rawTexCoords.size(); i += 2 )
 	{
-		objTexCoords.emplace_back( rawTexCoords[ i ], rawTexCoords[ i + 1 ] );
+		objTexCoords.emplace_back( rawTexCoords[ i ], 1.0f - rawTexCoords[ i + 1 ] );
 	}
 	objTexCoords.resize( Math::Max( 1u, static_cast< Uint32 >( objTexCoords.size() ) ) );
 
 	std::vector< renderer::InputPosition > poses;
 	std::vector< renderer::InputTexCoord > texCoords;
 
-	std::unordered_map< Uint32, Uint32 > uniqueVerticesIndices;
+	std::unordered_map< Uint64, std::unordered_map< Uint64, Uint32 > > uniqueVerticesIndices;
 	std::vector< renderer::Shape > shapes;
 	for( const auto& shape : reader.GetShapes() )
 	{
@@ -60,14 +60,19 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 			Vector3 pos = objPoses[ index.vertex_index ];
 			Vector2 uvs = objTexCoords[ Math::Max( 0, index.texcoord_index ) ];
 
-			Uint32 hash = Math::CombineHashes( Math::CalculateHash( pos ), Math::CalculateHash( uvs ) );
+			Uint64 posHash = Math::CalculateHash( pos );
+			Uint64 uvsHash = Math::CalculateHash( uvs );
 
-			auto it = uniqueVerticesIndices.find( hash );
-			if( it == uniqueVerticesIndices.end() )
+			auto it = uniqueVerticesIndices[ posHash ].find( uvsHash );
+			if( it == uniqueVerticesIndices[ posHash ].end() )
 			{
-				it = uniqueVerticesIndices.emplace( hash, poses.size() ).first;
+				it = uniqueVerticesIndices[ posHash ].emplace( uvsHash, static_cast< Uint32 >( poses.size() ) ).first;
 				poses.emplace_back( pos );
 				texCoords.emplace_back( uvs );
+			}
+			else
+			{
+				FORGE_ASSERT( pos == poses[ it->second ] && uvs == texCoords[ it->second ] );
 			}
 
 			shapes.back().m_indices.emplace_back( it->second );
