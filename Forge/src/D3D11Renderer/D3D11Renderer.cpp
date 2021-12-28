@@ -194,6 +194,8 @@ namespace d3d11
 					result->m_resourceViews.emplace_back( texture->GetShaderResourceView() );
 				}
 
+				result->m_resourceViews.resize( Math::Max( 1u, static_cast< Uint32 >( result->m_resourceViews.size() ) ) );
+
 				FORGE_ASSERT( ib->GetIndicesAmount() < 1 << 24 );
 				result->m_shapes.emplace_back( RawRenderablesPack::Shape{ 0u, ib->GetIndicesAmount(), Math::Min( startIndex, static_cast< Uint32 >( result->m_resourceViews.size() ) - 1u ), resourcesAmount } );
 			}

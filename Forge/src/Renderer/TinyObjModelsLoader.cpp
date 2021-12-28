@@ -1,10 +1,13 @@
 #include "Fpch.h"
 #include "TinyObjModelsLoader.h"
+#include "ResourcesManager.h"
+#include <filesystem>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../../External/tinyobjloader/tiny_obj_loader.h"
+#include <fstream>
 
-std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( const std::string& path, std::vector< std::unique_ptr< renderer::ConstantBuffer > >* materialsData )
+std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( const std::string& path, std::vector< renderer::MaterialData >* materialsData )
 {
 	const std::string folderPath = "Resources/Models/";
 	const std::string objFinalPath = folderPath + path;
@@ -50,7 +53,8 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 	std::vector< renderer::Shape > shapes;
 	for( const auto& shape : reader.GetShapes() )
 	{
-		shapes.emplace_back( Shape{ Indices(), static_cast<Uint32>( shape.mesh.material_ids[ 0 ] ) } );
+		//FORGE_ASSERT( std::count( shape.mesh.material_ids.begin(), shape.mesh.material_ids.end(), shape.mesh.material_ids[ 0 ] ) == shape.mesh.material_ids.size() );
+		shapes.emplace_back( Shape{ Indices(), static_cast<Uint32>( Math::Max( 0, shape.mesh.material_ids[ 0 ] ) ) } );
 		for( auto index : shape.mesh.indices )
 		{
 			Vector3 pos = objPoses[ index.vertex_index ];
@@ -78,10 +82,14 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 		auto& materials = reader.GetMaterials();
 		for( const auto& material : reader.GetMaterials() )
 		{
-			materialsData->emplace_back( GetRenderer().CreateConstantBuffer() );
-			materialsData->back()->AddData( "diffuseColor", Vector4( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ], 1.0f ) );
-			materialsData->back()->UpdateBuffer();
+			materialsData->emplace_back( MaterialData{ GetRenderer().CreateConstantBuffer(), std::experimental::filesystem::v1::path( material.diffuse_texname ).filename().string() } );
+			materialsData->back().m_buffer->AddData( "diffuseColor", Vector4( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ], 1.0f ) );
+			materialsData->back().m_buffer->UpdateBuffer();
 		}
+	}
+	else
+	{
+		materialsData->resize(1);
 	}
 
 	auto result = std::make_shared< renderer::Model >( GetRenderer(), vertices, shapes );

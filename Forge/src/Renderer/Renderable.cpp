@@ -18,7 +18,12 @@ void renderer::Renderable::SetModel( const std::string& path )
 
 	for( auto& materialData : modelMaterialPackage->m_materialsData )
 	{
-		m_materials.emplace_back( m_renderer, *m_model, m_renderer.CreateConstantBufferFromOther( *materialData ), "Effects.fx", "Effects.fx" );
+		m_materials.emplace_back( m_renderer, *m_model, m_renderer.CreateConstantBufferFromOther( *materialData.m_buffer ), "Effects.fx", "Effects.fx" );
+
+		if( !materialData.m_textureName.empty() )
+		{
+			m_materials.back().SetTexture( materialData.m_textureName, 0u );
+		}
 	}
 
 	if( modelMaterialPackage->m_materialsData.empty() )

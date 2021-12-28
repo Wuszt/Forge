@@ -2,13 +2,15 @@
 
 namespace renderer
 {
+	struct MaterialData;
+
 	class IModelsLoader
 	{
 	public:
 		IModelsLoader( IRenderer& renderer );
 		virtual ~IModelsLoader();
 
-		virtual std::shared_ptr< renderer::Model > LoadModel( const std::string& path, std::vector< std::unique_ptr< renderer::ConstantBuffer > >* materialsData = nullptr ) = 0;
+		virtual std::shared_ptr< renderer::Model > LoadModel( const std::string& path, std::vector< MaterialData >* materialsData = nullptr ) = 0;
 
 	protected:
 		FORGE_INLINE IRenderer& GetRenderer() const

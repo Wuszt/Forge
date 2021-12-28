@@ -6,6 +6,12 @@ namespace renderer
 	class IModelsLoader;
 	class ITexture;
 
+	struct MaterialData
+	{
+		std::unique_ptr< renderer::ConstantBuffer > m_buffer;
+		std::string m_textureName;
+	};
+
 	class ResourcesManager
 	{
 	public:
@@ -15,7 +21,7 @@ namespace renderer
 		struct ModelMaterialsPackage
 		{
 			std::shared_ptr< renderer::Model > m_model;
-			std::vector< std::unique_ptr< renderer::ConstantBuffer > > m_materialsData;
+			std::vector< MaterialData > m_materialsData;
 		};
 
 		std::shared_ptr< const ModelMaterialsPackage > LoadModel( const std::string& path );
