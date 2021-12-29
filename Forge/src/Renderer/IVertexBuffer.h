@@ -7,6 +7,7 @@ namespace renderer
 		Position,
 		Color,
 		TexCoord,
+		Normal,
 		Count
 	};
 
@@ -49,6 +50,17 @@ namespace renderer
 		static constexpr InputElementDescription GetInputDescription()
 		{
 			return { InputType::Position, InputFormat::R32G32B32, InputClassification::PerVertex, sizeof( InputPosition ) };
+		}
+	};
+
+	struct InputNormal : Vector3
+	{
+		template< class... Types >
+		InputNormal( Types... types ) : Vector3( std::forward< Types >( types )... ) {}
+
+		static constexpr InputElementDescription GetInputDescription()
+		{
+			return { InputType::Normal, InputFormat::R32G32B32, InputClassification::PerVertex, sizeof( InputNormal ) };
 		}
 	};
 

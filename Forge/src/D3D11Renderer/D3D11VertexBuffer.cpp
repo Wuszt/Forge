@@ -17,6 +17,9 @@ namespace d3d11
 		case renderer::InputType::TexCoord:
 			return "TEXCOORD";
 
+		case renderer::InputType::Normal:
+			return "NORMAL";
+
 		default:
 			FORGE_FATAL( "Not known input type" );
 		}

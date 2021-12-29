@@ -9,7 +9,23 @@ namespace d3d11
 	{
 		auto wstr = std::wstring( path.begin(), path.end() );
 		LPCWSTR wPath = wstr.c_str();
-		FORGE_ASSURE( D3DCompileFromFile( wPath, 0, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VS", "vs_4_0", D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG, 0, &m_buffer, 0 ) == S_OK );
+		ID3DBlob* errorMsg;
+		HRESULT result = D3DCompileFromFile( wPath, 0, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VS", "vs_4_0", D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG, 0, &m_buffer, &errorMsg );
+
+		if( errorMsg )
+		{
+			if( result == S_OK )
+			{
+				FORGE_LOG_WARNING( "Vertex Shader compilation warning: %s", static_cast<char*>( errorMsg->GetBufferPointer() ) );
+			}
+			else
+			{
+				FORGE_LOG_ERROR( "Vertex Shader compilation error: %s", static_cast<char*>( errorMsg->GetBufferPointer() ) );
+			}
+
+			errorMsg->Release();
+			FORGE_ASSERT( result == S_OK );
+		}
 
 		FORGE_ASSURE( device.GetDevice()->CreateVertexShader( m_buffer->GetBufferPointer(), m_buffer->GetBufferSize(), NULL, &m_vertexShader ) == S_OK );
 	}

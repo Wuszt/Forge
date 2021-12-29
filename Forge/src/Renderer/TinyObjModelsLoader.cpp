@@ -42,14 +42,23 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 	auto& rawTexCoords = reader.GetAttrib().texcoords;
 	for( Uint32 i = 0; i < rawTexCoords.size(); i += 2 )
 	{
-		objTexCoords.emplace_back( rawTexCoords[ i ], 1.0f - rawTexCoords[ i + 1 ] );
+		objTexCoords.emplace_back( rawTexCoords[ i ], 1.0f - rawTexCoords[ i + 1u ] );
 	}
 	objTexCoords.resize( Math::Max( 1u, static_cast< Uint32 >( objTexCoords.size() ) ) );
 
+	std::vector< renderer::InputNormal> objNormals;
+	auto& rawNormals = reader.GetAttrib().normals;
+	for( Uint32 i = 0; i < rawNormals.size(); i += 3 )
+	{
+		objNormals.emplace_back( transform.TransformVector( { rawNormals[ i ], rawNormals[ i + 1u ], rawNormals[ i + 2u ] } ) );
+	}
+	objNormals.resize( Math::Max( 1u, static_cast<Uint32>( objNormals.size() ) ) );
+
 	std::vector< renderer::InputPosition > poses;
 	std::vector< renderer::InputTexCoord > texCoords;
+	std::vector< renderer::InputNormal > normals;
 
-	std::unordered_map< Uint64, std::unordered_map< Uint64, Uint32 > > uniqueVerticesIndices;
+	std::unordered_map< Uint64, std::unordered_map< Uint64, std::unordered_map< Uint64, Uint32 > > > uniqueVerticesIndices;
 	std::vector< renderer::Shape > shapes;
 	for( const auto& shape : reader.GetShapes() )
 	{
@@ -59,16 +68,19 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 		{
 			Vector3 pos = objPoses[ index.vertex_index ];
 			Vector2 uvs = objTexCoords[ Math::Max( 0, index.texcoord_index ) ];
+			Vector3 normal = objNormals[ Math::Max( 0, index.normal_index ) ];
 
 			Uint64 posHash = Math::CalculateHash( pos );
 			Uint64 uvsHash = Math::CalculateHash( uvs );
+			Uint64 normalHash = Math::CalculateHash( normal );
 
-			auto it = uniqueVerticesIndices[ posHash ].find( uvsHash );
-			if( it == uniqueVerticesIndices[ posHash ].end() )
+			auto it = uniqueVerticesIndices[ posHash ][ uvsHash ].find( normalHash );
+			if( it == uniqueVerticesIndices[ posHash ][ uvsHash ].end() )
 			{
-				it = uniqueVerticesIndices[ posHash ].emplace( uvsHash, static_cast< Uint32 >( poses.size() ) ).first;
+				it = uniqueVerticesIndices[ posHash ][ uvsHash ].emplace( uvsHash, static_cast< Uint32 >( poses.size() ) ).first;
 				poses.emplace_back( pos );
 				texCoords.emplace_back( uvs );
+				normals.emplace_back( normal );
 			}
 			else
 			{
@@ -79,7 +91,7 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 		}
 	}
 
-	renderer::Vertices vertices( poses, texCoords );
+	renderer::Vertices vertices( poses, texCoords, normals );
 
 	Math::Random rng;
 	if( materialsData )

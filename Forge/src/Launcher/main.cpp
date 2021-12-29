@@ -38,6 +38,29 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 	} );
 }
 
+void SponzaScene( forge::EngineInstance& engineInstance )
+{
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	{
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		{
+			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+			renderingComponent->LoadMeshAndMaterial( "sponza.obj" );
+
+			auto renderable = renderingComponent->GetData().m_renderable;
+			for( auto& material : renderable->GetMaterials() )
+			{
+				material.SetVertexShader( "Texture.fx" );
+				material.SetPixelShader( "Texture.fx" );
+			}
+
+			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
+		} );
+	} );
+}
+
 void BunnyScene( forge::EngineInstance& engineInstance )
 {
 	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
@@ -76,6 +99,27 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 			transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 0.01f };
+		} );
+	} );
+}
+
+void CubeScene( forge::EngineInstance& engineInstance )
+{
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	{
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		{
+			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+			renderingComponent->LoadMeshAndMaterial( "cube.obj" );
+
+			transformComponent->GetData().m_scale = { 100.0f, 100.0f, 100.0f };
+
+			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
+
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->UpdateBuffer();
 		} );
 	} );
 }
