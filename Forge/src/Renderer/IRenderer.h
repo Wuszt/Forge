@@ -94,7 +94,6 @@ namespace renderer
 			return buff;
 		}
 
-
 		virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl() const = 0;
 
 		FORGE_INLINE ResourcesManager& GetResourceManager() const

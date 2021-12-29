@@ -15,7 +15,7 @@ namespace forge
 		template< class T >
 		FORGE_INLINE typename std::vector< T >::iterator RemoveReorder( std::vector< T >& vec, typename std::vector< T >::iterator it )
 		{
-			Uint32 index = it - vec.begin();
+			Uint32 index = static_cast< Uint32 >( it - vec.begin() );
 			return RemoveReorder( vec, index );
 		}
 

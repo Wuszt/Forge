@@ -7,6 +7,10 @@
 #include "../Renderer/ConstantBuffer.h"
 #include "../Renderer/Renderable.h"
 
+#ifdef FORGE_IMGUI_ENABLED
+#include "../../External/imgui/imgui.h"
+#endif
+
 void systems::RenderingSystem::OnInitialize()
 {
 	m_renderer = &GetEngineInstance().GetRenderer();
@@ -17,6 +21,36 @@ void systems::RenderingSystem::OnInitialize()
 	m_presentToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Present, std::bind( &systems::RenderingSystem::OnPresent, this ) ) );
 	m_cameraCB = m_renderer->CreateStaticConstantBuffer< renderer::cbCamera >();
 	m_rawRenderablesPackage = m_renderer->CreateRawRenderablesPackage( {} );
+
+#ifdef FORGE_DEBUGGING
+	m_clearingCacheToken = std::make_unique< forge::CallbackToken >( m_renderer->GetShadersManager()->RegisterCacheClearingListener( [ this ]()
+	{
+		const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesOfSystem< systems::RenderingSystem >();
+		for( systems::Archetype* archetype : archetypes )
+		{
+			forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
+			for( Uint32 i = 0; i < renderableComponents.GetDataSize(); ++i )
+			{
+				auto& materials = renderableComponents[ i ].m_renderable->GetMaterials();
+				for( auto& material : materials )
+				{
+					material.SetVertexShader( material.GetVertexShaderPath() );
+					material.SetPixelShader( material.GetPixelShaderPath() );
+				}
+			}
+		}
+	} ) );
+#endif
+
+#ifdef FORGE_IMGUI_ENABLED
+	m_overlayDebugToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [ this ]()
+	{
+		if( ImGui::Button( "Reload shaders" ) )
+		{
+			GetEngineInstance().GetRenderer().GetShadersManager()->ClearCache();
+		}
+	} ) );
+#endif
 }
 
 void systems::RenderingSystem::OnBeforeDraw()

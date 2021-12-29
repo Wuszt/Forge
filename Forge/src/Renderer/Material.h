@@ -56,6 +56,18 @@ namespace renderer
 		void SetPixelShader( const std::string& path );
 		void SetTexture( const std::string& path, Uint32 index );
 
+#ifdef FORGE_DEBUGGING
+		const std::string& GetVertexShaderPath() const
+		{
+			return m_debugVertexShaderPath;
+		}
+
+		const std::string& GetPixelShaderPath() const
+		{
+			return m_debugPixelShaderPath;
+		}
+#endif
+
 	private:
 		const renderer::IVertexShader* m_vertexShader = nullptr;
 		const renderer::IPixelShader* m_pixelShader = nullptr;
@@ -63,6 +75,11 @@ namespace renderer
 		std::unique_ptr< const IInputLayout > m_inputLayout;
 		std::vector< std::shared_ptr< const ITexture > > m_textures; 
 		IRenderer& m_renderer;
+
+#ifdef FORGE_DEBUGGING
+		std::string m_debugVertexShaderPath;
+		std::string m_debugPixelShaderPath;
+#endif
 	};
 }
 

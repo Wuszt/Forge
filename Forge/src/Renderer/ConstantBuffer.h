@@ -145,7 +145,7 @@ namespace renderer
 		}
 
 		template< class T >
-		void SetData( const std::string& name, const T& data )
+		Bool SetData( const std::string& name, const T& data )
 		{
 			auto it = m_dataLUT.find( name );
 			if( it != m_dataLUT.end() )
@@ -153,7 +153,10 @@ namespace renderer
 				Uint32 offset = m_offsets[ it->second ];
 				
 				memcpy( m_rawData.m_data + offset, &data, sizeof( T ) );
+				return true;
 			}
+
+			return false;
 		}
 
 		template< class T >

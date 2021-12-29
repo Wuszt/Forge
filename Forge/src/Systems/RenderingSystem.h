@@ -48,5 +48,13 @@ namespace systems
 		std::unique_ptr< renderer::IRawRenderablesPack > m_rawRenderablesPackage;
 		std::unique_ptr< renderer::StaticConstantBuffer< renderer::cbCamera > > m_cameraCB;
 		std::unordered_map< renderer::SamplerStateFilterType, std::unique_ptr< renderer::ISamplerState > > m_samplerStates;
+
+#ifdef FORGE_DEBUGGING
+		std::unique_ptr< forge::CallbackToken > m_clearingCacheToken;
+#endif
+
+#ifdef FORGE_IMGUI_ENABLED
+		std::unique_ptr< forge::CallbackToken > m_overlayDebugToken;
+#endif
 	};
 }

@@ -1,5 +1,7 @@
 #include "Fpch.h"
 #include "IShadersManager.h"
+#include "IVertexShader.h"
+#include "IPixelShader.h"
 
 renderer::IShadersManager::IShadersManager() = default;
 renderer::IShadersManager::~IShadersManager() = default;
@@ -26,4 +28,17 @@ const renderer::IPixelShader* renderer::IShadersManager::GetPixelShader( const s
 	}
 
 	return shader.get();
+}
+
+void renderer::IShadersManager::ClearCache()
+{
+	m_vertexShaders.clear();
+	m_pixelShaders.clear();
+
+	m_onCacheClear.Invoke();
+}
+
+forge::CallbackToken renderer::IShadersManager::RegisterCacheClearingListener( const forge::Callback<>::TFunc& func )
+{
+	return m_onCacheClear.AddListener( func );
 }

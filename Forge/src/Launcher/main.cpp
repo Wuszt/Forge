@@ -14,6 +14,72 @@
 #include "../D3D11Renderer/D3D11TexturesLoader.h"
 #include "../Renderer/IRenderer.h"
 
+void MinecraftScene( forge::EngineInstance& engineInstance )
+{
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	{
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		{
+			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+			renderingComponent->LoadMeshAndMaterial( "vokselia_spawn.obj" );
+
+			auto renderable = renderingComponent->GetData().m_renderable;
+			for( auto& material : renderable->GetMaterials() )
+			{
+				material.SetVertexShader( "Texture.fx" );
+				material.SetPixelShader( "Texture.fx" );
+			}
+
+			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
+			transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 1000.0f };
+		} );
+	} );
+}
+
+void BunnyScene( forge::EngineInstance& engineInstance )
+{
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	{
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		{
+			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+			renderingComponent->LoadMeshAndMaterial( "bunny.obj" );
+
+			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
+			transformComponent->GetData().m_transform.SetOrientation( Quaternion( 0.0f, 0.0f, FORGE_PI * 0.6f ) );
+			transformComponent->GetData().m_scale = { 100.0f, 100.0f, 100.0f };
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->UpdateBuffer();
+		} );
+	} );
+
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	{
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		{
+			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+			renderingComponent->LoadMeshAndMaterial( "cube.obj" );
+
+			auto renderable = renderingComponent->GetData().m_renderable;
+			for( auto& material : renderable->GetMaterials() )
+			{
+				material.SetVertexShader( "Texture.fx" );
+				material.SetPixelShader( "Texture.fx" );
+				material.SetTexture( "grass.jpg", 0 );
+			}
+
+			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
+			transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 0.01f };
+		} );
+	} );
+}
+
 Int32 main()
 {
 	class GameInstance : public forge::ApplicationInstance
@@ -53,85 +119,50 @@ Int32 main()
 				} );
 			} );
 
-			//engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* car )
-			//{
-			//	m_car = car;
-			//	car->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, car ]()
-			//	{
-			//		auto* transformComponent = car->GetComponent< forge::TransformComponent >();
-			//		auto* renderingComponent = car->GetComponent< forge::RenderingComponent >();
-
-			//		renderingComponent->LoadMeshAndMaterial( "bmw.obj" );
-
-			//		transformComponent->GetData().m_scale = { 0.1f, 0.1f, 0.1f };
-			//	} );
-			//} );
-
-			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
-			{
-				obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
-				{
-					auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-					auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
-
-					renderingComponent->LoadMeshAndMaterial( "vokselia_spawn.obj" );
-
-					auto renderable = renderingComponent->GetData().m_renderable;
-					for( auto& material : renderable->GetMaterials() )
-					{
-						material.SetVertexShader( "Texture.fx" );
-						material.SetPixelShader( "Texture.fx" );
-					}
-
-					transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
-					//transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 0.01f };
-					transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 1000.0f };
-				} );
-			} );
+			BunnyScene(engineInstance);
 		}
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{
-			return;
-			m_timeBuffer += forge::Time::GetDeltaTime();
+			//m_timeBuffer += forge::Time::GetDeltaTime();
 
-			Math::Random rng;
-			if( m_timeBuffer > 0.2f )
-			{
-				if( ++m_qwe % 2u != 0u )
-				{
-					for( Uint32 i = 0; i < rng.GetUnsigned( 0u, 75u ); ++i )
-					{
-						engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* car )
-						{
-							m_entities.emplace_back( car->GetEntityID() );
+			//Math::Random rng;
+			//if( m_timeBuffer > 0.2f )
+			//{
+			//	if( ++m_qwe % 2u != 0u )
+			//	{
+			//		for( Uint32 i = 0; i < rng.GetUnsigned( 0u, 75u ); ++i )
+			//		{
+			//			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* car )
+			//			{
+			//				m_entities.emplace_back( car->GetEntityID() );
 
-							car->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ &, engineInstancePtr = &engineInstance, car ]()
-							{
-								auto* transformComponent = car->GetComponent< forge::TransformComponent >();
-								auto* renderingComponent = car->GetComponent< forge::RenderingComponent >();
+			//				car->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ &, engineInstancePtr = &engineInstance, car ]()
+			//				{
+			//					auto* transformComponent = car->GetComponent< forge::TransformComponent >();
+			//					auto* renderingComponent = car->GetComponent< forge::RenderingComponent >();
 
-								renderingComponent->LoadMeshAndMaterial( "bmw.obj" );
+			//					renderingComponent->LoadMeshAndMaterial( "bmw.obj" );
 
-								transformComponent->GetData().m_transform.SetPosition( { m_rng.GetFloat( -1000.0f, 1000.0f ), m_rng.GetFloat( -1000.0f, 1000.0f ), 0.0f } );
-								transformComponent->GetData().m_scale = { 0.1f, 0.1f, 0.1f };
-							} );
-						} );
-					}
-				}
-				else
-				{
-					for( Uint32 i = 0; i < Math::Min( static_cast< Uint32 >( m_entities.size() ), rng.GetUnsigned( 0u, 100u ) ); ++i )
-					{
-						Uint32 index = rng.GetUnsigned( 0u, static_cast< Uint32 >( m_entities.size() ) - 1u );
-						engineInstance.GetEntitiesManager().RequestDestructingEntity( m_entities[ index ] );
-						forge::utils::RemoveReorder( m_entities, index );
-					}
-					
-				}
+			//					transformComponent->GetData().m_transform.SetPosition( { m_rng.GetFloat( -1000.0f, 1000.0f ), m_rng.GetFloat( -1000.0f, 1000.0f ), 0.0f } );
+			//					transformComponent->GetData().m_scale = { 0.1f, 0.1f, 0.1f };
+			//				} );
+			//			} );
+			//		}
+			//	}
+			//	else
+			//	{
+			//		for( Uint32 i = 0; i < Math::Min( static_cast< Uint32 >( m_entities.size() ), rng.GetUnsigned( 0u, 100u ) ); ++i )
+			//		{
+			//			Uint32 index = rng.GetUnsigned( 0u, static_cast< Uint32 >( m_entities.size() ) - 1u );
+			//			engineInstance.GetEntitiesManager().RequestDestructingEntity( m_entities[ index ] );
+			//			forge::utils::RemoveReorder( m_entities, index );
+			//		}
+			//		
+			//	}
 
-				m_timeBuffer = 0.0f;
-			}
+			//	m_timeBuffer = 0.0f;
+			//}
 		}
 
 		virtual Bool WithRendering() const override

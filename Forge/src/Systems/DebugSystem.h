@@ -10,7 +10,21 @@ namespace systems
 
 		virtual void OnInitialize() override;
 
+		void DrawSphere( const Vector3& position, Float radius, const Vector4& color, Float lifetime );
+		void DrawCube( const Vector3& position, const Vector3& extension, const Vector4& color, Float lifetime );
+
 	private:
+		void Update();
+
+		struct DebugEntity
+		{
+			forge::EntityID m_entityId;
+			Float m_timestamp;
+		};
+
+		std::vector< DebugEntity > m_debugEntities;
+		std::unique_ptr< forge::CallbackToken > m_updateToken;
+
 #ifdef FORGE_IMGUI_ENABLED
 		std::unique_ptr< forge::CallbackToken > m_fpsCounterDrawingToken;
 #endif

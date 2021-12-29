@@ -11,6 +11,10 @@ namespace renderer
 		const IVertexShader* GetVertexShader( const std::string& path );
 		const IPixelShader* GetPixelShader( const std::string& path );
 
+		void ClearCache();
+
+		forge::CallbackToken RegisterCacheClearingListener( const forge::Callback<>::TFunc& func );
+
 	protected:
 		virtual std::unique_ptr< const IVertexShader > CreateVertexShader( const std::string& path ) const = 0;
 		virtual std::unique_ptr< const IPixelShader > CreatePixelShader( const std::string& path ) const = 0;
@@ -18,6 +22,7 @@ namespace renderer
 	private:
 		std::unordered_map< std::string, std::unique_ptr< const IVertexShader > > m_vertexShaders;
 		std::unordered_map< std::string, std::unique_ptr< const IPixelShader > > m_pixelShaders;
+		forge::Callback<> m_onCacheClear;
 	};
 }
 

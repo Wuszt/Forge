@@ -35,6 +35,8 @@ VS_OUTPUT VS(VS_INPUT input)
 
 float4 PS(VS_OUTPUT input) : SV_TARGET
 {
-    return shaderTexture.Sample(LinearSamplerState, input.TexCoord);
+    float4 clr = shaderTexture.Sample(LinearSamplerState, input.TexCoord);
+    clip(clr.a - 0.1f);
+    return clr;
 
 }

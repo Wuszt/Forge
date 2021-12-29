@@ -15,11 +15,19 @@ renderer::Material::Material( renderer::IRenderer& renderer, const Model& model,
 void renderer::Material::SetVertexShader( const std::string& path )
 {
 	m_vertexShader = m_renderer.GetShadersManager()->GetVertexShader( path );
+
+#ifdef FORGE_DEBUGGING
+	m_debugVertexShaderPath = path;
+#endif
 }
 
 void renderer::Material::SetPixelShader( const std::string& path )
 {
 	m_pixelShader = m_renderer.GetShadersManager()->GetPixelShader( path );
+
+#ifdef FORGE_DEBUGGING
+	m_debugPixelShaderPath = path;
+#endif
 }
 
 void renderer::Material::SetTexture( const std::string& path, Uint32 index )

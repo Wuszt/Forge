@@ -29,5 +29,10 @@ namespace d3d11
 	D3D11Texture::~D3D11Texture()
 	{
 		m_texture->Release();
+
+		if( m_srv )
+		{
+			m_srv->Release();
+		}
 	}
 }
