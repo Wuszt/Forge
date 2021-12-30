@@ -114,7 +114,24 @@ void CubeScene( forge::EngineInstance& engineInstance )
 
 			renderingComponent->LoadMeshAndMaterial( "cube.obj" );
 
-			transformComponent->GetData().m_scale = { 100.0f, 100.0f, 100.0f };
+			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
+
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->UpdateBuffer();
+		} );
+	} );
+}
+
+void SphereScene( forge::EngineInstance& engineInstance )
+{
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	{
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		{
+			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+			renderingComponent->LoadMeshAndMaterial( "sphere.obj" );
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 
@@ -154,7 +171,7 @@ Int32 main()
 				{
 					player->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -400.0f, 200.0f } );
 					auto* cameraComp = player->GetComponent< forge::CameraComponent >();
-					cameraComp->CreateImplementation< forge::PerspectiveCamera >( engineInstancePtr->GetWindow().GetAspectRatio(), FORGE_PI / 3.0f, 0.1f, 40000.0f );
+					cameraComp->CreateImplementation< forge::PerspectiveCamera >( engineInstancePtr->GetWindow().GetAspectRatio(), FORGE_PI / 3.0f, 1.0f, 10000.0f );
 					auto& camerasSystem = engineInstancePtr->GetSystemsManager().GetSystem< systems::CamerasSystem >();
 					camerasSystem.SetActiveCamera( cameraComp );
 

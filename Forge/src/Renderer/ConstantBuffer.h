@@ -10,6 +10,8 @@ namespace renderer
 	struct cbCamera
 	{
 		Matrix VP = Matrix( Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS() );
+		Vector3 CameraPosition;
+		float pad;
 	};
 
 	class IConstantBufferImpl
@@ -31,11 +33,12 @@ namespace renderer
 		Camera
 	};
 
-	enum class PSVertexConstantBufferType
+	enum class PSConstantBufferType
 	{
 		Frame,
 		Material,
 		Mesh,
+		Camera
 	};
 
 	class IConstantBuffer
@@ -53,7 +56,7 @@ namespace renderer
 			m_impl->SetVS( static_cast< Uint32 >( type ) );
 		}
 
-		FORGE_INLINE void SetPS( PSVertexConstantBufferType type ) const
+		FORGE_INLINE void SetPS( PSConstantBufferType type ) const
 		{
 			m_impl->SetPS( static_cast< Uint32 >( type ) );
 		}

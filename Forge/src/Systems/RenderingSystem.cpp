@@ -77,8 +77,10 @@ void systems::RenderingSystem::OnDraw()
 	}
 
 	m_cameraCB->GetData().VP = activeCamera->GetCamera().GetViewProjectionMatrix();
+	m_cameraCB->GetData().CameraPosition = activeCamera->GetCamera().GetPosition();
 	m_cameraCB->UpdateBuffer();
 	m_cameraCB->SetVS( renderer::VSConstantBufferType::Camera );
+	m_cameraCB->SetPS( renderer::PSConstantBufferType::Camera );
 
 	m_rawRenderablesPackage = nullptr;
 	for( systems::Archetype* archetype : archetypes )

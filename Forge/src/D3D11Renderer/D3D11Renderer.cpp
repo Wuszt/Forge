@@ -148,14 +148,16 @@ namespace d3d11
 		{
 			struct cbFrame
 			{
-				Float time;
+				Float Time;
 				Float padding[ 3 ];
 			};
 
 			auto buff = CreateStaticConstantBuffer< cbFrame >();
 
-			buff->GetData().time = forge::Time::GetTime();
+			buff->GetData().Time = forge::Time::GetTime();
+			buff->UpdateBuffer();
 			buff->SetVS( renderer::VSConstantBufferType::Frame );
+			buff->SetPS( renderer::PSConstantBufferType::Frame );
 		}
 	}
 
@@ -225,6 +227,7 @@ namespace d3d11
 			context->IASetVertexBuffers( 0, 1, &renderables.m_vertexBuffers[ verticesIndex ], &stride, &offset );
 			context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 			context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Mesh ), 1, &renderables.m_meshCBs[ verticesIndex ] );
+			context->PSSetConstantBuffers( static_cast<Uint32>( renderer::PSConstantBufferType::Mesh ), 1, &renderables.m_meshCBs[ verticesIndex ] );
 
 			for( Uint16 shapesIndex = renderables.m_vertices[ verticesIndex ].m_startIndex; shapesIndex < renderables.m_vertices[ verticesIndex ].m_endIndex; ++shapesIndex )
 			{
@@ -233,6 +236,7 @@ namespace d3d11
 				context->VSSetShader( renderables.m_vertexShaders[ shapesIndex ], 0, 0 );
 				context->PSSetShader( renderables.m_pixelShaders[ shapesIndex ], 0, 0 );
 				context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Material ), 1, &renderables.m_materialCBs[ shapesIndex ] );
+				context->PSSetConstantBuffers( static_cast<Uint32>( renderer::PSConstantBufferType::Material ), 1, &renderables.m_materialCBs[ shapesIndex ] );
 				context->IASetInputLayout( renderables.m_inputLayouts[ shapesIndex ] );
 				context->PSSetShaderResources( 0, shape.m_resourcesAmount, &renderables.m_resourceViews[ shape.m_resourcesStartIndex ] );
 
