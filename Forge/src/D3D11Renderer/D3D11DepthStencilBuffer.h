@@ -11,6 +11,8 @@ namespace d3d11
 		D3D11DepthStencilBuffer( const D3D11Device& device, const D3D11RenderContext& context, Uint32 width, Uint32 height );
 		~D3D11DepthStencilBuffer();
 
+		virtual std::shared_ptr< renderer::ITexture > GetTexture() const override;
+
 		FORGE_INLINE ID3D11DepthStencilView* GetView() const
 		{
 			return m_view;

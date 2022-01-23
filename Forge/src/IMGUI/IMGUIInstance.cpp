@@ -33,6 +33,8 @@ namespace forge
 
 	IMGUIInstance::~IMGUIInstance()
 	{
+		m_platformAdapter = nullptr;
+		m_renderAPIAdapter = nullptr;
 		ImGui::DestroyContext();
 	}
 

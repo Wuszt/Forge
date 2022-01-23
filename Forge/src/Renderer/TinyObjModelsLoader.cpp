@@ -91,7 +91,7 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 		}
 	}
 
-	renderer::Vertices vertices( poses, texCoords, normals );
+	renderer::Vertices vertices( poses, normals, texCoords );
 
 	Math::Random rng;
 	if( materialsData )

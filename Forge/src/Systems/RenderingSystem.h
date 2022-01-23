@@ -6,6 +6,7 @@
 namespace renderer
 {
 	class IRenderer;
+	class IMeshesRenderingPass;
 
 	class IVertexShader;
 	class IPixelShader;
@@ -30,6 +31,10 @@ namespace systems
 
 		virtual void OnInitialize() override;
 
+#ifdef FORGE_IMGUI_ENABLED
+		virtual void OnRenderDebug() override;
+#endif
+
 		void OnBeforeDraw();
 
 		void OnDraw();
@@ -49,12 +54,16 @@ namespace systems
 		std::unique_ptr< renderer::StaticConstantBuffer< renderer::cbCamera > > m_cameraCB;
 		std::unordered_map< renderer::SamplerStateFilterType, std::unique_ptr< renderer::ISamplerState > > m_samplerStates;
 
+		std::unique_ptr< renderer::IMeshesRenderingPass > m_opaqueRenderingPass;
+
 #ifdef FORGE_DEBUGGING
 		std::unique_ptr< forge::CallbackToken > m_clearingCacheToken;
 #endif
 
 #ifdef FORGE_IMGUI_ENABLED
 		std::unique_ptr< forge::CallbackToken > m_overlayDebugToken;
+		std::unique_ptr< renderer::IRenderTargetView > m_temporaryRTV;
+		Float m_depthBufferDenominator = std::numeric_limits< Float >::infinity();
 #endif
 	};
 }

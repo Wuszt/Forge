@@ -11,6 +11,11 @@ namespace forge
 		virtual void OnUpdate( EngineInstance& engineInstance ) {}
 		virtual void Deinitialize( EngineInstance& engineInstance ) {}
 
+		void Shutdown()
+		{
+			m_shutdownRequested = true;
+		}
+
 		virtual Bool WithRendering() const
 		{
 			return false;
@@ -18,7 +23,10 @@ namespace forge
 
 		virtual Bool ShouldShutdown() const
 		{
-			return false;
+			return m_shutdownRequested;
 		}
+
+	private:
+		Bool m_shutdownRequested = false;
 	};
 }

@@ -4,6 +4,7 @@
 #include "IMGUISystem.h"
 #include "../../External/imgui/imgui.h"
 #include "../IMGUI/IMGUIInstance.h"
+#include "../Core/IWindow.h"
 
 systems::IMGUISystem::IMGUISystem( forge::EngineInstance& engineInstance )
 	: ISystem( engineInstance )
@@ -26,6 +27,17 @@ void systems::IMGUISystem::OnInitialize()
 	m_postRenderingToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [ & ]()
 	{
 		m_imguiInstance->Render();
+	} ) );
+
+	m_onWindowClosedToken = std::make_unique<forge::CallbackToken>( GetEngineInstance().GetWindow().RegisterEventListener( [ & ]( const forge::IWindow::IEvent& ev )
+	{
+		if( ev.GetEventType() == forge::IWindow::EventType::OnWindowClosed )
+		{
+			m_preUpdateToken = nullptr;
+			m_updateToken = nullptr;
+			m_postRenderingToken = nullptr;
+			m_imguiInstance = nullptr;
+		}
 	} ) );
 }
 

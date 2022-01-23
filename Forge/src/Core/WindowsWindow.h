@@ -1,6 +1,5 @@
 #pragma once
 #include "IWindow.h"
-#include <functional>
 
 struct HINSTANCE__;
 typedef HINSTANCE__* HINSTANCE;

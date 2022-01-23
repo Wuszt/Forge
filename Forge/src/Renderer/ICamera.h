@@ -26,6 +26,9 @@ namespace forge
 		virtual void SetTransform( Transform transform ) = 0;
 		virtual const Transform& GetTransform() const = 0;
 
+		virtual Float GetNearPlane() const = 0;
+		virtual Float GetFarPlane() const = 0;
+
 		virtual Type GetType() const = 0;
 	};
 }

@@ -16,4 +16,6 @@
 #include "IShadersManager.h"
 #include "ResourcesManager.h"
 #include "ITexture.h"
+#include "IShaderResourceView.h"
 #include "ISamplerState.h"
+#include "IRenderingPass.h"

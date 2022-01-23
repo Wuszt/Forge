@@ -1,6 +1,7 @@
 #pragma once
 
 #ifdef FORGE_IMGUI_ENABLED
+#include "ISystem.h"
 
 namespace forge
 {
@@ -29,6 +30,7 @@ namespace systems
 		std::unique_ptr< forge::CallbackToken > m_preUpdateToken;
 		std::unique_ptr< forge::CallbackToken > m_updateToken;
 		std::unique_ptr< forge::CallbackToken > m_postRenderingToken;
+		std::unique_ptr< forge::CallbackToken > m_onWindowClosedToken;
 
 		forge::Callback<> m_overlayCallback;
 	};

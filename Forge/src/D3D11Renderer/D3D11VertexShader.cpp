@@ -4,7 +4,7 @@
 
 namespace d3d11
 {
-	D3D11VertexShader::D3D11VertexShader( D3D11RenderContext& context, const D3D11Device& device, const std::string& path )
+	D3D11VertexShader::D3D11VertexShader( D3D11Device& device, D3D11RenderContext& context, const std::string& path )
 		: m_context( context )
 	{
 		auto wstr = std::wstring( path.begin(), path.end() );

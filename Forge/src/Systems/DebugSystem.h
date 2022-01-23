@@ -1,5 +1,6 @@
 #pragma once
 #ifdef FORGE_DEBUGGING
+#include "ISystem.h"
 
 namespace systems
 {

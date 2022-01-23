@@ -75,6 +75,9 @@
     <ClCompile Include="D3D11SamplerState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D3D11ShaderResourceView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InternalDefaults.h">
@@ -135,6 +138,9 @@
       <Filter>Header Files\External</Filter>
     </ClInclude>
     <ClInclude Include="D3D11SamplerState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11ShaderResourceView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

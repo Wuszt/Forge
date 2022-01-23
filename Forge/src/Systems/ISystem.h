@@ -111,15 +111,16 @@ namespace systems
 	class ISystem
 	{
 	public:
-		ISystem( forge::EngineInstance& engineInstance )
-			: m_engineInstance( engineInstance )
-		{}
+		ISystem( forge::EngineInstance& engineInstance );
 
 		virtual ~ISystem() = default;
 
 		virtual void OnInitialize() {}
-		virtual void Update() {}
 		virtual void OnDeinitialize() {}
+
+#ifdef FORGE_DEBUGGING
+		virtual void OnRenderDebug() {}
+#endif
 
 		FORGE_INLINE forge::EngineInstance& GetEngineInstance() const
 		{
@@ -128,6 +129,10 @@ namespace systems
 
 	private:
 		forge::EngineInstance& m_engineInstance;
+
+#ifdef FORGE_DEBUGGING
+		std::unique_ptr< forge::CallbackToken > m_onRenderDebugToken;
+#endif
 	};
 
 	class IECSSystem : public ISystem

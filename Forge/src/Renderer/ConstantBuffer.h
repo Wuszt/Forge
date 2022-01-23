@@ -11,7 +11,9 @@ namespace renderer
 	{
 		Matrix VP = Matrix( Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS() );
 		Vector3 CameraPosition;
-		float pad;
+		Float ProjectionA;
+		Vector3 CameraDirection;
+		Float ProjectionB;
 	};
 
 	class IConstantBufferImpl
@@ -83,6 +85,7 @@ namespace renderer
 	template< class T >
 	class StaticConstantBuffer : public IConstantBuffer
 	{
+		static_assert( sizeof( T ) % 16 == 0, "Constant Buffer's size must be multiplication of 16" );
 	public:
 		FORGE_INLINE virtual void SetImpl( std::unique_ptr< IConstantBufferImpl > impl ) override
 		{
@@ -110,6 +113,7 @@ namespace renderer
 		T m_data;
 	};
 
+	// WARNING - CB's size must be multiplication of 16 bytes, nothing is checking that right now...
 	class ConstantBuffer : public IConstantBuffer
 	{
 	public:

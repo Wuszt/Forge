@@ -35,8 +35,9 @@ namespace d3d11
 		return swapChainDesc;
 	}
 
-	D3D11Swapchain::D3D11Swapchain( IDXGISwapChain* swapChain )
+	D3D11Swapchain::D3D11Swapchain( const D3D11Device& device, IDXGISwapChain* swapChain )
 		: m_swapChain( swapChain )
+		, m_device( device )
 	{}
 
 	D3D11Swapchain::~D3D11Swapchain()
@@ -54,7 +55,10 @@ namespace d3d11
 		ID3D11Texture2D* backBuffer;
 		FORGE_ASSURE( m_swapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)&backBuffer ) == S_OK );
 
-		return std::make_unique< D3D11Texture >( backBuffer, nullptr );
+		DXGI_SWAP_CHAIN_DESC swapChainDesc;
+		m_swapChain->GetDesc( &swapChainDesc );
+
+		return std::make_unique< D3D11Texture >( m_device, backBuffer, nullptr );
 	}
 
 	void D3D11Swapchain::Resize( Uint32 width, Uint32 height )

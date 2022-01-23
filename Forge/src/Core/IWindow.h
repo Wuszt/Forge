@@ -9,6 +9,7 @@ namespace forge
 	public:
 		enum class EventType
 		{
+			OnWindowClosed,
 			OnWindowResized
 		};
 
@@ -30,6 +31,17 @@ namespace forge
 
 		private:
 			IWindow& m_window;
+		};
+
+		class OnClosedWindowEvent : public IEvent
+		{
+		public:
+			using IEvent::IEvent;
+
+			virtual EventType GetEventType() const override
+			{
+				return EventType::OnWindowClosed;
+			}
 		};
 
 		class OnResizedWindowEvent : public IEvent

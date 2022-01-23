@@ -111,8 +111,6 @@ namespace systems
 
 		void Boot( const BootContext& ctx );
 
-		void Update();
-
 		void Shutdown();
 
 	private:

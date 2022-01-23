@@ -59,7 +59,8 @@ namespace forge
 		std::unique_ptr< renderer::IRenderer > m_renderer;
 		std::unique_ptr< IWindow > m_window;
 
-		std::unique_ptr< forge::CallbackToken > m_windowUpdateUpdateToken;
+		std::unique_ptr< forge::CallbackToken > m_windowUpdateToken;
+		std::unique_ptr< forge::CallbackToken > m_windowClosedToken;
 
 		ApplicationInstance& m_appInstance;
 	};

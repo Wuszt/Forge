@@ -1,5 +1,6 @@
 #pragma once
 #include "ConstantBuffer.h"
+#include "ITexture.h"
 
 namespace forge
 {
@@ -54,6 +55,8 @@ namespace renderer
 		virtual std::unique_ptr< IInputLayout > CreateInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const = 0;
 		virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const Vertices& vertices ) const = 0;
 		virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const = 0;
+		virtual std::unique_ptr< IRenderTargetView > CreateRenderTargetView( std::shared_ptr< renderer::ITexture > texture ) const = 0;
+		virtual std::unique_ptr< ITexture > CreateTexture( Uint32 width, Uint32 height, ITexture::Flags flags, ITexture::Format format, ITexture::Format srvFormat = ITexture::Format::Unknown ) const = 0;
 
 		void Initialize();
 
@@ -62,10 +65,14 @@ namespace renderer
 		virtual std::unique_ptr< ISamplerState > CreateSamplerState( SamplerStateFilterType filterType ) = 0;
 		virtual void SetSamplerStates( const std::vector< ISamplerState* > samplerStates ) = 0;
 
+		virtual void SetShaderResourceViews( const std::vector< IShaderResourceView* >& input ) = 0;
+		virtual void ClearShaderResourceViews() = 0;
+
 		virtual void BeginScene() = 0;
 
 		virtual RendererType GetType() const = 0;
 
+		virtual void DrawRawVertices( Uint32 amount ) = 0;
 		void Draw( const renderer::Renderable& renderable );
 		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables ) = 0;
 
@@ -102,6 +109,7 @@ namespace renderer
 		}
 
 		virtual std::unique_ptr< ITexturesLoader > CreateTexturesLoader() const = 0;
+		virtual Vector2 GetResolution() const = 0;
 
 	private:
 		std::unique_ptr< ResourcesManager > m_resourcesManager;

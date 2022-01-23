@@ -43,3 +43,11 @@ void systems::Archetype::MoveEntityFrom( forge::EntityID entityId, std::vector< 
 
 	m_sparseSet[ entityId.m_id ] = m_dataSize++;
 }
+
+systems::ISystem::ISystem( forge::EngineInstance& engineInstance )
+	: m_engineInstance( engineInstance )
+{
+#ifdef FORGE_DEBUGGING
+	m_onRenderDebugToken = std::make_unique< forge::CallbackToken >( engineInstance.GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::ISystem::OnRenderDebug, this ) ) );
+#endif
+}

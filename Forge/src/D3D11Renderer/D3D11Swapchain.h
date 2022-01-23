@@ -16,7 +16,7 @@ namespace d3d11
 	public:
 		static DXGI_SWAP_CHAIN_DESC GetSwapChainDescription( Uint32 width, Uint32 height, HWND hwnd );
 
-		D3D11Swapchain( IDXGISwapChain* swapChain );
+		D3D11Swapchain( const D3D11Device& device, IDXGISwapChain* swapChain );
 		~D3D11Swapchain();
 
 		FORGE_INLINE IDXGISwapChain* GetSwapChain() const
@@ -31,5 +31,6 @@ namespace d3d11
 
 	private:
 		IDXGISwapChain* m_swapChain = nullptr;
+		const D3D11Device& m_device;
 	};
 }

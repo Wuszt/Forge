@@ -48,13 +48,12 @@ namespace d3d11
 		FORGE_ASSERT( dynamic_cast<windows::WindowsWindow*>( &window ) );
 		InitializeSwapChainAndContext( static_cast<windows::WindowsWindow&>( window ) );
 
-		m_renderTargetView = std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), std::move( m_swapChain->GetBackBuffer() ) );
+		m_renderTargetView = std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), m_swapChain->GetBackBuffer() );
+
 		m_depthStencilBuffer = std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), window.GetWidth(), window.GetHeight() );
 		m_shadersManager = std::make_unique< D3D11ShadersManager >( *GetDevice(), *GetContext() );
 
-		std::vector< renderer::IRenderTargetView* > views{ GetRenderTargetView() };
-
-		SetRenderTargets( views, m_depthStencilBuffer.get() );
+		m_resolution = { static_cast< Float >( window.GetWidth() ), static_cast< Float >( window.GetHeight() ) };
 
 		InitializeViewport( window.GetWidth(), window.GetHeight() );
 
@@ -75,9 +74,6 @@ namespace d3d11
 				m_renderTargetView = std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), std::move( GetSwapchain()->GetBackBuffer() ) );
 				m_depthStencilBuffer = std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), resizedEvent.GetWidth(), resizedEvent.GetHeight() );
 
-				std::vector< renderer::IRenderTargetView* > views{ GetRenderTargetView() };
-				SetRenderTargets( views, m_depthStencilBuffer.get() );
-
 				InitializeViewport( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
 				break;
 			}
@@ -92,22 +88,32 @@ namespace d3d11
 	std::unique_ptr< renderer::IInputLayout > D3D11Renderer::CreateInputLayout( const renderer::IVertexShader& vertexShader, const renderer::IVertexBuffer& vertexBuffer ) const
 	{
 		FORGE_ASSERT( dynamic_cast<const D3D11VertexShader*>( &vertexShader ) );
-		return std::make_unique< D3D11InputLayout >( GetContext(), *m_device, static_cast<const D3D11VertexShader&>( vertexShader ), static_cast<const D3D11VertexBuffer&>( vertexBuffer ) );
+		return std::make_unique< D3D11InputLayout >( GetContext(), *GetDevice(), static_cast<const D3D11VertexShader&>( vertexShader ), static_cast<const D3D11VertexBuffer&>( vertexBuffer ) );
 	}
 
 	std::unique_ptr< renderer::IVertexBuffer > D3D11Renderer::CreateVertexBuffer( const renderer::Vertices& vertices ) const
 	{
-		return std::make_unique< D3D11VertexBuffer >( GetContext(), *m_device, vertices );
+		return std::make_unique< D3D11VertexBuffer >( GetContext(), *GetDevice(), vertices );
 	}
 
 	std::unique_ptr< renderer::IIndexBuffer > D3D11Renderer::CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const
 	{
-		return std::make_unique< D3D11IndexBuffer >( GetContext(), *m_device, indices, amount );
+		return std::make_unique< D3D11IndexBuffer >( GetContext(), *GetDevice(), indices, amount );
+	}
+
+	std::unique_ptr< renderer::IRenderTargetView > D3D11Renderer::CreateRenderTargetView( std::shared_ptr< renderer::ITexture > texture ) const
+	{
+		return std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), std::dynamic_pointer_cast< D3D11Texture >( texture ) );
+	}
+
+	std::unique_ptr< renderer::ITexture > D3D11Renderer::CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Format srvFormat /*= renderer::ITexture::Format::Unknown */ ) const
+	{
+		return std::make_unique< D3D11Texture >( *GetDevice(), width, height, flags, format, srvFormat );
 	}
 
 	void D3D11Renderer::SetRenderTargets( std::vector< renderer::IRenderTargetView* > rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer )
 	{
-		FORGE_ASSERT( dynamic_cast<D3D11DepthStencilBuffer*>( depthStencilBuffer ) );
+		FORGE_ASSERT( depthStencilBuffer == nullptr || dynamic_cast<D3D11DepthStencilBuffer*>( depthStencilBuffer ) );
 		SetRenderTargets( rendererTargetViews, static_cast<D3D11DepthStencilBuffer*>( depthStencilBuffer ) );
 	}
 
@@ -118,11 +124,11 @@ namespace d3d11
 
 		for( const renderer::IRenderTargetView* target : rendererTargetViews )
 		{
-			FORGE_ASSERT( dynamic_cast<const D3D11RenderTargetView*>( target ) );
-			views.emplace_back( static_cast< const D3D11RenderTargetView* >( target )->GetRenderTargetView() );
+			FORGE_ASSERT( target == nullptr || dynamic_cast<const D3D11RenderTargetView*>( target ) );
+			views.emplace_back( target ? static_cast< const D3D11RenderTargetView* >( target )->GetRenderTargetView() : nullptr );
 		}
 
-		m_context->GetDeviceContext()->OMSetRenderTargets( static_cast<Uint32>( views.size() ), views.data(), m_depthStencilBuffer ? m_depthStencilBuffer->GetView() : nullptr );
+		m_context->GetDeviceContext()->OMSetRenderTargets( static_cast<Uint32>( views.size() ), views.data(), depthStencilBuffer ? depthStencilBuffer->GetView() : nullptr );
 	}
 
 	std::unique_ptr< renderer::ISamplerState > D3D11Renderer::CreateSamplerState( renderer::SamplerStateFilterType filterType )
@@ -141,6 +147,26 @@ namespace d3d11
 		}
 
 		GetContext()->GetDeviceContext()->PSSetSamplers( 0u, static_cast< Uint32 >( rawStates.size() ), rawStates.data() );
+	}
+
+	void D3D11Renderer::SetShaderResourceViews( const std::vector< renderer::IShaderResourceView* >& input )
+	{
+		std::vector< ID3D11ShaderResourceView* > srvs;
+		srvs.reserve( input.size() );
+
+		for( const auto srv : input )
+		{
+			FORGE_ASSERT( dynamic_cast<const D3D11ShaderResourceView *>( srv ) );
+			srvs.emplace_back( static_cast< const D3D11ShaderResourceView* >( srv )->GetTypedSRV() );
+		}
+
+		GetContext()->GetDeviceContext()->PSSetShaderResources( 0, static_cast< Uint32 >( srvs.size() ), srvs.data() );
+	}
+
+	void D3D11Renderer::ClearShaderResourceViews()
+	{
+		ID3D11ShaderResourceView* srvs[ D3D11_STANDARD_VERTEX_ELEMENT_COUNT ] { nullptr };
+		GetContext()->GetDeviceContext()->PSSetShaderResources( 0, static_cast<Uint32>( D3D11_STANDARD_VERTEX_ELEMENT_COUNT ), srvs );
 	}
 
 	void D3D11Renderer::BeginScene()
@@ -193,7 +219,7 @@ namespace d3d11
 				for( Uint32 resourcesIndex = 0u; resourcesIndex < resourcesAmount; ++resourcesIndex )
 				{
 					const D3D11Texture* texture = static_cast< const D3D11Texture* >( material.GetTexture( resourcesIndex ) );
-					result->m_resourceViews.emplace_back( texture->GetShaderResourceView() );
+					result->m_resourceViews.emplace_back( texture->GetShaderResourceView()->GetTypedSRV() );
 				}
 
 				result->m_resourceViews.resize( Math::Max( 1u, static_cast< Uint32 >( result->m_resourceViews.size() ) ) );
@@ -217,6 +243,7 @@ namespace d3d11
 	void D3D11Renderer::Draw( const renderer::IRawRenderablesPack& rawRenderables )
 	{
 		auto* context = GetContext()->GetDeviceContext();
+		context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 		const RawRenderablesPack& renderables = static_cast< const RawRenderablesPack& >( rawRenderables );
 
@@ -225,7 +252,7 @@ namespace d3d11
 			Uint32 offset = 0u;
 			Uint32 stride = renderables.m_vertices[ verticesIndex ].m_VBStride;
 			context->IASetVertexBuffers( 0, 1, &renderables.m_vertexBuffers[ verticesIndex ], &stride, &offset );
-			context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
 			context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Mesh ), 1, &renderables.m_meshCBs[ verticesIndex ] );
 			context->PSSetConstantBuffers( static_cast<Uint32>( renderer::PSConstantBufferType::Mesh ), 1, &renderables.m_meshCBs[ verticesIndex ] );
 
@@ -245,9 +272,16 @@ namespace d3d11
 		}
 	}
 
+	void D3D11Renderer::DrawRawVertices( Uint32 amount )
+	{
+		GetContext()->GetDeviceContext()->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+
+		GetContext()->GetDeviceContext()->Draw( amount, 0u );
+	}
+
 	std::unique_ptr< renderer::IConstantBufferImpl > D3D11Renderer::CreateConstantBufferImpl() const
 	{
-		return std::make_unique< D3D11ConstantBufferImpl >( *m_context, *m_device );
+		return std::make_unique< D3D11ConstantBufferImpl >( *m_device, *m_context );
 	}
 
 	std::unique_ptr< renderer::ITexturesLoader > D3D11Renderer::CreateTexturesLoader() const
@@ -274,7 +308,7 @@ namespace d3d11
 
 		m_device = std::make_unique< D3D11Device >( d3d11Device );
 		m_context = std::make_unique< D3D11RenderContext >( d3d11DevCon );
-		m_swapChain = std::make_unique< D3D11Swapchain >( swapChain );
+		m_swapChain = std::make_unique< D3D11Swapchain >( *m_device, swapChain );
 	}
 
 	void D3D11Renderer::InitializeViewport( Uint32 width, Uint32 height )

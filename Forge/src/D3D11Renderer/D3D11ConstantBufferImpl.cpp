@@ -5,7 +5,7 @@
 
 namespace d3d11
 {
-	D3D11ConstantBufferImpl::D3D11ConstantBufferImpl( D3D11RenderContext& context, D3D11Device& device )
+	D3D11ConstantBufferImpl::D3D11ConstantBufferImpl( D3D11Device& device, D3D11RenderContext& context )
 		: m_context( context )
 		, m_device( device )
 	{}

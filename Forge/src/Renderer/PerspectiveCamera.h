@@ -34,6 +34,16 @@ namespace forge
 			return ICamera::Type::Perspective;
 		}
 
+		FORGE_INLINE virtual Float GetNearPlane() const override
+		{
+			return m_nearPlane;
+		}
+
+		FORGE_INLINE virtual Float GetFarPlane() const override
+		{
+			return m_farPlane;
+		}
+
 	private:
 		Float m_aspectRatio;
 		Float m_fov;

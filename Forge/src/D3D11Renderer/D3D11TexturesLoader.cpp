@@ -15,5 +15,5 @@ std::shared_ptr< renderer::ITexture > d3d11::D3D11TexturesLoader::LoadTexture( c
 	ID3D11Resource* resource = nullptr;
 	ID3D11ShaderResourceView* resourceView = nullptr;
 	DirectX::CreateWICTextureFromFile( m_device.GetDevice(), wPath.c_str(), &resource, &resourceView );
-	return std::make_unique< d3d11::D3D11Texture >( static_cast< ID3D11Texture2D* >( resource ), resourceView );
+	return std::make_unique< d3d11::D3D11Texture >( m_device, static_cast< ID3D11Texture2D* >( resource ), std::make_unique< D3D11ShaderResourceView >( resourceView ) );
 }

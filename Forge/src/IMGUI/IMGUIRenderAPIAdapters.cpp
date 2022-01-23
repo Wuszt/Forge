@@ -8,7 +8,8 @@
 
 namespace d3d11
 {
-	IMGUID3D11Adapter::IMGUID3D11Adapter( const renderer::IRenderer& renderer )
+	IMGUID3D11Adapter::IMGUID3D11Adapter( renderer::IRenderer& renderer )
+		: m_renderer( renderer )
 	{
 		FORGE_ASSERT( dynamic_cast<const D3D11Renderer*>( &renderer ) );
 		const D3D11Renderer& d3d11Renderer = static_cast<const D3D11Renderer&>( renderer );
@@ -17,6 +18,9 @@ namespace d3d11
 
 	void IMGUID3D11Adapter::Render()
 	{
+		std::vector< renderer::IRenderTargetView* > views = { m_renderer.GetRenderTargetView() };
+		m_renderer.SetRenderTargets( views, nullptr );
+
 		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
 	}
 

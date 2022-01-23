@@ -6,8 +6,11 @@ struct ID3D11RenderTargetView;
 
 namespace d3d11
 {
+	class D3D11RenderContext;
 	class D3D11Device;
 	class D3D11Texture;
+
+	//todo: why SRV is part of texture, but RTV isn't?
 	class D3D11RenderTargetView : public renderer::IRenderTargetView
 	{
 	public:
@@ -19,10 +22,7 @@ namespace d3d11
 			return m_renderTargetView;
 		}
 
-		FORGE_INLINE std::shared_ptr< D3D11Texture > GetTexture() const
-		{
-			return m_texture;
-		}
+		virtual std::shared_ptr< renderer::ITexture > GetTexture() const override;
 
 		virtual void Clear( const Vector4& bgColor = { 0.0f, 0.0f, 0.0f, 0.0f } ) override;
 

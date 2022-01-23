@@ -11,7 +11,7 @@ namespace d3d11
 	class D3D11ConstantBufferImpl : public renderer::IConstantBufferImpl
 	{
 	public:
-		D3D11ConstantBufferImpl( D3D11RenderContext& contextPtr, D3D11Device& device );
+		D3D11ConstantBufferImpl( D3D11Device& device, D3D11RenderContext& contextPtr );
 		~D3D11ConstantBufferImpl();
 
 		virtual void SetVS( Uint32 index ) override;

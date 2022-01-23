@@ -1,6 +1,7 @@
 #include "Fpch.h"
 #include "D3D11RenderTargetView.h"
 #include "D3D11Device.h"
+#include "D3D11Texture.h"
 
 namespace d3d11
 {
@@ -16,6 +17,11 @@ namespace d3d11
 	D3D11RenderTargetView::~D3D11RenderTargetView()
 	{
 		m_renderTargetView->Release();
+	}
+
+	std::shared_ptr< renderer::ITexture > D3D11RenderTargetView::GetTexture() const
+	{
+		return std::static_pointer_cast<renderer::ITexture>( m_texture );
 	}
 
 	void D3D11RenderTargetView::Clear( const Vector4& bgColor )

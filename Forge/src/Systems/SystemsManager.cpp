@@ -253,19 +253,6 @@ void systems::SystemsManager::Boot( const BootContext& ctx )
 	m_onBootCallback.Invoke();
 }
 
-void systems::SystemsManager::Update()
-{
-	for( auto& sys : m_systems )
-	{
-		sys->Update();
-	}
-
-	for( auto& sys : m_ecsSystems )
-	{
-		sys->Update();
-	}
-}
-
 void systems::SystemsManager::Shutdown()
 {
 	for( auto& sys : m_systems )
