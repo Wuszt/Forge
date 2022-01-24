@@ -45,9 +45,9 @@ namespace systems
 
 	private:
 		systems::CamerasSystem* m_camerasSystem = nullptr;
-		std::unique_ptr< forge::CallbackToken > m_beforeDrawToken;
-		std::unique_ptr< forge::CallbackToken > m_drawToken;
-		std::unique_ptr< forge::CallbackToken > m_presentToken;
+		forge::CallbackToken m_beforeDrawToken;
+		forge::CallbackToken m_drawToken;
+		forge::CallbackToken m_presentToken;
 		renderer::IRenderer* m_renderer;
 
 		std::unique_ptr< renderer::IRawRenderablesPack > m_rawRenderablesPackage;
@@ -57,11 +57,11 @@ namespace systems
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_opaqueRenderingPass;
 
 #ifdef FORGE_DEBUGGING
-		std::unique_ptr< forge::CallbackToken > m_clearingCacheToken;
+		forge::CallbackToken m_clearingCacheToken;
 #endif
 
 #ifdef FORGE_IMGUI_ENABLED
-		std::unique_ptr< forge::CallbackToken > m_overlayDebugToken;
+		forge::CallbackToken m_overlayDebugToken;
 		std::unique_ptr< renderer::IRenderTargetView > m_temporaryRTV;
 		Float m_depthBufferDenominator = std::numeric_limits< Float >::infinity();
 #endif

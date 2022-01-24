@@ -48,6 +48,6 @@ systems::ISystem::ISystem( forge::EngineInstance& engineInstance )
 	: m_engineInstance( engineInstance )
 {
 #ifdef FORGE_DEBUGGING
-	m_onRenderDebugToken = std::make_unique< forge::CallbackToken >( engineInstance.GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::ISystem::OnRenderDebug, this ) ) );
+	m_onRenderDebugToken = engineInstance.GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::ISystem::OnRenderDebug, this ) );
 #endif
 }

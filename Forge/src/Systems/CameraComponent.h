@@ -33,7 +33,7 @@ namespace forge
 
 	private:
 		std::unique_ptr< ICamera > m_implementation;
-		std::unique_ptr< forge::CallbackToken > m_windowEventToken;
+		forge::CallbackToken m_windowEventToken;
 		TransformComponent* m_transformComponent;
 	};
 }

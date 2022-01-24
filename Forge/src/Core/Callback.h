@@ -2,7 +2,6 @@
 
 namespace forge
 {
-
 	typedef Uint32 CallbackID;
 	constexpr CallbackID GetInvalidCallbackID()
 	{
@@ -24,6 +23,7 @@ namespace forge
 			, m_callback( &callback )
 		{}
 
+		CallbackToken() = default;
 		CallbackToken( const CallbackToken& t ) = delete;
 		CallbackToken( CallbackToken&& t )
 			: m_id( t.m_id )
@@ -128,6 +128,5 @@ namespace forge
 
 		CallbackID m_nextFreeID = GetInvalidCallbackID();
 	};
-
 }
 

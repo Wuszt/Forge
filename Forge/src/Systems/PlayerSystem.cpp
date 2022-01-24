@@ -6,7 +6,7 @@
 
 void systems::PlayerSystem::OnInitialize()
 {
-	m_updateToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, std::bind( &systems::PlayerSystem::Update, this ) ) );
+	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, std::bind( &systems::PlayerSystem::Update, this ) );
 }
 
 forge::Entity* systems::PlayerSystem::GetCurrentPlayerEntity() const

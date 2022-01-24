@@ -20,9 +20,9 @@ void systems::RenderingSystem::OnInitialize()
 	m_renderer = &GetEngineInstance().GetRenderer();
 	m_camerasSystem = &GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >();
 	
-	m_beforeDrawToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::RenderingSystem::OnBeforeDraw, this ) ) );
-	m_drawToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::RenderingSystem::OnDraw, this ) ) );
-	m_presentToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Present, std::bind( &systems::RenderingSystem::OnPresent, this ) ) );
+	m_beforeDrawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::RenderingSystem::OnBeforeDraw, this ) );
+	m_drawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::RenderingSystem::OnDraw, this ) );
+	m_presentToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Present, std::bind( &systems::RenderingSystem::OnPresent, this ) );
 	m_cameraCB = m_renderer->CreateStaticConstantBuffer< renderer::cbCamera >();
 	m_rawRenderablesPackage = m_renderer->CreateRawRenderablesPackage( {} );
 	m_opaqueRenderingPass = std::make_unique< renderer::DefferedRenderingPass >( *m_renderer );
@@ -30,7 +30,7 @@ void systems::RenderingSystem::OnInitialize()
 	m_opaqueRenderingPass->SetDepthStencilBuffer( m_renderer->GetDepthStencilBuffer() );
 
 #ifdef FORGE_DEBUGGING
-	m_clearingCacheToken = std::make_unique< forge::CallbackToken >( m_renderer->GetShadersManager()->RegisterCacheClearingListener( [ this ]()
+	m_clearingCacheToken = m_renderer->GetShadersManager()->RegisterCacheClearingListener( [ this ]()
 	{
 		const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesOfSystem< systems::RenderingSystem >();
 		for( systems::Archetype* archetype : archetypes )
@@ -46,17 +46,17 @@ void systems::RenderingSystem::OnInitialize()
 				}
 			}
 		}
-	} ) );
+	} );
 #endif
 
 #ifdef FORGE_IMGUI_ENABLED
-	m_overlayDebugToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [ this ]()
+	m_overlayDebugToken = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [ this ]()
 	{
 		if( ImGui::Button( "Reload shaders" ) )
 		{
 			GetEngineInstance().GetRenderer().GetShadersManager()->ClearCache();
 		}
-	} ) );
+	} );
 
 	renderer::ITexture::Flags flags = renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE;
 	std::shared_ptr< renderer::ITexture > texture = m_renderer->CreateTexture( static_cast<Uint32>( m_renderer->GetResolution().X ), static_cast<Uint32>( m_renderer->GetResolution().Y ), flags, renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Format::R8G8B8A8_UNORM );

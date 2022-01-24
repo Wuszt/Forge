@@ -8,7 +8,7 @@ void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
 {
 	m_transformComponent = GetOwner().GetComponent< TransformComponent >();
 
-	m_windowEventToken = std::make_unique< CallbackToken >( engineInstance.GetWindow().RegisterEventListener( [ &, window = &engineInstance.GetWindow() ]( const forge::IWindow::IEvent& event )
+	m_windowEventToken = engineInstance.GetWindow().RegisterEventListener( [ &, window = &engineInstance.GetWindow() ]( const forge::IWindow::IEvent& event )
 	{
 		if( event.GetEventType() == forge::IWindow::EventType::OnWindowResized )
 		{
@@ -23,7 +23,7 @@ void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
 				break;
 			};
 		}
-	} ) );
+	} );
 }
 
 void forge::CameraComponent::Update()

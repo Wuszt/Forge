@@ -131,7 +131,7 @@ namespace systems
 		forge::EngineInstance& m_engineInstance;
 
 #ifdef FORGE_DEBUGGING
-		std::unique_ptr< forge::CallbackToken > m_onRenderDebugToken;
+		forge::CallbackToken m_onRenderDebugToken;
 #endif
 	};
 

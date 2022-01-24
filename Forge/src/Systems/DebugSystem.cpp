@@ -16,7 +16,7 @@
 void systems::DebugSystem::OnInitialize()
 {
 #ifdef FORGE_IMGUI_ENABLED
-	m_fpsCounterDrawingToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( []()
+	m_fpsCounterDrawingToken = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( []()
 	{
 		Float fps = forge::FPSCounter::GetAverageFPS( 1u );
 		Vector4 color{ 1.0f, 0.0f, 0.0f, 1.0f };
@@ -45,10 +45,10 @@ void systems::DebugSystem::OnInitialize()
 		ImGui::Text( "FPS: %.2f", fps );
 		ImGui::PopStyleColor();
 		ImGui::SetWindowFontScale( 1.0f );
-	} ) );
+	} );
 #endif
 
-	m_updateToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [this]() { Update(); } ) );
+	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [this]() { Update(); } );
 }
 
 void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const Vector4& color, Float lifetime )

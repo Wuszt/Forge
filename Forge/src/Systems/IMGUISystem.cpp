@@ -14,31 +14,31 @@ systems::IMGUISystem::IMGUISystem( forge::EngineInstance& engineInstance )
 
 void systems::IMGUISystem::OnInitialize()
 {
-	m_preUpdateToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreUpdate, [ & ]()
+	m_preUpdateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreUpdate, [ & ]()
 	{
 		m_imguiInstance->OnNewFrame();
-	} ) );
+	} );
 
-	m_updateToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, [ & ]()
+	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, [ & ]()
 	{
 		DrawOverlay();
-	} ) );
+	} );
 
-	m_postRenderingToken = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [ & ]()
+	m_postRenderingToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [ & ]()
 	{
 		m_imguiInstance->Render();
-	} ) );
+	} );
 
-	m_onWindowClosedToken = std::make_unique<forge::CallbackToken>( GetEngineInstance().GetWindow().RegisterEventListener( [ & ]( const forge::IWindow::IEvent& ev )
+	m_onWindowClosedToken = GetEngineInstance().GetWindow().RegisterEventListener( [ & ]( const forge::IWindow::IEvent& ev )
 	{
 		if( ev.GetEventType() == forge::IWindow::EventType::OnWindowClosed )
 		{
-			m_preUpdateToken = nullptr;
-			m_updateToken = nullptr;
-			m_postRenderingToken = nullptr;
+			m_preUpdateToken.Unregister();
+			m_updateToken.Unregister();
+			m_postRenderingToken.Unregister();
 			m_imguiInstance = nullptr;
 		}
-	} ) );
+	} );
 }
 
 void systems::IMGUISystem::DrawOverlay()

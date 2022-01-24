@@ -29,10 +29,10 @@ namespace systems
 
 	private:
 		forge::CameraComponent* m_activeCamera = nullptr;
-		std::unique_ptr< forge::CallbackToken > m_updateToken;
+		forge::CallbackToken m_updateToken;
 
 #ifdef FORGE_IMGUI_ENABLED
-		std::unique_ptr< forge::CallbackToken > m_debugOverlayToken;
+		forge::CallbackToken m_debugOverlayToken;
 #endif
 	};
 }

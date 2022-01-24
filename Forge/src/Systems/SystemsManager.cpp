@@ -4,37 +4,37 @@
 
 void systems::SystemsManager::Initialize()
 {
-	m_onEntityCreated = std::make_unique< forge::CallbackToken >( m_engineInstance.GetEntitiesManager().GetEntityCreatedCallback().AddListener(
+	m_onEntityCreated = m_engineInstance.GetEntitiesManager().GetEntityCreatedCallback().AddListener(
 		[ this ]( forge::EntityID id )
 	{
 		for( auto& archetype : m_archetypes )
 		{
 			archetype->OnEntityCreated();
 		}
-	} ) );
+	} );
 
-	m_onEntityDestructed = std::make_unique< forge::CallbackToken >( m_engineInstance.GetEntitiesManager().GetEntityDestructedCallback().AddListener(
+	m_onEntityDestructed = m_engineInstance.GetEntitiesManager().GetEntityDestructedCallback().AddListener(
 		[ this ]( forge::EntityID id )
 	{
 		for( auto& archetype : m_archetypes )
 		{
 			archetype->OnEntityDestructed( id );
 		}
-	} ) );
+	} );
 
-	m_onTick = std::make_unique< forge::CallbackToken >( GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [ this ]()
+	m_onTick = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [ this ]()
 	{
 		for( auto& archetype : m_archetypes )
 		{
 			archetype->SetDirty( false );
 		}
-	} ) );
+	} );
 }
 
 void systems::SystemsManager::Deinitialize()
 {
-	m_onEntityCreated = nullptr;
-	m_onTick = nullptr;
+	m_onEntityCreated.Unregister();
+	m_onTick.Unregister();
 }
 
 Uint32 GetTypesHash( const std::vector< std::unique_ptr< forge::IDataPackage > >& dataPackages )

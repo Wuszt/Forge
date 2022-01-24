@@ -123,7 +123,7 @@ namespace d3d11
 
 		ID3D11RasterizerState* m_rasterizerState = nullptr;
 
-		std::unique_ptr< forge::CallbackToken > m_windowCallbackToken;
+		forge::CallbackToken m_windowCallbackToken;
 
 		Vector2 m_resolution;
 	};

@@ -32,7 +32,7 @@ namespace systems
 		void Update();
 
 		forge::PlayerControllerComponent* m_activeController = nullptr;
-		std::unique_ptr< forge::CallbackToken > m_updateToken = nullptr;
+		forge::CallbackToken m_updateToken;
 
 		Bool m_wasShiftAndWheelPressed = false;
 	};

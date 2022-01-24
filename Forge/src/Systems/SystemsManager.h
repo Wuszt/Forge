@@ -125,9 +125,9 @@ namespace systems
 		std::unordered_map< Uint32, Archetype* > m_typesHashToArchetypeLUT;
 		std::unordered_map< std::type_index, std::vector< Archetype* > > m_systemToArchetypesLUT;
 
-		std::unique_ptr< forge::CallbackToken > m_onEntityCreated;
-		std::unique_ptr< forge::CallbackToken > m_onEntityDestructed;
-		std::unique_ptr< forge::CallbackToken > m_onTick;
+		forge::CallbackToken m_onEntityCreated;
+		forge::CallbackToken m_onEntityDestructed;
+		forge::CallbackToken m_onTick;
 		forge::Callback<> m_onBootCallback;
 	};
 }

@@ -24,10 +24,10 @@ namespace systems
 		};
 
 		std::vector< DebugEntity > m_debugEntities;
-		std::unique_ptr< forge::CallbackToken > m_updateToken;
+		forge::CallbackToken m_updateToken;
 
 #ifdef FORGE_IMGUI_ENABLED
-		std::unique_ptr< forge::CallbackToken > m_fpsCounterDrawingToken;
+		forge::CallbackToken m_fpsCounterDrawingToken;
 #endif
 	};
 }

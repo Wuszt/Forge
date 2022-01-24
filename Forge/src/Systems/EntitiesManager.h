@@ -123,7 +123,7 @@ namespace forge
 		std::unique_ptr< CallbackToken > m_tickToken;
 
 #ifdef FORGE_IMGUI_ENABLED
-		std::unique_ptr< forge::CallbackToken > m_debugOverlayToken;
+		forge::CallbackToken m_debugOverlayToken;
 #endif
 	};
 }

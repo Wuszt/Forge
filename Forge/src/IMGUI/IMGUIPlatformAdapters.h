@@ -31,7 +31,7 @@ namespace windows
 
 	private:
 		windows::WindowsWindow* m_windowsWindow = nullptr;
-		std::unique_ptr< forge::CallbackToken > m_windowEventCallbackToken;
+		forge::CallbackToken m_windowEventCallbackToken;
 
 	};
 }

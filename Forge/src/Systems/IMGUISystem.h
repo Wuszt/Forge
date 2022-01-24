@@ -27,10 +27,10 @@ namespace systems
 
 		std::unique_ptr< forge::IMGUIInstance > m_imguiInstance;
 
-		std::unique_ptr< forge::CallbackToken > m_preUpdateToken;
-		std::unique_ptr< forge::CallbackToken > m_updateToken;
-		std::unique_ptr< forge::CallbackToken > m_postRenderingToken;
-		std::unique_ptr< forge::CallbackToken > m_onWindowClosedToken;
+		forge::CallbackToken m_preUpdateToken;
+		forge::CallbackToken m_updateToken;
+		forge::CallbackToken m_postRenderingToken;
+		forge::CallbackToken m_onWindowClosedToken;
 
 		forge::Callback<> m_overlayCallback;
 	};
