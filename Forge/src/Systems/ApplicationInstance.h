@@ -7,6 +7,7 @@ namespace forge
 	class ApplicationInstance
 	{
 	public:
+		virtual ~ApplicationInstance() = default;
 		virtual void Initialize( EngineInstance& engineInstance ) {}
 		virtual void OnUpdate( EngineInstance& engineInstance ) {}
 		virtual void Deinitialize( EngineInstance& engineInstance ) {}

@@ -25,21 +25,20 @@ forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 		m_renderer = renderer::IRenderer::CreateRenderer( *m_window, renderer::RendererType::D3D11 );
 
 		m_windowUpdateToken = GetUpdateManager().RegisterUpdateFunction( UpdateManager::BucketType::PostUpdate, [ & ]() { m_window->Update(); } );
-	}
-
-	m_windowClosedToken = m_window->RegisterEventListener( [ appPtr = &appInstance ]( const forge::IWindow::IEvent& ev )
-	{
-		if( ev.GetEventType() == IWindow::EventType::OnCloseRequested )
+		m_windowClosedToken = m_window->RegisterEventListener( [ appPtr = &appInstance ]( const forge::IWindow::IEvent& ev )
 		{
-			appPtr->Shutdown();
-		}
-	} );
+			if( ev.GetEventType() == IWindow::EventType::OnCloseRequested )
+			{
+				appPtr->Shutdown();
+			}
+		} );
+	}
 }
 
 forge::EngineInstance::~EngineInstance()
 {
-	m_windowClosedToken.Unregister();
-	m_windowUpdateToken.Unregister();
+	m_windowClosedToken.TryToUnregister();
+	m_windowUpdateToken.TryToUnregister();
 
 	m_systemManager->Deinitialize();
 	m_entitiesManager->Deinitialize();

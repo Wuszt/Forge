@@ -41,16 +41,26 @@ namespace forge
 
 		~CallbackToken()
 		{
-			if( m_id != GetInvalidCallbackID() )
-			{
-				Unregister();
-			}
+			TryToUnregister();
 		}
 
 		void Unregister()
 		{
 			m_callback->RemoveListener( m_id );
 			m_id = GetInvalidCallbackID();
+		}
+
+		void TryToUnregister()
+		{
+			if( IsValid() )
+			{
+				Unregister();
+			}
+		}
+
+		Bool IsValid()
+		{
+			return m_id != GetInvalidCallbackID();
 		}
 
 	private:
