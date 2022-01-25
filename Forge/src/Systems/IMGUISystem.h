@@ -30,7 +30,6 @@ namespace systems
 		forge::CallbackToken m_preUpdateToken;
 		forge::CallbackToken m_updateToken;
 		forge::CallbackToken m_postRenderingToken;
-		forge::CallbackToken m_onWindowClosedToken;
 
 		forge::Callback<> m_overlayCallback;
 	};

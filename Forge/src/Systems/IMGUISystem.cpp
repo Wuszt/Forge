@@ -28,17 +28,6 @@ void systems::IMGUISystem::OnInitialize()
 	{
 		m_imguiInstance->Render();
 	} );
-
-	m_onWindowClosedToken = GetEngineInstance().GetWindow().RegisterEventListener( [ & ]( const forge::IWindow::IEvent& ev )
-	{
-		if( ev.GetEventType() == forge::IWindow::EventType::OnWindowClosed )
-		{
-			m_preUpdateToken.Unregister();
-			m_updateToken.Unregister();
-			m_postRenderingToken.Unregister();
-			m_imguiInstance = nullptr;
-		}
-	} );
 }
 
 void systems::IMGUISystem::DrawOverlay()

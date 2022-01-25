@@ -29,7 +29,7 @@ forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 
 	m_windowClosedToken = m_window->RegisterEventListener( [ appPtr = &appInstance ]( const forge::IWindow::IEvent& ev )
 	{
-		if( ev.GetEventType() == IWindow::EventType::OnWindowClosed )
+		if( ev.GetEventType() == IWindow::EventType::OnCloseRequested )
 		{
 			appPtr->Shutdown();
 		}

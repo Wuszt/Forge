@@ -12,16 +12,25 @@ namespace
 	{
 		LONG_PTR ptr = GetWindowLongPtr( hwnd, GWLP_USERDATA );
 
+		Bool eventHandled = false;
+
 		if( ptr != NULL )
 		{
 			windows::WindowsWindow* windowPtr = reinterpret_cast< windows::WindowsWindow* >( ptr );
-			windowPtr->OnWindowEvent( msg, wParam, lParam );
+			eventHandled = windowPtr->OnWindowEvent( msg, wParam, lParam );
 		}
 
-		return DefWindowProc( hwnd,
-			msg,
-			wParam,
-			lParam );
+		LRESULT result = NULL;
+
+		if( !eventHandled )
+		{
+			result = DefWindowProc( hwnd,
+				msg,
+				wParam,
+				lParam );
+		}
+
+		return result;
 	}
 }
 
@@ -171,33 +180,26 @@ namespace windows
 	{
 		switch( msg )
 		{
-		case WM_KEYDOWN:
-			if( wParam == VK_ESCAPE ) {
-				DestroyWindow( GetHWND() );
-			}
-
-			return true;
-
 		case WM_CLOSE:
-			DispatchEvent( forge::IWindow::OnClosedWindowEvent( *this ) );
+			DispatchEvent( forge::IWindow::OnCloseRequestedEvent( *this ) );
 			return true;
 
 		case WM_DESTROY:			
 			PostQuitMessage( 0 );
-			return true;
+			return false;
 
 		case WM_SIZE:
 			if( wParam != SIZE_MINIMIZED )
 			{
 				UpdatePositionAndSize();
-				DispatchEvent( forge::IWindow::OnResizedWindowEvent( *this, m_width, m_height ) );
+				DispatchEvent( forge::IWindow::OnResizedEvent( *this, m_width, m_height ) );
 				m_rawEventCallback.Invoke( m_hwnd, msg, wParam, lParam );
-				return true;
+				return false;
 			}
 
 		case WM_EXITSIZEMOVE:
 			UpdatePositionAndSize();
-			return true;
+			return false;
 		}
 
 		return false;

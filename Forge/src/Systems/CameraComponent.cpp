@@ -10,7 +10,7 @@ void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
 
 	m_windowEventToken = engineInstance.GetWindow().RegisterEventListener( [ &, window = &engineInstance.GetWindow() ]( const forge::IWindow::IEvent& event )
 	{
-		if( event.GetEventType() == forge::IWindow::EventType::OnWindowResized )
+		if( event.GetEventType() == forge::IWindow::EventType::OnResized )
 		{
 			switch( GetType() )
 			{

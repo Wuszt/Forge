@@ -64,9 +64,9 @@ namespace d3d11
 		{
 			switch( event.GetEventType() )
 			{
-			case forge::IWindow::EventType::OnWindowResized:
-				FORGE_ASSERT( dynamic_cast<const forge::IWindow::OnResizedWindowEvent*>( &event ) );
-				const forge::IWindow::OnResizedWindowEvent& resizedEvent = static_cast<const forge::IWindow::OnResizedWindowEvent&>( event );
+			case forge::IWindow::EventType::OnResized:
+				FORGE_ASSERT( dynamic_cast<const forge::IWindow::OnResizedEvent*>( &event ) );
+				const forge::IWindow::OnResizedEvent& resizedEvent = static_cast<const forge::IWindow::OnResizedEvent&>( event );
 
 				m_renderTargetView = nullptr;
 				GetSwapchain()->Resize( resizedEvent.GetWidth(), resizedEvent.GetHeight() );

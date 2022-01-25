@@ -13,6 +13,7 @@
 #include "../Systems/RenderingSystem.h"
 #include "../D3D11Renderer/D3D11TexturesLoader.h"
 #include "../Renderer/IRenderer.h"
+#include "../Core/IInput.h"
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -185,6 +186,10 @@ Int32 main()
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{
+			if( engineInstance.GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
+			{
+				Shutdown();
+			}
 		}
 
 		virtual Bool WithRendering() const override
