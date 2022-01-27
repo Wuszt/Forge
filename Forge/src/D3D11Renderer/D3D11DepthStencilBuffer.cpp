@@ -22,7 +22,7 @@ namespace d3d11
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 
-		m_texture = std::make_shared< D3D11Texture >( device, desc, DXGI_FORMAT_R24_UNORM_X8_TYPELESS );
+		m_texture = std::make_shared< D3D11Texture >( device, context, desc, DXGI_FORMAT_R24_UNORM_X8_TYPELESS );
 
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 		dsvDesc.Flags = 0;

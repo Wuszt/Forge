@@ -59,9 +59,7 @@ void systems::RenderingSystem::OnInitialize()
 	} );
 
 	renderer::ITexture::Flags flags = renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE;
-	std::shared_ptr< renderer::ITexture > texture = m_renderer->CreateTexture( static_cast<Uint32>( m_renderer->GetResolution().X ), static_cast<Uint32>( m_renderer->GetResolution().Y ), flags, renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Format::R8G8B8A8_UNORM );
-
-	m_temporaryRTV = m_renderer->CreateRenderTargetView( texture );
+	m_temporaryTexture = m_renderer->CreateTexture( static_cast<Uint32>( m_renderer->GetResolution().X ), static_cast<Uint32>( m_renderer->GetResolution().Y ), flags, renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Format::R8G8B8A8_UNORM );
 #endif
 }
 
@@ -90,8 +88,8 @@ void systems::RenderingSystem::OnRenderDebug()
 			{
 				if( ImGui::BeginTabItem( "GBuffer" ) )
 				{
-					ImGui::Image( static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetNormalsTargetView()->GetTexture()->GetShaderResourceView()->GetRawSRV(), textureSize );
-					ImGui::Image( static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetDiffuseTargetView()->GetTexture()->GetShaderResourceView()->GetRawSRV(), textureSize );
+					ImGui::Image( static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetNormalsTexture()->GetShaderResourceView()->GetRawSRV(), textureSize );
+					ImGui::Image( static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetDiffuseTexture()->GetShaderResourceView()->GetRawSRV(), textureSize );
 					ImGui::EndTabItem();
 				}
 			}
@@ -114,9 +112,9 @@ void systems::RenderingSystem::OnRenderDebug()
 				cb->GetData().Denominator = m_depthBufferDenominator;
 				cb->UpdateBuffer();
 				cb->SetPS( renderer::PSConstantBufferType::Material );
-				fsPass.SetRenderTargetView( m_temporaryRTV.get() );
+				fsPass.SetRenderTargetView( m_temporaryTexture->GetRenderTargetView() );
 				fsPass.Draw( { m_renderer->GetDepthStencilBuffer()->GetTexture()->GetShaderResourceView() } );
-				ImGui::Image( m_temporaryRTV->GetTexture()->GetShaderResourceView()->GetRawSRV(), textureSize );
+				ImGui::Image( m_temporaryTexture->GetShaderResourceView()->GetRawSRV(), textureSize );
 				ImGui::EndTabItem();
 			}
 

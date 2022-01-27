@@ -48,7 +48,7 @@ namespace d3d11
 		FORGE_ASSERT( dynamic_cast<windows::WindowsWindow*>( &window ) );
 		InitializeSwapChainAndContext( static_cast<windows::WindowsWindow&>( window ) );
 
-		m_renderTargetView = std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), m_swapChain->GetBackBuffer() );
+		m_renderTargetView = std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), *m_swapChain->GetBackBuffer().GetTexture() );
 
 		m_depthStencilBuffer = std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), window.GetWidth(), window.GetHeight() );
 		m_shadersManager = std::make_unique< D3D11ShadersManager >( *GetDevice(), *GetContext() );
@@ -71,7 +71,7 @@ namespace d3d11
 				m_renderTargetView = nullptr;
 				GetSwapchain()->Resize( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
 
-				m_renderTargetView = std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), std::move( GetSwapchain()->GetBackBuffer() ) );
+				m_renderTargetView = std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), *GetSwapchain()->GetBackBuffer().GetTexture() );
 				m_depthStencilBuffer = std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), resizedEvent.GetWidth(), resizedEvent.GetHeight() );
 
 				InitializeViewport( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
@@ -101,14 +101,9 @@ namespace d3d11
 		return std::make_unique< D3D11IndexBuffer >( GetContext(), *GetDevice(), indices, amount );
 	}
 
-	std::unique_ptr< renderer::IRenderTargetView > D3D11Renderer::CreateRenderTargetView( std::shared_ptr< renderer::ITexture > texture ) const
-	{
-		return std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), std::dynamic_pointer_cast< D3D11Texture >( texture ) );
-	}
-
 	std::unique_ptr< renderer::ITexture > D3D11Renderer::CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Format srvFormat /*= renderer::ITexture::Format::Unknown */ ) const
 	{
-		return std::make_unique< D3D11Texture >( *GetDevice(), width, height, flags, format, srvFormat );
+		return std::make_unique< D3D11Texture >( *GetDevice(), *GetContext(), width, height, flags, format, srvFormat );
 	}
 
 	void D3D11Renderer::SetRenderTargets( const std::vector< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer )
@@ -286,7 +281,7 @@ namespace d3d11
 
 	std::unique_ptr< renderer::ITexturesLoader > D3D11Renderer::CreateTexturesLoader() const
 	{
-		return std::make_unique< d3d11::D3D11TexturesLoader >( *GetDevice() );
+		return std::make_unique< d3d11::D3D11TexturesLoader >( *GetDevice(), *GetContext() );
 	}
 
 	void D3D11Renderer::InitializeSwapChainAndContext( const windows::WindowsWindow& window )
@@ -308,7 +303,7 @@ namespace d3d11
 
 		m_device = std::make_unique< D3D11Device >( d3d11Device );
 		m_context = std::make_unique< D3D11RenderContext >( d3d11DevCon );
-		m_swapChain = std::make_unique< D3D11Swapchain >( *m_device, swapChain );
+		m_swapChain = std::make_unique< D3D11Swapchain >( *m_device, *m_context, swapChain );
 	}
 
 	void D3D11Renderer::InitializeViewport( Uint32 width, Uint32 height )

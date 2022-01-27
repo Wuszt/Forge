@@ -55,7 +55,6 @@ namespace renderer
 		virtual std::unique_ptr< IInputLayout > CreateInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const = 0;
 		virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const Vertices& vertices ) const = 0;
 		virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const = 0;
-		virtual std::unique_ptr< IRenderTargetView > CreateRenderTargetView( std::shared_ptr< renderer::ITexture > texture ) const = 0;
 		virtual std::unique_ptr< ITexture > CreateTexture( Uint32 width, Uint32 height, ITexture::Flags flags, ITexture::Format format, ITexture::Format srvFormat = ITexture::Format::Unknown ) const = 0;
 
 		void Initialize();

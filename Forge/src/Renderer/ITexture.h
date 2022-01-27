@@ -3,6 +3,7 @@
 namespace renderer
 {
 	class IShaderResourceView;
+	class IRenderTargetView;
 
 	class ITexture
 	{
@@ -24,6 +25,7 @@ namespace renderer
 
 		virtual void Resize( Uint32 width, Uint32 height ) = 0;
 		virtual IShaderResourceView* GetShaderResourceView() const = 0;
+		virtual IRenderTargetView* GetRenderTargetView() const = 0;
 		virtual ~ITexture() = default;
 	};
 

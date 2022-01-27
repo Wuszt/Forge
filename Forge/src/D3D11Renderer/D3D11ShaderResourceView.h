@@ -6,7 +6,7 @@ namespace d3d11
 	class D3D11ShaderResourceView : public renderer::IShaderResourceView
 	{
 	public:
-		D3D11ShaderResourceView( const D3D11Device& device, ID3D11Texture2D* texture, DXGI_FORMAT srvFormat );
+		D3D11ShaderResourceView( const D3D11Device& device, ID3D11Texture2D& texture, DXGI_FORMAT srvFormat );
 		D3D11ShaderResourceView( ID3D11ShaderResourceView* srv );
 		~D3D11ShaderResourceView();
 

@@ -13,6 +13,7 @@ namespace renderer
 	class IVertexBuffer;
 	class IIndexBuffer;
 	class IInputLayout;
+	class ITexture;
 	struct cbMesh;
 
 	template< class T >
@@ -62,7 +63,7 @@ namespace systems
 
 #ifdef FORGE_IMGUI_ENABLED
 		forge::CallbackToken m_overlayDebugToken;
-		std::unique_ptr< renderer::IRenderTargetView > m_temporaryRTV;
+		std::unique_ptr< renderer::ITexture > m_temporaryTexture;
 		Float m_depthBufferDenominator = std::numeric_limits< Float >::infinity();
 #endif
 	};

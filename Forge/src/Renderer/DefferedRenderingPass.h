@@ -5,6 +5,7 @@ namespace renderer
 {
 	class IRenderer;
 	class IRenderTargetView;
+	class ITexture;
 	class FullScreenRenderingPass;
 
 	class DefferedRenderingPass : public IMeshesRenderingPass
@@ -16,19 +17,19 @@ namespace renderer
 		virtual void ClearRenderTargetView() override;
 		virtual void SetRenderTargetView( IRenderTargetView* renderTargetView ) override;
 
-		IRenderTargetView* GetNormalsTargetView() const
+		ITexture* GetNormalsTexture() const
 		{
-			return m_normalsTargetView.get();
+			return m_normalsTexture.get();
 		}
 
-		IRenderTargetView* GetDiffuseTargetView() const
+		ITexture* GetDiffuseTexture() const
 		{
-			return m_diffuseTargetView.get();
+			return m_diffuseTexture.get();
 		}
 
 	private:
-		std::unique_ptr< IRenderTargetView > m_normalsTargetView;
-		std::unique_ptr< IRenderTargetView > m_diffuseTargetView;
+		std::unique_ptr< ITexture > m_normalsTexture;
+		std::unique_ptr< ITexture > m_diffuseTexture;
 		std::unique_ptr< FullScreenRenderingPass > m_lightingPass;
 	};
 }

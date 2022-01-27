@@ -2,7 +2,7 @@
 #include "D3D11ShaderResourceView.h"
 #include "D3D11Device.h"
 
-d3d11::D3D11ShaderResourceView::D3D11ShaderResourceView( const D3D11Device& device, ID3D11Texture2D* texture, DXGI_FORMAT srvFormat )
+d3d11::D3D11ShaderResourceView::D3D11ShaderResourceView( const D3D11Device& device, ID3D11Texture2D& texture, DXGI_FORMAT srvFormat )
 {
 	if( srvFormat != DXGI_FORMAT_UNKNOWN )
 	{
@@ -12,7 +12,7 @@ d3d11::D3D11ShaderResourceView::D3D11ShaderResourceView( const D3D11Device& devi
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		srvDesc.Texture2D.MipLevels = -1;
 
-		FORGE_ASSURE( device.GetDevice()->CreateShaderResourceView( texture, &srvDesc, &m_srv ) == S_OK );
+		FORGE_ASSURE( device.GetDevice()->CreateShaderResourceView( &texture, &srvDesc, &m_srv ) == S_OK );
 	}
 }
 

@@ -16,7 +16,7 @@ namespace d3d11
 	public:
 		static DXGI_SWAP_CHAIN_DESC GetSwapChainDescription( Uint32 width, Uint32 height, HWND hwnd );
 
-		D3D11Swapchain( const D3D11Device& device, IDXGISwapChain* swapChain );
+		D3D11Swapchain( const D3D11Device& device, const D3D11RenderContext& context, IDXGISwapChain* swapChain );
 		~D3D11Swapchain();
 
 		FORGE_INLINE IDXGISwapChain* GetSwapChain() const
@@ -25,12 +25,17 @@ namespace d3d11
 		}
 
 		virtual void Present() override;
-		std::unique_ptr< D3D11Texture > GetBackBuffer() const;
+		D3D11Texture& GetBackBuffer() const
+		{
+			return *m_backBuffer;
+		}
 
 		virtual void Resize( Uint32 width, Uint32 height ) override;
 
 	private:
 		IDXGISwapChain* m_swapChain = nullptr;
 		const D3D11Device& m_device;
+		const D3D11RenderContext& m_context;
+		std::unique_ptr< D3D11Texture > m_backBuffer;
 	};
 }
