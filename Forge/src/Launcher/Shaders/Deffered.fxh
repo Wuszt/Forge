@@ -3,20 +3,20 @@
 
 struct PS_Output
 {
-    float4 Color : SV_Target0;
-    float4 Normal : SV_Target1;
+    float4 Color : SV_TARGET0;
+    float4 Normal : SV_TARGET1;
 };
 
-OUTPUT Vert(INPUT input);
+Custom_VS_Output Vert(Custom_VS_Input input);
 
-OUTPUT VS(INPUT input)
+Custom_VS_Output VS(Custom_VS_Input input)
 {
     return Vert(input);
 }
 
-float4 CalculateColor(OUTPUT input);
+float4 CalculateColor(Custom_VS_Output input);
 
-PS_Output PS(OUTPUT input) : SV_TARGET
+PS_Output PS(Custom_VS_Output input)
 {
     PS_Output output;
     output.Color = CalculateColor(input);

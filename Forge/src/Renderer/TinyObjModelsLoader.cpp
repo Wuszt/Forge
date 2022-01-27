@@ -99,7 +99,7 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 		auto& materials = reader.GetMaterials();
 		for( const auto& material : reader.GetMaterials() )
 		{
-			materialsData->emplace_back( MaterialData{ GetRenderer().CreateConstantBuffer(), std::experimental::filesystem::v1::path( material.diffuse_texname ).filename().string() } );
+			materialsData->emplace_back( MaterialData{ GetRenderer().CreateConstantBuffer(), std::filesystem::path( material.diffuse_texname ).filename().string() } );
 			materialsData->back().m_buffer->AddData( "diffuseColor", Vector4( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ], 1.0f ) );
 			materialsData->back().m_buffer->UpdateBuffer();
 		}

@@ -60,7 +60,7 @@ namespace renderer
 
 		void Initialize();
 
-		virtual void SetRenderTargets( std::vector< IRenderTargetView* > rendererTargetViews, IDepthStencilBuffer* depthStencilBuffer ) = 0;
+		virtual void SetRenderTargets( const std::vector< IRenderTargetView* >& rendererTargetViews, IDepthStencilBuffer* depthStencilBuffer ) = 0;
 
 		virtual std::unique_ptr< ISamplerState > CreateSamplerState( SamplerStateFilterType filterType ) = 0;
 		virtual void SetSamplerStates( const std::vector< ISamplerState* > samplerStates ) = 0;

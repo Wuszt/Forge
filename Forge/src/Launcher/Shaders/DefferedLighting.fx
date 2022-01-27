@@ -11,8 +11,8 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
     
     float2 texCoord = float2((input.UV.x + 1.0f) * 0.5f, 1.0f - (input.UV.y + 1.0f) * 0.5f);
  
-    float3 diffuse = DiffuseBuffer.Sample(LinearSamplerState, texCoord);
-    float3 normal = NormalsBuffer.Sample(LinearSamplerState, texCoord);
+    float3 diffuse = DiffuseBuffer.Sample(LinearSamplerState, texCoord).rgb;
+    float3 normal = NormalsBuffer.Sample(LinearSamplerState, texCoord).rgb;
     float depth = CalculateLinearDepth(DepthBuffer.Sample(LinearSamplerState, texCoord).r);
     
     float viewZDist = dot(CameraDir, viewRay);

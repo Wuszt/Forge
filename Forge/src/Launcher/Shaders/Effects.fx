@@ -1,12 +1,12 @@
 #include "GeometryCommon.fxh"
 #include "Lighting.fxh"
 
-struct INPUT : VS_INPUT
+struct Custom_VS_Input : VS_INPUT
 {
     float2 TexCoord : TEXCOORD;
 };
 
-struct OUTPUT : VS_OUTPUT
+struct Custom_VS_Output : VS_OUTPUT
 {
 };
 
@@ -20,9 +20,9 @@ cbuffer cbMaterial : register(b1)
     float4 diffuseColor;
 };
 
-OUTPUT Vert(INPUT input)
+Custom_VS_Output Vert(Custom_VS_Input input)
 {
-    OUTPUT output;
+    Custom_VS_Output output;
 
     float4x4 WVP = mul(VP, W);
     output.Pos = mul(WVP, float4(input.Pos, 1.0f));
@@ -31,7 +31,7 @@ OUTPUT Vert(INPUT input)
     return output;
 }
 
-float4 CalculateColor(OUTPUT input)
+float4 CalculateColor(Custom_VS_Output input)
 {
     float4 clr = diffuseColor;
     clip(clr.a - 0.1f);

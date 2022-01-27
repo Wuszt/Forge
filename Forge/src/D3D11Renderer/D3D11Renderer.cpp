@@ -111,13 +111,13 @@ namespace d3d11
 		return std::make_unique< D3D11Texture >( *GetDevice(), width, height, flags, format, srvFormat );
 	}
 
-	void D3D11Renderer::SetRenderTargets( std::vector< renderer::IRenderTargetView* > rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer )
+	void D3D11Renderer::SetRenderTargets( const std::vector< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer )
 	{
 		FORGE_ASSERT( depthStencilBuffer == nullptr || dynamic_cast<D3D11DepthStencilBuffer*>( depthStencilBuffer ) );
 		SetRenderTargets( rendererTargetViews, static_cast<D3D11DepthStencilBuffer*>( depthStencilBuffer ) );
 	}
 
-	void D3D11Renderer::SetRenderTargets( std::vector< renderer::IRenderTargetView* > rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer )
+	void D3D11Renderer::SetRenderTargets( const std::vector< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer )
 	{
 		std::vector< ID3D11RenderTargetView* > views;
 		views.reserve( rendererTargetViews.size() );

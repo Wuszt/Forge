@@ -16,11 +16,11 @@ namespace d3d11
 		{
 			if( result == S_OK )
 			{
-				FORGE_LOG_WARNING( "Pixel Shader compilation warning: %s", static_cast<char*>( errorMsg->GetBufferPointer() ) );
+				FORGE_LOG_WARNING( "Pixel Shader [%s] compilation warning: %s", path.c_str(), static_cast<char*>( errorMsg->GetBufferPointer() ) );
 			}
 			else
 			{
-				FORGE_LOG_ERROR( "Pixel Shader compilation error: %s", static_cast<char*>( errorMsg->GetBufferPointer() ) );
+				FORGE_LOG_ERROR( "Pixel Shader [%s] compilation error: %s", path.c_str(), static_cast<char*>( errorMsg->GetBufferPointer() ) );
 			}
 
 			errorMsg->Release();
