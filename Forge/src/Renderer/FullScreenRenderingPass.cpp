@@ -10,7 +10,7 @@ void renderer::FullScreenRenderingPass::Draw( std::vector< IShaderResourceView* 
 {
 	GetRenderer().GetShadersManager()->GetVertexShader( "VS_Fullscreen.fx" )->Set();
 	GetRenderer().GetShadersManager()->GetPixelShader( m_pixelShaderName )->Set();
-	GetRenderer().SetRenderTargets( { GetRenderTargetView() }, nullptr );
+	GetRenderer().SetRenderTargets( { GetTargetTexture()->GetRenderTargetView() }, nullptr );
 	GetRenderer().SetShaderResourceViews( input );
 	GetRenderer().DrawRawVertices( 4 );
 }

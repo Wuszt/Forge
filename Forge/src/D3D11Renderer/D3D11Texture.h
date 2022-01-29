@@ -10,6 +10,7 @@ namespace d3d11
 	class D3D11ShaderResourceView;
 	class D3D11Device;
 	class D3D11RenderContext;
+	class D3D11Swapchain;
 
 	class D3D11Texture : public renderer::ITexture
 	{
@@ -17,9 +18,10 @@ namespace d3d11
 		D3D11Texture( const D3D11Device& device, const D3D11RenderContext& context, ID3D11Texture2D& texture, DXGI_FORMAT srvFormat = DXGI_FORMAT_UNKNOWN );
 		D3D11Texture( const D3D11Device& device, const D3D11RenderContext& context, const D3D11_TEXTURE2D_DESC& desc, DXGI_FORMAT srvFormat = DXGI_FORMAT_UNKNOWN );
 		D3D11Texture( const D3D11Device& device, const D3D11RenderContext& context, Uint32 width, Uint32 height, Flags flags, Format format, Format srvFormat = ITexture::Format::Unknown );
+		
 		~D3D11Texture();
 
-		virtual void Resize( Uint32 width, Uint32 height );
+		virtual void Resize( const Vector2& size );
 
 		FORGE_INLINE ID3D11Texture2D* GetTexture() const
 		{
@@ -36,13 +38,40 @@ namespace d3d11
 			return m_rtv.get();
 		}
 
-	private:
-		void CreateViewsIfRequired( const D3D11RenderContext& context, Uint32 flags, Uint32 srvFormat );
+		virtual FORGE_INLINE forge::Callback< const Vector2& >& GetOnResizedCallback() override
+		{
+			return m_onResizedCallback;
+		}
 
+		virtual Vector2 GetTextureSize() const override;
+
+	protected:
+		void SetTexture( ID3D11Texture2D& texture )
+		{
+			m_texture = &texture;
+		}
+
+		void CreateViewsIfRequired( Uint32 flags, Uint32 srvFormat );
+
+		FORGE_INLINE void ReleaseResources()
+		{
+			m_texture->Release();
+			m_texture = nullptr;
+			m_srv = nullptr;
+			m_rtv = nullptr;
+		}
+
+		FORGE_INLINE void InvokeResizeCallback( const Vector2& size ) const
+		{
+			m_onResizedCallback.Invoke( size );
+		}
+
+	private:
 		const D3D11Device& m_device;
 		const D3D11RenderContext& m_context;
 		ID3D11Texture2D* m_texture = nullptr;
 		std::unique_ptr< D3D11ShaderResourceView > m_srv;
 		std::unique_ptr< D3D11RenderTargetView > m_rtv;
+		forge::Callback< const Vector2& > m_onResizedCallback;
 	};
 }

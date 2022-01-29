@@ -47,7 +47,6 @@ namespace renderer
 		virtual ~IRenderer();
 
 		virtual IRenderContext* GetContext() const = 0;
-		virtual IRenderTargetView* GetRenderTargetView() const = 0;
 		virtual IDepthStencilBuffer* GetDepthStencilBuffer() const = 0;
 		virtual ISwapchain* GetSwapchain() const = 0;
 		virtual IShadersManager* GetShadersManager() const = 0;

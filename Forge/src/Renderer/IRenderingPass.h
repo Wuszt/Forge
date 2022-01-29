@@ -11,16 +11,22 @@ namespace renderer
 		IRenderingPass( IRenderer& renderer );
 		virtual ~IRenderingPass() = default;
 
-		virtual void ClearRenderTargetView();
+		virtual void ClearTargetTexture();
 
-		virtual FORGE_INLINE void SetRenderTargetView( IRenderTargetView* renderTargetView )
+		virtual FORGE_INLINE void SetTargetTexture( ITexture& targetTexture )
 		{
-			m_renderTargetView = renderTargetView;
+			if( m_targetTexture != &targetTexture )
+			{
+				OnTargetTextureResized( targetTexture.GetTextureSize() );
+			}
+
+			m_targetTexture = &targetTexture;
+			m_onTargetTextureResized = m_targetTexture->GetOnResizedCallback().AddListener( [&]( const Vector2& size ) { OnTargetTextureResized( size ); } );		
 		}
 
-		FORGE_INLINE IRenderTargetView* GetRenderTargetView()
+		FORGE_INLINE ITexture* GetTargetTexture()
 		{
-			return m_renderTargetView;
+			return m_targetTexture;
 		}
 
 	protected:
@@ -29,9 +35,12 @@ namespace renderer
 			return m_renderer;
 		}
 
+		virtual void OnTargetTextureResized( const Vector2& size ) {}
+
 	private:
-		IRenderTargetView* m_renderTargetView = nullptr;	
+		ITexture* m_targetTexture;	
 		IRenderer& m_renderer;
+		forge::CallbackToken m_onTargetTextureResized;
 	};
 
 	class IMeshesRenderingPass : public IRenderingPass
@@ -40,7 +49,7 @@ namespace renderer
 		using IRenderingPass::IRenderingPass;
 
 		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables ) = 0;
-		virtual void ClearRenderTargetView() override;
+		virtual void ClearTargetTexture() override;
 
 		FORGE_INLINE void SetDepthStencilBuffer( IDepthStencilBuffer* depthStencilBuffer )
 		{

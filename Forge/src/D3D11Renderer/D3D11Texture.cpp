@@ -56,7 +56,7 @@ namespace d3d11
 	{
 		FORGE_ASSURE( device.GetDevice()->CreateTexture2D( &desc, nullptr, &m_texture ) == S_OK );
 
-		CreateViewsIfRequired( context, desc.BindFlags, srvFormat );
+		CreateViewsIfRequired( desc.BindFlags, srvFormat );
 	}
 
 	D3D11Texture::D3D11Texture( const D3D11Device& device, const D3D11RenderContext& context, ID3D11Texture2D& texture, DXGI_FORMAT srvFormat )
@@ -66,7 +66,7 @@ namespace d3d11
 	{
 		D3D11_TEXTURE2D_DESC textureDesc;
 		texture.GetDesc( &textureDesc );
-		CreateViewsIfRequired( context, textureDesc.BindFlags, srvFormat );
+		CreateViewsIfRequired( textureDesc.BindFlags, srvFormat );
 	}
 
 	D3D11Texture::D3D11Texture( const D3D11Device& device, const D3D11RenderContext& context, Uint32 width, Uint32 height, Flags flags, Format format, Format srvFormat )
@@ -88,15 +88,15 @@ namespace d3d11
 
 		FORGE_ASSURE( device.GetDevice()->CreateTexture2D( &desc, nullptr, &m_texture ) == S_OK );
 
-		CreateViewsIfRequired( context, FlagsToD3D11Flags( flags ), FormatToD3D11Format( format ) );
+		CreateViewsIfRequired( FlagsToD3D11Flags( flags ), FormatToD3D11Format( format ) );
 	}
 
 	D3D11Texture::~D3D11Texture()
 	{
-		m_texture->Release();
+		ReleaseResources();
 	}
 
-	void D3D11Texture::Resize( Uint32 width, Uint32 height )
+	void D3D11Texture::Resize( const Vector2& size )
 	{
 		D3D11_TEXTURE2D_DESC texDesc;
 
@@ -105,8 +105,8 @@ namespace d3d11
 			m_texture->Release();
 		}
 
-		texDesc.Width = width;
-		texDesc.Height = height;
+		texDesc.Width = static_cast< Uint32 >( size.X );
+		texDesc.Height = static_cast< Uint32 >( size.Y );
 
 		FORGE_ASSURE( m_device.GetDevice()->CreateTexture2D( &texDesc, nullptr, &m_texture ) == S_OK );
 
@@ -119,13 +119,23 @@ namespace d3d11
 		{
 			m_srv = std::make_unique< D3D11ShaderResourceView >( m_device, *m_texture, m_srv->GetDesc().Format );
 		}
+
+		InvokeResizeCallback( size );
 	}
 
-	void D3D11Texture::CreateViewsIfRequired( const D3D11RenderContext& context, Uint32 flags, Uint32 srvFormat )
+	Vector2 D3D11Texture::GetTextureSize() const
+	{
+		D3D11_TEXTURE2D_DESC texDesc;
+		m_texture->GetDesc( &texDesc );
+
+		return { static_cast< Float >( texDesc.Width ), static_cast< Float >( texDesc.Height ) };
+	}
+
+	void D3D11Texture::CreateViewsIfRequired( Uint32 flags, Uint32 srvFormat )
 	{
 		if( ( flags & D3D11_BIND_RENDER_TARGET ) != 0u )
 		{
-			m_rtv = std::make_unique< D3D11RenderTargetView >( m_device, context, *m_texture );
+			m_rtv = std::make_unique< D3D11RenderTargetView >( m_device, m_context, *m_texture );
 		}
 
 		if( ( flags & D3D11_BIND_SHADER_RESOURCE ) != 0u )

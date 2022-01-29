@@ -14,8 +14,9 @@ namespace renderer
 		DefferedRenderingPass( IRenderer& renderer );
 
 		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables ) override;
-		virtual void ClearRenderTargetView() override;
-		virtual void SetRenderTargetView( IRenderTargetView* renderTargetView ) override;
+		virtual void ClearTargetTexture() override;
+		virtual void SetTargetTexture( ITexture& targetTexture ) override;
+		virtual void OnTargetTextureResized( const Vector2& size ) override;
 
 		ITexture* GetNormalsTexture() const
 		{

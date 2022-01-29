@@ -26,7 +26,7 @@ void systems::RenderingSystem::OnInitialize()
 	m_cameraCB = m_renderer->CreateStaticConstantBuffer< renderer::cbCamera >();
 	m_rawRenderablesPackage = m_renderer->CreateRawRenderablesPackage( {} );
 	m_opaqueRenderingPass = std::make_unique< renderer::DefferedRenderingPass >( *m_renderer );
-	m_opaqueRenderingPass->SetRenderTargetView( m_renderer->GetRenderTargetView() );
+	m_opaqueRenderingPass->SetTargetTexture( m_renderer->GetSwapchain()->GetBackBuffer() );
 	m_opaqueRenderingPass->SetDepthStencilBuffer( m_renderer->GetDepthStencilBuffer() );
 
 #ifdef FORGE_DEBUGGING
@@ -57,9 +57,6 @@ void systems::RenderingSystem::OnInitialize()
 			GetEngineInstance().GetRenderer().GetShadersManager()->ClearCache();
 		}
 	} );
-
-	renderer::ITexture::Flags flags = renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE;
-	m_temporaryTexture = m_renderer->CreateTexture( static_cast<Uint32>( m_renderer->GetResolution().X ), static_cast<Uint32>( m_renderer->GetResolution().Y ), flags, renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Format::R8G8B8A8_UNORM );
 #endif
 }
 
@@ -69,9 +66,14 @@ void systems::RenderingSystem::OnRenderDebug()
 	ImGui::ShowDemoWindow();
 	ImGui::Begin( "RenderingDebug" );
 
+	auto funcDrawTexture = []( renderer::ITexture& texture )
 	{
-		Float aspectRatio = 9.0f / 16.0f;
-		ImVec2 textureSize = ImVec2( ImGui::GetWindowWidth(), ImGui::GetWindowWidth() * aspectRatio );
+		const Vector2& size = texture.GetTextureSize();
+		const ImVec2 textureSize = ImVec2( ImGui::GetWindowWidth(), ImGui::GetWindowWidth() * size.Y / size.X );
+		ImGui::Image( texture.GetShaderResourceView()->GetRawSRV(), textureSize );
+	};
+
+	{
 		if( ImGui::BeginTabBar( "##tabs" ) )
 		{
 			if( ImGui::BeginTabItem( "Loaded textures" ) )
@@ -79,7 +81,7 @@ void systems::RenderingSystem::OnRenderDebug()
 				auto loadedTextures = m_renderer->GetResourceManager().GetAllLoadedTextures();
 				for( const auto& texture : loadedTextures )
 				{
-					ImGui::Image( texture->GetShaderResourceView()->GetRawSRV(), textureSize );
+					funcDrawTexture( *texture );
 				}
 				ImGui::EndTabItem();
 			}
@@ -88,8 +90,8 @@ void systems::RenderingSystem::OnRenderDebug()
 			{
 				if( ImGui::BeginTabItem( "GBuffer" ) )
 				{
-					ImGui::Image( static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetNormalsTexture()->GetShaderResourceView()->GetRawSRV(), textureSize );
-					ImGui::Image( static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetDiffuseTexture()->GetShaderResourceView()->GetRawSRV(), textureSize );
+					funcDrawTexture( *static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetNormalsTexture() );
+					funcDrawTexture( *static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetDiffuseTexture() );
 					ImGui::EndTabItem();
 				}
 			}
@@ -112,9 +114,14 @@ void systems::RenderingSystem::OnRenderDebug()
 				cb->GetData().Denominator = m_depthBufferDenominator;
 				cb->UpdateBuffer();
 				cb->SetPS( renderer::PSConstantBufferType::Material );
-				fsPass.SetRenderTargetView( m_temporaryTexture->GetRenderTargetView() );
+
+				m_temporaryTexture = m_renderer->CreateTexture( static_cast<Uint32>( m_renderer->GetResolution().X ), static_cast<Uint32>( m_renderer->GetResolution().Y ),
+					renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
+					renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Format::R8G8B8A8_UNORM );
+
+				fsPass.SetTargetTexture( *m_temporaryTexture );
 				fsPass.Draw( { m_renderer->GetDepthStencilBuffer()->GetTexture()->GetShaderResourceView() } );
-				ImGui::Image( m_temporaryTexture->GetShaderResourceView()->GetRawSRV(), textureSize );
+				funcDrawTexture( *m_temporaryTexture );
 				ImGui::EndTabItem();
 			}
 
@@ -128,7 +135,7 @@ void systems::RenderingSystem::OnRenderDebug()
 void systems::RenderingSystem::OnBeforeDraw()
 {
 	m_renderer->BeginScene();
-	m_opaqueRenderingPass->ClearRenderTargetView();
+	m_opaqueRenderingPass->ClearTargetTexture();
 }
 
 void systems::RenderingSystem::OnDraw()

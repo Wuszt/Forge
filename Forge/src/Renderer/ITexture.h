@@ -23,9 +23,11 @@ namespace renderer
 			Last = BIND_SHADER_RESOURCE
 		};
 
-		virtual void Resize( Uint32 width, Uint32 height ) = 0;
+		virtual void Resize( const Vector2& size ) = 0;
 		virtual IShaderResourceView* GetShaderResourceView() const = 0;
 		virtual IRenderTargetView* GetRenderTargetView() const = 0;
+		virtual forge::Callback< const Vector2& >& GetOnResizedCallback() = 0;
+		virtual Vector2 GetTextureSize() const = 0;
 		virtual ~ITexture() = default;
 	};
 

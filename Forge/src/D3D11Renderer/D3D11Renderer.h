@@ -49,11 +49,6 @@ namespace d3d11
 			return m_context.get();
 		}
 
-		FORGE_INLINE virtual D3D11RenderTargetView* GetRenderTargetView() const override
-		{
-			return m_renderTargetView.get();
-		}
-
 		FORGE_INLINE virtual D3D11DepthStencilBuffer* GetDepthStencilBuffer() const override
 		{
 			return m_depthStencilBuffer.get();

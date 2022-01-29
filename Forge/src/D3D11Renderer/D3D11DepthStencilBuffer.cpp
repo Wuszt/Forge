@@ -8,6 +8,28 @@ namespace d3d11
 		: m_device( device )
 		, m_context( context )
 	{
+		CreateDepthStencil(width, height );
+	}
+
+	D3D11DepthStencilBuffer::~D3D11DepthStencilBuffer()
+	{
+		m_view->Release();
+	}
+
+	std::shared_ptr< renderer::ITexture > D3D11DepthStencilBuffer::GetTexture() const
+	{
+		return m_texture;
+	}
+
+	void D3D11DepthStencilBuffer::Resize( Uint32 width, Uint32 height )
+	{
+		m_view->Release();
+
+		CreateDepthStencil( width, height );
+	}
+
+	void D3D11DepthStencilBuffer::CreateDepthStencil( Uint32 width, Uint32 height )
+	{
 		D3D11_TEXTURE2D_DESC desc;
 
 		ZeroMemory( &desc, sizeof( desc ) );
@@ -22,7 +44,7 @@ namespace d3d11
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 
-		m_texture = std::make_shared< D3D11Texture >( device, context, desc, DXGI_FORMAT_R24_UNORM_X8_TYPELESS );
+		m_texture = std::make_shared< D3D11Texture >( m_device, m_context, desc, DXGI_FORMAT_R24_UNORM_X8_TYPELESS );
 
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 		dsvDesc.Flags = 0;
@@ -30,17 +52,7 @@ namespace d3d11
 		dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		dsvDesc.Texture2D.MipSlice = 0;
 
-		FORGE_ASSURE( device.GetDevice()->CreateDepthStencilView( m_texture->GetTexture(), &dsvDesc, &m_view ) == S_OK );
-	}
-
-	D3D11DepthStencilBuffer::~D3D11DepthStencilBuffer()
-	{
-		m_view->Release();
-	}
-
-	std::shared_ptr< renderer::ITexture > D3D11DepthStencilBuffer::GetTexture() const
-	{
-		return m_texture;
+		FORGE_ASSURE( m_device.GetDevice()->CreateDepthStencilView( m_texture->GetTexture(), &dsvDesc, &m_view ) == S_OK );
 	}
 
 	void D3D11DepthStencilBuffer::Clear()

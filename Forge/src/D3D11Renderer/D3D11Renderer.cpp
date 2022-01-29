@@ -48,8 +48,6 @@ namespace d3d11
 		FORGE_ASSERT( dynamic_cast<windows::WindowsWindow*>( &window ) );
 		InitializeSwapChainAndContext( static_cast<windows::WindowsWindow&>( window ) );
 
-		m_renderTargetView = std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), *m_swapChain->GetBackBuffer().GetTexture() );
-
 		m_depthStencilBuffer = std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), window.GetWidth(), window.GetHeight() );
 		m_shadersManager = std::make_unique< D3D11ShadersManager >( *GetDevice(), *GetContext() );
 
@@ -68,13 +66,11 @@ namespace d3d11
 				FORGE_ASSERT( dynamic_cast<const forge::IWindow::OnResizedEvent*>( &event ) );
 				const forge::IWindow::OnResizedEvent& resizedEvent = static_cast<const forge::IWindow::OnResizedEvent&>( event );
 
-				m_renderTargetView = nullptr;
 				GetSwapchain()->Resize( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
-
-				m_renderTargetView = std::make_unique< D3D11RenderTargetView >( *GetDevice(), *GetContext(), *GetSwapchain()->GetBackBuffer().GetTexture() );
-				m_depthStencilBuffer = std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), resizedEvent.GetWidth(), resizedEvent.GetHeight() );
+				m_depthStencilBuffer->Resize( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
 
 				InitializeViewport( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
+				m_resolution = { static_cast<Float>( window.GetWidth() ), static_cast<Float>( window.GetHeight() ) };
 				break;
 			}
 		} );

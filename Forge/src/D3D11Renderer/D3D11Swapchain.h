@@ -7,9 +7,14 @@ struct DXGI_SWAP_CHAIN_DESC;
 struct HWND__;
 typedef HWND__* HWND;
 
+namespace renderer
+{
+	class ITexture;
+}
+
 namespace d3d11
 {
-	class D3D11Texture;
+	class SwapchainTexture;
 
 	class D3D11Swapchain : public renderer::ISwapchain
 	{
@@ -25,10 +30,7 @@ namespace d3d11
 		}
 
 		virtual void Present() override;
-		D3D11Texture& GetBackBuffer() const
-		{
-			return *m_backBuffer;
-		}
+		virtual renderer::ITexture& GetBackBuffer() const override;
 
 		virtual void Resize( Uint32 width, Uint32 height ) override;
 
@@ -36,6 +38,6 @@ namespace d3d11
 		IDXGISwapChain* m_swapChain = nullptr;
 		const D3D11Device& m_device;
 		const D3D11RenderContext& m_context;
-		std::unique_ptr< D3D11Texture > m_backBuffer;
+		std::unique_ptr< SwapchainTexture > m_backBuffer;
 	};
 }

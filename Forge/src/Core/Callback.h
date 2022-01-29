@@ -83,7 +83,7 @@ namespace forge
 		Callback() = default;
 		~Callback() = default;
 
-		FORGE_INLINE void Invoke( TParams... params )
+		FORGE_INLINE void Invoke( TParams... params ) const
 		{
 			for( const auto& func : m_funcs )
 			{

@@ -5,14 +5,14 @@ renderer::IRenderingPass::IRenderingPass( IRenderer& renderer )
 	: m_renderer( renderer )
 {}
 
-void renderer::IRenderingPass::ClearRenderTargetView()
+void renderer::IRenderingPass::ClearTargetTexture()
 {
-	m_renderTargetView->Clear();
+	m_targetTexture->GetRenderTargetView()->Clear();
 }
 
-void renderer::IMeshesRenderingPass::ClearRenderTargetView()
+void renderer::IMeshesRenderingPass::ClearTargetTexture()
 {
-	IRenderingPass::ClearRenderTargetView();
+	IRenderingPass::ClearTargetTexture();
 
 	if( m_depthStencilBuffer )
 	{

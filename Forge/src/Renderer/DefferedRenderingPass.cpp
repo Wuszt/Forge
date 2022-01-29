@@ -30,16 +30,22 @@ void renderer::DefferedRenderingPass::Draw( const renderer::IRawRenderablesPack&
 	m_lightingPass->Draw( srvs );
 }
 
-void renderer::DefferedRenderingPass::ClearRenderTargetView()
+void renderer::DefferedRenderingPass::ClearTargetTexture()
 {
-	IMeshesRenderingPass::ClearRenderTargetView();
-	m_lightingPass->ClearRenderTargetView();
+	IMeshesRenderingPass::ClearTargetTexture();
+	m_lightingPass->ClearTargetTexture();
 	m_diffuseTexture->GetRenderTargetView()->Clear();
 	m_normalsTexture->GetRenderTargetView()->Clear();
 }
 
-void renderer::DefferedRenderingPass::SetRenderTargetView( IRenderTargetView* renderTargetView )
+void renderer::DefferedRenderingPass::SetTargetTexture( ITexture& targetTexture )
 {
-	renderer::IMeshesRenderingPass::SetRenderTargetView( renderTargetView );
-	m_lightingPass->SetRenderTargetView( renderTargetView );
+	renderer::IMeshesRenderingPass::SetTargetTexture( targetTexture );
+	m_lightingPass->SetTargetTexture( targetTexture );
+}
+
+void renderer::DefferedRenderingPass::OnTargetTextureResized( const Vector2& size )
+{
+	m_normalsTexture->Resize( size );
+	m_diffuseTexture->Resize( size );
 }

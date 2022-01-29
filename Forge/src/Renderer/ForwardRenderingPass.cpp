@@ -3,7 +3,7 @@
 
 void renderer::ForwardRenderingPass::Draw( const renderer::IRawRenderablesPack& rawRenderables )
 {
-	std::vector< renderer::IRenderTargetView* > views{ GetRenderTargetView() };
+	std::vector< renderer::IRenderTargetView* > views{ GetTargetTexture()->GetRenderTargetView() };
 	GetRenderer().SetRenderTargets( views, GetDepthStencilBuffer() );
 
 	GetRenderer().Draw( rawRenderables );
