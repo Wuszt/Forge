@@ -208,7 +208,7 @@ void systems::RenderingSystem::OnPresent()
 	m_renderer->GetSwapchain()->Present();
 }
 
-void systems::RenderingSystem::SetSamplers( const std::vector< renderer::SamplerStateFilterType >& filterTypes )
+void systems::RenderingSystem::SetSamplers( const forge::ArraySpan< const renderer::SamplerStateFilterType >& filterTypes )
 {
 	std::vector< renderer::ISamplerState* > samplerStates;
 	for( auto filterType : filterTypes )

@@ -21,9 +21,9 @@ namespace AI
 	}
 
 	template< class DataType >
-	static void GetPaths( const std::vector< DataType >& nodesData, std::vector< PathAsNodes >& outPaths )
+	static void GetPaths( const forge::ArraySpan< const DataType >& nodesData, std::vector< PathAsNodes >& outPaths )
 	{
-		for( Uint32 i = 0; i < nodesData.size(); ++i )
+		for( Uint32 i = 0; i < nodesData.GetSize(); ++i )
 		{
 			PathAsNodes path;
 
@@ -46,9 +46,9 @@ namespace AI
 	}
 
 	template< class GraphType, class DataType >
-	static void GetPaths( const GraphType& graph, const std::vector< DataType >& nodesData, std::vector< PathAsConnections >& outPaths )
+	static void GetPaths( const GraphType& graph, const forge::ArraySpan< const DataType >& nodesData, std::vector< PathAsConnections >& outPaths )
 	{
-		for( Uint32 i = 0; i < nodesData.size(); ++i )
+		for( Uint32 i = 0; i < nodesData.GetSize(); ++i )
 		{
 			PathAsConnections path;
 
@@ -147,14 +147,14 @@ namespace AI
 	void PerformDijkstra( NodeID startNode, const GraphType& graph, std::vector< PathAsNodes >& outPaths )
 	{
 		std::vector< DijkstraNodeData > data = PerformDijkstraInternal( startNode, graph );
-		GetPaths( data, outPaths );
+		GetPaths( forge::ArraySpan< const DijkstraNodeData >( data ), outPaths );
 	}
 
 	template< class GraphType >
 	void PerformDijkstra( NodeID startNode, const GraphType& graph, std::vector< PathAsConnections >& outPaths )
 	{
 		std::vector< DijkstraNodeData > data = PerformDijkstraInternal( startNode, graph );
-		GetPaths( graph, data, outPaths );
+		GetPaths( graph, forge::ArraySpan< const DijkstraNodeData >( data ), outPaths );
 	}
 
 	template< class DataType >

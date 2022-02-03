@@ -102,16 +102,16 @@ namespace d3d11
 		return std::make_unique< D3D11Texture >( *GetDevice(), *GetContext(), width, height, flags, format, srvFormat );
 	}
 
-	void D3D11Renderer::SetRenderTargets( const std::vector< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer )
+	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* const >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer )
 	{
 		FORGE_ASSERT( depthStencilBuffer == nullptr || dynamic_cast<D3D11DepthStencilBuffer*>( depthStencilBuffer ) );
 		SetRenderTargets( rendererTargetViews, static_cast<D3D11DepthStencilBuffer*>( depthStencilBuffer ) );
 	}
 
-	void D3D11Renderer::SetRenderTargets( const std::vector< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer )
+	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* const >& rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer )
 	{
 		std::vector< ID3D11RenderTargetView* > views;
-		views.reserve( rendererTargetViews.size() );
+		views.reserve( rendererTargetViews.GetSize() );
 
 		for( const renderer::IRenderTargetView* target : rendererTargetViews )
 		{
@@ -127,10 +127,10 @@ namespace d3d11
 		return std::make_unique< d3d11::D3D11SamplerState >( *GetDevice(), filterType );
 	}
 
-	void D3D11Renderer::SetSamplerStates( const std::vector< renderer::ISamplerState* > samplerStates )
+	void D3D11Renderer::SetSamplerStates( const forge::ArraySpan< renderer::ISamplerState* > samplerStates )
 	{
 		std::vector< ID3D11SamplerState* > rawStates;
-		rawStates.reserve( samplerStates.size() );
+		rawStates.reserve( samplerStates.GetSize() );
 		for( const renderer::ISamplerState* samplerState : samplerStates )
 		{
 			FORGE_ASSERT( dynamic_cast< const D3D11SamplerState* >( samplerState ) );
@@ -140,10 +140,10 @@ namespace d3d11
 		GetContext()->GetDeviceContext()->PSSetSamplers( 0u, static_cast< Uint32 >( rawStates.size() ), rawStates.data() );
 	}
 
-	void D3D11Renderer::SetShaderResourceViews( const std::vector< renderer::IShaderResourceView* >& input )
+	void D3D11Renderer::SetShaderResourceViews( const forge::ArraySpan< renderer::IShaderResourceView* >& input )
 	{
 		std::vector< ID3D11ShaderResourceView* > srvs;
-		srvs.reserve( input.size() );
+		srvs.reserve( input.GetSize() );
 
 		for( const auto srv : input )
 		{
@@ -178,7 +178,7 @@ namespace d3d11
 		}
 	}
 
-	std::unique_ptr< renderer::IRawRenderablesPack > D3D11Renderer::CreateRawRenderablesPackage( const std::vector< const renderer::Renderable* >& renderables ) const
+	std::unique_ptr< renderer::IRawRenderablesPack > D3D11Renderer::CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* const >& renderables ) const
 	{
 		auto result = std::make_unique< RawRenderablesPack >();
 

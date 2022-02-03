@@ -60,15 +60,15 @@ namespace d3d11
 		}
 	}
 
-	void ConstructLayout( const std::vector< renderer::InputElementDescription >& inputElements, std::vector< D3D11_INPUT_ELEMENT_DESC >& outLayout )
+	void ConstructLayout( const forge::ArraySpan< const renderer::InputElementDescription >& inputElements, std::vector< D3D11_INPUT_ELEMENT_DESC >& outLayout )
 	{
 		Uint32 semanticIndices[ static_cast<Uint32>( renderer::InputType::Count ) ] = { 0 };
 
 		Uint32 currentOffset = 0u;
-		for( auto it = inputElements.begin(); it != inputElements.end(); ++it )
+		for( const auto& it : inputElements )
 		{
-			outLayout.push_back( { InputTypeToString( it->m_inputType ), semanticIndices[ static_cast<Uint32>( it->m_inputType ) ]++, InputFormatToD3D11Format( it->m_inputFormat ), 0, currentOffset, InputClassificationToD3D11Classification( it->m_classification ), 0 } );
-			currentOffset += it->m_size;
+			outLayout.emplace_back( D3D11_INPUT_ELEMENT_DESC{ InputTypeToString( it.m_inputType ), semanticIndices[ static_cast<Uint32>( it.m_inputType ) ]++, InputFormatToD3D11Format( it.m_inputFormat ), 0, currentOffset, InputClassificationToD3D11Classification( it.m_classification ), 0 } );
+			currentOffset += it.m_size;
 		}
 	}
 

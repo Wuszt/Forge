@@ -70,17 +70,17 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::ITexture> CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Format srvFormat = renderer::ITexture::Format::Unknown ) const override;
 
 
-		virtual void SetRenderTargets( const std::vector< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer ) override;
+		virtual void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* const >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer ) override;
 
 		virtual std::unique_ptr< renderer::ISamplerState > CreateSamplerState( renderer::SamplerStateFilterType filterType ) override;
-		virtual void SetSamplerStates( const std::vector< renderer::ISamplerState* > samplerStates ) override;
+		virtual void SetSamplerStates( const forge::ArraySpan< renderer::ISamplerState* > samplerStates ) override;
 
-		virtual void SetShaderResourceViews( const std::vector< renderer::IShaderResourceView* >& input ) override;
+		virtual void SetShaderResourceViews( const forge::ArraySpan< renderer::IShaderResourceView* >& input ) override;
 		virtual void ClearShaderResourceViews() override;
 
 		virtual void BeginScene() override;
 
-		virtual std::unique_ptr< renderer::IRawRenderablesPack > CreateRawRenderablesPackage( const std::vector< const renderer::Renderable* >& renderables ) const;
+		virtual std::unique_ptr< renderer::IRawRenderablesPack > CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* const >& renderables ) const;
 
 		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables ) override;
 		virtual void DrawRawVertices( Uint32 amount ) override;
@@ -100,7 +100,7 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::ITexturesLoader > CreateTexturesLoader() const override;
 
 	private:
-		void SetRenderTargets( const std::vector< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer );
+		void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* const >& rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer );
 		void InitializeSwapChainAndContext( const windows::WindowsWindow& window );
 		void InitializeViewport( Uint32 width, Uint32 height );
 		void InitializeRasterizer();

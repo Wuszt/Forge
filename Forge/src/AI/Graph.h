@@ -170,10 +170,10 @@ namespace AI
 			return m_nodesData[ id ];
 		}
 
-		std::vector< T > TranslatePath( const std::vector< NodeID >& path )
+		std::vector< T > TranslatePath( const forge::ArraySpan< NodeID >& path )
 		{
 			std::vector< T > result;
-			result.reserve( path.size() );
+			result.reserve( path.GetSize() );
 
 			for( NodeID id : path )
 			{
@@ -235,10 +235,10 @@ namespace AI
 			Graph< Node>::AddConnection( fromId, toId, cost );
 		}
 
-		std::vector< T > TranslatePath( const std::vector< NodeID >& path )
+		std::vector< T > TranslatePath( const forge::ArraySpan< NodeID >& path )
 		{
 			std::vector< T > result;
-			result.reserve( path.size() );
+			result.reserve( path.GetSize() );
 
 			for( NodeID id : path )
 			{

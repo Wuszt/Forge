@@ -42,7 +42,7 @@ namespace systems
 
 		void OnPresent();
 
-		void SetSamplers( const std::vector< renderer::SamplerStateFilterType >& filterTypes );
+		void SetSamplers( const forge::ArraySpan< const renderer::SamplerStateFilterType >& filterTypes );
 
 	private:
 		systems::CamerasSystem* m_camerasSystem = nullptr;

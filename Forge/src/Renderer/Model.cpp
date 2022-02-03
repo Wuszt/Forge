@@ -5,7 +5,7 @@
 #include "../Renderer/IRenderer.h"
 #include "IModelsLoader.h"
 
-renderer::Model::Model( renderer::IRenderer& renderer, const renderer::Vertices& vertices, const std::vector< renderer::Shape >& shapes )
+renderer::Model::Model( renderer::IRenderer& renderer, const renderer::Vertices& vertices, const forge::ArraySpan< const renderer::Shape >& shapes )
 {
 	m_vertexBuffer = renderer.CreateVertexBuffer( vertices );
 

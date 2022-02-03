@@ -37,7 +37,7 @@ void systems::SystemsManager::Deinitialize()
 	m_onTick.Unregister();
 }
 
-Uint32 GetTypesHash( const std::vector< std::unique_ptr< forge::IDataPackage > >& dataPackages )
+Uint32 GetTypesHash( const forge::ArraySpan< const std::unique_ptr< forge::IDataPackage > >& dataPackages )
 {
 	Uint32 typesHash = 0u;
 

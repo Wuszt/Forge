@@ -35,6 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ArraySpan.h" />
     <ClInclude Include="Callback.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="DataPackage.h" />
@@ -56,6 +57,7 @@
     <ClInclude Include="WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ArraySpan.cpp" />
     <ClCompile Include="Callback.cpp" />
     <ClCompile Include="DataPackage.cpp" />
     <ClCompile Include="FPSCounter.cpp" />
