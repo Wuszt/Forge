@@ -10,6 +10,7 @@ namespace forge
 		~PerspectiveCamera();
 
 		virtual Matrix GetProjectionMatrix() const override;
+		virtual Matrix GetInvViewMatrix() const override;
 		virtual Matrix GetViewMatrix() const override;
 		virtual Matrix GetViewProjectionMatrix() const override;
 

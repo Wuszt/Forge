@@ -26,7 +26,9 @@ namespace renderer
 	class ResourcesManager;
 	class ITexturesLoader;
 	class ISamplerState;
+	class IBlendState;
 	enum class SamplerStateFilterType;
+	struct BlendOperationDesc;
 
 	enum class RendererType
 	{
@@ -55,6 +57,7 @@ namespace renderer
 		virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const Vertices& vertices ) const = 0;
 		virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const = 0;
 		virtual std::unique_ptr< ITexture > CreateTexture( Uint32 width, Uint32 height, ITexture::Flags flags, ITexture::Format format, ITexture::Format srvFormat = ITexture::Format::Unknown ) const = 0;
+		virtual std::unique_ptr< IBlendState > CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc ) = 0;
 
 		void Initialize();
 
@@ -66,7 +69,7 @@ namespace renderer
 		virtual void SetShaderResourceViews( const forge::ArraySpan< IShaderResourceView* >& input ) = 0;
 		virtual void ClearShaderResourceViews() = 0;
 
-		virtual void BeginScene() = 0;
+		virtual void OnBeforeDraw() = 0;
 
 		virtual RendererType GetType() const = 0;
 

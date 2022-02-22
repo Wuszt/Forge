@@ -48,6 +48,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="FullScreenRenderingPass.cpp" />
+    <ClCompile Include="IBlendState.cpp" />
     <ClCompile Include="ICamera.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="IDepthStencilBuffer.cpp" />
@@ -59,6 +60,7 @@
     <ClCompile Include="IShaderResourceView.cpp" />
     <ClCompile Include="ITexture.cpp" />
     <ClCompile Include="ITexturesLoader.cpp" />
+    <ClCompile Include="LightData.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="IPixelShader.cpp" />
@@ -80,6 +82,7 @@
     <ClInclude Include="ForwardRenderingPass.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="FullScreenRenderingPass.h" />
+    <ClInclude Include="IBlendState.h" />
     <ClInclude Include="ICamera.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="IDepthStencilBuffer.h" />
@@ -91,6 +94,7 @@
     <ClInclude Include="IShaderResourceView.h" />
     <ClInclude Include="ITexture.h" />
     <ClInclude Include="ITexturesLoader.h" />
+    <ClInclude Include="LightData.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="InternalDefaults.h" />

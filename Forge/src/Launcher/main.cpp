@@ -14,6 +14,8 @@
 #include "../D3D11Renderer/D3D11TexturesLoader.h"
 #include "../Renderer/IRenderer.h"
 #include "../Core/IInput.h"
+#include "../Systems/LightComponent.h"
+#include "../Systems/LightingSystem.h"
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -153,6 +155,7 @@ Int32 main()
 			ctx.AddSystem< systems::CamerasSystem >();
 			ctx.AddSystem< systems::PlayerSystem >();
 			ctx.AddSystem< systems::RenderingSystem >();
+			ctx.AddSystem< systems::LightingSystem >();
 
 #ifdef FORGE_DEBUGGING
 			ctx.AddSystem< systems::DebugSystem >();
@@ -165,6 +168,7 @@ Int32 main()
 			engineInstance.GetSystemsManager().Boot( ctx );
 
 			engineInstance.GetSystemsManager().GetSystem< systems::RenderingSystem >().SetSamplers( { renderer::SamplerStateFilterType::MIN_MAG_MIP_LINEAR } );
+			engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor( { 0.1f, 0.1f, 0.1f } );
 
 			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* player )
 			{
@@ -178,6 +182,33 @@ Int32 main()
 
 					auto* freeCameraController = player->GetComponent< forge::FreeCameraControllerComponent >();
 					engineInstancePtr->GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent( *freeCameraController );
+				} );
+			} );
+
+			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+			{
+				light->RequestAddingComponents< forge::TransformComponent, forge::LightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+				{
+					light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -1000.0f, 200.0f } );
+					light->GetComponent< forge::LightComponent >()->GetData().m_color = { 1.0f, 0.0f, 0.0f };
+				} );
+			} );
+
+			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+			{
+				light->RequestAddingComponents< forge::TransformComponent, forge::LightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+				{
+					light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 200.0f } );
+					light->GetComponent< forge::LightComponent >()->GetData().m_color = { 0.0f, 1.0f, 0.0f };
+				} );
+			} );
+
+			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+			{
+				light->RequestAddingComponents< forge::TransformComponent, forge::LightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+				{
+					light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 1100.0f, 200.0f } );
+					light->GetComponent< forge::LightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
 				} );
 			} );
 

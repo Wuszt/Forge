@@ -67,8 +67,8 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::IInputLayout > CreateInputLayout( const renderer::IVertexShader& vertexShader, const renderer::IVertexBuffer& vertexBuffer ) const override;
 		virtual std::unique_ptr< renderer::IVertexBuffer > CreateVertexBuffer( const renderer::Vertices& vertices ) const override;
 		virtual std::unique_ptr< renderer::IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const override;
-		virtual std::unique_ptr< renderer::ITexture> CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Format srvFormat = renderer::ITexture::Format::Unknown ) const override;
-
+		virtual std::unique_ptr< renderer::ITexture > CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Format srvFormat = renderer::ITexture::Format::Unknown ) const override;
+		virtual std::unique_ptr< renderer::IBlendState > CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc ) override;
 
 		virtual void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* const >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer ) override;
 
@@ -78,7 +78,7 @@ namespace d3d11
 		virtual void SetShaderResourceViews( const forge::ArraySpan< renderer::IShaderResourceView* >& input ) override;
 		virtual void ClearShaderResourceViews() override;
 
-		virtual void BeginScene() override;
+		virtual void OnBeforeDraw() override;
 
 		virtual std::unique_ptr< renderer::IRawRenderablesPack > CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* const >& renderables ) const;
 

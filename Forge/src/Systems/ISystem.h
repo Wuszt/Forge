@@ -118,14 +118,15 @@ namespace systems
 		virtual void OnInitialize() {}
 		virtual void OnDeinitialize() {}
 
-#ifdef FORGE_DEBUGGING
-		virtual void OnRenderDebug() {}
-#endif
-
 		FORGE_INLINE forge::EngineInstance& GetEngineInstance() const
 		{
 			return m_engineInstance;
 		}
+
+	protected:
+#ifdef FORGE_DEBUGGING
+		virtual void OnRenderDebug() {}
+#endif
 
 	private:
 		forge::EngineInstance& m_engineInstance;

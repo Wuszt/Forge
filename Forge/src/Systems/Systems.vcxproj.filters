@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Systems">
+      <UniqueIdentifier>{3817602b-5942-4f80-9c8e-bc8f9be06aa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Systems">
+      <UniqueIdentifier>{b7dd9015-a2f8-48b0-9ebf-916cb38a291f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components">
+      <UniqueIdentifier>{28a43697-b0dc-450b-9ee5-19ff29acf044}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components">
+      <UniqueIdentifier>{ed5a204c-530f-4f46-be33-20e0acaa3bb6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fpch.h">
@@ -24,13 +36,7 @@
     <ClInclude Include="InternalDefaults.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ISystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SystemsManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EntitiesManager.h">
@@ -42,43 +48,55 @@
     <ClInclude Include="EntityID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CamerasSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerControllerComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="UpdateManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EngineInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RenderingSystem.h">
+    <ClInclude Include="ApplicationInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RenderingComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUISystem.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="CamerasSystem.h">
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="DebugSystem.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="ApplicationInstance.h">
+    <ClInclude Include="IMGUISystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="ISystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerControllerComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="IComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="LightComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -86,13 +104,7 @@
     <ClCompile Include="Fpch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ISystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SystemsManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TransformSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EntitiesManager.cpp">
@@ -104,43 +116,55 @@
     <ClCompile Include="EntityID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TransformComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CamerasSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerControllerComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="UpdateManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EngineInstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RenderingSystem.cpp">
+    <ClCompile Include="ApplicationInstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RenderingComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUISystem.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="CamerasSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
     </ClCompile>
     <ClCompile Include="DebugSystem.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Systems</Filter>
     </ClCompile>
-    <ClCompile Include="ApplicationInstance.cpp">
+    <ClCompile Include="IMGUISystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="ISystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="LightingSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="IComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerControllerComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="LightComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

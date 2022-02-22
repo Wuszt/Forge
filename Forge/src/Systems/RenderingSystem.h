@@ -32,10 +32,6 @@ namespace systems
 
 		virtual void OnInitialize() override;
 
-#ifdef FORGE_IMGUI_ENABLED
-		virtual void OnRenderDebug() override;
-#endif
-
 		void OnBeforeDraw();
 
 		void OnDraw();
@@ -43,6 +39,11 @@ namespace systems
 		void OnPresent();
 
 		void SetSamplers( const forge::ArraySpan< const renderer::SamplerStateFilterType >& filterTypes );
+
+	protected:
+#ifdef FORGE_IMGUI_ENABLED
+		virtual void OnRenderDebug() override;
+#endif
 
 	private:
 		systems::CamerasSystem* m_camerasSystem = nullptr;

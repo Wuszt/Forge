@@ -4,6 +4,7 @@ namespace renderer
 {
 	class IRenderTargetView;
 	struct IRawRenderablesPack;
+	struct LightData;
 
 	class IRenderingPass
 	{
@@ -43,12 +44,18 @@ namespace renderer
 		forge::CallbackToken m_onTargetTextureResized;
 	};
 
+	struct LightingData
+	{
+		Vector3 m_ambientLight;
+		forge::ArraySpan< const LightData > m_worldLights;
+	};
+
 	class IMeshesRenderingPass : public IRenderingPass
 	{
 	public:
 		using IRenderingPass::IRenderingPass;
 
-		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables ) = 0;
+		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData& lightingData ) = 0;
 		virtual void ClearTargetTexture() override;
 
 		FORGE_INLINE void SetDepthStencilBuffer( IDepthStencilBuffer* depthStencilBuffer )

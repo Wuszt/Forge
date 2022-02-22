@@ -29,7 +29,7 @@ Custom_VS_Output Vert(Custom_VS_Input input)
     float4x4 WVP = mul(VP, W);
     output.Pos = mul(WVP, float4(input.Pos, 1.0f));
     output.TexCoord = input.TexCoord;
-    output.Normal = normalize(mul(W, float4(input.Normal, 1.0f)).xyz);
+    output.Normal = normalize(mul(W, float4(input.Normal, 0.0f)).xyz);
     output.WorldPos = mul(W, float4(input.Pos, 1.0f)).xyz;
 
     return output;

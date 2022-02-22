@@ -6,6 +6,7 @@
 #include "D3D11Device.h"
 #include "D3D11ShadersManager.h"
 #include "D3D11SamplerState.h"
+#include "D3D11BlendState.h"
 
 namespace d3d11
 {
@@ -102,6 +103,11 @@ namespace d3d11
 		return std::make_unique< D3D11Texture >( *GetDevice(), *GetContext(), width, height, flags, format, srvFormat );
 	}
 
+	std::unique_ptr< renderer::IBlendState > D3D11Renderer::CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc )
+	{
+		return std::make_unique< d3d11::D3D11BlendState >( *GetDevice(), *GetContext(), rgbOperation, alphaDesc );
+	}
+
 	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* const >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer )
 	{
 		FORGE_ASSERT( depthStencilBuffer == nullptr || dynamic_cast<D3D11DepthStencilBuffer*>( depthStencilBuffer ) );
@@ -160,7 +166,7 @@ namespace d3d11
 		GetContext()->GetDeviceContext()->PSSetShaderResources( 0, static_cast<Uint32>( D3D11_STANDARD_VERTEX_ELEMENT_COUNT ), srvs );
 	}
 
-	void D3D11Renderer::BeginScene()
+	void D3D11Renderer::OnBeforeDraw()
 	{
 		{
 			struct cbFrame

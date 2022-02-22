@@ -11,6 +11,11 @@ namespace forge
 			, m_end( nullptr )
 		{}
 
+		ArraySpan( const ArraySpan< T >& other )
+			: m_begin( other.m_begin )
+			, m_end( other.m_end )
+		{}
+
 		ArraySpan( T* begin, T* end )
 			: m_begin( begin )
 			, m_end( end )
@@ -21,7 +26,10 @@ namespace forge
 			: ArraySpan( std::begin( container ), std::end( container ) )
 		{}
 
-		ArraySpan( const ArraySpan< T >& as ) = delete;
+		template< class TContainer >
+		ArraySpan( const TContainer& container )
+			: ArraySpan( std::begin( container ), std::end( container ) )
+		{}
 
 		template< class T >
 		ArraySpan( std::initializer_list< T > container )

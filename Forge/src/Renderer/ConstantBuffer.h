@@ -29,18 +29,22 @@ namespace renderer
 
 	enum class VSConstantBufferType
 	{
-		Frame,
-		Material,
-		Mesh,
-		Camera
+		Frame = 0,
+		Material = 1,
+		Mesh = 2,
+		Camera = 3,
+		RenderingPass = 4,
+		Light = 5,
 	};
 
 	enum class PSConstantBufferType
 	{
-		Frame,
-		Material,
-		Mesh,
-		Camera
+		Frame = 0,
+		Material = 1,
+		Mesh = 2,
+		Camera = 3,
+		RenderingPass = 4,
+		Light = 5,
 	};
 
 	class IConstantBuffer

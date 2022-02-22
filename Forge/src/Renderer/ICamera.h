@@ -13,6 +13,7 @@ namespace forge
 
 		virtual ~ICamera() {}
 
+		virtual Matrix GetInvViewMatrix() const = 0;
 		virtual Matrix GetViewMatrix() const = 0;
 		virtual Matrix GetProjectionMatrix() const = 0;
 		virtual Matrix GetViewProjectionMatrix() const = 0;

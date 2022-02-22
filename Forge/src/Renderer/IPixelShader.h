@@ -5,7 +5,7 @@ namespace renderer
 	class IPixelShader
 	{
 	public:
-		~IPixelShader() {}
+		virtual ~IPixelShader() {}
 
 		virtual void Set() const = 0;
 	};

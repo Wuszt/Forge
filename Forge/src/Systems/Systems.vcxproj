@@ -326,6 +326,8 @@
     <ClCompile Include="IComponent.cpp" />
     <ClCompile Include="IMGUISystem.cpp" />
     <ClCompile Include="ISystem.cpp" />
+    <ClCompile Include="LightComponent.cpp" />
+    <ClCompile Include="LightingSystem.cpp" />
     <ClCompile Include="PlayerControllerComponent.cpp" />
     <ClCompile Include="PlayerSystem.cpp" />
     <ClCompile Include="RenderingComponent.cpp" />
@@ -349,6 +351,8 @@
     <ClInclude Include="IMGUISystem.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="ISystem.h" />
+    <ClInclude Include="LightComponent.h" />
+    <ClInclude Include="LightingSystem.h" />
     <ClInclude Include="PlayerControllerComponent.h" />
     <ClInclude Include="PlayerSystem.h" />
     <ClInclude Include="PublicDefaults.h" />

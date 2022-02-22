@@ -101,6 +101,12 @@
     <ClCompile Include="FullScreenRenderingPass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LightData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IBlendState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IRenderer.h">
@@ -197,6 +203,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FullScreenRenderingPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LightData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IBlendState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

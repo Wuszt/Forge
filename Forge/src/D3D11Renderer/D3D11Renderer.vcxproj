@@ -282,6 +282,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="D3D11BlendState.cpp" />
     <ClCompile Include="D3D11ConstantBufferImpl.cpp" />
     <ClCompile Include="D3D11DepthStencilBuffer.cpp" />
     <ClCompile Include="D3D11RenderContext.cpp" />
@@ -312,6 +313,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\External\WICTextureLoader\WICTextureLoader11.h" />
+    <ClInclude Include="D3D11BlendState.h" />
     <ClInclude Include="D3D11ConstantBufferImpl.h" />
     <ClInclude Include="D3D11DepthStencilBuffer.h" />
     <ClInclude Include="D3D11RenderContext.h" />

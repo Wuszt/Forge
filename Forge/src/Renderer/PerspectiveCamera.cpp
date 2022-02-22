@@ -28,6 +28,11 @@ namespace forge
 		);
 	}
 
+	Matrix PerspectiveCamera::GetInvViewMatrix() const
+	{
+		return m_transform.ToMatrix();
+	}
+
 	Matrix PerspectiveCamera::GetViewMatrix() const
 	{
 		return m_transform.ToMatrix().OrthonormInverted();

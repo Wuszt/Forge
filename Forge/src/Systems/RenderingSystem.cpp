@@ -8,12 +8,14 @@
 #include "../Renderer/Renderable.h"
 #include "../Renderer/ForwardRenderingPass.h"
 #include "../Renderer/DefferedRenderingPass.h"
+#include "LightingSystem.h"
 
 #ifdef FORGE_IMGUI_ENABLED
 #include "../../External/imgui/imgui.h"
 #include "../Renderer/FullScreenRenderingPass.h"
 #include "../Renderer/ICamera.h"
 #endif
+#include "../Renderer/LightData.h"
 
 void systems::RenderingSystem::OnInitialize()
 {
@@ -25,7 +27,7 @@ void systems::RenderingSystem::OnInitialize()
 	m_presentToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Present, std::bind( &systems::RenderingSystem::OnPresent, this ) );
 	m_cameraCB = m_renderer->CreateStaticConstantBuffer< renderer::cbCamera >();
 	m_rawRenderablesPackage = m_renderer->CreateRawRenderablesPackage( {} );
-	m_opaqueRenderingPass = std::make_unique< renderer::DefferedRenderingPass >( *m_renderer );
+	m_opaqueRenderingPass = std::make_unique< renderer::DefferedRenderingPass >( *m_renderer, [ cameraSystem = m_camerasSystem ]() -> decltype(auto) { return cameraSystem->GetActiveCamera()->GetCamera(); } );
 	m_opaqueRenderingPass->SetTargetTexture( m_renderer->GetSwapchain()->GetBackBuffer() );
 	m_opaqueRenderingPass->SetDepthStencilBuffer( m_renderer->GetDepthStencilBuffer() );
 
@@ -134,7 +136,7 @@ void systems::RenderingSystem::OnRenderDebug()
 
 void systems::RenderingSystem::OnBeforeDraw()
 {
-	m_renderer->BeginScene();
+	m_renderer->OnBeforeDraw();
 	m_opaqueRenderingPass->ClearTargetTexture();
 }
 
@@ -199,7 +201,8 @@ void systems::RenderingSystem::OnDraw()
 
 	if( m_rawRenderablesPackage )
 	{
-		m_opaqueRenderingPass->Draw( *m_rawRenderablesPackage );
+		auto& lightingSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::LightingSystem >();
+		m_opaqueRenderingPass->Draw( *m_rawRenderablesPackage, { lightingSystem.GetAmbientColor(), lightingSystem.GetLights() } );
 	}
 }
 
