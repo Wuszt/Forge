@@ -33,7 +33,8 @@ namespace forge
 
 		template< class T >
 		ArraySpan( std::initializer_list< T > container )
-			: ArraySpan( std::begin( container ), std::end( container ) )
+			: ArraySpan( const_cast< T* >( std::begin( container ) ),
+				const_cast< T* >( std::end( container ) ) )
 		{}
 
 		template< class TIterator, typename = typename std::enable_if< !std::is_pointer< TIterator >::value >::type >

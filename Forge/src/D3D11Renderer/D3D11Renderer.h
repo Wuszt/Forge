@@ -70,7 +70,7 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::ITexture > CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Format srvFormat = renderer::ITexture::Format::Unknown ) const override;
 		virtual std::unique_ptr< renderer::IBlendState > CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc ) override;
 
-		virtual void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* const >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer ) override;
+		virtual void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer ) override;
 
 		virtual std::unique_ptr< renderer::ISamplerState > CreateSamplerState( renderer::SamplerStateFilterType filterType ) override;
 		virtual void SetSamplerStates( const forge::ArraySpan< renderer::ISamplerState* > samplerStates ) override;
@@ -100,7 +100,7 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::ITexturesLoader > CreateTexturesLoader() const override;
 
 	private:
-		void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* const >& rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer );
+		void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer );
 		void InitializeSwapChainAndContext( const windows::WindowsWindow& window );
 		void InitializeViewport( Uint32 width, Uint32 height );
 		void InitializeRasterizer();

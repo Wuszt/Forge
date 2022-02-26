@@ -108,13 +108,13 @@ namespace d3d11
 		return std::make_unique< d3d11::D3D11BlendState >( *GetDevice(), *GetContext(), rgbOperation, alphaDesc );
 	}
 
-	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* const >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer )
+	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer )
 	{
 		FORGE_ASSERT( depthStencilBuffer == nullptr || dynamic_cast<D3D11DepthStencilBuffer*>( depthStencilBuffer ) );
 		SetRenderTargets( rendererTargetViews, static_cast<D3D11DepthStencilBuffer*>( depthStencilBuffer ) );
 	}
 
-	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* const >& rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer )
+	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer )
 	{
 		std::vector< ID3D11RenderTargetView* > views;
 		views.reserve( rendererTargetViews.GetSize() );

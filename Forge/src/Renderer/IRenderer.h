@@ -61,7 +61,7 @@ namespace renderer
 
 		void Initialize();
 
-		virtual void SetRenderTargets( const forge::ArraySpan< IRenderTargetView* const >& rendererTargetViews, IDepthStencilBuffer* depthStencilBuffer ) = 0;
+		virtual void SetRenderTargets( const forge::ArraySpan< IRenderTargetView* >& rendererTargetViews, IDepthStencilBuffer* depthStencilBuffer ) = 0;
 
 		virtual std::unique_ptr< ISamplerState > CreateSamplerState( SamplerStateFilterType filterType ) = 0;
 		virtual void SetSamplerStates( const forge::ArraySpan< ISamplerState* > samplerStates ) = 0;
