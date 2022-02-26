@@ -77,7 +77,7 @@ namespace renderer
 		void Draw( const renderer::Renderable& renderable );
 		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables ) = 0;
 
-		virtual std::unique_ptr< IRawRenderablesPack > CreateRawRenderablesPackage( const forge::ArraySpan< const Renderable* const >& renderables ) const = 0;
+		virtual std::unique_ptr< IRawRenderablesPack > CreateRawRenderablesPackage( const forge::ArraySpan< const Renderable* >& renderables ) const = 0;
 
 		template< class T >
 		FORGE_INLINE std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const

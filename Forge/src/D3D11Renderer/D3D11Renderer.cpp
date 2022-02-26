@@ -184,7 +184,7 @@ namespace d3d11
 		}
 	}
 
-	std::unique_ptr< renderer::IRawRenderablesPack > D3D11Renderer::CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* const >& renderables ) const
+	std::unique_ptr< renderer::IRawRenderablesPack > D3D11Renderer::CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* >& renderables ) const
 	{
 		auto result = std::make_unique< RawRenderablesPack >();
 

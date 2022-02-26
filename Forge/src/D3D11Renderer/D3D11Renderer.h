@@ -80,7 +80,7 @@ namespace d3d11
 
 		virtual void OnBeforeDraw() override;
 
-		virtual std::unique_ptr< renderer::IRawRenderablesPack > CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* const >& renderables ) const;
+		virtual std::unique_ptr< renderer::IRawRenderablesPack > CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* >& renderables ) const override;
 
 		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables ) override;
 		virtual void DrawRawVertices( Uint32 amount ) override;
