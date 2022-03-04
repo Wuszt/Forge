@@ -64,8 +64,8 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 
 			transformComponent->GetData().m_transform.SetPosition( position );
 			transformComponent->GetData().m_scale = { radius, radius, radius };
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->SetData( "diffuseColor", color );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->UpdateBuffer();
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 
 		m_debugEntities.emplace_back( DebugEntity{ obj->GetEntityID(), forge::Time::GetTime() + lifetime } );
@@ -85,8 +85,8 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 
 			transformComponent->GetData().m_transform.SetPosition( position );
 			transformComponent->GetData().m_scale = extension * 2.0f;
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->SetData( "diffuseColor", color );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->UpdateBuffer();
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 
 		m_debugEntities.emplace_back( DebugEntity{ obj->GetEntityID(), forge::Time::GetTime() + lifetime } );

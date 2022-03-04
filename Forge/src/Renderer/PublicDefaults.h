@@ -19,3 +19,4 @@
 #include "IShaderResourceView.h"
 #include "ISamplerState.h"
 #include "IRenderingPass.h"
+#include "ShaderPack.h"

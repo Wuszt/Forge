@@ -16,6 +16,10 @@
 #include "../Core/IInput.h"
 #include "../Systems/LightComponent.h"
 #include "../Systems/LightingSystem.h"
+#include "../Renderer/Renderable.h"
+#include "../Renderer/Material.h"
+#include "../Renderer/PerspectiveCamera.h"
+#include "../Renderer/ISamplerState.h"
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -31,8 +35,7 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 			auto renderable = renderingComponent->GetData().m_renderable;
 			for( auto& material : renderable->GetMaterials() )
 			{
-				material.SetVertexShader( "Texture.fx" );
-				material.SetPixelShader( "Texture.fx" );
+				material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Opaque );
 			}
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
@@ -55,8 +58,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 			auto renderable = renderingComponent->GetData().m_renderable;
 			for( auto& material : renderable->GetMaterials() )
 			{
-				material.SetVertexShader( "Texture.fx" );
-				material.SetPixelShader( "Texture.fx" );
+				material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Opaque );
 			}
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
@@ -78,8 +80,8 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 			transformComponent->GetData().m_transform.SetOrientation( Quaternion( 0.0f, 0.0f, FORGE_PI * 0.6f ) );
 			transformComponent->GetData().m_scale = { 100.0f, 100.0f, 100.0f };
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->UpdateBuffer();
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 	} );
 
@@ -95,9 +97,8 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 			auto renderable = renderingComponent->GetData().m_renderable;
 			for( auto& material : renderable->GetMaterials() )
 			{
-				material.SetVertexShader( "Texture.fx" );
-				material.SetPixelShader( "Texture.fx" );
-				material.SetTexture( "grass.jpg", 0 );
+				material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Opaque );
+				material->SetTexture( "grass.jpg", 0 );
 			}
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
@@ -119,8 +120,8 @@ void CubeScene( forge::EngineInstance& engineInstance )
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->UpdateBuffer();
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 	} );
 }
@@ -138,8 +139,8 @@ void SphereScene( forge::EngineInstance& engineInstance )
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ].GetConstantBuffer()->UpdateBuffer();
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 	} );
 }
@@ -212,7 +213,7 @@ Int32 main()
 				} );
 			} );
 
-			SponzaScene( engineInstance );
+			MinecraftScene( engineInstance );
 		}
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override

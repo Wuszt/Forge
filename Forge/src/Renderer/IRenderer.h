@@ -27,7 +27,10 @@ namespace renderer
 	class ITexturesLoader;
 	class ISamplerState;
 	class IBlendState;
+	class IDepthStencilState;
+	struct ShaderDefine;
 	enum class SamplerStateFilterType;
+	enum class DepthStencilComparisonFunc;
 	struct BlendOperationDesc;
 
 	enum class RendererType
@@ -36,9 +39,39 @@ namespace renderer
 		Unknown
 	};
 
+	enum class RenderingPass
+	{
+		Opaque,
+		Transparent,
+		Overlay,
+		Count
+	};
+
 	struct IRawRenderablesPack
 	{
+		virtual Bool IsEmpty() const = 0;
 		virtual ~IRawRenderablesPack() = default;
+	};
+
+	class RawRenderablesPacks
+	{
+	public:
+		template< class T >
+		RawRenderablesPacks( std::array< std::unique_ptr< T >, static_cast< Uint32 >( RenderingPass::Count ) >&& data )
+		{
+			for( Uint32 i = 0; i < static_cast<Uint32>( RenderingPass::Count ); ++i )
+			{
+				m_packs[ i ] = std::move( data[ i ] );
+			}
+		}
+
+		FORGE_INLINE IRawRenderablesPack& GetRendenderablesPack( RenderingPass renderPass )
+		{
+			return *m_packs[ static_cast< Uint32 >( renderPass ) ];
+		}
+
+	private:
+		std::unique_ptr< IRawRenderablesPack > m_packs[ static_cast<Uint32>( RenderingPass::Count ) ];
 	};
 
 	class IRenderer
@@ -57,7 +90,8 @@ namespace renderer
 		virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const Vertices& vertices ) const = 0;
 		virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const = 0;
 		virtual std::unique_ptr< ITexture > CreateTexture( Uint32 width, Uint32 height, ITexture::Flags flags, ITexture::Format format, ITexture::Format srvFormat = ITexture::Format::Unknown ) const = 0;
-		virtual std::unique_ptr< IBlendState > CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc ) = 0;
+		virtual std::unique_ptr< IBlendState > CreateBlendState( const BlendOperationDesc& rgbOperation, const BlendOperationDesc& alphaDesc ) = 0;
+		virtual std::unique_ptr< IDepthStencilState > CreateDepthStencilState( DepthStencilComparisonFunc comparisonFunc ) = 0;
 
 		void Initialize();
 
@@ -75,9 +109,9 @@ namespace renderer
 
 		virtual void DrawRawVertices( Uint32 amount ) = 0;
 		void Draw( const renderer::Renderable& renderable );
-		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables ) = 0;
+		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const ShaderDefine* shaderDefine = nullptr ) = 0;
 
-		virtual std::unique_ptr< IRawRenderablesPack > CreateRawRenderablesPackage( const forge::ArraySpan< const Renderable* >& renderables ) const = 0;
+		virtual std::unique_ptr< renderer::RawRenderablesPacks > CreateRawRenderablesPackage( const forge::ArraySpan< const Renderable* >& renderables ) const = 0;
 
 		template< class T >
 		FORGE_INLINE std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const

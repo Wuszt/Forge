@@ -13,9 +13,10 @@ renderer::FullScreenRenderingPass::FullScreenRenderingPass( IRenderer& renderer,
 
 void renderer::FullScreenRenderingPass::Draw( std::vector< IShaderResourceView* > input )
 {
-	GetRenderer().GetShadersManager()->GetVertexShader( m_vertexShaderName )->Set();
-	GetRenderer().GetShadersManager()->GetPixelShader( m_pixelShaderName )->Set();
+	GetRenderer().GetShadersManager()->GetVertexShader( m_vertexShaderName, {} )->GetMainShader()->Set();
+	GetRenderer().GetShadersManager()->GetPixelShader( m_pixelShaderName, {} )->GetMainShader()->Set();
 	GetRenderer().SetRenderTargets( { GetTargetTexture()->GetRenderTargetView() }, nullptr );
 	GetRenderer().SetShaderResourceViews( input );
 	GetRenderer().DrawRawVertices( 4 );
+	GetRenderer().ClearShaderResourceViews();
 }

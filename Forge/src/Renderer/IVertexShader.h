@@ -1,12 +1,11 @@
 #pragma once
+#include "IShader.h"
 
 namespace renderer
 {
-	class IVertexShader
+	class IVertexShader : public IShader
 	{
 	public:
-		virtual ~IVertexShader() {}
-
 		virtual void Set() const = 0;
 	};
 }

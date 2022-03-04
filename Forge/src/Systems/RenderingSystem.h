@@ -1,7 +1,6 @@
 #pragma once
 #include "RenderingComponent.h"
 #include "TransformComponent.h"
-#include "../Renderer/PublicDefaults.h"
 
 namespace renderer
 {
@@ -15,7 +14,13 @@ namespace renderer
 	class IInputLayout;
 	class ITexture;
 	struct cbMesh;
+	class IDepthStencilState;
+	class RawRenderablesPacks;
+	class ISamplerState;
 
+	enum class SamplerStateFilterType;
+
+	struct cbCamera;
 	template< class T >
 	class StaticConstantBuffer;
 }
@@ -27,8 +32,8 @@ namespace systems
 	class RenderingSystem : public ECSSystem< forge::TransformComponentData, forge::RenderingComponentData >
 	{
 	public:
-
-		using ECSSystem::ECSSystem;
+		RenderingSystem( forge::EngineInstance& engineInstance );
+		~RenderingSystem();
 
 		virtual void OnInitialize() override;
 
@@ -46,17 +51,30 @@ namespace systems
 #endif
 
 	private:
+		enum class RenderingMode
+		{
+			Forward,
+			Deffered
+		};
+
+		void SetRenderingMode( RenderingMode renderingMode );
+
 		systems::CamerasSystem* m_camerasSystem = nullptr;
 		forge::CallbackToken m_beforeDrawToken;
 		forge::CallbackToken m_drawToken;
 		forge::CallbackToken m_presentToken;
 		renderer::IRenderer* m_renderer;
 
-		std::unique_ptr< renderer::IRawRenderablesPack > m_rawRenderablesPackage;
+		std::unique_ptr< renderer::RawRenderablesPacks > m_rawRenderablesPacks;
 		std::unique_ptr< renderer::StaticConstantBuffer< renderer::cbCamera > > m_cameraCB;
 		std::unordered_map< renderer::SamplerStateFilterType, std::unique_ptr< renderer::ISamplerState > > m_samplerStates;
 
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_opaqueRenderingPass;
+		std::unique_ptr< renderer::IMeshesRenderingPass > m_overlayRenderingPass;
+
+		std::unique_ptr< renderer::IDepthStencilState > m_depthStencilState;
+
+		RenderingMode m_renderingMode = RenderingMode::Deffered;
 
 #ifdef FORGE_DEBUGGING
 		forge::CallbackToken m_clearingCacheToken;

@@ -26,12 +26,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\Texture.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\Effects.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\DefferedLighting.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -56,5 +50,16 @@
     <FxCompile Include="Shaders\DepthBufferDebug.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\Fallback.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Uber.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Forward.fxh">
+      <Filter>Shaders\Headers</Filter>
+    </None>
   </ItemGroup>
 </Project>

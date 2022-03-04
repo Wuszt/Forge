@@ -11,7 +11,7 @@ namespace d3d11
 	class D3D11VertexShader : public renderer::IVertexShader
 	{
 	public:
-		D3D11VertexShader( D3D11Device& device, D3D11RenderContext& context, const std::string& path );
+		D3D11VertexShader( D3D11Device& device, D3D11RenderContext& context, const std::string& path, forge::ArraySpan< const renderer::ShaderDefine > defines );
 		~D3D11VertexShader();
 
 		FORGE_INLINE ID3D11VertexShader* GetShader() const

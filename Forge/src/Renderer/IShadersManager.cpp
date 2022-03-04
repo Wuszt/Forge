@@ -2,43 +2,95 @@
 #include "IShadersManager.h"
 #include "IVertexShader.h"
 #include "IPixelShader.h"
+#include "IShader.h"
+#include "ShaderPack.h"
 
-renderer::IShadersManager::IShadersManager() = default;
-renderer::IShadersManager::~IShadersManager() = default;
-
-const renderer::IVertexShader* renderer::IShadersManager::GetVertexShader( const std::string& path )
+namespace renderer
 {
-	auto& shader = m_vertexShaders[ path ];
+	IShadersManager::IShadersManager() = default;
+	IShadersManager::~IShadersManager() = default;
 
-	if( !shader )
+	void IShadersManager::SetBaseShaderDefines( std::vector< ShaderDefine > shaderDefines )
 	{
-		shader = CreateVertexShader( path );
+		m_baseShaderDefines = std::move( shaderDefines );
+
+		for( auto it = shaderDefines.begin(); it != shaderDefines.end(); ++it )
+		{
+			m_baseShaderDefines.erase( std::remove( it + 1, shaderDefines.end(), *it ), m_baseShaderDefines.end() );
+		}
+
+		ClearCache();
 	}
 
-	return shader.get();
-}
-
-const renderer::IPixelShader* renderer::IShadersManager::GetPixelShader( const std::string& path )
-{
-	auto& shader = m_pixelShaders[ path ];
-
-	if( !shader )
+	Uint32 CalcShaderHash( const std::string& path, forge::ArraySpan< const ShaderDefine > defines )
 	{
-		shader = CreatePixelShader( path );
+		Uint64 result = Math::CalculateHash( path );
+		for( auto& define : defines )
+		{
+			Math::CombineHashes( result, Math::CombineHashes( Math::CalculateHash( define.m_name ), Math::CalculateHash( define.m_define ) ) );
+		}
+
+		return static_cast<Uint32>( result );
 	}
 
-	return shader.get();
-}
+	std::shared_ptr< ShaderPack< IVertexShader > > IShadersManager::GetVertexShader( const std::string& path, std::vector< ShaderDefine > defines )
+	{
+		Uint32 shaderHash = CalcShaderHash( path, defines );
+		auto& shaderPack = m_vertexShaders[ shaderHash ];
 
-void renderer::IShadersManager::ClearCache()
-{
-	m_vertexShaders.clear();
-	m_pixelShaders.clear();
+		if( !shaderPack )
+		{
+			std::shared_ptr< IVertexShader > mainShader = CreateVertexShader( path, defines );
 
-	m_onCacheClear.Invoke();
-}
+			std::unordered_map< ShaderDefine, std::shared_ptr< IVertexShader > > subShaders;
 
-forge::CallbackToken renderer::IShadersManager::RegisterCacheClearingListener( const forge::Callback<>::TFunc& func )
-{
-	return m_onCacheClear.AddListener( func );
+			defines.emplace_back();
+			for( auto baseShaderDefine : m_baseShaderDefines )
+			{
+				*defines.rbegin() = baseShaderDefine;
+				subShaders.emplace( baseShaderDefine, CreateVertexShader( path, defines ) );
+			}
+
+			shaderPack = std::make_shared< ShaderPack< IVertexShader > >( mainShader, std::move( subShaders ) );
+		}
+
+		return shaderPack;
+	}
+
+	std::shared_ptr< ShaderPack< IPixelShader > > IShadersManager::GetPixelShader( const std::string& path, std::vector< ShaderDefine > defines )
+	{
+		Uint32 shaderHash = CalcShaderHash( path, defines );
+		auto& shaderPack = m_pixelShaders[ shaderHash ];
+
+		if( !shaderPack )
+		{
+			std::shared_ptr< IPixelShader > mainShader = CreatePixelShader( path, defines );
+
+			std::unordered_map< ShaderDefine, std::shared_ptr< IPixelShader > > subShaders;
+			
+			defines.emplace_back();
+			for( auto baseShaderDefine : m_baseShaderDefines )
+			{
+				*defines.rbegin() = baseShaderDefine;
+				subShaders.emplace( baseShaderDefine, CreatePixelShader( path, defines ) );
+			}
+
+			shaderPack = std::make_shared< ShaderPack< IPixelShader > >( mainShader, std::move( subShaders ) );
+		}
+
+		return shaderPack;
+	}
+
+	void IShadersManager::ClearCache()
+	{
+		m_vertexShaders.clear();
+		m_pixelShaders.clear();
+
+		m_onCacheClear.Invoke();
+	}
+
+	forge::CallbackToken IShadersManager::RegisterCacheClearingListener( const forge::Callback<>::TFunc& func )
+	{
+		return m_onCacheClear.AddListener( func );
+	}
 }

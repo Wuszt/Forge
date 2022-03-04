@@ -20,6 +20,7 @@ namespace renderer
 	class IInputLayout;
 	class IIndexBuffer;
 	class IRenderTargetView;
+	struct ShaderDefine;
 }
 
 namespace forge
@@ -69,6 +70,7 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const override;
 		virtual std::unique_ptr< renderer::ITexture > CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Format srvFormat = renderer::ITexture::Format::Unknown ) const override;
 		virtual std::unique_ptr< renderer::IBlendState > CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc ) override;
+		virtual std::unique_ptr< renderer::IDepthStencilState > CreateDepthStencilState( renderer::DepthStencilComparisonFunc comparisonFunc ) override;
 
 		virtual void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer ) override;
 
@@ -80,9 +82,9 @@ namespace d3d11
 
 		virtual void OnBeforeDraw() override;
 
-		virtual std::unique_ptr< renderer::IRawRenderablesPack > CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* >& renderables ) const override;
+		virtual std::unique_ptr< renderer::RawRenderablesPacks > CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* >& renderables ) const override;
 
-		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables ) override;
+		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const renderer::ShaderDefine* shaderDefine = nullptr ) override;
 		virtual void DrawRawVertices( Uint32 amount ) override;
 
 		FORGE_INLINE virtual renderer::RendererType GetType() const override

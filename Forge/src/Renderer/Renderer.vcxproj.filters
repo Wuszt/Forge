@@ -107,6 +107,15 @@
     <ClCompile Include="IBlendState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderPack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IDepthStencilState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IRenderer.h">
@@ -209,6 +218,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IBlendState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderPack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IDepthStencilState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

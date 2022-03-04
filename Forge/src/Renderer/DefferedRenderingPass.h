@@ -16,7 +16,7 @@ namespace renderer
 	public:
 		DefferedRenderingPass( IRenderer& renderer, std::function< const forge::ICamera&() > activeCameraGetter );
 
-		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData& lightingData ) override;
+		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) override;
 		virtual void ClearTargetTexture() override;
 		virtual void SetTargetTexture( ITexture& targetTexture ) override;
 		virtual void OnTargetTextureResized( const Vector2& size ) override;
@@ -30,6 +30,8 @@ namespace renderer
 		{
 			return m_diffuseTexture.get();
 		}
+
+		static forge::ArraySpan< const ShaderDefine > GetRequiredShaderDefines();
 
 	private:
 		std::unique_ptr< ITexture > m_normalsTexture;

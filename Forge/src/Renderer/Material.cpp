@@ -1,33 +1,37 @@
 #include "Fpch.h"
 #include "../Renderer/IRenderer.h"
-#include "IShadersManager.h"
+#include "../Renderer/IShader.h"
 
-renderer::Material::Material( renderer::IRenderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath )
+renderer::Material::Material( renderer::IRenderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass )
 	: m_renderer( renderer )
 {
-	SetVertexShader( vsPath );
-	SetPixelShader( psPath );
-	m_pixelShader = renderer.GetShadersManager()->GetPixelShader( psPath );
+	SetShaders( vsPath, psPath, renderingPass );
 	m_constantBuffer = std::move( buffer );
-	m_inputLayout = renderer.CreateInputLayout( *m_vertexShader, *model.GetVertexBuffer() );
+	m_inputLayout = renderer.CreateInputLayout( *m_vertexShader->GetMainShader(), *model.GetVertexBuffer() );
+
+	m_onShadersClearCache = renderer.GetShadersManager()->RegisterCacheClearingListener(
+	[ this ]()
+	{
+		SetShaders( m_vertexShaderPath, m_pixelShaderPath, m_renderingPass );
+	} );
 }
 
-void renderer::Material::SetVertexShader( const std::string& path )
+void renderer::Material::SetShaders( const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass )
 {
-	m_vertexShader = m_renderer.GetShadersManager()->GetVertexShader( path );
+	std::vector< renderer::ShaderDefine > defines;
 
-#ifdef FORGE_DEBUGGING
-	m_debugVertexShaderPath = path;
-#endif
+	m_vertexShader = m_renderer.GetShadersManager()->GetVertexShader( vsPath, defines );
+	m_vertexShaderPath = vsPath;
+
+	m_pixelShader = m_renderer.GetShadersManager()->GetPixelShader( psPath, defines );
+	m_pixelShaderPath = psPath;
+
+	m_renderingPass = renderingPass;
 }
 
-void renderer::Material::SetPixelShader( const std::string& path )
+void renderer::Material::SetRenderingPass( renderer::RenderingPass renderingPass )
 {
-	m_pixelShader = m_renderer.GetShadersManager()->GetPixelShader( path );
-
-#ifdef FORGE_DEBUGGING
-	m_debugPixelShaderPath = path;
-#endif
+	SetShaders( m_vertexShaderPath, m_pixelShaderPath, renderingPass );
 }
 
 void renderer::Material::SetTexture( const std::string& path, Uint32 index )

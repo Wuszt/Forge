@@ -113,7 +113,7 @@ d3d11::D3D11BlendState::D3D11BlendState( d3d11::D3D11Device& device, d3d11::D3D1
 
 	blendDesc.RenderTarget[0] = rtbd;
 
-	device.GetDevice()->CreateBlendState( &blendDesc, &m_blendState );
+	FORGE_ASSURE( device.GetDevice()->CreateBlendState( &blendDesc, &m_blendState ) == S_OK );
 }
 
 d3d11::D3D11BlendState::~D3D11BlendState()

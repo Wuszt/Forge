@@ -4,13 +4,21 @@
 
 namespace d3d11
 {
-	D3D11PixelShader::D3D11PixelShader( const D3D11Device& device, D3D11RenderContext& context, const std::string& path )
+	D3D11PixelShader::D3D11PixelShader( const D3D11Device& device, D3D11RenderContext& context, const std::string& path, forge::ArraySpan< const renderer::ShaderDefine > defines )
 		: m_context( context )
 	{
+		std::vector< D3D_SHADER_MACRO > macros;
+		for( const auto& define : defines )
+		{
+			macros.push_back( D3D_SHADER_MACRO{ define.m_name.c_str(), define.m_define.c_str() } );
+		}
+
+		macros.push_back( { nullptr, nullptr } );
+
 		auto wstr = std::wstring( path.begin(), path.end() );
 		LPCWSTR wPath = wstr.c_str();
 		ID3DBlob* errorMsg;
-		HRESULT result = D3DCompileFromFile( wPath, 0, D3D_COMPILE_STANDARD_FILE_INCLUDE, "PS", "ps_4_0", D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG, 0, &m_buffer, &errorMsg );
+		HRESULT result = D3DCompileFromFile( wPath, macros.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, "PS", "ps_4_0", D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG, 0, &m_buffer, &errorMsg );
 
 		if( errorMsg )
 		{

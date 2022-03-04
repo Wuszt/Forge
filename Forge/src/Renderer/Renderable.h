@@ -21,12 +21,12 @@ namespace renderer
 			return *m_model;
 		}
 
-		const std::vector< Material >& GetMaterials() const
+		const std::vector< std::unique_ptr< Material > >& GetMaterials() const
 		{
 			return m_materials;
 		}
 
-		std::vector< Material >& GetMaterials()
+		std::vector< std::unique_ptr< Material > >& GetMaterials()
 		{
 			return m_materials;
 		}
@@ -44,7 +44,7 @@ namespace renderer
 	private:
 		IRenderer& m_renderer;
 		std::shared_ptr< Model > m_model;
-		std::vector< Material > m_materials;
+		std::vector< std::unique_ptr< Material > > m_materials;
 		StaticConstantBuffer< cbMesh > m_cbMesh;
 	};
 }

@@ -52,11 +52,13 @@
     <ClCompile Include="ICamera.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="IDepthStencilBuffer.cpp" />
+    <ClCompile Include="IDepthStencilState.cpp" />
     <ClCompile Include="IIndexBuffer.cpp" />
     <ClCompile Include="IInputLayout.cpp" />
     <ClCompile Include="IModelsLoader.cpp" />
     <ClCompile Include="IRenderingPass.cpp" />
     <ClCompile Include="ISamplerState.cpp" />
+    <ClCompile Include="IShader.cpp" />
     <ClCompile Include="IShaderResourceView.cpp" />
     <ClCompile Include="ITexture.cpp" />
     <ClCompile Include="ITexturesLoader.cpp" />
@@ -71,6 +73,7 @@
     <ClCompile Include="IVertexBuffer.cpp" />
     <ClCompile Include="IVertexShader.cpp" />
     <ClCompile Include="ResourcesManager.cpp" />
+    <ClCompile Include="ShaderPack.cpp" />
     <ClCompile Include="TinyObjModelsLoader.cpp" />
     <ClCompile Include="PerspectiveCamera.cpp" />
     <ClCompile Include="Renderable.cpp" />
@@ -86,11 +89,13 @@
     <ClInclude Include="ICamera.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="IDepthStencilBuffer.h" />
+    <ClInclude Include="IDepthStencilState.h" />
     <ClInclude Include="IIndexBuffer.h" />
     <ClInclude Include="IInputLayout.h" />
     <ClInclude Include="IModelsLoader.h" />
     <ClInclude Include="IRenderingPass.h" />
     <ClInclude Include="ISamplerState.h" />
+    <ClInclude Include="IShader.h" />
     <ClInclude Include="IShaderResourceView.h" />
     <ClInclude Include="ITexture.h" />
     <ClInclude Include="ITexturesLoader.h" />
@@ -106,6 +111,7 @@
     <ClInclude Include="IVertexBuffer.h" />
     <ClInclude Include="IVertexShader.h" />
     <ClInclude Include="ResourcesManager.h" />
+    <ClInclude Include="ShaderPack.h" />
     <ClInclude Include="TinyObjModelsLoader.h" />
     <ClInclude Include="PerspectiveCamera.h" />
     <ClInclude Include="PublicDefaults.h" />

@@ -39,12 +39,12 @@ namespace renderer
 		{
 			renderable.GetModel().GetShapes()[ i ].m_indexBuffer->Set( 0 );
 
-			renderable.GetMaterials()[ i ].GetVertexShader()->Set();
-			renderable.GetMaterials()[ i ].GetPixelShader()->Set();
+			renderable.GetMaterials()[ i ]->GetVertexShader()->GetMainShader()->Set();
+			renderable.GetMaterials()[ i ]->GetPixelShader()->GetMainShader()->Set();
 
-			renderable.GetMaterials()[ i ].GetInputLayout()->Set();
+			renderable.GetMaterials()[ i ]->GetInputLayout()->Set();
 
-			renderable.GetMaterials()[ i ].GetConstantBuffer()->SetVS( renderer::VSConstantBufferType::Material );
+			renderable.GetMaterials()[ i ]->GetConstantBuffer()->SetVS( renderer::VSConstantBufferType::Material );
 
 			GetContext()->Draw( renderable.GetModel().GetShapes()[ i ].m_indexBuffer->GetIndicesAmount(), 0 );
 		}

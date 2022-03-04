@@ -7,6 +7,7 @@
 #include "D3D11ShadersManager.h"
 #include "D3D11SamplerState.h"
 #include "D3D11BlendState.h"
+#include "D3D11DepthStencilState.h"
 
 namespace d3d11
 {
@@ -34,14 +35,25 @@ namespace d3d11
 		};
 		static_assert( sizeof( Shape ) == 8, "Shape struct is larger than before!" );
 
+		struct Shaders
+		{
+			std::vector< ID3D11VertexShader* > m_vertexShaders;
+			std::vector< ID3D11PixelShader* > m_pixelShaders;
+		};
+
 		std::vector< Shape > m_shapes;
 		std::vector< ID3D11Buffer* > m_indexBuffers;
-		std::vector< ID3D11VertexShader* > m_vertexShaders;
-		std::vector< ID3D11PixelShader* > m_pixelShaders;
+		Shaders m_mainShaders;
+		std::unordered_map< renderer::ShaderDefine, Shaders > m_subShaders;
 		std::vector< ID3D11Buffer* > m_materialCBs;
 		std::vector< ID3D11InputLayout* > m_inputLayouts;
 
 		std::vector< ID3D11ShaderResourceView* > m_resourceViews;
+
+		virtual Bool IsEmpty() const override
+		{
+			return m_shapes.empty();
+		}
 	};
 
 	D3D11Renderer::D3D11Renderer( forge::IWindow& window )
@@ -106,6 +118,11 @@ namespace d3d11
 	std::unique_ptr< renderer::IBlendState > D3D11Renderer::CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc )
 	{
 		return std::make_unique< d3d11::D3D11BlendState >( *GetDevice(), *GetContext(), rgbOperation, alphaDesc );
+	}
+
+	std::unique_ptr< renderer::IDepthStencilState > D3D11Renderer::CreateDepthStencilState( renderer::DepthStencilComparisonFunc comparisonFunc )
+	{
+		return std::make_unique< d3d11::D3D11DepthStencilState >( *GetDevice(), *GetContext(), comparisonFunc );
 	}
 
 	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer )
@@ -184,65 +201,113 @@ namespace d3d11
 		}
 	}
 
-	std::unique_ptr< renderer::IRawRenderablesPack > D3D11Renderer::CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* >& renderables ) const
+	std::unique_ptr< renderer::RawRenderablesPacks > D3D11Renderer::CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* >& renderables ) const
 	{
-		auto result = std::make_unique< RawRenderablesPack >();
+		constexpr Uint32 packsAmount = static_cast< Uint16 >( renderer::RenderingPass::Count );
+		std::array< std::unique_ptr< RawRenderablesPack >, packsAmount > packs;
+
+		for( auto& pack : packs )
+		{
+			pack = std::make_unique< RawRenderablesPack >();
+		}
 
 		for( auto& renderable : renderables )
 		{
-			Uint16 startIndex = static_cast< Uint16 >( result->m_shapes.size() );
-
 			const auto& shapes = renderable->GetModel().GetShapes();
+
+			std::array< Uint16, packsAmount > startIndices;
+			for( Uint32 i = 0; i < packsAmount; ++i )
+			{
+				startIndices[ i ] = static_cast<Uint16>( packs[i]->m_shapes.size() );
+			}
+
 			for( const auto& shape : shapes )
 			{
-				const renderer::Material& material = renderable->GetMaterials()[ shape.m_materialIndex ];
+				const renderer::Material& material = *renderable->GetMaterials()[ shape.m_materialIndex ].get();
+
+				Uint32 packIndex = static_cast<Uint32>( material.GetRenderingPass() );
+				auto& pack = packs[ packIndex ];
 
 				const D3D11IndexBuffer* ib = static_cast<const D3D11IndexBuffer*>( shape.m_indexBuffer.get() );
-				const D3D11VertexShader* vs = static_cast<const D3D11VertexShader*>( renderable->GetMaterials()[ shape.m_materialIndex ].GetVertexShader() );
-				const D3D11PixelShader* ps = static_cast<const D3D11PixelShader*>( renderable->GetMaterials()[ shape.m_materialIndex ].GetPixelShader() );
 				const D3D11ConstantBufferImpl* materialCBImpl = static_cast<const D3D11ConstantBufferImpl*>( material.GetConstantBuffer()->GetImpl() );
-				const D3D11InputLayout* il = static_cast<const D3D11InputLayout*>( renderable->GetMaterials()[ shape.m_materialIndex ].GetInputLayout() );
+				const D3D11InputLayout* il = static_cast<const D3D11InputLayout*>( material.GetInputLayout() );
 
-				result->m_indexBuffers.emplace_back( ib->GetBuffer() );
-				result->m_vertexShaders.emplace_back( vs->GetShader() );
-				result->m_pixelShaders.emplace_back( ps->GetShader() );
-				result->m_materialCBs.emplace_back( materialCBImpl->GetBuffer() );
-				result->m_inputLayouts.emplace_back( il->GetLayout() );
+				pack->m_indexBuffers.emplace_back( ib->GetBuffer() );
+				pack->m_materialCBs.emplace_back( materialCBImpl->GetBuffer() );
+				pack->m_inputLayouts.emplace_back( il->GetLayout() );
+
+				{
+					auto vertexShaderPack = material.GetVertexShader();
+					auto pixelShaderPack = material.GetPixelShader();
+
+					const D3D11VertexShader* mainVs = static_cast<const D3D11VertexShader* >( vertexShaderPack->GetMainShader().get() );
+					const D3D11PixelShader* mainPs = static_cast<const D3D11PixelShader* >( pixelShaderPack->GetMainShader().get() );
+
+					pack->m_mainShaders.m_vertexShaders.emplace_back( mainVs->GetShader() );
+					pack->m_mainShaders.m_pixelShaders.emplace_back( mainPs->GetShader() );
+
+					for( const auto& define : GetShadersManager()->GetBaseShaderDefines() )
+					{
+						const D3D11VertexShader* vs = static_cast<const D3D11VertexShader*>( vertexShaderPack->GetSubShaders().at( define ).get() );
+						const D3D11PixelShader* ps = static_cast<const D3D11PixelShader*>( pixelShaderPack->GetSubShaders().at( define ).get() );
+
+						pack->m_subShaders[ define ].m_vertexShaders.emplace_back( vs->GetShader() );
+						pack->m_subShaders[ define ].m_pixelShaders.emplace_back( ps->GetShader() );
+					}
+				}
 
 				Uint32 resourcesAmount = material.GetTexturesAmount();
-				Uint32 startIndex = static_cast< Uint32 >( result->m_resourceViews.size() );
-				FORGE_ASSERT( startIndex < 1 << 11 );
-				FORGE_ASSERT( resourcesAmount < 1 << 5 );
+				Uint32 startIndex = static_cast< Uint32 >( pack->m_resourceViews.size() );
+				FORGE_ASSERT( startIndex < ( 1 << 11 ) );
+				FORGE_ASSERT( resourcesAmount < ( 1 << 5 ) );
 				for( Uint32 resourcesIndex = 0u; resourcesIndex < resourcesAmount; ++resourcesIndex )
 				{
 					const D3D11Texture* texture = static_cast< const D3D11Texture* >( material.GetTexture( resourcesIndex ) );
-					result->m_resourceViews.emplace_back( texture->GetShaderResourceView()->GetTypedSRV() );
+					pack->m_resourceViews.emplace_back( texture->GetShaderResourceView()->GetTypedSRV() );
 				}
 
-				result->m_resourceViews.resize( Math::Max( 1u, static_cast< Uint32 >( result->m_resourceViews.size() ) ) );
+				pack->m_resourceViews.resize( Math::Max( 1u, static_cast< Uint32 >( pack->m_resourceViews.size() ) ) );
 
 				FORGE_ASSERT( ib->GetIndicesAmount() < 1 << 24 );
-				result->m_shapes.emplace_back( RawRenderablesPack::Shape{ 0u, ib->GetIndicesAmount(), Math::Min( startIndex, static_cast< Uint32 >( result->m_resourceViews.size() ) - 1u ), resourcesAmount } );
+				pack->m_shapes.emplace_back( RawRenderablesPack::Shape{ 0u, ib->GetIndicesAmount(), Math::Min( startIndex, static_cast< Uint32 >( pack->m_resourceViews.size() ) - 1u ), resourcesAmount } );
 			}
 
-			Uint16 endIndex = static_cast< Uint16 >( result->m_shapes.size() );
-			const D3D11VertexBuffer* vb = static_cast<const D3D11VertexBuffer*>( renderable->GetModel().GetVertexBuffer() );
-			const D3D11ConstantBufferImpl* meshCBImpl = static_cast<const D3D11ConstantBufferImpl*>( renderable->GetCBMesh().GetImpl() );
+			for( Uint32 i = 0; i < packsAmount; ++i )
+			{
+				Uint16 endIndex = static_cast<Uint16>( packs[ i ]->m_shapes.size() );
+				if( endIndex > startIndices[ i ] )
+				{
+					const D3D11VertexBuffer* vb = static_cast<const D3D11VertexBuffer*>( renderable->GetModel().GetVertexBuffer() );
+					const D3D11ConstantBufferImpl* meshCBImpl = static_cast<const D3D11ConstantBufferImpl*>( renderable->GetCBMesh().GetImpl() );
 
-			result->m_vertexBuffers.emplace_back( vb->GetBuffer() );
-			result->m_meshCBs.emplace_back( meshCBImpl->GetBuffer() );
-			result->m_vertices.emplace_back( RawRenderablesPack::Vertices{ static_cast< Uint16 >( vb->GetStride() ), startIndex, endIndex } );
+					packs[ i ]->m_vertexBuffers.emplace_back( vb->GetBuffer() );
+					packs[ i ]->m_meshCBs.emplace_back( meshCBImpl->GetBuffer() );
+					packs[ i ]->m_vertices.emplace_back( RawRenderablesPack::Vertices{ static_cast<Uint16>( vb->GetStride() ), startIndices[ i ], endIndex } );
+				}
+			}
 		}
 
-		return result;
+		return std::make_unique< renderer::RawRenderablesPacks >( std::move( packs ) );
 	}
 
-	void D3D11Renderer::Draw( const renderer::IRawRenderablesPack& rawRenderables )
+	void D3D11Renderer::Draw( const renderer::IRawRenderablesPack& rawRenderables, const renderer::ShaderDefine* shaderDefine )
 	{
+		if( rawRenderables.IsEmpty() )
+		{
+			return;
+		}
+
 		auto* context = GetContext()->GetDeviceContext();
 		context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 		const RawRenderablesPack& renderables = static_cast< const RawRenderablesPack& >( rawRenderables );
+
+		const RawRenderablesPack::Shaders* shaders = &renderables.m_mainShaders;
+
+		if( shaderDefine )
+		{
+			shaders = &renderables.m_subShaders.at( *shaderDefine );
+		}
 
 		for( Uint32 verticesIndex = 0u; verticesIndex < renderables.m_vertices.size(); ++verticesIndex )
 		{
@@ -257,8 +322,8 @@ namespace d3d11
 			{
 				const RawRenderablesPack::Shape& shape = renderables.m_shapes[ shapesIndex ];
 				context->IASetIndexBuffer( renderables.m_indexBuffers[ shapesIndex ], DXGI_FORMAT_R32_UINT, renderables.m_shapes[ shapesIndex ].m_IBOffset );
-				context->VSSetShader( renderables.m_vertexShaders[ shapesIndex ], 0, 0 );
-				context->PSSetShader( renderables.m_pixelShaders[ shapesIndex ], 0, 0 );
+				context->VSSetShader( shaders->m_vertexShaders[ shapesIndex ], 0, 0 );
+				context->PSSetShader( shaders->m_pixelShaders[ shapesIndex ], 0, 0 );
 				context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Material ), 1, &renderables.m_materialCBs[ shapesIndex ] );
 				context->PSSetConstantBuffers( static_cast<Uint32>( renderer::PSConstantBufferType::Material ), 1, &renderables.m_materialCBs[ shapesIndex ] );
 				context->IASetInputLayout( renderables.m_inputLayouts[ shapesIndex ] );

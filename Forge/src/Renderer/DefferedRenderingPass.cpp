@@ -14,8 +14,19 @@ struct CBDefferedRendering
 
 struct CBDefferedLighting
 {
-	renderer::LightData LightData;
+	renderer::LightData LightingData;
 };
+
+namespace
+{
+	const renderer::ShaderDefine c_defferedDefine{ "__DEFFERED__" };
+}
+
+forge::ArraySpan< const renderer::ShaderDefine > renderer::DefferedRenderingPass::GetRequiredShaderDefines()
+{
+	static ShaderDefine shaderDefines[] = { c_defferedDefine };
+	return shaderDefines;
+}
 
 renderer::DefferedRenderingPass::DefferedRenderingPass( IRenderer& renderer, std::function< const forge::ICamera&( ) > activeCameraGetter )
 	: IMeshesRenderingPass( renderer )
@@ -36,45 +47,51 @@ renderer::DefferedRenderingPass::DefferedRenderingPass( IRenderer& renderer, std
 		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ONE } );
 }
 
-void renderer::DefferedRenderingPass::Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData& lightingData )
+void renderer::DefferedRenderingPass::Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
 {
 	std::vector< renderer::IRenderTargetView* > views{ GetTargetTexture()->GetRenderTargetView(), m_diffuseTexture->GetRenderTargetView(), m_normalsTexture->GetRenderTargetView() };
-	GetRenderer().ClearShaderResourceViews();
 	GetRenderer().SetRenderTargets( views, GetDepthStencilBuffer() );
 
+
+	StaticConstantBuffer< CBDefferedRendering >* cbRendering = static_cast<StaticConstantBuffer< CBDefferedRendering >*>( m_cbDefferedRendering.get() );
+	if( lightingData )
 	{
-		StaticConstantBuffer< CBDefferedRendering >* cbRendering = static_cast<StaticConstantBuffer< CBDefferedRendering >*>( m_cbDefferedRendering.get() );
-		cbRendering->GetData().InvVP = m_activeCameraGetter().GetProjectionMatrix().AffineInverted() * m_activeCameraGetter().GetInvViewMatrix();
-		cbRendering->GetData().AmbientLighting = lightingData.m_ambientLight;
-		cbRendering->UpdateBuffer();
-		cbRendering->SetVS( renderer::VSConstantBufferType::RenderingPass );
-		cbRendering->SetPS( renderer::PSConstantBufferType::RenderingPass );
+		cbRendering->GetData().AmbientLighting = lightingData->m_ambientLight;
 	}
 
-	GetRenderer().Draw( rawRenderables );
+	cbRendering->GetData().InvVP = m_activeCameraGetter().GetProjectionMatrix().AffineInverted() * m_activeCameraGetter().GetInvViewMatrix();
 
-	std::vector< renderer::IShaderResourceView* > srvs =
+	cbRendering->UpdateBuffer();
+	cbRendering->SetVS( renderer::VSConstantBufferType::RenderingPass );
+	cbRendering->SetPS( renderer::PSConstantBufferType::RenderingPass );
+
+	GetRenderer().Draw( rawRenderables, &c_defferedDefine );
+
+	if( lightingData )
 	{
-		m_diffuseTexture->GetShaderResourceView(),
-		GetRenderer().GetDepthStencilBuffer()->GetTexture()->GetShaderResourceView(),
-		m_normalsTexture->GetShaderResourceView()
-	};
+		std::vector< renderer::IShaderResourceView* > srvs =
+		{
+			m_diffuseTexture->GetShaderResourceView(),
+			GetRenderer().GetDepthStencilBuffer()->GetTexture()->GetShaderResourceView(),
+			m_normalsTexture->GetShaderResourceView()
+		};
 
-	m_blendState->Set();
+		m_blendState->Set();
 
-	StaticConstantBuffer< CBDefferedLighting >* cbLighting = static_cast<StaticConstantBuffer< CBDefferedLighting >*>( m_CBdefferedLighting.get() );
-	cbLighting->SetVS( renderer::VSConstantBufferType::Light );
-	cbLighting->SetPS( renderer::PSConstantBufferType::Light );
+		StaticConstantBuffer< CBDefferedLighting >* cbLighting = static_cast<StaticConstantBuffer< CBDefferedLighting >*>( m_CBdefferedLighting.get() );
+		cbLighting->SetVS( renderer::VSConstantBufferType::Light );
+		cbLighting->SetPS( renderer::PSConstantBufferType::Light );
 
-	for( const auto& light : lightingData.m_worldLights )
-	{
-		cbLighting->GetData().LightData = light;
-		cbLighting->UpdateBuffer();
+		for( const auto& light : lightingData->m_worldLights )
+		{
+			cbLighting->GetData().LightingData = light;
+			cbLighting->UpdateBuffer();
 
-		m_lightingPass->Draw( srvs );
+			m_lightingPass->Draw( srvs );
+		}
+
+		m_blendState->Clear();
 	}
-
-	m_blendState->Clear();
 }
 
 void renderer::DefferedRenderingPass::ClearTargetTexture()

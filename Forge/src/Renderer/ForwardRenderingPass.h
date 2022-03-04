@@ -4,12 +4,22 @@
 namespace renderer
 {
 	struct LightData;
+	class IBlendState;
+	struct ShaderDefine;
 
 	class ForwardRenderingPass : public IMeshesRenderingPass 
 	{
 	public:
-		using IMeshesRenderingPass::IMeshesRenderingPass;
-		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData& lightingData ) override;
+		ForwardRenderingPass( IRenderer& renderer );
+
+		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) override;
+
+		static forge::ArraySpan< const ShaderDefine > GetRequiredShaderDefines();
+
+	private:
+		std::unique_ptr< IConstantBuffer > m_cbForwardRendering;
+		std::unique_ptr< IConstantBuffer > m_cbForwardLighting;
+		std::unique_ptr< IBlendState > m_blendState;
 	};
 }
 
