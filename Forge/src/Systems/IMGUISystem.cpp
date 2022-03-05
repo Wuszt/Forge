@@ -22,6 +22,7 @@ void systems::IMGUISystem::OnInitialize()
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, [ & ]()
 	{
 		DrawOverlay();
+		DrawTopBar();
 	} );
 
 	m_postRenderingToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [ & ]()
@@ -53,6 +54,38 @@ void systems::IMGUISystem::DrawOverlay()
 	}
 
 	ImGui::End();
+}
+
+void systems::IMGUISystem::DrawTopBar()
+{
+	if( ImGui::BeginMainMenuBar() )
+	{
+		if( ImGui::BeginMenu( "Systems Debug" ) )
+		{
+			for( auto& systemToDebug : m_systemsToDebug )
+			{
+				if( !systemToDebug.m_system.GetDebugFriendlyName().empty() )
+				{
+					ImGui::MenuItem( systemToDebug.m_system.GetDebugFriendlyName().c_str(), nullptr, systemToDebug.m_enabled );
+				}
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if( ImGui::BeginMenu( "Other" ) )
+		{
+			ImGui::MenuItem( "Show IMGUI Demo", nullptr, &m_imguiDemoEnabled );
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMainMenuBar();
+	}
+
+	if( m_imguiDemoEnabled )
+	{
+		ImGui::ShowDemoWindow();
+	}
 }
 
 #endif

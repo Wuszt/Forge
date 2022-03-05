@@ -49,6 +49,46 @@ void systems::DebugSystem::OnInitialize()
 #endif
 
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [this]() { Update(); } );
+
+	auto addSystemToDebug = [ this ]( ISystem& system )
+	{
+		m_systemsDebugStates.emplace( &system, false );
+#ifdef FORGE_IMGUI_ENABLED
+		GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddSystemToDebug( system, &m_systemsDebugStates[ &system ] );
+#endif
+	};
+
+	for( auto& system : GetEngineInstance().GetSystemsManager().GetSystems() )
+	{
+		addSystemToDebug( *system );
+	}
+
+	for( auto& system : GetEngineInstance().GetSystemsManager().GetECSSystems() )
+	{
+		addSystemToDebug( *system );
+	}
+
+	m_onRenderDebugToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering,
+	[ this ]()
+	{
+		auto renderDebug = [this]( ISystem& system )
+		{ 
+			if( IsSystemDebugEnabled( system ) )
+			{
+				system.OnRenderDebug();
+			}
+		};
+
+		for( auto& system : GetEngineInstance().GetSystemsManager().GetSystems() )
+		{
+			renderDebug( *system );
+		}
+
+		for( auto& system : GetEngineInstance().GetSystemsManager().GetECSSystems() )
+		{
+			renderDebug( *system );
+		}
+	} );
 }
 
 void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const Vector4& color, Float lifetime )
@@ -91,6 +131,11 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 
 		m_debugEntities.emplace_back( DebugEntity{ obj->GetEntityID(), forge::Time::GetTime() + lifetime } );
 	} );
+}
+
+Bool systems::DebugSystem::IsSystemDebugEnabled( const ISystem& system )
+{
+	return m_systemsDebugStates[ &system ];
 }
 
 void systems::DebugSystem::Update()

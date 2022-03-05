@@ -213,7 +213,7 @@ Int32 main()
 				} );
 			} );
 
-			MinecraftScene( engineInstance );
+			SponzaScene( engineInstance );
 		}
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override

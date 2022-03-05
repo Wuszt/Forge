@@ -45,7 +45,10 @@ namespace systems
 
 		void SetSamplers( const forge::ArraySpan< const renderer::SamplerStateFilterType >& filterTypes );
 
-	protected:
+#ifdef FORGE_DEBUGGING
+		virtual const std::string& GetDebugFriendlyName() const { static std::string name = "Rendering System"; return name; }
+#endif
+
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;
 #endif

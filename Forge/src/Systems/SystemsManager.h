@@ -68,6 +68,16 @@ namespace systems
 			return nullptr;
 		}
 
+		forge::ArraySpan< const std::unique_ptr< IECSSystem > > GetECSSystems()
+		{
+			return m_ecsSystems;
+		}
+
+		forge::ArraySpan< const std::unique_ptr< ISystem > > GetSystems()
+		{
+			return m_systems;
+		}
+
 		template< class T >
 		FORGE_INLINE const std::vector< Archetype* >& GetArchetypesWithDataType()
 		{

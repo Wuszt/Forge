@@ -123,17 +123,13 @@ namespace systems
 			return m_engineInstance;
 		}
 
-	protected:
 #ifdef FORGE_DEBUGGING
+		virtual const std::string& GetDebugFriendlyName() const { static std::string emptyName; return emptyName; }
 		virtual void OnRenderDebug() {}
 #endif
 
 	private:
 		forge::EngineInstance& m_engineInstance;
-
-#ifdef FORGE_DEBUGGING
-		forge::CallbackToken m_onRenderDebugToken;
-#endif
 	};
 
 	class IECSSystem : public ISystem

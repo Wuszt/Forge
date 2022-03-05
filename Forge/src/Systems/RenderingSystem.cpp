@@ -82,7 +82,6 @@ void systems::RenderingSystem::OnInitialize()
 #ifdef FORGE_IMGUI_ENABLED
 void systems::RenderingSystem::OnRenderDebug()
 {
-	ImGui::ShowDemoWindow();
 	ImGui::Begin( "RenderingDebug" );
 
 	Int32 currentMode = static_cast<Int32>( m_renderingMode );

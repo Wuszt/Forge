@@ -41,7 +41,7 @@ VS_OUTPUT VS(uint vI : SV_VERTEXID)
     
     output.Position = float4(arrBasePos[vI].xy, 0.0, 1.0);       
     
-    float3 positionWS = mul( InvVP, output.Position);
+    float3 positionWS = mul(InvVP, output.Position).xyz;
     output.ViewRayWS = positionWS - CameraPosition;
     
     output.UV = arrBasePos[vI].xy;

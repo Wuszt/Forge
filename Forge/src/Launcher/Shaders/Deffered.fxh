@@ -20,7 +20,10 @@ Custom_VS_Output Vert(Custom_VS_Input input);
 
 Custom_VS_Output VS(Custom_VS_Input input)
 {
-    return Vert(input);
+    Custom_VS_Output output = Vert(input);
+    __CALC_WORLD_POS__
+
+    return output;
 }
 
 float4 CalculateColor(Custom_VS_Output input);

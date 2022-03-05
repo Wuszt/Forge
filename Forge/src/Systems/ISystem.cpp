@@ -1,5 +1,6 @@
 #include "Fpch.h"
 #include "ISystem.h"
+#include "DebugSystem.h"
 
 void systems::Archetype::MoveEntityTo( forge::EntityID entityId, Archetype* destination )
 {
@@ -46,8 +47,4 @@ void systems::Archetype::MoveEntityFrom( forge::EntityID entityId, std::vector< 
 
 systems::ISystem::ISystem( forge::EngineInstance& engineInstance )
 	: m_engineInstance( engineInstance )
-{
-#ifdef FORGE_DEBUGGING
-	m_onRenderDebugToken = engineInstance.GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::ISystem::OnRenderDebug, this ) );
-#endif
-}
+{}

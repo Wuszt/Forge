@@ -31,7 +31,10 @@ namespace systems
 		std::vector< renderer::LightData > m_lightsData;
 		Vector3 m_ambientColor;
 
-	protected:
+#ifdef FORGE_DEBUGGING
+		virtual const std::string& GetDebugFriendlyName() const { static std::string name = "Lighting System"; return name; }
+#endif
+
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;
 #endif
