@@ -27,16 +27,9 @@ namespace renderer
 		std::shared_ptr< const ModelMaterialsPackage > LoadModel( const std::string& path );
 		std::shared_ptr< const ITexture > LoadTexture( const std::string& path );
 
-		std::vector< std::shared_ptr< ITexture > > GetAllLoadedTextures() const
+		const std::unordered_map< std::string, std::shared_ptr< ITexture > >& GetAllLoadedTextures() const
 		{
-			std::vector< std::shared_ptr< ITexture > > textures;
-			textures.reserve( m_texturesCache.size() );
-			for( auto it : m_texturesCache )
-			{
-				textures.emplace_back( it.second );
-			}
-
-			return textures;
+			return m_texturesCache;
 		}
 
 	private:

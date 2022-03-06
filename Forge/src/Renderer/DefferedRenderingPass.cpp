@@ -32,12 +32,6 @@ renderer::DefferedRenderingPass::DefferedRenderingPass( IRenderer& renderer, std
 	: IMeshesRenderingPass( renderer )
 	, m_activeCameraGetter( activeCameraGetter )
 {
-	Vector2 resolution = renderer.GetResolution();
-	ITexture::Flags flags = ITexture::Flags::BIND_RENDER_TARGET | ITexture::Flags::BIND_SHADER_RESOURCE;
-
-	m_normalsTexture = GetRenderer().CreateTexture( static_cast<Uint32>( resolution.X ), static_cast<Uint32>( resolution.Y ), flags, ITexture::Format::R8G8B8A8_UNORM, ITexture::Format::R8G8B8A8_UNORM );
-	m_diffuseTexture = GetRenderer().CreateTexture( static_cast<Uint32>( resolution.X ), static_cast<Uint32>( resolution.Y ), flags, ITexture::Format::R8G8B8A8_UNORM, ITexture::Format::R8G8B8A8_UNORM );
-
 	m_lightingPass = std::make_unique<FullScreenRenderingPass>( GetRenderer(), "DefferedLighting.fx", "DefferedLighting.fx" );
 
 	m_cbDefferedRendering = GetRenderer().CreateStaticConstantBuffer< CBDefferedRendering >();
@@ -72,7 +66,7 @@ void renderer::DefferedRenderingPass::Draw( const renderer::IRawRenderablesPack&
 		std::vector< renderer::IShaderResourceView* > srvs =
 		{
 			m_diffuseTexture->GetShaderResourceView(),
-			GetRenderer().GetDepthStencilBuffer()->GetTexture()->GetShaderResourceView(),
+			GetDepthStencilBuffer()->GetTexture()->GetShaderResourceView(),
 			m_normalsTexture->GetShaderResourceView()
 		};
 
@@ -106,6 +100,11 @@ void renderer::DefferedRenderingPass::SetTargetTexture( ITexture& targetTexture 
 {
 	renderer::IMeshesRenderingPass::SetTargetTexture( targetTexture );
 	m_lightingPass->SetTargetTexture( targetTexture );
+
+	ITexture::Flags flags = ITexture::Flags::BIND_RENDER_TARGET | ITexture::Flags::BIND_SHADER_RESOURCE;
+
+	m_normalsTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetTextureSize().X ), static_cast<Uint32>( targetTexture.GetTextureSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, ITexture::Format::R8G8B8A8_UNORM );
+	m_diffuseTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetTextureSize().X ), static_cast< Uint32 >( targetTexture.GetTextureSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, ITexture::Format::R8G8B8A8_UNORM );
 }
 
 void renderer::DefferedRenderingPass::OnTargetTextureResized( const Vector2& size )

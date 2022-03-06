@@ -6,6 +6,7 @@ namespace renderer
 {
 	class IRenderer;
 	class IMeshesRenderingPass;
+	class FullScreenRenderingPass;
 
 	class IVertexShader;
 	class IPixelShader;
@@ -17,6 +18,7 @@ namespace renderer
 	class IDepthStencilState;
 	class RawRenderablesPacks;
 	class ISamplerState;
+	class IDepthStencilBuffer;
 
 	enum class SamplerStateFilterType;
 
@@ -61,6 +63,8 @@ namespace systems
 		};
 
 		void SetRenderingMode( RenderingMode renderingMode );
+		void UpdateRenderingResolution( Float scale );
+		Vector2 GetRenderingResolution();
 
 		systems::CamerasSystem* m_camerasSystem = nullptr;
 		forge::CallbackToken m_beforeDrawToken;
@@ -75,9 +79,15 @@ namespace systems
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_opaqueRenderingPass;
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_overlayRenderingPass;
 
+		std::unique_ptr< renderer::IDepthStencilBuffer > m_depthStencilBuffer;
 		std::unique_ptr< renderer::IDepthStencilState > m_depthStencilState;
 
+		std::unique_ptr< renderer::ITexture > m_targetTexture;
+
 		RenderingMode m_renderingMode = RenderingMode::Deffered;
+		forge::CallbackToken m_windowCallbackToken;
+
+		Float m_renderingResolutionScale = 1.0f;
 
 #ifdef FORGE_DEBUGGING
 		forge::CallbackToken m_clearingCacheToken;

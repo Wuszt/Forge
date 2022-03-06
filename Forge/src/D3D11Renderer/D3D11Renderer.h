@@ -50,11 +50,6 @@ namespace d3d11
 			return m_context.get();
 		}
 
-		FORGE_INLINE virtual D3D11DepthStencilBuffer* GetDepthStencilBuffer() const override
-		{
-			return m_depthStencilBuffer.get();
-		}
-
 		FORGE_INLINE virtual D3D11Swapchain* GetSwapchain() const override
 		{
 			return m_swapChain.get();
@@ -69,8 +64,9 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::IVertexBuffer > CreateVertexBuffer( const renderer::Vertices& vertices ) const override;
 		virtual std::unique_ptr< renderer::IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const override;
 		virtual std::unique_ptr< renderer::ITexture > CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Format srvFormat = renderer::ITexture::Format::Unknown ) const override;
-		virtual std::unique_ptr< renderer::IBlendState > CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc ) override;
-		virtual std::unique_ptr< renderer::IDepthStencilState > CreateDepthStencilState( renderer::DepthStencilComparisonFunc comparisonFunc ) override;
+		virtual std::unique_ptr< renderer::IBlendState > CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc ) const override;
+		virtual std::unique_ptr< renderer::IDepthStencilBuffer > CreateDepthStencilBuffer( Uint32 width, Uint32 height ) const override;
+		virtual std::unique_ptr< renderer::IDepthStencilState > CreateDepthStencilState( renderer::DepthStencilComparisonFunc comparisonFunc ) const override;
 
 		virtual void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer ) override;
 
@@ -82,6 +78,8 @@ namespace d3d11
 
 		virtual void OnBeforeDraw() override;
 
+		virtual void SetViewportSize( const Vector2& size ) override;
+
 		virtual std::unique_ptr< renderer::RawRenderablesPacks > CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* >& renderables ) const override;
 
 		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const renderer::ShaderDefine* shaderDefine = nullptr ) override;
@@ -92,19 +90,13 @@ namespace d3d11
 			return renderer::RendererType::D3D11;
 		}
 
-		FORGE_INLINE virtual Vector2 GetResolution() const override
-		{
-			return m_resolution;
-		}
-
 		virtual std::unique_ptr< renderer::IConstantBufferImpl > CreateConstantBufferImpl() const override;
 
 		virtual std::unique_ptr< renderer::ITexturesLoader > CreateTexturesLoader() const override;
 
 	private:
 		void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer );
-		void InitializeSwapChainAndContext( const windows::WindowsWindow& window );
-		void InitializeViewport( Uint32 width, Uint32 height );
+		void InitializeSwapChainAndContext( const windows::WindowsWindow& window, Uint32 renderingResolutionWidth, Uint32 renderingResolutionHeight );
 		void InitializeRasterizer();
 
 		std::unique_ptr< D3D11Device > m_device;
@@ -115,13 +107,9 @@ namespace d3d11
 
 		std::unique_ptr< D3D11ShadersManager > m_shadersManager;
 
-		std::unique_ptr< D3D11DepthStencilBuffer > m_depthStencilBuffer;
-
 		ID3D11RasterizerState* m_rasterizerState = nullptr;
 
 		forge::CallbackToken m_windowCallbackToken;
-
-		Vector2 m_resolution;
 	};
 }
 

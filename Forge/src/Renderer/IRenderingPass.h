@@ -17,11 +17,6 @@ namespace renderer
 
 		virtual FORGE_INLINE void SetTargetTexture( ITexture& targetTexture )
 		{
-			if( m_targetTexture != &targetTexture )
-			{
-				OnTargetTextureResized( targetTexture.GetTextureSize() );
-			}
-
 			m_targetTexture = &targetTexture;
 			m_onTargetTextureResized = m_targetTexture->GetOnResizedCallback().AddListener( [&]( const Vector2& size ) { OnTargetTextureResized( size ); } );		
 		}

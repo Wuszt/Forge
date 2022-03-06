@@ -59,14 +59,11 @@ namespace d3d11
 	D3D11Renderer::D3D11Renderer( forge::IWindow& window )
 	{
 		FORGE_ASSERT( dynamic_cast<windows::WindowsWindow*>( &window ) );
-		InitializeSwapChainAndContext( static_cast<windows::WindowsWindow&>( window ) );
 
-		m_depthStencilBuffer = std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), window.GetWidth(), window.GetHeight() );
+		InitializeSwapChainAndContext( static_cast<windows::WindowsWindow&>( window ), window.GetWidth(), window.GetHeight() );
 		m_shadersManager = std::make_unique< D3D11ShadersManager >( *GetDevice(), *GetContext() );
 
-		m_resolution = { static_cast< Float >( window.GetWidth() ), static_cast< Float >( window.GetHeight() ) };
-
-		InitializeViewport( window.GetWidth(), window.GetHeight() );
+		SetViewportSize( Vector2( static_cast< Float >( window.GetWidth() ), static_cast< Float >( window.GetHeight() ) ) );
 
 		InitializeRasterizer();
 
@@ -80,10 +77,7 @@ namespace d3d11
 				const forge::IWindow::OnResizedEvent& resizedEvent = static_cast<const forge::IWindow::OnResizedEvent&>( event );
 
 				GetSwapchain()->Resize( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
-				m_depthStencilBuffer->Resize( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
-
-				InitializeViewport( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
-				m_resolution = { static_cast<Float>( window.GetWidth() ), static_cast<Float>( window.GetHeight() ) };
+				SetViewportSize( Vector2( static_cast<Float>( window.GetWidth() ), static_cast<Float>( window.GetHeight() ) ) );
 				break;
 			}
 		} );
@@ -115,12 +109,17 @@ namespace d3d11
 		return std::make_unique< D3D11Texture >( *GetDevice(), *GetContext(), width, height, flags, format, srvFormat );
 	}
 
-	std::unique_ptr< renderer::IBlendState > D3D11Renderer::CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc )
+	std::unique_ptr< renderer::IBlendState > D3D11Renderer::CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc ) const
 	{
 		return std::make_unique< d3d11::D3D11BlendState >( *GetDevice(), *GetContext(), rgbOperation, alphaDesc );
 	}
 
-	std::unique_ptr< renderer::IDepthStencilState > D3D11Renderer::CreateDepthStencilState( renderer::DepthStencilComparisonFunc comparisonFunc )
+	std::unique_ptr< renderer::IDepthStencilBuffer > D3D11Renderer::CreateDepthStencilBuffer( Uint32 width, Uint32 height ) const
+	{
+		return std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), width, height );
+	}
+
+	std::unique_ptr< renderer::IDepthStencilState > D3D11Renderer::CreateDepthStencilState( renderer::DepthStencilComparisonFunc comparisonFunc ) const
 	{
 		return std::make_unique< d3d11::D3D11DepthStencilState >( *GetDevice(), *GetContext(), comparisonFunc );
 	}
@@ -199,6 +198,21 @@ namespace d3d11
 			buff->SetVS( renderer::VSConstantBufferType::Frame );
 			buff->SetPS( renderer::PSConstantBufferType::Frame );
 		}
+	}
+
+	void D3D11Renderer::SetViewportSize( const Vector2& size )
+	{
+		D3D11_VIEWPORT viewport;
+		ZeroMemory( &viewport, sizeof( D3D11_VIEWPORT ) );
+
+		viewport.TopLeftX = 0;
+		viewport.TopLeftY = 0;
+		viewport.Width = size.X;
+		viewport.Height = size.Y;
+		viewport.MinDepth = 0.0f;
+		viewport.MaxDepth = 1.0f;
+
+		m_context->GetDeviceContext()->RSSetViewports( 1, &viewport );
 	}
 
 	std::unique_ptr< renderer::RawRenderablesPacks > D3D11Renderer::CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* >& renderables ) const
@@ -351,9 +365,9 @@ namespace d3d11
 		return std::make_unique< d3d11::D3D11TexturesLoader >( *GetDevice(), *GetContext() );
 	}
 
-	void D3D11Renderer::InitializeSwapChainAndContext( const windows::WindowsWindow& window )
+	void D3D11Renderer::InitializeSwapChainAndContext( const windows::WindowsWindow& window, Uint32 renderingResolutionWidth, Uint32 renderingResolutionHeight )
 	{
-		auto swapChainDesc = D3D11Swapchain::GetSwapChainDescription( window.GetWidth(), window.GetHeight(), window.GetHWND() );
+		auto swapChainDesc = D3D11Swapchain::GetSwapChainDescription( renderingResolutionWidth, renderingResolutionHeight, window.GetHWND() );
 
 		IDXGISwapChain* swapChain;
 		ID3D11Device* d3d11Device;
@@ -371,21 +385,6 @@ namespace d3d11
 		m_device = std::make_unique< D3D11Device >( d3d11Device );
 		m_context = std::make_unique< D3D11RenderContext >( d3d11DevCon );
 		m_swapChain = std::make_unique< D3D11Swapchain >( *m_device, *m_context, swapChain );
-	}
-
-	void D3D11Renderer::InitializeViewport( Uint32 width, Uint32 height )
-	{
-		D3D11_VIEWPORT viewport;
-		ZeroMemory( &viewport, sizeof( D3D11_VIEWPORT ) );
-
-		viewport.TopLeftX = 0;
-		viewport.TopLeftY = 0;
-		viewport.Width = static_cast<Float>( width );
-		viewport.Height = static_cast<Float>( height );
-		viewport.MinDepth = 0.0f;
-		viewport.MaxDepth = 1.0f;
-
-		m_context->GetDeviceContext()->RSSetViewports( 1, &viewport );
 	}
 
 	void D3D11Renderer::InitializeRasterizer()

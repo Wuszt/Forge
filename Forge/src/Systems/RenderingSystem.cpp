@@ -8,10 +8,11 @@
 #include "../Renderer/ForwardRenderingPass.h"
 #include "../Renderer/DefferedRenderingPass.h"
 #include "../Renderer/IDepthStencilState.h"
+#include "../Core/IWindow.h"
+#include "../Renderer/FullScreenRenderingPass.h"
 
 #ifdef FORGE_IMGUI_ENABLED
 #include "../../External/imgui/imgui.h"
-#include "../Renderer/FullScreenRenderingPass.h"
 #include "../Renderer/ICamera.h"
 #endif
 
@@ -19,27 +20,33 @@ systems::RenderingSystem::RenderingSystem( forge::EngineInstance& engineInstance
 	: ECSSystem< forge::TransformComponentData, forge::RenderingComponentData >( engineInstance )
 {}
 
-systems::RenderingSystem::~RenderingSystem() = default;
+systems::RenderingSystem::~RenderingSystem()
+{
+	m_opaqueRenderingPass = nullptr;
+	m_overlayRenderingPass = nullptr;
+}
 
 void systems::RenderingSystem::OnInitialize()
 {
 	m_renderer = &GetEngineInstance().GetRenderer();
 	m_camerasSystem = &GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >();
-	
+	m_depthStencilBuffer = m_renderer->CreateDepthStencilBuffer( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight() );
+
 	m_beforeDrawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::RenderingSystem::OnBeforeDraw, this ) );
 	m_drawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::RenderingSystem::OnDraw, this ) );
 	m_presentToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Present, std::bind( &systems::RenderingSystem::OnPresent, this ) );
 	m_cameraCB = m_renderer->CreateStaticConstantBuffer< renderer::cbCamera >();
 	m_rawRenderablesPacks = m_renderer->CreateRawRenderablesPackage( {} );
 
-	m_opaqueRenderingPass = std::make_unique< renderer::DefferedRenderingPass >( *m_renderer, [ cameraSystem = m_camerasSystem ]() -> decltype(auto) { return cameraSystem->GetActiveCamera()->GetCamera(); } );
-	//m_opaqueRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
-	m_opaqueRenderingPass->SetTargetTexture( m_renderer->GetSwapchain()->GetBackBuffer() );
-	m_opaqueRenderingPass->SetDepthStencilBuffer( m_renderer->GetDepthStencilBuffer() );
+	m_targetTexture = m_renderer->CreateTexture( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight(), 
+		renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
+		renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Format::R8G8B8A8_UNORM );
+
+	SetRenderingMode( RenderingMode::Deffered );
 
 	m_overlayRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
-	m_overlayRenderingPass->SetTargetTexture( m_renderer->GetSwapchain()->GetBackBuffer() );
-	m_overlayRenderingPass->SetDepthStencilBuffer( m_renderer->GetDepthStencilBuffer() );
+	m_overlayRenderingPass->SetTargetTexture( *m_targetTexture );
+	m_overlayRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
 
 	std::vector< renderer::ShaderDefine > baseShaderDefines;
 	baseShaderDefines.insert( baseShaderDefines.end(), renderer::DefferedRenderingPass::GetRequiredShaderDefines().begin(), renderer::DefferedRenderingPass::GetRequiredShaderDefines().end() );
@@ -48,6 +55,19 @@ void systems::RenderingSystem::OnInitialize()
 
 	m_depthStencilState = m_renderer->CreateDepthStencilState( renderer::DepthStencilComparisonFunc::COMPARISON_LESS_EQUAL );
 	m_depthStencilState->Set();
+	m_windowCallbackToken = GetEngineInstance().GetWindow().RegisterEventListener(
+			[ & ]( const forge::IWindow::IEvent& event )
+	{
+		switch( event.GetEventType() )
+		{
+		case forge::IWindow::EventType::OnResized:
+			FORGE_ASSERT( dynamic_cast<const forge::IWindow::OnResizedEvent*>( &event ) );
+			const forge::IWindow::OnResizedEvent& resizedEvent = static_cast<const forge::IWindow::OnResizedEvent&>( event );
+
+			UpdateRenderingResolution( m_renderingResolutionScale );
+			break;
+		}
+	} );
 
 #ifdef FORGE_DEBUGGING
 	m_clearingCacheToken = m_renderer->GetShadersManager()->RegisterCacheClearingListener( [ this ]()
@@ -75,6 +95,11 @@ void systems::RenderingSystem::OnInitialize()
 		{
 			GetEngineInstance().GetRenderer().GetShadersManager()->ClearCache();
 		}
+
+		ImGui::Text( "Window res: %u x %u", GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight() );
+
+		const Vector2 renderingRes = GetRenderingResolution();
+		ImGui::Text( "Rendering res(%u%%) : %u x %u", static_cast<Uint32>( m_renderingResolutionScale * 100.0f ), static_cast< Uint32 >( renderingRes.X ), static_cast< Uint32 >( renderingRes.Y ) );
 	} );
 #endif
 }
@@ -82,81 +107,115 @@ void systems::RenderingSystem::OnInitialize()
 #ifdef FORGE_IMGUI_ENABLED
 void systems::RenderingSystem::OnRenderDebug()
 {
-	ImGui::Begin( "RenderingDebug" );
-
-	Int32 currentMode = static_cast<Int32>( m_renderingMode );
-	ImGui::Text( "Rendering mode: " );
-	ImGui::SameLine(); ImGui::RadioButton( "Forward", &currentMode, 0 );
-	ImGui::SameLine(); ImGui::RadioButton( "Deffered", &currentMode, 1 );
-	if( currentMode != static_cast<Int32>( m_renderingMode ) )
-	{
-		SetRenderingMode( static_cast<RenderingMode>( currentMode ) );
-	}
-
-	auto funcDrawTexture = []( renderer::ITexture& texture )
-	{
-		const Vector2& size = texture.GetTextureSize();
-		const ImVec2 textureSize = ImVec2( ImGui::GetWindowWidth(), ImGui::GetWindowWidth() * size.Y / size.X );
-		ImGui::Image( texture.GetShaderResourceView()->GetRawSRV(), textureSize );
-	};
-
+	if( ImGui::Begin( "RenderingDebug" ) )
 	{
 		if( ImGui::BeginTabBar( "##tabs" ) )
 		{
-			if( ImGui::BeginTabItem( "Loaded textures" ) )
+			if( ImGui::BeginTabItem( "Settings" ) )
 			{
-				auto loadedTextures = m_renderer->GetResourceManager().GetAllLoadedTextures();
-				for( const auto& texture : loadedTextures )
+				Int32 currentMode = static_cast<Int32>( m_renderingMode );
+				ImGui::Text( "Rendering mode: " );
+				ImGui::SameLine(); ImGui::RadioButton( "Forward", &currentMode, 0 );
+				ImGui::SameLine(); ImGui::RadioButton( "Deffered", &currentMode, 1 );
+				if( currentMode != static_cast<Int32>( m_renderingMode ) )
 				{
-					funcDrawTexture( *texture );
+					SetRenderingMode( static_cast<RenderingMode>( currentMode ) );
 				}
+
+				Int32 scale = static_cast< Int32 >( m_renderingResolutionScale * 100.0f );
+				if( ImGui::SliderInt( "##ResolutionScale", &scale, 1, 800, "Resolution Scale: %d%%" ) )
+				{
+					UpdateRenderingResolution( static_cast<Float>( scale ) * 0.01f );
+				}
+				/*ImGui::SameLine();
+				ImGui::Button( "Apply" );*/
+
 				ImGui::EndTabItem();
 			}
 
-			if( dynamic_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() ) )
+			auto funcDrawTexture = []( const std::string& name, renderer::ITexture& texture )
 			{
-				if( ImGui::BeginTabItem( "GBuffer" ) )
+				if( ImGui::TreeNodeEx( name.c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
 				{
-					funcDrawTexture( *static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetNormalsTexture() );
-					funcDrawTexture( *static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetDiffuseTexture() );
-					ImGui::EndTabItem();
+					const Vector2& size = texture.GetTextureSize();
+					const ImVec2 textureSize = ImVec2( ImGui::GetWindowWidth(), ImGui::GetWindowWidth() * size.Y / size.X );
+					ImGui::Image( texture.GetShaderResourceView()->GetRawSRV(), textureSize );
+					if( ImGui::IsItemHovered() && ImGui::IsMouseDown( ImGuiMouseButton_Right ) )
+					{
+						ImVec2 pos = ImGui::GetCursorScreenPos();
+						ImGuiIO& io = ImGui::GetIO();
+						ImGui::BeginTooltip();
+						Float region_sz = 32.0f;
+						Float region_x = io.MousePos.x - pos.x - region_sz * 0.5f;
+						Float region_y = textureSize.y - Math::Abs( io.MousePos.y - pos.y - region_sz * 0.5f );
+						Float zoom = 4.0f;
+						Math::Clamp( 0.0f, textureSize.x - region_sz, region_x );
+						Math::Clamp( 0.0f, textureSize.y - region_sz, region_y );
+						ImVec2 uv0 = ImVec2( ( region_x ) / textureSize.x, ( region_y ) / textureSize.y );
+						ImVec2 uv1 = ImVec2( ( region_x + region_sz ) / textureSize.x, ( region_y + region_sz ) / textureSize.y );
+						ImGui::Image( texture.GetShaderResourceView()->GetRawSRV(), ImVec2( region_sz * zoom, region_sz * zoom ), uv0, uv1 );
+						ImGui::EndTooltip();
+					}
+					ImGui::TreePop();
 				}
+			};
+
+			if( ImGui::BeginTabItem( "Loaded textures" ) )
+			{
+				for( const auto& texture : m_renderer->GetResourceManager().GetAllLoadedTextures() )
+				{
+					funcDrawTexture( texture.first, *texture.second );
+				}
+
+				ImGui::EndTabItem();
 			}
 
-			if( ImGui::BeginTabItem( "Depth Buffer" ) )
+			if( ImGui::BeginTabItem( "Buffers" ) )
 			{
-				renderer::FullScreenRenderingPass fsPass( *m_renderer, "DepthBufferDebug.fx" );
-
-				struct CB
+				if( dynamic_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() ) )
 				{
-					Float Denominator = 1.0f;
-					Float padding[3];
-				};
+					funcDrawTexture( "Normals", *static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetNormalsTexture() );
+					funcDrawTexture( "Diffuse", *static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetDiffuseTexture() );
+				}
 
-				auto cb = m_renderer->CreateStaticConstantBuffer< CB >();
-				const forge::ICamera& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
-				Float maxValue = currentCamera.GetFarPlane() - currentCamera.GetNearPlane();
-				m_depthBufferDenominator = Math::Min( m_depthBufferDenominator, maxValue );
-				ImGui::SliderFloat( "Denominator", &m_depthBufferDenominator, maxValue * 0.1f, maxValue);
-				cb->GetData().Denominator = m_depthBufferDenominator;
-				cb->UpdateBuffer();
-				cb->SetPS( renderer::PSConstantBufferType::Material );
+				{
+					const forge::ICamera& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
+					Float maxValue = currentCamera.GetFarPlane() - currentCamera.GetNearPlane();
+					m_depthBufferDenominator = Math::Min( m_depthBufferDenominator, maxValue );
+					ImGui::SliderFloat( "Denominator", &m_depthBufferDenominator, maxValue * 0.1f, maxValue );
 
-				m_temporaryTexture = m_renderer->CreateTexture( static_cast<Uint32>( m_renderer->GetResolution().X ), static_cast<Uint32>( m_renderer->GetResolution().Y ),
-					renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
-					renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Format::R8G8B8A8_UNORM );
+					struct CB
+					{
+						Float Denominator = 1.0f;
+						Float padding[ 3 ];
+					};
 
-				fsPass.SetTargetTexture( *m_temporaryTexture );
-				fsPass.Draw( { m_renderer->GetDepthStencilBuffer()->GetTexture()->GetShaderResourceView() } );
-				funcDrawTexture( *m_temporaryTexture );
+					auto cb = m_renderer->CreateStaticConstantBuffer< CB >();
+					cb->GetData().Denominator = m_depthBufferDenominator;
+					cb->UpdateBuffer();
+					cb->SetPS( renderer::PSConstantBufferType::Material );
+
+					m_temporaryTexture = m_renderer->CreateTexture( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight(),
+						renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
+						renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Format::R8G8B8A8_UNORM );
+
+					renderer::FullScreenRenderingPass fsPass( *m_renderer, "DepthBufferDebug.fx" );
+					fsPass.SetTargetTexture( *m_temporaryTexture );
+					fsPass.Draw( { m_depthStencilBuffer->GetTexture()->GetShaderResourceView() } );
+					funcDrawTexture( "Depth", *m_temporaryTexture );
+				}
+
 				ImGui::EndTabItem();
 			}
 
 			ImGui::EndTabBar();
 		}
+
+		ImGui::End();
 	}
-	ImGui::End();
 }
+
+#endif
 
 void systems::RenderingSystem::SetRenderingMode( RenderingMode renderingMode )
 {
@@ -170,11 +229,30 @@ void systems::RenderingSystem::SetRenderingMode( RenderingMode renderingMode )
 		m_opaqueRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
 		break;
 	}
-	m_opaqueRenderingPass->SetTargetTexture( m_renderer->GetSwapchain()->GetBackBuffer() );
-	m_opaqueRenderingPass->SetDepthStencilBuffer( m_renderer->GetDepthStencilBuffer() );
+	m_opaqueRenderingPass->SetTargetTexture( *m_targetTexture );
+	m_opaqueRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
 }
 
-#endif
+void systems::RenderingSystem::UpdateRenderingResolution( Float scale )
+{
+	m_renderingResolutionScale = scale;
+	const Vector2 renderingResolution = GetRenderingResolution();
+
+	const Uint32 renderingResolutionWidth = static_cast<Uint32>( renderingResolution.X );
+	const Uint32 renderingResolutionHeight = static_cast<Uint32>( renderingResolution.Y );
+	m_depthStencilBuffer->Resize( renderingResolutionWidth, renderingResolutionHeight );
+	m_targetTexture->Resize( renderingResolution );
+}
+
+Vector2 systems::RenderingSystem::GetRenderingResolution()
+{
+	Vector2 result = { static_cast<Float>( GetEngineInstance().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetWindow().GetHeight() ) };
+	result *= m_renderingResolutionScale;
+	result.X = static_cast< Float >( static_cast< Uint32 >( result.X ) );
+	result.Y = static_cast< Float >( static_cast< Uint32 >( result.Y ) );
+
+	return result;
+}
 
 void systems::RenderingSystem::OnBeforeDraw()
 {
@@ -185,6 +263,7 @@ void systems::RenderingSystem::OnBeforeDraw()
 void systems::RenderingSystem::OnDraw()
 {
 	PC_SCOPE_FUNC();
+	m_renderer->SetViewportSize( GetRenderingResolution() );
 
 	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesOfSystem< systems::RenderingSystem >();
 
@@ -243,6 +322,11 @@ void systems::RenderingSystem::OnDraw()
 	renderer::LightingData lightingData = { lightingSystem.GetAmbientColor(), lightingSystem.GetLights() };
 	m_opaqueRenderingPass->Draw( m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Opaque ), &lightingData );
 	m_overlayRenderingPass->Draw( m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Overlay ), nullptr );
+
+	m_renderer->SetViewportSize( Vector2( static_cast< Float >( GetEngineInstance().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetWindow().GetHeight() ) ) );
+	renderer::FullScreenRenderingPass copyResourcePass( *m_renderer, "CopyTexture.fx" );
+	copyResourcePass.SetTargetTexture( m_renderer->GetSwapchain()->GetBackBuffer() );
+	copyResourcePass.Draw( { m_targetTexture->GetShaderResourceView() } );
 }
 
 void systems::RenderingSystem::OnPresent()

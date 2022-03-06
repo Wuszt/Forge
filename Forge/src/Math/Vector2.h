@@ -64,6 +64,7 @@ struct Vector2
 
 	FORGE_INLINE Vector2 operator-() const { return Vector2( -X, -Y ); }
 
+	FORGE_INLINE Vector2 operator*( Float value ) const { return Vector2( value * X, value * Y ); }
 	FORGE_INLINE Vector2 operator+( const Vector2& vec ) const { return Vector2( X + vec.X, Y + vec.Y ); }
 	FORGE_INLINE Vector2 operator-( const Vector2& vec ) const { return Vector2( X - vec.X, Y - vec.Y ); }
 

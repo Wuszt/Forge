@@ -18,7 +18,7 @@ namespace d3d11
 			return m_view;
 		}
 
-		void Resize( Uint32 width, Uint32 height );
+		virtual void Resize( Uint32 width, Uint32 height ) override;
 
 		void CreateDepthStencil( Uint32 width, Uint32 height );
 

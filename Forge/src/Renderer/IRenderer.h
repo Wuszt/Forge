@@ -82,7 +82,6 @@ namespace renderer
 		virtual ~IRenderer();
 
 		virtual IRenderContext* GetContext() const = 0;
-		virtual IDepthStencilBuffer* GetDepthStencilBuffer() const = 0;
 		virtual ISwapchain* GetSwapchain() const = 0;
 		virtual IShadersManager* GetShadersManager() const = 0;
 
@@ -90,10 +89,13 @@ namespace renderer
 		virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const Vertices& vertices ) const = 0;
 		virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const = 0;
 		virtual std::unique_ptr< ITexture > CreateTexture( Uint32 width, Uint32 height, ITexture::Flags flags, ITexture::Format format, ITexture::Format srvFormat = ITexture::Format::Unknown ) const = 0;
-		virtual std::unique_ptr< IBlendState > CreateBlendState( const BlendOperationDesc& rgbOperation, const BlendOperationDesc& alphaDesc ) = 0;
-		virtual std::unique_ptr< IDepthStencilState > CreateDepthStencilState( DepthStencilComparisonFunc comparisonFunc ) = 0;
+		virtual std::unique_ptr< IBlendState > CreateBlendState( const BlendOperationDesc& rgbOperation, const BlendOperationDesc& alphaDesc ) const = 0;
+		virtual std::unique_ptr< renderer::IDepthStencilBuffer > CreateDepthStencilBuffer( Uint32 width, Uint32 height ) const = 0;
+		virtual std::unique_ptr< IDepthStencilState > CreateDepthStencilState( DepthStencilComparisonFunc comparisonFunc ) const = 0;
 
 		void Initialize();
+
+		virtual void SetViewportSize( const Vector2& size ) = 0;
 
 		virtual void SetRenderTargets( const forge::ArraySpan< IRenderTargetView* >& rendererTargetViews, IDepthStencilBuffer* depthStencilBuffer ) = 0;
 
@@ -144,7 +146,6 @@ namespace renderer
 		}
 
 		virtual std::unique_ptr< ITexturesLoader > CreateTexturesLoader() const = 0;
-		virtual Vector2 GetResolution() const = 0;
 
 	private:
 		std::unique_ptr< ResourcesManager > m_resourcesManager;

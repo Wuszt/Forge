@@ -92,6 +92,7 @@ namespace forge
 
 		typedef forge::Callback< const IEvent& > CallbackType;
 
+		[[nodiscard]]
 		FORGE_INLINE forge::CallbackToken RegisterEventListener( const CallbackType::TFunc& func )
 		{
 			return m_windowCallbacks.AddListener( func );
