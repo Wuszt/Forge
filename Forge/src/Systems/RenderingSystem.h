@@ -31,7 +31,7 @@ namespace systems
 {
 	class CamerasSystem;
 
-	class RenderingSystem : public ECSSystem< forge::TransformComponentData, forge::RenderingComponentData >
+	class RenderingSystem : public ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >
 	{
 	public:
 		RenderingSystem( forge::EngineInstance& engineInstance );

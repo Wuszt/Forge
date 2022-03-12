@@ -132,69 +132,92 @@ namespace systems
 		forge::EngineInstance& m_engineInstance;
 	};
 
+	class IArchetypeDataTypes
+	{
+	public:
+		virtual ~IArchetypeDataTypes() = default;
+
+		virtual std::vector< std::unique_ptr< forge::IDataPackage > > GatherDataPackages() const = 0;
+		virtual std::vector< std::type_index > GetRequiredDataTypes() const = 0;
+	};
+
+	template< class... Ts >
+	class ArchetypeDataTypes : public IArchetypeDataTypes
+	{
+	public:
+		virtual std::vector< std::unique_ptr< forge::IDataPackage > > GatherDataPackages() const override
+		{
+			std::vector< std::unique_ptr< forge::IDataPackage > > packages;
+			GatherDataPackagesInternal< Ts... >( packages );
+			return packages;
+		}
+
+		virtual std::vector< std::type_index > GetRequiredDataTypes() const override
+		{
+			std::vector< std::type_index > types;
+			GatherDataTypesInternal< Ts... >( types );
+			return types;
+		}
+
+	private:
+		template< class... Args >
+		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherDataTypesInternal( std::vector< std::type_index >& types )
+		{}
+
+		template< class T, class... Args >
+		FORGE_INLINE static void GatherDataTypesInternal( std::vector< std::type_index >& types )
+		{
+			types.emplace_back( typeid( T ) );
+
+			GatherDataTypesInternal< Args... >( types );
+		}
+
+		template< class... Args >
+		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherDataPackagesInternal( std::vector< std::unique_ptr< forge::IDataPackage > >& packages )
+		{}
+
+		template< class T, class... Args >
+		FORGE_INLINE static void GatherDataPackagesInternal( std::vector< std::unique_ptr< forge::IDataPackage > >& packages )
+		{
+			packages.emplace_back( std::make_unique< forge::DataPackage< T > >() );
+
+			GatherDataPackagesInternal< Args... >( packages );
+		}
+	};
+
 	class IECSSystem : public ISystem
 	{
 	public:
-		virtual const std::vector< std::type_index >& GetRequiredDataTypes() const = 0;
-		virtual std::vector< std::unique_ptr< forge::IDataPackage > > CreateRequiredDataPackages() const = 0;
+		virtual std::vector< std::unique_ptr< IArchetypeDataTypes > > GetArchetypesDataTypes() const = 0;
 
 	private:
 		using ISystem::ISystem;
 	};
 
-	template< class... Ts>
+	template< class... Ts >
 	class ECSSystem : public IECSSystem
 	{
 	public:
 		using IECSSystem::IECSSystem;
 
-		template< class... Args >
-		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherDataTypes( std::vector< std::type_index >& types )
-		{}
-
-		template< class T, class... Args >
-		FORGE_INLINE static void GatherDataTypes( std::vector< std::type_index >& types )
+		FORGE_INLINE virtual std::vector< std::unique_ptr< IArchetypeDataTypes > > GetArchetypesDataTypes() const override
 		{
-			types.emplace_back( typeid( T ) );
-
-			GatherDataTypes< Args... >( types );
-		}
-
-		FORGE_INLINE static std::vector< std::type_index > ComputeDataTypes()
-		{
-			std::vector< std::type_index > types;
-			GatherDataTypes< Ts... >( types );
+			std::vector< std::unique_ptr< IArchetypeDataTypes > > types;
+			GatherArchetypesDataTypesInternal< Ts... >( types );
 			return types;
 		}
 
-		FORGE_INLINE static const std::vector< std::type_index >& GetRequiredDataTypesStatic()
-		{
-			thread_local std::vector< std::type_index > types = ComputeDataTypes();
-			return types;
-		}
-
-		FORGE_INLINE virtual const std::vector< std::type_index >& GetRequiredDataTypes() const override
-		{
-			return GetRequiredDataTypesStatic();
-		}
-
+	private:
 		template< class... Args >
-		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherDataPackages( std::vector< std::unique_ptr< forge::IDataPackage > >& packages )
+		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherArchetypesDataTypesInternal( std::vector< std::unique_ptr< IArchetypeDataTypes > >& )
 		{}
 
 		template< class T, class... Args >
-		FORGE_INLINE static void GatherDataPackages( std::vector< std::unique_ptr< forge::IDataPackage > >& packages )
+		FORGE_INLINE static void GatherArchetypesDataTypesInternal( std::vector< std::unique_ptr< IArchetypeDataTypes > >& types )
 		{
-			packages.emplace_back( std::make_unique< forge::DataPackage< T > >() );
+			types.emplace_back( std::make_unique< T >() );
 
-			GatherDataPackages< Args... >( packages );
-		}
-
-		FORGE_INLINE virtual std::vector< std::unique_ptr< forge::IDataPackage > > CreateRequiredDataPackages() const override
-		{
-			std::vector< std::unique_ptr< forge::IDataPackage > > packages;
-			GatherDataPackages< Ts... >( packages );
-			return packages;
+			GatherArchetypesDataTypesInternal< Args... >( types );
 		}
 	};
 }

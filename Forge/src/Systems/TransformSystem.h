@@ -3,7 +3,7 @@
 
 namespace systems
 {
-	class TransformSystem : public ECSSystem< forge::TransformComponentData >
+	class TransformSystem : public ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData > >
 	{
 		using ECSSystem::ECSSystem;
 	};

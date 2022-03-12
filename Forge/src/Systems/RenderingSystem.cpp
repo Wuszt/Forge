@@ -17,7 +17,7 @@
 #endif
 
 systems::RenderingSystem::RenderingSystem( forge::EngineInstance& engineInstance )
-	: ECSSystem< forge::TransformComponentData, forge::RenderingComponentData >( engineInstance )
+	: ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >( engineInstance )
 {}
 
 systems::RenderingSystem::~RenderingSystem()
@@ -72,7 +72,7 @@ void systems::RenderingSystem::OnInitialize()
 #ifdef FORGE_DEBUGGING
 	m_clearingCacheToken = m_renderer->GetShadersManager()->RegisterCacheClearingListener( [ this ]()
 	{
-		const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesOfSystem< systems::RenderingSystem >();
+		const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData >() );
 		for( systems::Archetype* archetype : archetypes )
 		{
 			forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
@@ -127,8 +127,6 @@ void systems::RenderingSystem::OnRenderDebug()
 				{
 					UpdateRenderingResolution( static_cast<Float>( scale ) * 0.01f );
 				}
-				/*ImGui::SameLine();
-				ImGui::Button( "Apply" );*/
 
 				ImGui::EndTabItem();
 			}
@@ -265,7 +263,7 @@ void systems::RenderingSystem::OnDraw()
 	PC_SCOPE_FUNC();
 	m_renderer->SetViewportSize( GetRenderingResolution() );
 
-	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesOfSystem< systems::RenderingSystem >();
+	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData >() );
 
 	auto* activeCamera = m_camerasSystem->GetActiveCamera();
 

@@ -49,6 +49,11 @@ Uint32 GetTypesHash( const forge::ArraySpan< const std::unique_ptr< forge::IData
 	return typesHash;
 }
 
+forge::ArraySpan< systems::Archetype* > systems::SystemsManager::GetArchetypesWithDataTypes( const systems::IArchetypeDataTypes& archetypeDataTypes )
+{
+	return m_archetypeTypesHashToArchetypesLUT[ GetTypesHash( archetypeDataTypes.GatherDataPackages() ) ];
+}
+
 void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< forge::IDataPackage > package )
 {
 	PC_SCOPE_FUNC();
@@ -64,29 +69,35 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 
 	for( auto& system : m_ecsSystems )
 	{
-		auto requiredTypes = system->GetRequiredDataTypes();
-		if( std::find( requiredTypes.begin(), requiredTypes.end(), typeIndex ) != requiredTypes.end() )
+		auto archetypesDataTypes = system->GetArchetypesDataTypes();
+
+		for( auto& archetypeDataTypes : archetypesDataTypes )
 		{
-			Bool entityHasAllTypes = true;
-			for( auto requiredType : requiredTypes )
-			{
-				if( std::find( entityTypes.begin(), entityTypes.end(), requiredType ) == entityTypes.end() )
-				{
-					entityHasAllTypes = false;
-					break;
-				}
-			}
+			auto requiredTypes = archetypeDataTypes->GetRequiredDataTypes();
 
-			if( entityHasAllTypes )
+			if( std::find( requiredTypes.begin(), requiredTypes.end(), typeIndex ) != requiredTypes.end() )
 			{
-				auto requiredDataPackages = system->CreateRequiredDataPackages();
-
-				for( auto& requiredDataPackage : requiredDataPackages )
+				Bool entityHasAllTypes = true;
+				for( auto requiredType : requiredTypes )
 				{
-					auto found = std::find_if( newArchetypePackages.begin(), newArchetypePackages.end(), [ &requiredDataPackage ]( const auto& package ) { return requiredDataPackage->GetTypeIndex() == package->GetTypeIndex(); } );
-					if( found == newArchetypePackages.end() )
+					if( std::find( entityTypes.begin(), entityTypes.end(), requiredType ) == entityTypes.end() )
 					{
-						newArchetypePackages.emplace_back( std::move( requiredDataPackage ) );
+						entityHasAllTypes = false;
+						break;
+					}
+				}
+
+				if( entityHasAllTypes )
+				{
+					auto requiredDataPackages = archetypeDataTypes->GatherDataPackages();
+
+					for( auto& requiredDataPackage : requiredDataPackages )
+					{
+						auto found = std::find_if( newArchetypePackages.begin(), newArchetypePackages.end(), [ &requiredDataPackage ]( const auto& package ) { return requiredDataPackage->GetTypeIndex() == package->GetTypeIndex(); } );
+						if( found == newArchetypePackages.end() )
+						{
+							newArchetypePackages.emplace_back( std::move( requiredDataPackage ) );
+						}
 					}
 				}
 			}
@@ -95,8 +106,10 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 
 	std::vector< Archetype* > donors;
 	Uint32 typesHash = GetTypesHash( newArchetypePackages );
+	std::vector< std::type_index > typesIndices;
 	for( auto& package : newArchetypePackages )
 	{
+		typesIndices.emplace_back( package->GetTypeIndex() );
 		auto& entityArchetypes = m_entityArchetypesLUT[ id ];
 		for( auto it = entityArchetypes.begin(); it != entityArchetypes.end(); )
 		{
@@ -121,26 +134,6 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 		archetype = m_archetypes.back().get();
 		m_typesHashToArchetypeLUT.emplace( typesHash, archetype );
 
-		for( auto& system : m_ecsSystems )
-		{
-			auto& requiredDataTypes = system->GetRequiredDataTypes();
-
-			Bool hasArchetypeAllRequiredTypes = true;
-			for( auto requiredDataType : requiredDataTypes )
-			{
-				if( std::find_if( newArchetypePackages.begin(), newArchetypePackages.end(), [ &requiredDataType ]( auto& package ) { return package->GetTypeIndex() == requiredDataType; } ) == newArchetypePackages.end() )
-				{
-					hasArchetypeAllRequiredTypes = false;
-					break;
-				}
-			}
-
-			if( hasArchetypeAllRequiredTypes )
-			{
-				m_systemToArchetypesLUT[ typeid( *system ) ].emplace_back( archetype );
-			}
-		}
-
 		for( auto& package : newArchetypePackages )
 		{
 			m_dataToArchetypesLUT[ package->GetTypeIndex() ].emplace_back( archetype );
@@ -151,6 +144,34 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 	{
 		archetype = found->second;
 		archetype->GetData( typeIndex ).AddEmptyData();
+	}
+
+	for( auto& system : m_ecsSystems )
+	{
+		auto archetypesDataTypes = system->GetArchetypesDataTypes();
+
+		for( auto& archetypeDataTypes : archetypesDataTypes )
+		{
+			Bool hasArchetypeAllRequiredTypes = true;
+			for( auto requiredDataType : archetypeDataTypes->GetRequiredDataTypes() )
+			{
+				if( std::find_if( typesIndices.begin(), typesIndices.end(), [ &requiredDataType ]( const auto& typeIndex ) { return typeIndex == requiredDataType; } ) == typesIndices.end() )
+				{
+					hasArchetypeAllRequiredTypes = false;
+					break;
+				}
+			}
+
+			Uint32 typesHash = GetTypesHash( archetypeDataTypes->GatherDataPackages() );
+
+			if( hasArchetypeAllRequiredTypes )
+			{
+				if( std::find( m_archetypeTypesHashToArchetypesLUT[ typesHash ].begin(), m_archetypeTypesHashToArchetypesLUT[ typesHash ].end(), archetype ) == m_archetypeTypesHashToArchetypesLUT[ typesHash ].end() )
+				{
+					m_archetypeTypesHashToArchetypesLUT[ typesHash ].emplace_back( archetype );
+				}
+			}
+		}
 	}
 
 	archetype->MoveEntityFrom( id, donors );
@@ -164,16 +185,16 @@ void systems::SystemsManager::RemoveECSData( forge::EntityID id, std::type_index
 	PC_SCOPE_FUNC();
 
 	auto& entityTypes = m_entityDataTypesLUT.at( id );
-	auto& entityArchetypes = m_entityArchetypesLUT.at ( id );
+	auto& entityArchetypes = m_entityArchetypesLUT.at( id );
 
 	auto currentArchetypeIt = std::find_if( entityArchetypes.begin(), entityArchetypes.end(), [ & ]( systems::Archetype* archetype ) { return archetype->ContainsData( typeIndex ); } );
 
 	FORGE_ASSERT( currentArchetypeIt != entityArchetypes.end() );
 
 	std::vector< std::unique_ptr< forge::IDataPackage > > tmpDataPackages;
-	(*currentArchetypeIt)->MoveEntityTo( id, tmpDataPackages );
+	( *currentArchetypeIt )->MoveEntityTo( id, tmpDataPackages );
 
-	(*currentArchetypeIt)->SetDirty( true );
+	( *currentArchetypeIt )->SetDirty( true );
 
 	if( ( *currentArchetypeIt )->IsEmpty() )
 	{
@@ -184,10 +205,9 @@ void systems::SystemsManager::RemoveECSData( forge::EntityID id, std::type_index
 			forge::utils::RemoveValueReorder( m_dataToArchetypesLUT.at( dataPackage->GetTypeIndex() ), *currentArchetypeIt );
 		}
 
-		for( auto& it : m_systemToArchetypesLUT )
+		for( auto& it : m_archetypeTypesHashToArchetypesLUT )
 		{
 			auto found = std::find( it.second.begin(), it.second.end(), ( *currentArchetypeIt ) );
-
 			if( found != it.second.end() )
 			{
 				forge::utils::RemoveReorder( it.second, found );
@@ -228,7 +248,7 @@ void systems::SystemsManager::Boot( const BootContext& ctx )
 
 		if( dynamic_cast<IECSSystem*>( sys.get() ) )
 		{
-			m_ecsSystems.emplace_back( static_cast< IECSSystem* >( sys.release() ) );
+			m_ecsSystems.emplace_back( static_cast<IECSSystem*>( sys.release() ) );
 			rawSys = m_ecsSystems.back().get();
 		}
 		else

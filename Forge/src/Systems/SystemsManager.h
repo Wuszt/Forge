@@ -12,6 +12,7 @@ namespace systems
 	class ISystem;
 	class IECSSystem;
 	class Archetype;
+	class IArchetypeDataTypes;
 
 	class SystemsManager : public forge::IManager
 	{
@@ -79,9 +80,9 @@ namespace systems
 		}
 
 		template< class T >
-		FORGE_INLINE const std::vector< Archetype* >& GetArchetypesWithDataType()
+		FORGE_INLINE forge::ArraySpan< systems::Archetype* > GetArchetypesContainingDataType()
 		{
-			return m_dataToArchetypesLUT.at( typeid( T ) );
+			return m_dataToArchetypesLUT[ typeid( T ) ];
 		}
 
 		FORGE_INLINE const std::vector< Archetype* >& GetArchetypesOfEntity( forge::EntityID id )
@@ -89,11 +90,7 @@ namespace systems
 			return m_entityArchetypesLUT[ id.m_id ];
 		}
 
-		template< class T >
-		FORGE_INLINE const std::vector< Archetype* >& GetArchetypesOfSystem()
-		{
-			return m_systemToArchetypesLUT[ typeid( T ) ];
-		}
+		forge::ArraySpan< systems::Archetype* > GetArchetypesWithDataTypes( const IArchetypeDataTypes& archetypeDataTypes );
 
 		void AddECSData( forge::EntityID id, std::unique_ptr< forge::IDataPackage > package );
 
@@ -133,7 +130,7 @@ namespace systems
 		std::unordered_map< forge::EntityID, std::vector< std::type_index > > m_entityDataTypesLUT;
 		std::unordered_map< forge::EntityID, std::vector< Archetype* > > m_entityArchetypesLUT;
 		std::unordered_map< Uint32, Archetype* > m_typesHashToArchetypeLUT;
-		std::unordered_map< std::type_index, std::vector< Archetype* > > m_systemToArchetypesLUT;
+		std::unordered_map< Uint32, std::vector< Archetype* > > m_archetypeTypesHashToArchetypesLUT;
 
 		forge::CallbackToken m_onEntityCreated;
 		forge::CallbackToken m_onEntityDestructed;

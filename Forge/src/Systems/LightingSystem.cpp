@@ -14,7 +14,7 @@ forge::ArraySpan< const renderer::LightData > systems::LightingSystem::GetLights
 void systems::LightingSystem::Update()
 {
 	m_lightsData.clear();
-	for( auto archetype : GetEngineInstance().GetSystemsManager().GetArchetypesOfSystem< systems::LightingSystem >() )
+	for( auto archetype : GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( systems::ArchetypeDataTypes< forge::TransformComponentData, forge::LightComponentData >() ) )
 	{
 		const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
 		const forge::DataPackage< forge::LightComponentData >& lightsData = archetype->GetData< forge::LightComponentData >();
@@ -30,7 +30,7 @@ void systems::LightingSystem::Update()
 
 void systems::LightingSystem::OnRenderDebug()
 {
-	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesOfSystem< systems::LightingSystem >();
+	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( systems::ArchetypeDataTypes< forge::TransformComponentData, forge::LightComponentData >() );
 	for( systems::Archetype* archetype : archetypes )
 	{
 		forge::DataPackage< forge::TransformComponentData >& transforms = archetype->GetData< forge::TransformComponentData >();

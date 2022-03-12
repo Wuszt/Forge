@@ -5,7 +5,7 @@
 
 namespace systems
 {
-	class LightingSystem : public ECSSystem< forge::TransformComponentData, forge::LightComponentData >
+	class LightingSystem : public ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::LightComponentData > >
 	{
 	public:
 		using ECSSystem::ECSSystem;
