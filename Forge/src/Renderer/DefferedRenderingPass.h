@@ -38,10 +38,10 @@ namespace renderer
 		std::unique_ptr< ITexture > m_diffuseTexture;
 		std::unique_ptr< FullScreenRenderingPass > m_lightingPass;
 		std::function< const forge::ICamera&( ) > m_activeCameraGetter;
-		std::vector< LightData > m_lightsData;
 
 		std::unique_ptr< IConstantBuffer > m_cbDefferedRendering;
-		std::unique_ptr< IConstantBuffer > m_CBdefferedLighting;
+		std::unique_ptr< IConstantBuffer > m_cbPointLight;
+		std::unique_ptr< IConstantBuffer > m_cbSpotLight;
 
 		std::unique_ptr< IBlendState > m_blendState;
 	};

@@ -4,8 +4,11 @@ namespace renderer
 {
 	class IRenderTargetView;
 	struct IRawRenderablesPack;
-	struct LightData;
+	struct PointLightData;
+	struct SpotLightData;
 	struct ShaderDefine;
+	class ITexture;
+	class IDepthStencilBuffer;
 
 	class IRenderingPass
 	{
@@ -15,11 +18,7 @@ namespace renderer
 
 		virtual void ClearTargetTexture();
 
-		virtual FORGE_INLINE void SetTargetTexture( ITexture& targetTexture )
-		{
-			m_targetTexture = &targetTexture;
-			m_onTargetTextureResized = m_targetTexture->GetOnResizedCallback().AddListener( [&]( const Vector2& size ) { OnTargetTextureResized( size ); } );		
-		}
+		virtual void SetTargetTexture( ITexture& targetTexture );
 
 		FORGE_INLINE ITexture* GetTargetTexture()
 		{
@@ -43,7 +42,8 @@ namespace renderer
 	struct LightingData
 	{
 		Vector3 m_ambientLight;
-		forge::ArraySpan< const LightData > m_worldLights;
+		forge::ArraySpan< const PointLightData > m_pointLights;
+		forge::ArraySpan< const SpotLightData > m_spotLights;
 	};
 
 	class IMeshesRenderingPass : public IRenderingPass

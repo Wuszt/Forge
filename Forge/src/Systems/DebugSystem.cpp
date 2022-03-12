@@ -124,7 +124,7 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 			renderingComponent->LoadMeshAndMaterial( "cube.obj" );
 
 			transformComponent->GetData().m_transform.SetPosition( position );
-			transformComponent->GetData().m_scale = extension * 2.0f;
+			transformComponent->GetData().m_scale = extension;
 			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
 			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );

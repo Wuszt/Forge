@@ -14,7 +14,7 @@
 #include "../D3D11Renderer/D3D11TexturesLoader.h"
 #include "../Renderer/IRenderer.h"
 #include "../Core/IInput.h"
-#include "../Systems/LightComponent.h"
+#include "../Systems/PointLightComponent.h"
 #include "../Systems/LightingSystem.h"
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
@@ -188,28 +188,30 @@ Int32 main()
 
 			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
 			{
-				light->RequestAddingComponents< forge::TransformComponent, forge::LightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+				light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 				{
 					light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -1000.0f, 200.0f } );
-					light->GetComponent< forge::LightComponent >()->GetData().m_color = { 1.0f, 0.0f, 0.0f };
+					light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 1.0f, 0.0f, 0.0f };
 				} );
 			} );
 
 			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
 			{
-				light->RequestAddingComponents< forge::TransformComponent, forge::LightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+				light->RequestAddingComponents< forge::TransformComponent, forge::SpotLightComponent >( [ engineInstancePtr = &engineInstance, light, this ]()
 				{
+					m_spotLight = light;
 					light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 200.0f } );
-					light->GetComponent< forge::LightComponent >()->GetData().m_color = { 0.0f, 1.0f, 0.0f };
+					light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, 0.0f ) );
+					light->GetComponent< forge::SpotLightComponent >()->GetData().m_color = { 0.0f, 1.0f, 0.0f };
 				} );
 			} );
 
 			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
 			{
-				light->RequestAddingComponents< forge::TransformComponent, forge::LightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+				light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 				{
 					light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 1100.0f, 200.0f } );
-					light->GetComponent< forge::LightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
+					light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
 				} );
 			} );
 
@@ -218,6 +220,11 @@ Int32 main()
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{
+			if( m_spotLight )
+			{
+				m_spotLight->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, FORGE_PI_HALF *  Math::Sin( forge::Time::GetTime() ) ) );
+			}
+
 			if( engineInstance.GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
 			{
 				Shutdown();
@@ -228,6 +235,9 @@ Int32 main()
 		{
 			return true;
 		}
+
+	private:
+		forge::Entity* m_spotLight = nullptr;
 
 	private:
 	} gameInstance;

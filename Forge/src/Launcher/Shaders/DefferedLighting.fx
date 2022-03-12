@@ -60,6 +60,10 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
     float viewZDist = dot(CameraDir, viewRay);
     float3 worldPos = CameraPosition + viewRay * (depth / viewZDist);
     
-    return float4( DiffuseBuffer.Sample(LinearSamplerState, texCoord).rgb * LightingData.Color * CalcPointLight(worldPos, normal, LightingData ), 1.0f);
-
+    float4 lightColor = float4(DiffuseBuffer.Sample(LinearSamplerState, texCoord).rgb * LightingData.Color, 1.0f );
+#if defined __POINT_LIGHT__
+    return lightColor * float4( CalcPointLight(worldPos, normal, LightingData), 1.0f);
+#elif defined __SPOT_LIGHT__
+    return lightColor * float4( CalcSpotLight(worldPos, normal, LightingData), 1.0f );
+#endif
 }

@@ -1,19 +1,38 @@
 #pragma once
 #include "ISystem.h"
 #include "TransformComponent.h"
-#include "LightComponent.h"
+#include "PointLightComponent.h"
+#include "SpotLightComponent.h"
+
+namespace renderer
+{
+	struct LightingData;
+}
 
 namespace systems
 {
-	class LightingSystem : public ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::LightComponentData > >
+	using PointLightArchetypeType = systems::ArchetypeDataTypes< forge::TransformComponentData, forge::PointLightComponentData >;
+	using SpotLightArchetypeType = systems::ArchetypeDataTypes< forge::TransformComponentData, forge::SpotLightComponentData >;
+
+	class LightingSystem : public ECSSystem< PointLightArchetypeType, SpotLightArchetypeType >
 	{
 	public:
 		using ECSSystem::ECSSystem;
 
 		virtual void OnInitialize();
 
-		forge::ArraySpan< const renderer::LightData > GetLights() const;
+		FORGE_INLINE forge::ArraySpan< const renderer::PointLightData > GetPointLights() const
+		{
+			return m_pointsLightsData;
+		}
+
+		FORGE_INLINE forge::ArraySpan< const renderer::SpotLightData > GetSpotLights() const
+		{
+			return m_spotLightsData;
+		}
 		
+		renderer::LightingData GetLightingData() const;
+
 		FORGE_INLINE void SetAmbientColor( Vector3 ambientColor )
 		{
 			m_ambientColor = ambientColor;
@@ -28,7 +47,8 @@ namespace systems
 		void Update();
 
 		forge::CallbackToken m_updateToken;
-		std::vector< renderer::LightData > m_lightsData;
+		std::vector< renderer::PointLightData > m_pointsLightsData;
+		std::vector< renderer::SpotLightData > m_spotLightsData;
 		Vector3 m_ambientColor;
 
 #ifdef FORGE_DEBUGGING

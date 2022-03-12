@@ -69,6 +69,11 @@ struct Vector3
 		return Vector3( X - vec.X, Y - vec.Y, Z - vec.Z );
 	}
 
+	FORGE_INLINE Vector3 operator*( const Vector3& vec ) const
+	{
+		return Vector3( X * vec.X, Y * vec.Y, Z * vec.Z );
+	}
+
 	FORGE_INLINE void operator*=( Float val )
 	{
 		X *= val;

@@ -8,10 +8,12 @@ cbuffer cbForwardRendering : register(b4)
     float3 AmbientLighting;
 };
 
+#if defined __POINT_LIGHT__ || defined __SPOT_LIGHT__
 cbuffer cbForwardLighting : register(b5)
 {
     LightData LightingData;
 };
+#endif
 
 Custom_VS_Output Vert(Custom_VS_Input input);
 
@@ -32,6 +34,8 @@ float4 PS(Custom_VS_Output input) : SV_Target
     color *= float4(CalcAmbient(input.Normal, AmbientLighting, AmbientLighting * 0.5f), 1.0f);
 #elif defined __POINT_LIGHT__
     color *= float4( LightingData.Color * CalcPointLight(input.WorldPos, input.Normal, LightingData ), 1.0f );
+#elif defined __SPOT_LIGHT__
+    color *= float4( LightingData.Color * CalcSpotLight(input.WorldPos, input.Normal, LightingData ), 1.0f );
 #endif
     
     return color;

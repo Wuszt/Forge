@@ -2,19 +2,42 @@
 
 namespace renderer
 {
-	struct LightData
+	struct PointLightData
 	{
-		LightData() = default;
-		~LightData() = default;
+		PointLightData() = default;
+		~PointLightData() = default;
 
-		LightData( const Vector3& position, Float power, const Vector3& color )
+		PointLightData( const Vector3& position, Float power, const Vector3& color )
 			: Position( position )
 			, Power( power )
 			, Color( color )
 		{}
 
 		Vector3 Position;
-		Float Power;;
+		Float Power;
 		Vector4 Color;
+	};
+
+	struct SpotLightData
+	{
+		SpotLightData() = default;
+		~SpotLightData() = default;
+
+		SpotLightData( const Vector3& position, const Vector3& direction,
+			Float innerAngle, Float outerAngle, Float power, const Vector3& color )
+			: Position( position )
+			, InnerAngle( innerAngle )
+			, OuterAngle( outerAngle )
+			, Direction( direction )
+			, Power( power )
+			, Color( color )
+		{}
+
+		Vector3 Position;
+		Float InnerAngle;
+		Vector3 Direction;
+		Float OuterAngle;
+		Vector3 Color;
+		Float Power;
 	};
 }

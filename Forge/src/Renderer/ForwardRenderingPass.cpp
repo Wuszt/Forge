@@ -8,20 +8,26 @@ struct CBForwardRendering
 	Vector4 AmbientLighting;
 };
 
-struct CBForwardLighting
+struct CBPointLight
 {
-	renderer::LightData LightingData;
+	renderer::PointLightData LightingData;
+};
+
+struct CBSpotLight
+{
+	renderer::SpotLightData LightingData;
 };
 
 namespace
 {
 	const renderer::ShaderDefine c_ambientLightDefine{ "__AMBIENT_LIGHT__" };
 	const renderer::ShaderDefine c_pointLightDefine{ "__POINT_LIGHT__" };
+	const renderer::ShaderDefine c_spotLightDefine{ "__SPOT_LIGHT__" };
 }
 
 forge::ArraySpan< const renderer::ShaderDefine > renderer::ForwardRenderingPass::GetRequiredShaderDefines()
 {
-	static ShaderDefine shaderDefines[] = { c_ambientLightDefine, c_pointLightDefine };
+	thread_local ShaderDefine shaderDefines[] = { c_ambientLightDefine, c_pointLightDefine, c_spotLightDefine };
 	return shaderDefines;
 }
 
@@ -29,7 +35,8 @@ renderer::ForwardRenderingPass::ForwardRenderingPass( IRenderer& renderer )
 	: IMeshesRenderingPass( renderer )
 {
 	m_cbForwardRendering = GetRenderer().CreateStaticConstantBuffer< CBForwardRendering >();
-	m_cbForwardLighting = GetRenderer().CreateStaticConstantBuffer< CBForwardLighting >();
+	m_cbPointLight = GetRenderer().CreateStaticConstantBuffer< CBPointLight >();
+	m_cbSpotLight = GetRenderer().CreateStaticConstantBuffer< CBSpotLight >();
 
 	m_blendState = GetRenderer().CreateBlendState( { renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ONE },
 		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ONE } );
@@ -58,16 +65,32 @@ void renderer::ForwardRenderingPass::Draw( const renderer::IRawRenderablesPack& 
 	{
 		m_blendState->Set();
 
-		StaticConstantBuffer< CBForwardLighting >* cbLighting = static_cast<StaticConstantBuffer< CBForwardLighting >*>( m_cbForwardLighting.get() );
-		cbLighting->SetVS( renderer::VSConstantBufferType::Light );
-		cbLighting->SetPS( renderer::PSConstantBufferType::Light );
-
-		for( const auto& light : lightingData->m_worldLights )
 		{
-			cbLighting->GetData().LightingData = light;
-			cbLighting->UpdateBuffer();
+			StaticConstantBuffer< CBPointLight >* cbLighting = static_cast<StaticConstantBuffer< CBPointLight >*>( m_cbPointLight.get() );
+			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
+			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
 
-			GetRenderer().Draw( rawRenderables, &c_pointLightDefine );
+			for( const auto& light : lightingData->m_pointLights )
+			{
+				cbLighting->GetData().LightingData = light;
+				cbLighting->UpdateBuffer();
+
+				GetRenderer().Draw( rawRenderables, &c_pointLightDefine );
+			}
+		}
+
+		{
+			StaticConstantBuffer< CBSpotLight >* cbLighting = static_cast< StaticConstantBuffer < CBSpotLight >* >( m_cbSpotLight.get() );
+			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
+			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
+
+			for( const auto& light : lightingData->m_spotLights )
+			{
+				cbLighting->GetData().LightingData = light;
+				cbLighting->UpdateBuffer();
+
+				GetRenderer().Draw( rawRenderables, &c_spotLightDefine );
+			}
 		}
 
 		m_blendState->Clear();

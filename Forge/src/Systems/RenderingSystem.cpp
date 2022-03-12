@@ -197,7 +197,7 @@ void systems::RenderingSystem::OnRenderDebug()
 						renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
 						renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Format::R8G8B8A8_UNORM );
 
-					renderer::FullScreenRenderingPass fsPass( *m_renderer, "DepthBufferDebug.fx" );
+					renderer::FullScreenRenderingPass fsPass( *m_renderer, "DepthBufferDebug.fx", {} );
 					fsPass.SetTargetTexture( *m_temporaryTexture );
 					fsPass.Draw( { m_depthStencilBuffer->GetTexture()->GetShaderResourceView() } );
 					funcDrawTexture( "Depth", *m_temporaryTexture );
@@ -317,12 +317,12 @@ void systems::RenderingSystem::OnDraw()
 	}
 
 	auto& lightingSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::LightingSystem >();
-	renderer::LightingData lightingData = { lightingSystem.GetAmbientColor(), lightingSystem.GetLights() };
+	renderer::LightingData lightingData = lightingSystem.GetLightingData();
 	m_opaqueRenderingPass->Draw( m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Opaque ), &lightingData );
 	m_overlayRenderingPass->Draw( m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Overlay ), nullptr );
 
 	m_renderer->SetViewportSize( Vector2( static_cast< Float >( GetEngineInstance().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetWindow().GetHeight() ) ) );
-	renderer::FullScreenRenderingPass copyResourcePass( *m_renderer, "CopyTexture.fx" );
+	renderer::FullScreenRenderingPass copyResourcePass( *m_renderer, "CopyTexture.fx", {} );
 	copyResourcePass.SetTargetTexture( m_renderer->GetSwapchain()->GetBackBuffer() );
 	copyResourcePass.Draw( { m_targetTexture->GetShaderResourceView() } );
 }

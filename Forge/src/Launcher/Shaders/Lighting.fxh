@@ -3,12 +3,28 @@
 
 #include "Common.fxh"
 
-struct LightData
+struct PointLightData
 {
     float3 Position;
     float Power;
     float3 Color;
 };
+
+struct SpotLightData
+{
+    float3 Position;
+    float InnerAngle;
+    float3 Direction;
+    float OuterAngle;  
+    float3 Color;
+    float Power;
+};
+
+#ifdef __POINT_LIGHT__
+typedef PointLightData LightData;
+#elif defined __SPOT_LIGHT__
+typedef SpotLightData LightData;
+#endif
 
 float3 CalcAmbient(float3 normal, float3 ambientUp, float3 ambientDown)
 {
@@ -38,7 +54,7 @@ float3 CalcDirectionalLight(float3 position, float3 normal)
     return CalculateBlinnPhong(toLight, position, normal);
 }
 
-float3 CalcPointLight(float3 surfPos, float3 surfNormal, LightData lightingData)
+float3 CalcPointLight(float3 surfPos, float3 surfNormal, PointLightData lightingData)
 {
     const float3 lightPosition = lightingData.Position;
     const float3 att = float3(0.01f, 0.01f, 0.01f);
@@ -53,15 +69,15 @@ float3 CalcPointLight(float3 surfPos, float3 surfNormal, LightData lightingData)
     return CalculateBlinnPhong(toLight, surfPos, surfNormal) * attn;
 }
 
-float3 CalcSpotLight(float3 position, float3 normal, LightData lightingData)
+float3 CalcSpotLight(float3 surfPos, float3 surfNormal, SpotLightData lightingData)
 {
-    float3 lightPosition = CameraPosition;
-    float3 lightDir = CameraDir;
-    float cosInnerAngle = cos(FORGE_PI / 12.0f);
-    float cosOuterAngle = cos(FORGE_PI / 6.0f);
+    float3 lightPosition = lightingData.Position;
+    float3 lightDir = lightingData.Direction;
+    float cosInnerAngle = cos(lightingData.InnerAngle);
+    float cosOuterAngle = cos(lightingData.OuterAngle);
     const float3 att = float3(0.01f, 0.01f, 0.01f);
     
-    float3 toLight = lightPosition - position;
+    float3 toLight = lightPosition - surfPos;
     float distToLight = length(toLight);
     toLight /= distToLight;
     
@@ -70,6 +86,6 @@ float3 CalcSpotLight(float3 position, float3 normal, LightData lightingData)
     float spotAttn = smoothstep(cosOuterAngle, cosInnerAngle, dot(-toLight, lightDir));
     float attn = (spotAttn * lightingData.Power / dot(att, mult));
     
-    return CalculateBlinnPhong(toLight, position, normal) * attn;
+    return CalculateBlinnPhong(toLight, surfPos, surfNormal) * attn;
 }
 #endif // __LIGHTING_HEADER__

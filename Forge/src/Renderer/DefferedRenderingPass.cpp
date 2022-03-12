@@ -12,19 +12,26 @@ struct CBDefferedRendering
 	Vector4 AmbientLighting;
 };
 
-struct CBDefferedLighting
+struct CBPointLight
 {
-	renderer::LightData LightingData;
+	renderer::PointLightData LightingData;
+};
+
+struct CBSpotLight
+{
+	renderer::SpotLightData LightingData;
 };
 
 namespace
 {
 	const renderer::ShaderDefine c_defferedDefine{ "__DEFFERED__" };
+	const renderer::ShaderDefine c_pointLightDefine{ "__POINT_LIGHT__" };
+	const renderer::ShaderDefine c_spotLightDefine{ "__SPOT_LIGHT__" };
 }
 
 forge::ArraySpan< const renderer::ShaderDefine > renderer::DefferedRenderingPass::GetRequiredShaderDefines()
 {
-	static ShaderDefine shaderDefines[] = { c_defferedDefine };
+	thread_local ShaderDefine shaderDefines[] = { c_defferedDefine };
 	return shaderDefines;
 }
 
@@ -32,10 +39,11 @@ renderer::DefferedRenderingPass::DefferedRenderingPass( IRenderer& renderer, std
 	: IMeshesRenderingPass( renderer )
 	, m_activeCameraGetter( activeCameraGetter )
 {
-	m_lightingPass = std::make_unique<FullScreenRenderingPass>( GetRenderer(), "DefferedLighting.fx", "DefferedLighting.fx" );
+	m_lightingPass = std::make_unique<FullScreenRenderingPass>( GetRenderer(), "DefferedLighting.fx", "DefferedLighting.fx", forge::ArraySpan< renderer::ShaderDefine >( {} ) );
 
 	m_cbDefferedRendering = GetRenderer().CreateStaticConstantBuffer< CBDefferedRendering >();
-	m_CBdefferedLighting = GetRenderer().CreateStaticConstantBuffer< CBDefferedLighting >();
+	m_cbPointLight = GetRenderer().CreateStaticConstantBuffer< CBPointLight >();
+	m_cbSpotLight = GetRenderer().CreateStaticConstantBuffer< CBSpotLight >();
 
 	m_blendState = GetRenderer().CreateBlendState( { renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ONE },
 		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ONE } );
@@ -72,16 +80,34 @@ void renderer::DefferedRenderingPass::Draw( const renderer::IRawRenderablesPack&
 
 		m_blendState->Set();
 
-		StaticConstantBuffer< CBDefferedLighting >* cbLighting = static_cast<StaticConstantBuffer< CBDefferedLighting >*>( m_CBdefferedLighting.get() );
-		cbLighting->SetVS( renderer::VSConstantBufferType::Light );
-		cbLighting->SetPS( renderer::PSConstantBufferType::Light );
-
-		for( const auto& light : lightingData->m_worldLights )
 		{
-			cbLighting->GetData().LightingData = light;
-			cbLighting->UpdateBuffer();
+			m_lightingPass->SetShaderDefines( { c_pointLightDefine } );
+			StaticConstantBuffer< CBPointLight >* cbLighting = static_cast<StaticConstantBuffer< CBPointLight >*>( m_cbPointLight.get() );
+			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
+			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
 
-			m_lightingPass->Draw( srvs );
+			for( const auto& light : lightingData->m_pointLights )
+			{
+				cbLighting->GetData().LightingData = light;
+				cbLighting->UpdateBuffer();
+
+				m_lightingPass->Draw( srvs );
+			}
+		}
+
+		{
+			m_lightingPass->SetShaderDefines( { c_spotLightDefine } );
+			StaticConstantBuffer< CBSpotLight >* cbLighting = static_cast<StaticConstantBuffer < CBSpotLight >*>( m_cbSpotLight.get() );
+			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
+			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
+
+			for( const auto& light : lightingData->m_spotLights )
+			{
+				cbLighting->GetData().LightingData = light;
+				cbLighting->UpdateBuffer();
+
+				m_lightingPass->Draw( srvs );
+			}
 		}
 
 		m_blendState->Clear();
