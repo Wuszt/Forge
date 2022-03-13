@@ -40,4 +40,12 @@ namespace renderer
 		Vector3 Color;
 		Float Power;
 	};
+
+	struct DirectionalLightData
+	{
+		Vector3 m_direction;
+		Float m_padding0;
+		Vector3 m_color = { 1.0f, 1.0f, 1.0f };
+		Float m_padding1;
+	};
 }

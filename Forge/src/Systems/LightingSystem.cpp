@@ -9,7 +9,7 @@ void systems::LightingSystem::OnInitialize()
 
 renderer::LightingData systems::LightingSystem::GetLightingData() const
 {
-	return { GetAmbientColor(), GetPointLights(), GetSpotLights() };
+	return { GetAmbientColor(), GetPointLights(), GetSpotLights(), GetDirectionalLights() };
 }
 
 void systems::LightingSystem::Update()
@@ -39,6 +39,19 @@ void systems::LightingSystem::Update()
 			{
 				m_spotLightsData.emplace_back( transformComponents[ i ].m_transform.GetPosition3(), transformComponents[ i ].m_transform.GetForward(),
 					lightsData[ i ].m_innerAngle, lightsData[ i ].m_outerAngle, lightsData[ i ].m_power, lightsData[ i ].m_color );
+			}
+		}
+	}
+
+	{
+		m_directionalLightsData.clear();
+		for( auto archetype : GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( DirectionalLightArchetypeType() ) )
+		{
+			const forge::DataPackage< forge::DirectionalLightComponentData >& lightsData = archetype->GetData< forge::DirectionalLightComponentData >();
+
+			for( const auto& light : lightsData )
+			{
+				m_directionalLightsData.emplace_back( light );
 			}
 		}
 	}

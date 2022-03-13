@@ -65,5 +65,7 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
     return lightColor * float4( CalcPointLight(worldPos, normal, LightingData), 1.0f);
 #elif defined __SPOT_LIGHT__
     return lightColor * float4( CalcSpotLight(worldPos, normal, LightingData), 1.0f );
+#elif defined __DIRECTIONAL_LIGHT__
+    return lightColor * float4( CalcDirectionalLight(worldPos, normal, LightingData), 1.0f );
 #endif
 }

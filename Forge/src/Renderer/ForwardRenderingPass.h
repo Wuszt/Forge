@@ -20,6 +20,7 @@ namespace renderer
 		std::unique_ptr< IConstantBuffer > m_cbForwardRendering;
 		std::unique_ptr< IConstantBuffer > m_cbPointLight;
 		std::unique_ptr< IConstantBuffer > m_cbSpotLight;
+		std::unique_ptr< IConstantBuffer > m_cbDirectionalLight;
 		std::unique_ptr< IBlendState > m_blendState;
 	};
 }

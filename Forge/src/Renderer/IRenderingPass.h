@@ -6,6 +6,7 @@ namespace renderer
 	struct IRawRenderablesPack;
 	struct PointLightData;
 	struct SpotLightData;
+	struct DirectionalLightData;
 	struct ShaderDefine;
 	class ITexture;
 	class IDepthStencilBuffer;
@@ -44,6 +45,7 @@ namespace renderer
 		Vector3 m_ambientLight;
 		forge::ArraySpan< const PointLightData > m_pointLights;
 		forge::ArraySpan< const SpotLightData > m_spotLights;
+		forge::ArraySpan< const DirectionalLightData > m_directionalLights;
 	};
 
 	class IMeshesRenderingPass : public IRenderingPass

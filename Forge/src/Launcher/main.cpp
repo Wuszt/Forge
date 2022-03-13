@@ -169,7 +169,7 @@ Int32 main()
 			engineInstance.GetSystemsManager().Boot( ctx );
 
 			engineInstance.GetSystemsManager().GetSystem< systems::RenderingSystem >().SetSamplers( { renderer::SamplerStateFilterType::MIN_MAG_MIP_LINEAR } );
-			engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor( { 0.1f, 0.1f, 0.1f } );
+			engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor( { 0.05f, 0.05f, 0.05f } );
 
 			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* player )
 			{
@@ -212,6 +212,15 @@ Int32 main()
 				{
 					light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 1100.0f, 200.0f } );
 					light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
+				} );
+			} );
+
+			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+			{
+				light->RequestAddingComponents< forge::DirectionalLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+				{
+					light->GetComponent< forge::DirectionalLightComponent >()->GetData().m_color = { 0.25f, 0.1f, 0.0f };
+					light->GetComponent< forge::DirectionalLightComponent >()->GetData().m_direction = Vector3( 1.0f, 0.0f, 0.0f ).Normalized();
 				} );
 			} );
 

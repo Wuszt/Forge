@@ -20,38 +20,47 @@ struct SpotLightData
     float Power;
 };
 
+struct DirectionalLightData
+{
+    float3 Direction;
+    float padding0;
+    float3 Color;
+    float padding1;
+};
+
 #ifdef __POINT_LIGHT__
 typedef PointLightData LightData;
 #elif defined __SPOT_LIGHT__
 typedef SpotLightData LightData;
+#elif defined __DIRECTIONAL_LIGHT__
+typedef DirectionalLightData LightData;
 #endif
 
-float3 CalcAmbient(float3 normal, float3 ambientUp, float3 ambientDown)
+float3 CalcAmbient(float3 surfNormal, float3 ambientUp, float3 ambientDown)
 {
-    float a = (1.0f + normal.z) * 0.5f;
+    float a = (1.0f + surfNormal.z) * 0.5f;
     return ambientUp * a + (1.0f - a) * ambientDown;
 }
 
-float3 CalculateBlinnPhong(float3 toLight, float3 position, float3 normal)
+float3 CalculateBlinnPhong(float3 toLight, float3 surfPos, float3 surfNormal)
 {
     float3 diffuseColor = float3(1.0f, 1.0f, 1.0f);
     float3 specularColor = float3(1.0f, 1.0f, 1.0f);
       
-    float3 toCamera = normalize(CameraPosition - position);
+    float3 toCamera = normalize(CameraPosition - surfPos);
     
     float3 H = normalize(toLight + toCamera);
     
-    float diffuse = saturate(dot(toLight, normal));
-    float specular = saturate(dot(H, normal));
+    float diffuse = saturate(dot(toLight, surfNormal));
+    float specular = saturate(dot(H, surfNormal));
     specular = pow(specular, 16.0f);
     specular = 0.0f;
     return saturate(diffuseColor * diffuse + specularColor * specular);
 }
 
-float3 CalcDirectionalLight(float3 position, float3 normal)
+float3 CalcDirectionalLight(float3 surfPos, float3 surfNormal, DirectionalLightData lightingData)
 {
-    float3 toLight = normalize(float3(1.0f, 1.0f, 1.0f));
-    return CalculateBlinnPhong(toLight, position, normal);
+    return CalculateBlinnPhong( -lightingData.Direction, surfPos, surfNormal);
 }
 
 float3 CalcPointLight(float3 surfPos, float3 surfNormal, PointLightData lightingData)

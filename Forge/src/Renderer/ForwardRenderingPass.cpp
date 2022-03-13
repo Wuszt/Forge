@@ -18,16 +18,22 @@ struct CBSpotLight
 	renderer::SpotLightData LightingData;
 };
 
+struct CBDirectionalLight
+{
+	renderer::DirectionalLightData LightingData;
+};
+
 namespace
 {
 	const renderer::ShaderDefine c_ambientLightDefine{ "__AMBIENT_LIGHT__" };
 	const renderer::ShaderDefine c_pointLightDefine{ "__POINT_LIGHT__" };
 	const renderer::ShaderDefine c_spotLightDefine{ "__SPOT_LIGHT__" };
+	const renderer::ShaderDefine c_directionalLightDefine{ "__DIRECTIONAL_LIGHT__" };
 }
 
 forge::ArraySpan< const renderer::ShaderDefine > renderer::ForwardRenderingPass::GetRequiredShaderDefines()
 {
-	thread_local ShaderDefine shaderDefines[] = { c_ambientLightDefine, c_pointLightDefine, c_spotLightDefine };
+	thread_local ShaderDefine shaderDefines[] = { c_ambientLightDefine, c_pointLightDefine, c_spotLightDefine, c_directionalLightDefine };
 	return shaderDefines;
 }
 
@@ -37,6 +43,7 @@ renderer::ForwardRenderingPass::ForwardRenderingPass( IRenderer& renderer )
 	m_cbForwardRendering = GetRenderer().CreateStaticConstantBuffer< CBForwardRendering >();
 	m_cbPointLight = GetRenderer().CreateStaticConstantBuffer< CBPointLight >();
 	m_cbSpotLight = GetRenderer().CreateStaticConstantBuffer< CBSpotLight >();
+	m_cbDirectionalLight = GetRenderer().CreateStaticConstantBuffer< CBDirectionalLight >();
 
 	m_blendState = GetRenderer().CreateBlendState( { renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ONE },
 		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ONE } );
@@ -90,6 +97,20 @@ void renderer::ForwardRenderingPass::Draw( const renderer::IRawRenderablesPack& 
 				cbLighting->UpdateBuffer();
 
 				GetRenderer().Draw( rawRenderables, &c_spotLightDefine );
+			}
+		}
+
+		{
+			StaticConstantBuffer< CBDirectionalLight >* cbLighting = static_cast<StaticConstantBuffer < CBDirectionalLight >*>( m_cbDirectionalLight.get() );
+			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
+			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
+
+			for( const auto& light : lightingData->m_directionalLights )
+			{
+				cbLighting->GetData().LightingData = light;
+				cbLighting->UpdateBuffer();
+
+				GetRenderer().Draw( rawRenderables, &c_directionalLightDefine );
 			}
 		}
 

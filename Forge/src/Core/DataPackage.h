@@ -70,6 +70,16 @@ namespace forge
 			return m_data.end();
 		}
 
+		FORGE_INLINE typename std::vector< T >::const_iterator begin() const
+		{
+			return m_data.begin();
+		}
+
+		FORGE_INLINE typename std::vector< T >::const_iterator end() const
+		{
+			return m_data.end();
+		}
+
 		FORGE_INLINE Uint32 GetDataSize() const
 		{
 			return static_cast<Uint32>( m_data.size() );
