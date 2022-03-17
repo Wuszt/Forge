@@ -35,7 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DefferedRenderingPass.cpp" />
+    <ClCompile Include="DeferredRenderingPass.cpp" />
     <ClCompile Include="ForwardRenderingPass.cpp" />
     <ClCompile Include="Fpch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -81,7 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\External\tinyobjloader\tiny_obj_loader.h" />
-    <ClInclude Include="DefferedRenderingPass.h" />
+    <ClInclude Include="DeferredRenderingPass.h" />
     <ClInclude Include="ForwardRenderingPass.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="FullScreenRenderingPass.h" />

@@ -3,7 +3,7 @@
 
 #include "Common.fxh"
 
-#ifndef __DEFFERED__
+#ifndef __DEFERRED__
 #define __FORWARD__
 #endif
 

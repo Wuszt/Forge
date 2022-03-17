@@ -26,9 +26,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\DefferedLighting.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\VS_FullScreen.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -39,9 +36,6 @@
       <Filter>Shaders\Headers</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\Common.fxh">
-      <Filter>Shaders\Headers</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\Deffered.fxh">
       <Filter>Shaders\Headers</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\Lighting.fxh">
@@ -59,10 +53,12 @@
     <FxCompile Include="CopyTexture.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Shaders\Forward.fxh">
+    <FxCompile Include="Shaders\Forward.fxh" />
+    <FxCompile Include="Shaders\DeferredLighting.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Deferred.fxh">
       <Filter>Shaders\Headers</Filter>
-    </None>
+    </FxCompile>
   </ItemGroup>
 </Project>

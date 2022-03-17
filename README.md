@@ -13,9 +13,9 @@ Unit Tests have been moved to separate, private submodule. They're obviously not
 ### Current state:
 # 4.03.2022
 ![](Journal/040322/state.gif)
-- Deffered shading
+- Deferred shading
 - IMGUI debug with G-Buffer preview
-- Smooth runtime switch between Forward<->Deffered mode thanks to one, macro based Uber shader
+- Smooth runtime switch between Forward<->Deferred mode thanks to one, macro based Uber shader
 - Separate rendering passes for Opaque, Transparent (not implented yet) and Non-lit (for drawing in-world debugs) objects
 
 # 30.12.2021

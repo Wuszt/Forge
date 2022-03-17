@@ -59,7 +59,7 @@ namespace systems
 		enum class RenderingMode
 		{
 			Forward,
-			Deffered
+			Deferred
 		};
 
 		void SetRenderingMode( RenderingMode renderingMode );
@@ -84,7 +84,7 @@ namespace systems
 
 		std::unique_ptr< renderer::ITexture > m_targetTexture;
 
-		RenderingMode m_renderingMode = RenderingMode::Deffered;
+		RenderingMode m_renderingMode = RenderingMode::Deferred;
 		forge::CallbackToken m_windowCallbackToken;
 
 		Float m_renderingResolutionScale = 1.0f;

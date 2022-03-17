@@ -1,12 +1,12 @@
 #include "Fpch.h"
-#include "DefferedRenderingPass.h"
+#include "DeferredRenderingPass.h"
 #include "../D3D11Renderer/D3D11RenderTargetView.h"
 #include "FullScreenRenderingPass.h"
 #include "ICamera.h"
 #include "LightData.h"
 #include "IBlendState.h"
 
-struct CBDefferedRendering
+struct CBDeferredRendering
 {
 	Matrix InvVP;
 	Vector4 AmbientLighting;
@@ -29,25 +29,25 @@ struct CBDirectionalLight
 
 namespace
 {
-	const renderer::ShaderDefine c_defferedDefine{ "__DEFFERED__" };
+	const renderer::ShaderDefine c_deferredDefine{ "__DEFERRED__" };
 	const renderer::ShaderDefine c_pointLightDefine{ "__POINT_LIGHT__" };
 	const renderer::ShaderDefine c_spotLightDefine{ "__SPOT_LIGHT__" };
 	const renderer::ShaderDefine c_directionalLightDefine{ "__DIRECTIONAL_LIGHT__" };
 }
 
-forge::ArraySpan< const renderer::ShaderDefine > renderer::DefferedRenderingPass::GetRequiredShaderDefines()
+forge::ArraySpan< const renderer::ShaderDefine > renderer::DeferredRenderingPass::GetRequiredShaderDefines()
 {
-	thread_local ShaderDefine shaderDefines[] = { c_defferedDefine };
+	thread_local ShaderDefine shaderDefines[] = { c_deferredDefine };
 	return shaderDefines;
 }
 
-renderer::DefferedRenderingPass::DefferedRenderingPass( IRenderer& renderer, std::function< const forge::ICamera&( ) > activeCameraGetter )
+renderer::DeferredRenderingPass::DeferredRenderingPass( IRenderer& renderer, std::function< const forge::ICamera&( ) > activeCameraGetter )
 	: IMeshesRenderingPass( renderer )
 	, m_activeCameraGetter( activeCameraGetter )
 {
-	m_lightingPass = std::make_unique<FullScreenRenderingPass>( GetRenderer(), "DefferedLighting.fx", "DefferedLighting.fx", forge::ArraySpan< renderer::ShaderDefine >( {} ) );
+	m_lightingPass = std::make_unique<FullScreenRenderingPass>( GetRenderer(), "DeferredLighting.fx", "DeferredLighting.fx", forge::ArraySpan< renderer::ShaderDefine >( {} ) );
 
-	m_cbDefferedRendering = GetRenderer().CreateStaticConstantBuffer< CBDefferedRendering >();
+	m_cbDeferredRendering = GetRenderer().CreateStaticConstantBuffer< CBDeferredRendering >();
 	m_cbPointLight = GetRenderer().CreateStaticConstantBuffer< CBPointLight >();
 	m_cbSpotLight = GetRenderer().CreateStaticConstantBuffer< CBSpotLight >();
 	m_cbDirectionalLight = GetRenderer().CreateStaticConstantBuffer< CBDirectionalLight >();
@@ -56,13 +56,13 @@ renderer::DefferedRenderingPass::DefferedRenderingPass( IRenderer& renderer, std
 		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ONE } );
 }
 
-void renderer::DefferedRenderingPass::Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
+void renderer::DeferredRenderingPass::Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
 {
 	std::vector< renderer::IRenderTargetView* > views{ GetTargetTexture()->GetRenderTargetView(), m_diffuseTexture->GetRenderTargetView(), m_normalsTexture->GetRenderTargetView() };
 	GetRenderer().SetRenderTargets( views, GetDepthStencilBuffer() );
 
 
-	StaticConstantBuffer< CBDefferedRendering >* cbRendering = static_cast<StaticConstantBuffer< CBDefferedRendering >*>( m_cbDefferedRendering.get() );
+	StaticConstantBuffer< CBDeferredRendering >* cbRendering = static_cast<StaticConstantBuffer< CBDeferredRendering >*>( m_cbDeferredRendering.get() );
 	if( lightingData )
 	{
 		cbRendering->GetData().AmbientLighting = lightingData->m_ambientLight;
@@ -74,7 +74,7 @@ void renderer::DefferedRenderingPass::Draw( const renderer::IRawRenderablesPack&
 	cbRendering->SetVS( renderer::VSConstantBufferType::RenderingPass );
 	cbRendering->SetPS( renderer::PSConstantBufferType::RenderingPass );
 
-	GetRenderer().Draw( rawRenderables, &c_defferedDefine );
+	GetRenderer().Draw( rawRenderables, &c_deferredDefine );
 
 	if( lightingData )
 	{
@@ -136,7 +136,7 @@ void renderer::DefferedRenderingPass::Draw( const renderer::IRawRenderablesPack&
 	}
 }
 
-void renderer::DefferedRenderingPass::ClearTargetTexture()
+void renderer::DeferredRenderingPass::ClearTargetTexture()
 {
 	IMeshesRenderingPass::ClearTargetTexture();
 	m_lightingPass->ClearTargetTexture();
@@ -144,7 +144,7 @@ void renderer::DefferedRenderingPass::ClearTargetTexture()
 	m_normalsTexture->GetRenderTargetView()->Clear();
 }
 
-void renderer::DefferedRenderingPass::SetTargetTexture( ITexture& targetTexture )
+void renderer::DeferredRenderingPass::SetTargetTexture( ITexture& targetTexture )
 {
 	renderer::IMeshesRenderingPass::SetTargetTexture( targetTexture );
 	m_lightingPass->SetTargetTexture( targetTexture );
@@ -155,7 +155,7 @@ void renderer::DefferedRenderingPass::SetTargetTexture( ITexture& targetTexture 
 	m_diffuseTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetTextureSize().X ), static_cast< Uint32 >( targetTexture.GetTextureSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, ITexture::Format::R8G8B8A8_UNORM );
 }
 
-void renderer::DefferedRenderingPass::OnTargetTextureResized( const Vector2& size )
+void renderer::DeferredRenderingPass::OnTargetTextureResized( const Vector2& size )
 {
 	m_normalsTexture->Resize( size );
 	m_diffuseTexture->Resize( size );

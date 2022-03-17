@@ -6,7 +6,7 @@
 #include "CameraComponent.h"
 #include "LightingSystem.h"
 #include "../Renderer/ForwardRenderingPass.h"
-#include "../Renderer/DefferedRenderingPass.h"
+#include "../Renderer/DeferredRenderingPass.h"
 #include "../Renderer/IDepthStencilState.h"
 #include "../Core/IWindow.h"
 #include "../Renderer/FullScreenRenderingPass.h"
@@ -42,14 +42,14 @@ void systems::RenderingSystem::OnInitialize()
 		renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
 		renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Format::R8G8B8A8_UNORM );
 
-	SetRenderingMode( RenderingMode::Deffered );
+	SetRenderingMode( RenderingMode::Deferred );
 
 	m_overlayRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
 	m_overlayRenderingPass->SetTargetTexture( *m_targetTexture );
 	m_overlayRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
 
 	std::vector< renderer::ShaderDefine > baseShaderDefines;
-	baseShaderDefines.insert( baseShaderDefines.end(), renderer::DefferedRenderingPass::GetRequiredShaderDefines().begin(), renderer::DefferedRenderingPass::GetRequiredShaderDefines().end() );
+	baseShaderDefines.insert( baseShaderDefines.end(), renderer::DeferredRenderingPass::GetRequiredShaderDefines().begin(), renderer::DeferredRenderingPass::GetRequiredShaderDefines().end() );
 	baseShaderDefines.insert( baseShaderDefines.end(), renderer::ForwardRenderingPass::GetRequiredShaderDefines().begin(), renderer::ForwardRenderingPass::GetRequiredShaderDefines().end() );
 	m_renderer->GetShadersManager()->SetBaseShaderDefines( std::move( baseShaderDefines ) );
 
@@ -116,7 +116,7 @@ void systems::RenderingSystem::OnRenderDebug()
 				Int32 currentMode = static_cast<Int32>( m_renderingMode );
 				ImGui::Text( "Rendering mode: " );
 				ImGui::SameLine(); ImGui::RadioButton( "Forward", &currentMode, 0 );
-				ImGui::SameLine(); ImGui::RadioButton( "Deffered", &currentMode, 1 );
+				ImGui::SameLine(); ImGui::RadioButton( "Deferred", &currentMode, 1 );
 				if( currentMode != static_cast<Int32>( m_renderingMode ) )
 				{
 					SetRenderingMode( static_cast<RenderingMode>( currentMode ) );
@@ -170,10 +170,10 @@ void systems::RenderingSystem::OnRenderDebug()
 
 			if( ImGui::BeginTabItem( "Buffers" ) )
 			{
-				if( dynamic_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() ) )
+				if( dynamic_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() ) )
 				{
-					funcDrawTexture( "Normals", *static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetNormalsTexture() );
-					funcDrawTexture( "Diffuse", *static_cast<renderer::DefferedRenderingPass*>( m_opaqueRenderingPass.get() )->GetDiffuseTexture() );
+					funcDrawTexture( "Normals", *static_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() )->GetNormalsTexture() );
+					funcDrawTexture( "Diffuse", *static_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() )->GetDiffuseTexture() );
 				}
 
 				{
@@ -220,8 +220,8 @@ void systems::RenderingSystem::SetRenderingMode( RenderingMode renderingMode )
 	m_renderingMode = renderingMode;
 	switch( renderingMode )
 	{
-	case RenderingMode::Deffered:
-		m_opaqueRenderingPass = std::make_unique< renderer::DefferedRenderingPass >( *m_renderer, [ cameraSystem = m_camerasSystem ]() -> decltype( auto ) { return cameraSystem->GetActiveCamera()->GetCamera(); } );
+	case RenderingMode::Deferred:
+		m_opaqueRenderingPass = std::make_unique< renderer::DeferredRenderingPass >( *m_renderer, [ cameraSystem = m_camerasSystem ]() -> decltype( auto ) { return cameraSystem->GetActiveCamera()->GetCamera(); } );
 		break;
 	case RenderingMode::Forward:
 		m_opaqueRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );

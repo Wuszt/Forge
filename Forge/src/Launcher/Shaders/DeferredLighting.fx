@@ -1,12 +1,12 @@
 #include "Lighting.fxh"
 
-cbuffer cbDefferedRendering : register(b4)
+cbuffer cbDeferredRendering : register(b4)
 {
     float4x4 InvVP;
     float4 AmbientLighting;
 };
 
-cbuffer cbDefferedLighting : register(b5)
+cbuffer cbDeferredLighting : register(b5)
 {
     LightData LightingData;
 };

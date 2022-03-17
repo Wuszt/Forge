@@ -14,8 +14,8 @@ struct Custom_VS_Output : VS_OUTPUT
     float2 TexCoord : TEXCOORD1;
 };
 
-#ifdef __DEFFERED__
-#include "Deffered.fxh"
+#ifdef __DEFERRED__
+#include "Deferred.fxh"
 #else
 #include "Forward.fxh"
 #endif

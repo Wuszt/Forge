@@ -1,9 +1,9 @@
-#ifndef __DEFFERED_HEADER__
-#define __DEFFERED_HEADER__
+#ifndef __DEFERRED_HEADER__
+#define __DEFERRED_HEADER__
 
 #include "Lighting.fxh"
 
-cbuffer cbDefferedRendering : register(b4)
+cbuffer cbDeferredRendering : register(b4)
 {
     float4x4 InvVP;
     float3 AmbientLighting;
@@ -37,4 +37,4 @@ PS_Output PS(Custom_VS_Output input)
     
     return output;
 }
-#endif // __DEFFERED_HEADER__
+#endif // __DEFERRED_HEADER__
