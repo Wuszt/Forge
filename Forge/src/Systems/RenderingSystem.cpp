@@ -69,25 +69,6 @@ void systems::RenderingSystem::OnInitialize()
 		}
 	} );
 
-#ifdef FORGE_DEBUGGING
-	m_clearingCacheToken = m_renderer->GetShadersManager()->RegisterCacheClearingListener( [ this ]()
-	{
-		const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData >() );
-		for( systems::Archetype* archetype : archetypes )
-		{
-			forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
-			for( Uint32 i = 0; i < renderableComponents.GetDataSize(); ++i )
-			{
-				auto& materials = renderableComponents[ i ].m_renderable->GetMaterials();
-				for( auto& material : materials )
-				{
-					material->SetShaders( material->GetVertexShaderPath(), material->GetPixelShaderPath(), renderer::RenderingPass::Opaque );
-				}
-			}
-		}
-	} );
-#endif
-
 #ifdef FORGE_IMGUI_ENABLED
 	m_overlayDebugToken = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [ this ]()
 	{

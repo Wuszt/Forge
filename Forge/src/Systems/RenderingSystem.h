@@ -89,10 +89,6 @@ namespace systems
 
 		Float m_renderingResolutionScale = 1.0f;
 
-#ifdef FORGE_DEBUGGING
-		forge::CallbackToken m_clearingCacheToken;
-#endif
-
 #ifdef FORGE_IMGUI_ENABLED
 		forge::CallbackToken m_overlayDebugToken;
 		std::unique_ptr< renderer::ITexture > m_temporaryTexture;

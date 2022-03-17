@@ -20,8 +20,6 @@ struct Custom_VS_Output : VS_OUTPUT
 #include "Forward.fxh"
 #endif
 
-Texture2D ShaderTexture;
-
 cbuffer cbMaterial : register(b1)
 {
     float4 diffuseColor;
@@ -34,15 +32,21 @@ Custom_VS_Output Vert(Custom_VS_Input input)
     float4x4 WVP = mul(VP, W);
     output.Pos = mul(WVP, float4(input.Pos, 1.0f));
     output.TexCoord = input.TexCoord;
-    output.Normal = normalize(mul(W, float4(input.Normal, 0.0f)).xyz);
     
     return output;
 }
 
 float4 CalculateColor(Custom_VS_Output input)
 {    
-    float4 clr = ShaderTexture.Sample(LinearSamplerState, input.TexCoord);
-    clip(clr.a - 0.1f);
+    float4 clr = diffuseColor;
+    
+#ifdef __DIFFUSE_TEXTURE__
+    clr = DiffuseTexture.Sample(LinearSamplerState, input.TexCoord);
+#endif
+    
+ #ifdef __ALPHA_TEXTURE__
+    clip(AlphaTexture.Sample(LinearSamplerState, input.TexCoord).r - 0.001f);
+#endif
     
     return clr;
 }

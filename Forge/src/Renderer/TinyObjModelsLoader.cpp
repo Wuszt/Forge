@@ -62,7 +62,6 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 	std::vector< renderer::Shape > shapes;
 	for( const auto& shape : reader.GetShapes() )
 	{
-		//FORGE_ASSERT( std::count( shape.mesh.material_ids.begin(), shape.mesh.material_ids.end(), shape.mesh.material_ids[ 0 ] ) == shape.mesh.material_ids.size() );
 		shapes.emplace_back( Shape{ Indices(), static_cast<Uint32>( Math::Max( 0, shape.mesh.material_ids[ 0 ] ) ) } );
 		for( auto index : shape.mesh.indices )
 		{
@@ -99,7 +98,11 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 		auto& materials = reader.GetMaterials();
 		for( const auto& material : reader.GetMaterials() )
 		{
-			materialsData->emplace_back( MaterialData{ GetRenderer().CreateConstantBuffer(), std::filesystem::path( material.diffuse_texname ).filename().string() } );
+			std::string diffuseTexName = std::filesystem::path( material.diffuse_texname ).filename().string();
+			std::string normalTexMap = std::filesystem::path( material.normal_texname ).filename().string();
+			std::string alphaTexName = std::filesystem::path( material.alpha_texname ).filename().string();
+
+			materialsData->emplace_back( MaterialData{ GetRenderer().CreateConstantBuffer(), diffuseTexName, normalTexMap, alphaTexName } );
 			materialsData->back().m_buffer->AddData( "diffuseColor", Vector4( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ], 1.0f ) );
 			materialsData->back().m_buffer->UpdateBuffer();
 		}

@@ -20,7 +20,11 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 Pos : SV_POSITION;
+    
+#ifndef __NORMAL_TEXTURE__   
     float3 Normal : NORMAL;
+#endif
+    
 #ifdef __DEFINE_WORLD_POS__
     float3 WorldPos : TEXCOORD0;
 #endif
@@ -30,6 +34,18 @@ struct VS_OUTPUT
 #define __CALC_WORLD_POS__ output.WorldPos = mul(W, float4(input.Pos, 1.0f)).xyz;
 #else
 #define __CALC_WORLD_POS__
+#endif
+
+#ifdef __DIFFUSE_TEXTURE__
+Texture2D DiffuseTexture : register(t0);
+#endif
+
+#ifdef __NORMAL_TEXTURE__
+Texture2D NormalTexture : register(t1);
+#endif
+
+#ifdef __ALPHA_TEXTURE__
+Texture2D AlphaTexture : register(t2);
 #endif
 
 #endif

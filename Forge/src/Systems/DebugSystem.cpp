@@ -11,6 +11,7 @@
 #include "RenderingComponent.h"
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
+#include "../Renderer/IRenderer.h"
 #endif
 
 void systems::DebugSystem::OnInitialize()
@@ -104,6 +105,7 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 
 			transformComponent->GetData().m_transform.SetPosition( position );
 			transformComponent->GetData().m_scale = { radius, radius, radius };
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Overlay );
 			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
 			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
@@ -125,6 +127,7 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 
 			transformComponent->GetData().m_transform.SetPosition( position );
 			transformComponent->GetData().m_scale = extension;
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Overlay );
 			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
 			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );

@@ -14,6 +14,15 @@ namespace renderer
 	class Material
 	{
 	public:
+
+		enum class TextureType
+		{
+			Diffuse,
+			Normal,
+			Alpha,
+			Count
+		};
+
 		Material( renderer::IRenderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass );
 
 		FORGE_INLINE std::shared_ptr< ShaderPack< IVertexShader > > GetVertexShader() const
@@ -41,24 +50,14 @@ namespace renderer
 			return m_inputLayout.get();
 		}
 
-		FORGE_INLINE Uint32 GetTexturesAmount() const
+		FORGE_INLINE forge::ArraySpan< const std::shared_ptr< const ITexture > > GetTextures() const
 		{
-			return static_cast< Uint32 >( m_textures.size() );
-		}
-
-		FORGE_INLINE const ITexture* GetTexture( Uint32 index ) const
-		{
-			if( index >= GetTexturesAmount() )
-			{
-				return nullptr;
-			}
-
-			return m_textures[ index ].get();
+			return m_textures;
 		}
 
 		void SetShaders( const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass );
 		void SetRenderingPass( renderer::RenderingPass renderingPass );
-		void SetTexture( const std::string& path, Uint32 index );
+		void SetTexture( const std::string& path, Material::TextureType textureType );
 
 		FORGE_INLINE renderer::RenderingPass GetRenderingPass() const
 		{
@@ -80,8 +79,9 @@ namespace renderer
 		std::shared_ptr< ShaderPack< IPixelShader > > m_pixelShader;
 		std::unique_ptr< renderer::ConstantBuffer > m_constantBuffer;
 		std::unique_ptr< const IInputLayout > m_inputLayout;
-		std::vector< std::shared_ptr< const ITexture > > m_textures; 
 		IRenderer& m_renderer;
+
+		std::shared_ptr< const ITexture > m_textures[ static_cast< Uint32 > ( TextureType::Count ) ] = { nullptr };
 
 		renderer::RenderingPass m_renderingPass = static_cast< renderer::RenderingPass >( 0 );
 		forge::CallbackToken m_onShadersClearCache;

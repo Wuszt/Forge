@@ -20,6 +20,21 @@ void renderer::Material::SetShaders( const std::string& vsPath, const std::strin
 {
 	std::vector< renderer::ShaderDefine > defines;
 
+	if( m_textures[ static_cast< Uint32 >( TextureType::Diffuse ) ] )
+	{
+		defines.push_back( { "__DIFFUSE_TEXTURE__" } );
+	}
+
+	if( m_textures[ static_cast< Uint32 >( TextureType::Normal ) ] )
+	{
+		defines.push_back( { "__NORMAL_TEXTURE__" } );
+	}
+
+	if( m_textures[ static_cast< Uint32 >( TextureType::Alpha ) ] )
+	{
+		defines.push_back( { "__ALPHA_TEXTURE__" } );
+	}
+
 	m_vertexShader = m_renderer.GetShadersManager()->GetVertexShader( vsPath, defines );
 	m_vertexShaderPath = vsPath;
 
@@ -34,12 +49,8 @@ void renderer::Material::SetRenderingPass( renderer::RenderingPass renderingPass
 	SetShaders( m_vertexShaderPath, m_pixelShaderPath, renderingPass );
 }
 
-void renderer::Material::SetTexture( const std::string& path, Uint32 index )
+void renderer::Material::SetTexture( const std::string& path, Material::TextureType textureType )
 {
-	if( index >= GetTexturesAmount() )
-	{
-		m_textures.resize( index + 1u );
-	}
-
-	m_textures[ index ] = m_renderer.GetResourceManager().LoadTexture( path );
+	m_textures[ static_cast< Uint32 >( textureType) ] = m_renderer.GetResourceManager().LoadTexture( path );
+	SetShaders( m_vertexShaderPath, m_pixelShaderPath, m_renderingPass );
 }

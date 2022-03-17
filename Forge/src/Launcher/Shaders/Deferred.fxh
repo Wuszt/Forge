@@ -21,8 +21,13 @@ Custom_VS_Output Vert(Custom_VS_Input input);
 Custom_VS_Output VS(Custom_VS_Input input)
 {
     Custom_VS_Output output = Vert(input);
-    __CALC_WORLD_POS__
 
+    __CALC_WORLD_POS__
+    
+#ifndef __NORMAL_TEXTURE__
+    output.Normal = normalize(mul(W, float4(input.Normal, 0.0f)).xyz);
+#endif
+    
     return output;
 }
 
@@ -32,8 +37,14 @@ PS_Output PS(Custom_VS_Output input)
 {
     PS_Output output;
     output.Diffuse = CalculateColor(input);
-    output.Target = output.Diffuse * float4(CalcAmbient(input.Normal, AmbientLighting, AmbientLighting * 0.5f), 1.0f);
+    
+#ifdef __NORMAL_TEXTURE__ 
+    output.Normal = mul(W,NormalTexture.Sample(LinearSamplerState, input.TexCoord));
+#else
     output.Normal = float4((input.Normal + 1.0f) * 0.5f, 1.0f);
+#endif
+       
+    output.Target = output.Diffuse * float4(CalcAmbient(output.Normal.xyz * 2.0f - 1.0f, AmbientLighting, AmbientLighting * 0.5f), 1.0f);
     
     return output;
 }

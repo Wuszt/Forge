@@ -44,9 +44,6 @@
     <FxCompile Include="Shaders\DepthBufferDebug.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\Fallback.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\Uber.fx">
       <Filter>Shaders</Filter>
     </FxCompile>

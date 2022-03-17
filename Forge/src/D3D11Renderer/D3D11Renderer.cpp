@@ -159,6 +159,7 @@ namespace d3d11
 			rawStates.emplace_back( static_cast< const d3d11::D3D11SamplerState* >( samplerState )->GetSamplerState() );
 		}
 
+		GetContext()->GetDeviceContext()->VSSetSamplers( 0u, static_cast<Uint32>( rawStates.size() ), rawStates.data() );
 		GetContext()->GetDeviceContext()->PSSetSamplers( 0u, static_cast< Uint32 >( rawStates.size() ), rawStates.data() );
 	}
 
@@ -173,12 +174,14 @@ namespace d3d11
 			srvs.emplace_back( static_cast< const D3D11ShaderResourceView* >( srv )->GetTypedSRV() );
 		}
 
+		GetContext()->GetDeviceContext()->VSSetShaderResources( 0, static_cast<Uint32>( srvs.size() ), srvs.data() );
 		GetContext()->GetDeviceContext()->PSSetShaderResources( 0, static_cast< Uint32 >( srvs.size() ), srvs.data() );
 	}
 
 	void D3D11Renderer::ClearShaderResourceViews()
 	{
 		ID3D11ShaderResourceView* srvs[ D3D11_STANDARD_VERTEX_ELEMENT_COUNT ] { nullptr };
+		GetContext()->GetDeviceContext()->VSSetShaderResources( 0, static_cast<Uint32>( D3D11_STANDARD_VERTEX_ELEMENT_COUNT ), srvs );
 		GetContext()->GetDeviceContext()->PSSetShaderResources( 0, static_cast<Uint32>( D3D11_STANDARD_VERTEX_ELEMENT_COUNT ), srvs );
 	}
 
@@ -270,14 +273,15 @@ namespace d3d11
 					}
 				}
 
-				Uint32 resourcesAmount = material.GetTexturesAmount();
+				auto materialResources = material.GetTextures();
+				Uint32 resourcesAmount = materialResources.GetSize();
 				Uint32 startIndex = static_cast< Uint32 >( pack->m_resourceViews.size() );
 				FORGE_ASSERT( startIndex < ( 1 << 11 ) );
 				FORGE_ASSERT( resourcesAmount < ( 1 << 5 ) );
 				for( Uint32 resourcesIndex = 0u; resourcesIndex < resourcesAmount; ++resourcesIndex )
 				{
-					const D3D11Texture* texture = static_cast< const D3D11Texture* >( material.GetTexture( resourcesIndex ) );
-					pack->m_resourceViews.emplace_back( texture->GetShaderResourceView()->GetTypedSRV() );
+					const D3D11Texture* texture = static_cast< const D3D11Texture* >( materialResources[ resourcesIndex ].get() );
+					pack->m_resourceViews.emplace_back( texture ? texture->GetShaderResourceView()->GetTypedSRV() : nullptr );
 				}
 
 				pack->m_resourceViews.resize( Math::Max( 1u, static_cast< Uint32 >( pack->m_resourceViews.size() ) ) );
@@ -341,6 +345,7 @@ namespace d3d11
 				context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Material ), 1, &renderables.m_materialCBs[ shapesIndex ] );
 				context->PSSetConstantBuffers( static_cast<Uint32>( renderer::PSConstantBufferType::Material ), 1, &renderables.m_materialCBs[ shapesIndex ] );
 				context->IASetInputLayout( renderables.m_inputLayouts[ shapesIndex ] );
+				context->VSSetShaderResources( 0, shape.m_resourcesAmount, &renderables.m_resourceViews[ shape.m_resourcesStartIndex ] );
 				context->PSSetShaderResources( 0, shape.m_resourcesAmount, &renderables.m_resourceViews[ shape.m_resourcesStartIndex ] );
 
 				GetContext()->Draw( renderables.m_shapes[ shapesIndex ].m_indicesAmount, 0 );

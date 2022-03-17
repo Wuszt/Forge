@@ -9,7 +9,9 @@ namespace renderer
 	struct MaterialData
 	{
 		std::unique_ptr< renderer::ConstantBuffer > m_buffer;
-		std::string m_textureName;
+		std::string m_diffuseTextureName;
+		std::string m_normalTextureName;
+		std::string m_alphaTextureName;
 	};
 
 	class ResourcesManager

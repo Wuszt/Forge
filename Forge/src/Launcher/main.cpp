@@ -98,7 +98,7 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 			for( auto& material : renderable->GetMaterials() )
 			{
 				material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Opaque );
-				material->SetTexture( "grass.jpg", 0 );
+				material->SetTexture( "grass.jpg", renderer::Material::TextureType::Diffuse );
 			}
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
@@ -224,7 +224,7 @@ Int32 main()
 				} );
 			} );
 
-			SponzaScene( engineInstance );
+			BunnyScene( engineInstance );
 		}
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override

@@ -21,23 +21,36 @@ Custom_VS_Output VS(Custom_VS_Input input)
 {
     Custom_VS_Output output = Vert(input);
     __CALC_WORLD_POS__
+    
+#ifndef __NORMAL_TEXTURE__
+    output.Normal = normalize(mul(W, float4(input.Normal, 0.0f)).xyz);
+#endif
+    
     return output;
 }
 
 float4 CalculateColor(Custom_VS_Output input);
 
 float4 PS(Custom_VS_Output input) : SV_Target
-{
+{    
     float4 color = CalculateColor(input);
+
+    float3 normal;
+    
+#ifdef __NORMAL_TEXTURE__
+    normal = mul(W,(NormalTexture.Sample(LinearSamplerState, input.TexCoord) + 1.0f) * 0.5f).rgb;
+#else
+    normal = input.Normal;
+#endif
     
 #ifdef __AMBIENT_LIGHT__
-    color *= float4(CalcAmbient(input.Normal, AmbientLighting, AmbientLighting * 0.5f), 1.0f);
+    color *= float4(CalcAmbient(normal, AmbientLighting, AmbientLighting * 0.5f), 1.0f);
 #elif defined __POINT_LIGHT__
-    color *= float4( LightingData.Color * CalcPointLight(input.WorldPos, input.Normal, LightingData ), 1.0f );
+    color *= float4( LightingData.Color * CalcPointLight(input.WorldPos, normal, LightingData ), 1.0f );
 #elif defined __SPOT_LIGHT__
-    color *= float4( LightingData.Color * CalcSpotLight(input.WorldPos, input.Normal, LightingData ), 1.0f );
+    color *= float4( LightingData.Color * CalcSpotLight(input.WorldPos, normal, LightingData ), 1.0f );
     #elif defined __DIRECTIONAL_LIGHT__
-    color *= float4( LightingData.Color * CalcDirectionalLight(input.WorldPos, input.Normal, LightingData ), 1.0f );
+    color *= float4( LightingData.Color * CalcDirectionalLight(input.WorldPos, normal, LightingData ), 1.0f );
 #endif
     
     return color;
