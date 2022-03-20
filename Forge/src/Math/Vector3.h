@@ -176,6 +176,21 @@ struct Vector3
 	   return vec2;
    }
 
+   FORGE_INLINE Vector2& AsVector2()
+   {
+	   return vec2;
+   }
+
+   FORGE_INLINE const Float* AsArray() const
+   {
+	   return &X;
+   }
+
+   FORGE_INLINE Float* AsArray()
+   {
+	   return &X;
+   }
+
 #ifndef FORGE_FINAL
    std::string ToDebugString( Uint32 precision = 2u ) const;
 #endif

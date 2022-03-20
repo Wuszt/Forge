@@ -64,6 +64,43 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 		} );
 	} );
+
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	{
+		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+		{
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -1000.0f, 200.0f } );
+			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 1.0f, 0.0f, 0.0f };
+		} );
+	} );
+
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	{
+		light->RequestAddingComponents< forge::TransformComponent, forge::SpotLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+		{
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 200.0f } );
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, 0.0f ) );
+			light->GetComponent< forge::SpotLightComponent >()->GetData().m_color = { 0.0f, 1.0f, 0.0f };
+		} );
+	} );
+
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	{
+		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+		{
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 1100.0f, 200.0f } );
+			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
+		} );
+	} );
+
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	{
+		light->RequestAddingComponents< forge::DirectionalLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+		{
+			light->GetComponent< forge::DirectionalLightComponent >()->GetData().m_color = { 0.25f, 0.1f, 0.0f };
+			light->GetComponent< forge::DirectionalLightComponent >()->GetData().m_direction = Vector3( 1.0f, 0.0f, 0.0f ).Normalized();
+		} );
+	} );
 }
 
 void BunnyScene( forge::EngineInstance& engineInstance )
@@ -103,6 +140,16 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 			transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 0.01f };
+		} );
+	} );
+
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	{
+		light->RequestAddingComponents< forge::TransformComponent, forge::SpotLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+		{
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 100.0f, 0.0f, 200.0f } );
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, FORGE_PI_HALF * 0.5f ).Normalized() );
+			light->GetComponent< forge::SpotLightComponent >()->GetData().m_color = { 1.0f, 1.0f, 0.0f };
 		} );
 	} );
 }
@@ -186,54 +233,12 @@ Int32 main()
 				} );
 			} );
 
-			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
-			{
-				light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
-				{
-					light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -1000.0f, 200.0f } );
-					light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 1.0f, 0.0f, 0.0f };
-				} );
-			} );
-
-			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
-			{
-				light->RequestAddingComponents< forge::TransformComponent, forge::SpotLightComponent >( [ engineInstancePtr = &engineInstance, light, this ]()
-				{
-					m_spotLight = light;
-					light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 200.0f } );
-					light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, 0.0f ) );
-					light->GetComponent< forge::SpotLightComponent >()->GetData().m_color = { 0.0f, 1.0f, 0.0f };
-				} );
-			} );
-
-			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
-			{
-				light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
-				{
-					light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 1100.0f, 200.0f } );
-					light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
-				} );
-			} );
-
-			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
-			{
-				light->RequestAddingComponents< forge::DirectionalLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
-				{
-					light->GetComponent< forge::DirectionalLightComponent >()->GetData().m_color = { 0.25f, 0.1f, 0.0f };
-					light->GetComponent< forge::DirectionalLightComponent >()->GetData().m_direction = Vector3( 1.0f, 0.0f, 0.0f ).Normalized();
-				} );
-			} );
-
+			//SponzaScene( engineInstance );
 			BunnyScene( engineInstance );
 		}
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{
-			if( m_spotLight )
-			{
-				m_spotLight->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, FORGE_PI_HALF *  Math::Sin( forge::Time::GetTime() ) ) );
-			}
-
 			if( engineInstance.GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
 			{
 				Shutdown();
@@ -244,9 +249,6 @@ Int32 main()
 		{
 			return true;
 		}
-
-	private:
-		forge::Entity* m_spotLight = nullptr;
 
 	private:
 	} gameInstance;

@@ -2,6 +2,10 @@
 #include "LightingSystem.h"
 #include "../Renderer/IRenderingPass.h"
 
+#ifdef FORGE_IMGUI_ENABLED
+#include "../../External/imgui/imgui.h"
+#endif
+
 void systems::LightingSystem::OnInitialize()
 {
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostUpdate, [ this ]() { Update(); } );
@@ -61,39 +65,64 @@ void systems::LightingSystem::Update()
 
 void systems::LightingSystem::OnRenderDebug()
 {
+	if( ImGui::Begin( "LightingDebug" ) )
 	{
-		const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( PointLightArchetypeType() );
-		for( systems::Archetype* archetype : archetypes )
+		if( ImGui::TreeNodeEx( "Point Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
-			forge::DataPackage< forge::TransformComponentData >& transforms = archetype->GetData< forge::TransformComponentData >();
-			const forge::DataPackage< forge::PointLightComponentData >& lightsData = archetype->GetData< forge::PointLightComponentData >();
-			for( Uint32 i = 0; i < transforms.GetDataSize(); ++i )
+			const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( PointLightArchetypeType() );
+			for( systems::Archetype* archetype : archetypes )
 			{
-				GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transforms[ i ].m_transform.GetPosition3(), 50.0f, lightsData[ i ].m_color, 0.0f );
-			}
-		}
-	}
+				const forge::DataPackage< forge::TransformComponentData >& transforms = archetype->GetData< forge::TransformComponentData >();
+				forge::DataPackage< forge::PointLightComponentData >& lightsData = archetype->GetData< forge::PointLightComponentData >();
+				for( Uint32 i = 0; i < transforms.GetDataSize(); ++i )
+				{
+					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
+					{
+						ImGui::ColorEdit3( "Color", lightsData[i].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
+						ImGui::SliderFloat( "Power", &lightsData[i].m_power, 0.0f, 10000.0f );
 
-	{
-		const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( SpotLightArchetypeType() );
-		for( systems::Archetype* archetype : archetypes )
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transforms[ i ].m_transform.GetPosition3(), 50.0f, lightsData[ i ].m_color, 0.0f );
+						ImGui::TreePop();
+					}
+				}
+			}
+			ImGui::TreePop();
+		}
+
+		if( ImGui::TreeNodeEx( "Spot Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
-			forge::DataPackage< forge::TransformComponentData >& transforms = archetype->GetData< forge::TransformComponentData >();
-			const forge::DataPackage< forge::SpotLightComponentData >& lightsData = archetype->GetData< forge::SpotLightComponentData >();
-			for( Uint32 i = 0; i < transforms.GetDataSize(); ++i )
+			const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( SpotLightArchetypeType() );
+			for( systems::Archetype* archetype : archetypes )
 			{
-				Float size = 20.0f;
-				Float extent = 30.0f;
-				Vector3 forward = transforms[ i ].m_transform.GetForward();
-				Vector3 forwardAbs = Vector3( Math::Abs( forward.X ), Math::Abs( forward.Y ), Math::Abs( forward.Z ) );
+				const forge::DataPackage< forge::TransformComponentData >& transforms = archetype->GetData< forge::TransformComponentData >();
+				forge::DataPackage< forge::SpotLightComponentData >& lightsData = archetype->GetData< forge::SpotLightComponentData >();
+				for( Uint32 i = 0; i < transforms.GetDataSize(); ++i )
+				{
+					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
+					{
+						ImGui::ColorEdit3( "Color", lightsData[ i ].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
+						ImGui::SliderFloat( "Power", &lightsData[ i ].m_power, 0.0f, 10000.0f );
+						ImGui::SliderFloat( "Inner Angle", &lightsData[ i ].m_innerAngle, 0.0f, lightsData[ i ].m_outerAngle - 0.01f );
+						ImGui::SliderFloat( "Outer Angle", &lightsData[ i ].m_outerAngle, 0.0f, FORGE_PI );
 
-				Vector3 pos = transforms[ i ].m_transform.GetPosition3() + forward * ( extent + size ) * 0.5f;
-				Vector3 extents = Vector3::ONES() * size + forwardAbs * extent;
+						Float size = 20.0f;
+						Float extent = 30.0f;
+						Vector3 forward = transforms[ i ].m_transform.GetForward();
+						Vector3 forwardAbs = Vector3( Math::Abs( forward.X ), Math::Abs( forward.Y ), Math::Abs( forward.Z ) );
 
-				GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transforms[ i ].m_transform.GetPosition3(), 50.0f, lightsData[ i ].m_color, 0.0f );
-				GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCube( pos, extents, lightsData[ i ].m_color, 0.0f );
+						Vector3 pos = transforms[ i ].m_transform.GetPosition3() + forward * ( extent + size ) * 0.5f;
+						Vector3 extents = Vector3::ONES() * size + forwardAbs * extent;
+
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transforms[ i ].m_transform.GetPosition3(), 50.0f, lightsData[ i ].m_color, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCube( pos, extents, lightsData[ i ].m_color, 0.0f );
+						ImGui::TreePop();
+					}
+				}
 			}
+			ImGui::TreePop();
 		}
+
+		ImGui::End();
 	}
 }
 #endif

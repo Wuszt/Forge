@@ -65,6 +65,7 @@ namespace systems
 
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;
+		Bool m_drawAllLights = false;
 #endif
 	};
 
