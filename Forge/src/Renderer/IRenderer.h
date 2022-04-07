@@ -28,8 +28,10 @@ namespace renderer
 	class ISamplerState;
 	class IBlendState;
 	class IDepthStencilState;
+	class IDepthStencilView;
 	struct ShaderDefine;
 	enum class SamplerStateFilterType;
+	enum class SamplerStateComparisonType;
 	enum class DepthStencilComparisonFunc;
 	struct BlendOperationDesc;
 
@@ -65,7 +67,7 @@ namespace renderer
 			}
 		}
 
-		FORGE_INLINE IRawRenderablesPack& GetRendenderablesPack( RenderingPass renderPass )
+		FORGE_INLINE const IRawRenderablesPack& GetRendenderablesPack( RenderingPass renderPass ) const
 		{
 			return *m_packs[ static_cast< Uint32 >( renderPass ) ];
 		}
@@ -88,21 +90,21 @@ namespace renderer
 		virtual std::unique_ptr< IInputLayout > CreateInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const = 0;
 		virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const Vertices& vertices ) const = 0;
 		virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const = 0;
-		virtual std::unique_ptr< ITexture > CreateTexture( Uint32 width, Uint32 height, ITexture::Flags flags, ITexture::Format format, ITexture::Format srvFormat = ITexture::Format::Unknown ) const = 0;
+		virtual std::unique_ptr< ITexture > CreateTexture( Uint32 width, Uint32 height, ITexture::Flags flags, ITexture::Format format, renderer::ITexture::Type type, ITexture::Format srvFormat = ITexture::Format::Unknown ) const = 0;
 		virtual std::unique_ptr< IBlendState > CreateBlendState( const BlendOperationDesc& rgbOperation, const BlendOperationDesc& alphaDesc ) const = 0;
-		virtual std::unique_ptr< renderer::IDepthStencilBuffer > CreateDepthStencilBuffer( Uint32 width, Uint32 height ) const = 0;
+		virtual std::unique_ptr< renderer::IDepthStencilBuffer > CreateDepthStencilBuffer( Uint32 width, Uint32 height, Bool cubeTexture = false ) const = 0;
 		virtual std::unique_ptr< IDepthStencilState > CreateDepthStencilState( DepthStencilComparisonFunc comparisonFunc ) const = 0;
 
 		void Initialize();
 
 		virtual void SetViewportSize( const Vector2& size ) = 0;
 
-		virtual void SetRenderTargets( const forge::ArraySpan< IRenderTargetView* >& rendererTargetViews, IDepthStencilBuffer* depthStencilBuffer ) = 0;
+		virtual void SetRenderTargets( const forge::ArraySpan< IRenderTargetView* >& rendererTargetViews, IDepthStencilView* depthStencilView ) = 0;
 
-		virtual std::unique_ptr< ISamplerState > CreateSamplerState( SamplerStateFilterType filterType ) = 0;
+		virtual std::unique_ptr< ISamplerState > CreateSamplerState( SamplerStateFilterType filterType, SamplerStateComparisonType comparisonType ) = 0;
 		virtual void SetSamplerStates( const forge::ArraySpan< ISamplerState* > samplerStates ) = 0;
 
-		virtual void SetShaderResourceViews( const forge::ArraySpan< IShaderResourceView* >& input ) = 0;
+		virtual void SetShaderResourceViews( const forge::ArraySpan< IShaderResourceView* >& input, Uint32 startIndex = 0u ) = 0;
 		virtual void ClearShaderResourceViews() = 0;
 
 		virtual void OnBeforeDraw() = 0;
@@ -111,7 +113,7 @@ namespace renderer
 
 		virtual void DrawRawVertices( Uint32 amount ) = 0;
 		void Draw( const renderer::Renderable& renderable );
-		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const ShaderDefine* shaderDefine = nullptr ) = 0;
+		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) = 0;
 
 		virtual std::unique_ptr< renderer::RawRenderablesPacks > CreateRawRenderablesPackage( const forge::ArraySpan< const Renderable* >& renderables ) const = 0;
 

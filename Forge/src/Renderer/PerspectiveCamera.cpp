@@ -1,7 +1,7 @@
 #include "Fpch.h"
 #include "PerspectiveCamera.h"
 
-namespace forge
+namespace renderer
 {
 	PerspectiveCamera::PerspectiveCamera( Float aspectRatio, Float fov, Float nearPlane, Float farPlane )
 		: m_aspectRatio( aspectRatio )
@@ -14,18 +14,7 @@ namespace forge
 
 	Matrix PerspectiveCamera::GetProjectionMatrix() const
 	{
-		Float d = Math::Ctg( m_fov * 0.5f );
-		Float da = d / m_aspectRatio;
-		Float y0 = m_farPlane / ( m_farPlane - m_nearPlane );
-		Float y1 = -m_nearPlane * m_farPlane / ( m_farPlane - m_nearPlane );
-
-		return Matrix
-		(
-			da, 0.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, y0, 1.0f,
-			0.0f, d, 0.0f, 0.0f,
-			0.0f, 0.0f, y1, 0.0f
-		);
+		return ConstructProjectionMatrix( m_aspectRatio, m_fov, m_nearPlane, m_farPlane );
 	}
 
 	Matrix PerspectiveCamera::GetInvViewMatrix() const
@@ -61,5 +50,21 @@ namespace forge
 	const Quaternion& PerspectiveCamera::GetOrientation() const
 	{
 		return m_transform.GetOrientation();
+	}
+
+	Matrix PerspectiveCamera::ConstructProjectionMatrix( Float aspectRatio, Float fov, Float nearPlane, Float farPlane )
+	{
+		Float d = Math::Ctg( fov * 0.5f );
+		Float da = d / aspectRatio;
+		Float y0 = farPlane / ( farPlane - nearPlane );
+		Float y1 = -nearPlane * farPlane / ( farPlane - nearPlane );
+
+		return Matrix
+		(
+			da, 0.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, y0, 1.0f,
+			0.0f, d, 0.0f, 0.0f,
+			0.0f, 0.0f, y1, 0.0f
+		);
 	}
 }

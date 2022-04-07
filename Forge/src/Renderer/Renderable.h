@@ -7,7 +7,11 @@ namespace renderer
 	class Material;
 	class IRenderer;
 	class IInputLayout;
-	struct cbMesh;
+	
+	struct cbMesh
+	{
+		Matrix W = Matrix( Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS() );
+	};
 
 	class Renderable
 	{

@@ -35,10 +35,10 @@ void renderer::Material::SetShaders( const std::string& vsPath, const std::strin
 		defines.push_back( { "__ALPHA_TEXTURE__" } );
 	}
 
-	m_vertexShader = m_renderer.GetShadersManager()->GetVertexShader( vsPath, defines );
+	m_vertexShader = m_renderer.GetShadersManager()->GetVertexShader( vsPath, defines, true );
 	m_vertexShaderPath = vsPath;
 
-	m_pixelShader = m_renderer.GetShadersManager()->GetPixelShader( psPath, defines );
+	m_pixelShader = m_renderer.GetShadersManager()->GetPixelShader( psPath, defines, true );
 	m_pixelShaderPath = psPath;
 
 	m_renderingPass = renderingPass;

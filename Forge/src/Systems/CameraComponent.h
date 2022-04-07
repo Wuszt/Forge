@@ -13,12 +13,12 @@ namespace forge
 
 		virtual void OnAttach( EngineInstance& engineInstance ) override;
 
-		FORGE_INLINE ICamera::Type GetType() const
+		FORGE_INLINE renderer::ICamera::Type GetType() const
 		{
 			return m_implementation->GetType();
 		}
 
-		FORGE_INLINE const ICamera& GetCamera() const
+		FORGE_INLINE const renderer::ICamera& GetCamera() const
 		{
 			return *m_implementation;
 		}
@@ -32,7 +32,7 @@ namespace forge
 		}
 
 	private:
-		std::unique_ptr< ICamera > m_implementation;
+		std::unique_ptr< renderer::ICamera > m_implementation;
 		forge::CallbackToken m_windowEventToken;
 		TransformComponent* m_transformComponent;
 	};

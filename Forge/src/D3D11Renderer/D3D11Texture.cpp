@@ -18,6 +18,9 @@ namespace d3d11
 		case renderer::ITexture::Format::R24G8_TYPELESS:
 			return DXGI_FORMAT_R24G8_TYPELESS;
 
+		case renderer::ITexture::Format::R24_UNORM_X8_TYPELESS:
+			return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+
 		default:
 			FORGE_FATAL( "Unknown format" );
 		}
@@ -38,6 +41,9 @@ namespace d3d11
 				case renderer::ITexture::Flags::BIND_RENDER_TARGET:
 					result |= D3D11_BIND_RENDER_TARGET;
 					break;
+				case renderer::ITexture::Flags::BIND_DEPTH_STENCIL:
+					result |= D3D11_BIND_DEPTH_STENCIL;
+					break;
 				case renderer::ITexture::Flags::BIND_SHADER_RESOURCE:
 					result |= D3D11_BIND_SHADER_RESOURCE;
 					break;
@@ -50,9 +56,21 @@ namespace d3d11
 		return result;
 	}
 
+	renderer::ITexture::Type GetTextureTypeFromDesc( const D3D11_TEXTURE2D_DESC& textureDesc )
+	{
+		if( ( textureDesc.MiscFlags & D3D11_RESOURCE_MISC_TEXTURECUBE ) != 0u )
+		{
+			FORGE_ASSERT( textureDesc.ArraySize == 6u );
+			return renderer::ITexture::Type::TextureCube;
+		}
+
+		return renderer::ITexture::Type::Texture2D;
+	}
+
 	D3D11Texture::D3D11Texture( const D3D11Device& device, const D3D11RenderContext& context, const D3D11_TEXTURE2D_DESC& desc, DXGI_FORMAT srvFormat )
 		: m_device( device )
 		, m_context( context )
+		, m_textureType( GetTextureTypeFromDesc( desc ) )
 	{
 		FORGE_ASSURE( device.GetDevice()->CreateTexture2D( &desc, nullptr, &m_texture ) == S_OK );
 
@@ -67,11 +85,13 @@ namespace d3d11
 		D3D11_TEXTURE2D_DESC textureDesc;
 		texture.GetDesc( &textureDesc );
 		CreateViewsIfRequired( textureDesc.BindFlags, srvFormat );
+		m_textureType = GetTextureTypeFromDesc( textureDesc );
 	}
 
-	D3D11Texture::D3D11Texture( const D3D11Device& device, const D3D11RenderContext& context, Uint32 width, Uint32 height, Flags flags, Format format, Format srvFormat )
+	D3D11Texture::D3D11Texture( const D3D11Device& device, const D3D11RenderContext& context, Uint32 width, Uint32 height, Flags flags, Format format, renderer::ITexture::Type textureType, Format srvFormat )
 		: m_device( device )
 		, m_context( context )
+		, m_textureType( textureType )
 	{
 		D3D11_TEXTURE2D_DESC desc;
 		ZeroMemory( &desc, sizeof( D3D11_TEXTURE2D_DESC ) );
@@ -79,16 +99,28 @@ namespace d3d11
 		desc.Height = height;
 		desc.Format = FormatToD3D11Format( format );
 		desc.MipLevels = 1;
-		desc.ArraySize = 1;
 		desc.BindFlags = FlagsToD3D11Flags( flags );
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 
+		switch( textureType )
+		{
+		case renderer::ITexture::Type::Texture2D:
+			desc.ArraySize = 1;
+			break;
+		case renderer::ITexture::Type::TextureCube:
+			desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+			desc.ArraySize = 6;
+			break;
+		default:
+			FORGE_FATAL( "Unknown type" );
+		}
+
 		FORGE_ASSURE( device.GetDevice()->CreateTexture2D( &desc, nullptr, &m_texture ) == S_OK );
 
-		CreateViewsIfRequired( FlagsToD3D11Flags( flags ), FormatToD3D11Format( format ) );
+		CreateViewsIfRequired( FlagsToD3D11Flags( flags ), FormatToD3D11Format( srvFormat ) );
 	}
 
 	D3D11Texture::~D3D11Texture()

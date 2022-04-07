@@ -49,10 +49,16 @@ renderer::ForwardRenderingPass::ForwardRenderingPass( IRenderer& renderer )
 		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ONE } );
 }
 
-void renderer::ForwardRenderingPass::Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
+renderer::ForwardRenderingPass::~ForwardRenderingPass() = default;
+
+void renderer::ForwardRenderingPass::Draw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
 {
-	std::vector< renderer::IRenderTargetView* > views{ GetTargetTexture()->GetRenderTargetView() };
-	GetRenderer().SetRenderTargets( views, GetDepthStencilBuffer() );
+	AdjustViewportSize();
+
+	UpdateCameraConstantBuffer( camera );
+
+	std::vector< renderer::IRenderTargetView* > views{ GetTargetTexture() ? GetTargetTexture()->GetRenderTargetView() : nullptr };
+	GetRenderer().SetRenderTargets( views, &GetDepthStencilView() );
 
 	StaticConstantBuffer< CBForwardRendering >* cbRendering = static_cast<StaticConstantBuffer< CBForwardRendering >*>( m_cbForwardRendering.get() );
 	const ShaderDefine* shaderDefine = nullptr;
@@ -79,10 +85,12 @@ void renderer::ForwardRenderingPass::Draw( const renderer::IRawRenderablesPack& 
 
 			for( const auto& light : lightingData->m_pointLights )
 			{
-				cbLighting->GetData().LightingData = light;
+				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
-				GetRenderer().Draw( rawRenderables, &c_pointLightDefine );
+				IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
+
+				GetRenderer().Draw( rawRenderables, &c_pointLightDefine, { shadowMapSrv } );
 			}
 		}
 
@@ -93,10 +101,12 @@ void renderer::ForwardRenderingPass::Draw( const renderer::IRawRenderablesPack& 
 
 			for( const auto& light : lightingData->m_spotLights )
 			{
-				cbLighting->GetData().LightingData = light;
+				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
-				GetRenderer().Draw( rawRenderables, &c_spotLightDefine );
+				IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
+
+				GetRenderer().Draw( rawRenderables, &c_spotLightDefine, { shadowMapSrv } );
 			}
 		}
 
@@ -107,7 +117,7 @@ void renderer::ForwardRenderingPass::Draw( const renderer::IRawRenderablesPack& 
 
 			for( const auto& light : lightingData->m_directionalLights )
 			{
-				cbLighting->GetData().LightingData = light;
+				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
 				GetRenderer().Draw( rawRenderables, &c_directionalLightDefine );

@@ -2,20 +2,6 @@
 
 namespace renderer
 {
-	struct cbMesh
-	{
-		Matrix W = Matrix( Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS() );
-	};
-
-	struct cbCamera
-	{
-		Matrix VP = Matrix( Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS() );
-		Vector3 CameraPosition;
-		Float ProjectionA;
-		Vector3 CameraDirection;
-		Float ProjectionB;
-	};
-
 	class IConstantBufferImpl
 	{
 	public:

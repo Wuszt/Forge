@@ -14,9 +14,9 @@ namespace renderer
 	class DeferredRenderingPass : public IMeshesRenderingPass
 	{
 	public:
-		DeferredRenderingPass( IRenderer& renderer, std::function< const forge::ICamera&() > activeCameraGetter );
+		DeferredRenderingPass( IRenderer& renderer );
 
-		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) override;
+		virtual void Draw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) override;
 		virtual void ClearTargetTexture() override;
 		virtual void SetTargetTexture( ITexture& targetTexture ) override;
 		virtual void OnTargetTextureResized( const Vector2& size ) override;
@@ -37,7 +37,6 @@ namespace renderer
 		std::unique_ptr< ITexture > m_normalsTexture;
 		std::unique_ptr< ITexture > m_diffuseTexture;
 		std::unique_ptr< FullScreenRenderingPass > m_lightingPass;
-		std::function< const forge::ICamera&( ) > m_activeCameraGetter;
 
 		std::unique_ptr< IConstantBuffer > m_cbDeferredRendering;
 		std::unique_ptr< IConstantBuffer > m_cbPointLight;

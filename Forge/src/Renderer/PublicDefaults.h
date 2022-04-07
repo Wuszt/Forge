@@ -9,6 +9,7 @@
 #include "IVertexBuffer.h"
 #include "IVertexShader.h"
 #include "IDepthStencilBuffer.h"
+#include "IDepthStencilView.h"
 #include "PerspectiveCamera.h"
 #include "Model.h"
 #include "Material.h"

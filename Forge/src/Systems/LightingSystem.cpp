@@ -1,6 +1,11 @@
 #include "Fpch.h"
 #include "LightingSystem.h"
 #include "../Renderer/IRenderingPass.h"
+#include "RenderingSystem.h"
+#include "EngineInstance.h"
+#include "../Renderer/IRenderer.h"
+#include "../Renderer/PerspectiveCamera.h"
+#include "../renderer/IDepthStencilBuffer.h"
 
 #ifdef FORGE_IMGUI_ENABLED
 #include "../../External/imgui/imgui.h"
@@ -18,6 +23,9 @@ renderer::LightingData systems::LightingSystem::GetLightingData() const
 
 void systems::LightingSystem::Update()
 {
+	const Float shadowMapSize = 1024.0f;
+	Uint32 shadowMapsResolution = static_cast< Uint32 >( shadowMapSize * m_shadowsResolutionScale );
+
 	{
 		m_pointsLightsData.clear();
 		for( auto archetype : GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( PointLightArchetypeType() ) )
@@ -27,7 +35,11 @@ void systems::LightingSystem::Update()
 
 			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
 			{
-				m_pointsLightsData.emplace_back( transformComponents[ i ].m_transform.GetPosition3(), lightsData[ i ].m_power, lightsData[ i ].m_color );
+				auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution, true );
+
+				renderer::PerspectiveCamera camera( 1.0f, FORGE_PI_HALF, 1.0f, 1000.0f);
+				camera.SetPosition( transformComponents[ i ].m_transform.GetPosition3() );
+				m_pointsLightsData.push_back( { renderer::PointLightData{ camera.GetProjectionMatrix(), transformComponents[ i ].m_transform.GetPosition3(), lightsData[ i ].m_power, lightsData[ i ].m_color }, std::move( shadowMap ) } );
 			}
 		}
 	}
@@ -41,8 +53,14 @@ void systems::LightingSystem::Update()
 
 			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
 			{
-				m_spotLightsData.emplace_back( transformComponents[ i ].m_transform.GetPosition3(), transformComponents[ i ].m_transform.GetForward(),
-					lightsData[ i ].m_innerAngle, lightsData[ i ].m_outerAngle, lightsData[ i ].m_power, lightsData[ i ].m_color );
+				auto camera = renderer::PerspectiveCamera( 1.0f, lightsData[ i ].m_outerAngle * 2.0f, 1.0f, 1000.0f );
+				camera.SetPosition( transformComponents[ i ].m_transform.GetPosition3() );
+				camera.SetOrientation( Quaternion::CreateFromDirection( transformComponents[ i ].m_transform.GetForward() ) );
+
+				auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution );
+
+				m_spotLightsData.push_back( { renderer::SpotLightData{ transformComponents[ i ].m_transform.GetPosition3(), transformComponents[ i ].m_transform.GetForward(),
+					lightsData[ i ].m_innerAngle, lightsData[ i ].m_outerAngle, lightsData[ i ].m_power, lightsData[ i ].m_color, camera.GetViewProjectionMatrix() }, std::move( shadowMap ) } );
 			}
 		}
 	}
@@ -55,7 +73,7 @@ void systems::LightingSystem::Update()
 
 			for( const auto& light : lightsData )
 			{
-				m_directionalLightsData.emplace_back( light );
+				m_directionalLightsData.push_back( { renderer::DirectionalLightData{ light } } );
 			}
 		}
 	}
@@ -67,6 +85,18 @@ void systems::LightingSystem::OnRenderDebug()
 {
 	if( ImGui::Begin( "LightingDebug" ) )
 	{
+		{
+			Int32 scale = static_cast<Int32>( m_shadowsResolutionScale * 100.0f );
+			if( ImGui::SliderInt( "##ResolutionScale", &scale, 1, 800, "Resolution Scale: %d%%" ) )
+			{
+				m_shadowsResolutionScale = static_cast<Float>( scale ) * 0.01f;
+			}
+		}
+
+		{
+			ImGui::ColorEdit3( "Ambient Color", m_ambientColor.AsArray(), ImGuiColorEditFlags_NoInputs );
+		}
+
 		if( ImGui::TreeNodeEx( "Point Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
 			const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( PointLightArchetypeType() );
@@ -103,7 +133,7 @@ void systems::LightingSystem::OnRenderDebug()
 						ImGui::ColorEdit3( "Color", lightsData[ i ].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
 						ImGui::SliderFloat( "Power", &lightsData[ i ].m_power, 0.0f, 10000.0f );
 						ImGui::SliderFloat( "Inner Angle", &lightsData[ i ].m_innerAngle, 0.0f, lightsData[ i ].m_outerAngle - 0.01f );
-						ImGui::SliderFloat( "Outer Angle", &lightsData[ i ].m_outerAngle, 0.0f, FORGE_PI );
+						ImGui::SliderFloat( "Outer Angle", &lightsData[ i ].m_outerAngle, 0.0f, FORGE_PI_HALF );
 
 						Float size = 20.0f;
 						Float extent = 30.0f;
@@ -122,7 +152,25 @@ void systems::LightingSystem::OnRenderDebug()
 			ImGui::TreePop();
 		}
 
-		ImGui::End();
+		if( ImGui::TreeNodeEx( "Directional Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
+		{
+			const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( DirectionalLightArchetypeType() );
+			for( systems::Archetype* archetype : archetypes )
+			{
+				const forge::DataPackage< forge::TransformComponentData >& transforms = archetype->GetData< forge::TransformComponentData >();
+				forge::DataPackage< forge::DirectionalLightComponentData >& lightsData = archetype->GetData< forge::DirectionalLightComponentData >();
+				for( Uint32 i = 0; i < transforms.GetDataSize(); ++i )
+				{
+					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
+					{
+						ImGui::ColorEdit3( "Color", lightsData[ i ].Color.AsArray(), ImGuiColorEditFlags_NoInputs );
+						ImGui::TreePop();
+					}
+				}
+			}
+			ImGui::TreePop();
+		}
 	}
+	ImGui::End();
 }
 #endif

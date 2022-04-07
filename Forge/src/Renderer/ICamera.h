@@ -1,6 +1,6 @@
 #pragma once
 
-namespace forge
+namespace renderer
 {
 	class ICamera
 	{
@@ -8,7 +8,8 @@ namespace forge
 		enum class Type
 		{
 			Perspective,
-			Orthographic
+			Orthographic,
+			Custom
 		};
 
 		virtual ~ICamera() {}

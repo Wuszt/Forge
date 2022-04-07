@@ -33,8 +33,10 @@ namespace renderer
 		return static_cast<Uint32>( result );
 	}
 
-	std::shared_ptr< ShaderPack< IVertexShader > > IShadersManager::GetVertexShader( const std::string& path, std::vector< ShaderDefine > defines )
+	std::shared_ptr< ShaderPack< IVertexShader > > IShadersManager::GetVertexShader( const std::string& path, std::vector< ShaderDefine > defines, Bool withSubshaders )
 	{
+		FORGE_ASSERT( !withSubshaders || std::count_if( m_baseShaderDefines.begin(), m_baseShaderDefines.end(), [ &defines ]( const ShaderDefine& define ) { return std::count( defines.begin(), defines.end(), define ) > 0u; } ) == 0u );
+
 		Uint32 shaderHash = CalcShaderHash( path, defines );
 		auto& shaderPack = m_vertexShaders[ shaderHash ];
 
@@ -43,21 +45,25 @@ namespace renderer
 			std::shared_ptr< IVertexShader > mainShader = CreateVertexShader( path, defines );
 
 			std::unordered_map< ShaderDefine, std::shared_ptr< IVertexShader > > subShaders;
-
-			defines.emplace_back();
-			for( auto baseShaderDefine : m_baseShaderDefines )
+			if( withSubshaders )
 			{
-				*defines.rbegin() = baseShaderDefine;
-				subShaders.emplace( baseShaderDefine, CreateVertexShader( path, defines ) );
+				defines.emplace_back();
+				for( auto baseShaderDefine : m_baseShaderDefines )
+				{
+					*defines.rbegin() = baseShaderDefine;
+					subShaders.emplace( baseShaderDefine, CreateVertexShader( path, defines ) );
+				}
 			}
 
 			shaderPack = std::make_shared< ShaderPack< IVertexShader > >( mainShader, std::move( subShaders ) );
 		}
 
+		FORGE_ASSERT( shaderPack->GetSubShaders().empty() || withSubshaders );
+
 		return shaderPack;
 	}
 
-	std::shared_ptr< ShaderPack< IPixelShader > > IShadersManager::GetPixelShader( const std::string& path, std::vector< ShaderDefine > defines )
+	std::shared_ptr< ShaderPack< IPixelShader > > IShadersManager::GetPixelShader( const std::string& path, std::vector< ShaderDefine > defines, Bool withSubshaders )
 	{
 		Uint32 shaderHash = CalcShaderHash( path, defines );
 		auto& shaderPack = m_pixelShaders[ shaderHash ];
@@ -67,16 +73,20 @@ namespace renderer
 			std::shared_ptr< IPixelShader > mainShader = CreatePixelShader( path, defines );
 
 			std::unordered_map< ShaderDefine, std::shared_ptr< IPixelShader > > subShaders;
-			
-			defines.emplace_back();
-			for( auto baseShaderDefine : m_baseShaderDefines )
+			if( withSubshaders )
 			{
-				*defines.rbegin() = baseShaderDefine;
-				subShaders.emplace( baseShaderDefine, CreatePixelShader( path, defines ) );
+				defines.emplace_back();
+				for( auto baseShaderDefine : m_baseShaderDefines )
+				{
+					*defines.rbegin() = baseShaderDefine;
+					subShaders.emplace( baseShaderDefine, CreatePixelShader( path, defines ) );
+				}
 			}
 
 			shaderPack = std::make_shared< ShaderPack< IPixelShader > >( mainShader, std::move( subShaders ) );
 		}
+
+		FORGE_ASSERT( shaderPack->GetSubShaders().empty() || withSubshaders );
 
 		return shaderPack;
 	}

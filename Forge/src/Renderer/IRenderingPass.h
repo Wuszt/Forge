@@ -10,6 +10,23 @@ namespace renderer
 	struct ShaderDefine;
 	class ITexture;
 	class IDepthStencilBuffer;
+	class IDepthStencilView;
+	class ICamera;
+
+	template< class T >
+	struct LightData;
+
+	template< class T >
+	class StaticConstantBuffer;
+
+	struct CBCamera
+	{
+		Matrix VP = Matrix( Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS(), Vector4::ZEROS() );
+		Vector3 CameraPosition;
+		Float ProjectionA;
+		Vector3 CameraDirection;
+		Float ProjectionB;
+	};
 
 	class IRenderingPass
 	{
@@ -43,31 +60,40 @@ namespace renderer
 	struct LightingData
 	{
 		Vector3 m_ambientLight;
-		forge::ArraySpan< const PointLightData > m_pointLights;
-		forge::ArraySpan< const SpotLightData > m_spotLights;
-		forge::ArraySpan< const DirectionalLightData > m_directionalLights;
+		forge::ArraySpan< const LightData< PointLightData > > m_pointLights;
+		forge::ArraySpan< const LightData< SpotLightData > > m_spotLights;
+		forge::ArraySpan< const LightData< DirectionalLightData > > m_directionalLights;
 	};
 
 	class IMeshesRenderingPass : public IRenderingPass
 	{
 	public:
-		using IRenderingPass::IRenderingPass;
+		IMeshesRenderingPass( IRenderer& renderer );
 
-		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) = 0;
+		virtual void Draw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) = 0;
 		virtual void ClearTargetTexture() override;
 
-		FORGE_INLINE void SetDepthStencilBuffer( IDepthStencilBuffer* depthStencilBuffer )
+		FORGE_INLINE void SetDepthStencilBuffer( IDepthStencilBuffer* depthStencilBuffer, Uint32 dsvIndex = 0u )
 		{
+			m_dsvIndex = dsvIndex;
 			m_depthStencilBuffer = depthStencilBuffer;
 		}
 
-		FORGE_INLINE IDepthStencilBuffer* GetDepthStencilBuffer()
+		FORGE_INLINE IDepthStencilBuffer* GetDepthStencilBuffer() const
 		{
 			return m_depthStencilBuffer;
 		}
 
+	protected:
+		IDepthStencilView& GetDepthStencilView() const;
+
+		void AdjustViewportSize();
+		void UpdateCameraConstantBuffer( const renderer::ICamera& camera );
+
 	private:
+		Uint32 m_dsvIndex = 0u;
 		IDepthStencilBuffer* m_depthStencilBuffer = nullptr;
+		std::unique_ptr< renderer::StaticConstantBuffer< CBCamera > > m_cameraCB;
 	};
 }
 

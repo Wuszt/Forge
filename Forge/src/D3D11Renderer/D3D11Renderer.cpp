@@ -8,6 +8,7 @@
 #include "D3D11SamplerState.h"
 #include "D3D11BlendState.h"
 #include "D3D11DepthStencilState.h"
+#include "D3D11DepthStencilView.h"
 
 namespace d3d11
 {
@@ -104,9 +105,9 @@ namespace d3d11
 		return std::make_unique< D3D11IndexBuffer >( GetContext(), *GetDevice(), indices, amount );
 	}
 
-	std::unique_ptr< renderer::ITexture > D3D11Renderer::CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Format srvFormat /*= renderer::ITexture::Format::Unknown */ ) const
+	std::unique_ptr< renderer::ITexture > D3D11Renderer::CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Type type, renderer::ITexture::Format srvFormat /*= renderer::ITexture::Format::Unknown */ ) const
 	{
-		return std::make_unique< D3D11Texture >( *GetDevice(), *GetContext(), width, height, flags, format, srvFormat );
+		return std::make_unique< D3D11Texture >( *GetDevice(), *GetContext(), width, height, flags, format, type, srvFormat );
 	}
 
 	std::unique_ptr< renderer::IBlendState > D3D11Renderer::CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc ) const
@@ -114,9 +115,9 @@ namespace d3d11
 		return std::make_unique< d3d11::D3D11BlendState >( *GetDevice(), *GetContext(), rgbOperation, alphaDesc );
 	}
 
-	std::unique_ptr< renderer::IDepthStencilBuffer > D3D11Renderer::CreateDepthStencilBuffer( Uint32 width, Uint32 height ) const
+	std::unique_ptr< renderer::IDepthStencilBuffer > D3D11Renderer::CreateDepthStencilBuffer( Uint32 width, Uint32 height, Bool cubeTexture ) const
 	{
-		return std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), width, height );
+		return std::make_unique< D3D11DepthStencilBuffer >( *GetDevice(), *GetContext(), width, height, cubeTexture );
 	}
 
 	std::unique_ptr< renderer::IDepthStencilState > D3D11Renderer::CreateDepthStencilState( renderer::DepthStencilComparisonFunc comparisonFunc ) const
@@ -124,13 +125,13 @@ namespace d3d11
 		return std::make_unique< d3d11::D3D11DepthStencilState >( *GetDevice(), *GetContext(), comparisonFunc );
 	}
 
-	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer )
+	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilView* depthStencilView )
 	{
-		FORGE_ASSERT( depthStencilBuffer == nullptr || dynamic_cast<D3D11DepthStencilBuffer*>( depthStencilBuffer ) );
-		SetRenderTargets( rendererTargetViews, static_cast<D3D11DepthStencilBuffer*>( depthStencilBuffer ) );
+		FORGE_ASSERT( depthStencilView == nullptr || dynamic_cast<D3D11DepthStencilView*>( depthStencilView ) );
+		SetRenderTargets( rendererTargetViews, static_cast<D3D11DepthStencilView*>( depthStencilView ) );
 	}
 
-	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer )
+	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilView* depthStencilView )
 	{
 		std::vector< ID3D11RenderTargetView* > views;
 		views.reserve( rendererTargetViews.GetSize() );
@@ -141,12 +142,14 @@ namespace d3d11
 			views.emplace_back( target ? static_cast< const D3D11RenderTargetView* >( target )->GetRenderTargetView() : nullptr );
 		}
 
-		m_context->GetDeviceContext()->OMSetRenderTargets( static_cast<Uint32>( views.size() ), views.data(), depthStencilBuffer ? depthStencilBuffer->GetView() : nullptr );
+		D3D11DepthStencilView* dsv = static_cast< D3D11DepthStencilView* >( depthStencilView );
+
+		m_context->GetDeviceContext()->OMSetRenderTargets( static_cast<Uint32>( views.size() ), views.data(), dsv ? &dsv->GetView() : nullptr );
 	}
 
-	std::unique_ptr< renderer::ISamplerState > D3D11Renderer::CreateSamplerState( renderer::SamplerStateFilterType filterType )
+	std::unique_ptr< renderer::ISamplerState > D3D11Renderer::CreateSamplerState( renderer::SamplerStateFilterType filterType, renderer::SamplerStateComparisonType comparisonType )
 	{
-		return std::make_unique< d3d11::D3D11SamplerState >( *GetDevice(), filterType );
+		return std::make_unique< d3d11::D3D11SamplerState >( *GetDevice(), filterType, comparisonType );
 	}
 
 	void D3D11Renderer::SetSamplerStates( const forge::ArraySpan< renderer::ISamplerState* > samplerStates )
@@ -163,7 +166,7 @@ namespace d3d11
 		GetContext()->GetDeviceContext()->PSSetSamplers( 0u, static_cast< Uint32 >( rawStates.size() ), rawStates.data() );
 	}
 
-	void D3D11Renderer::SetShaderResourceViews( const forge::ArraySpan< renderer::IShaderResourceView* >& input )
+	void D3D11Renderer::SetShaderResourceViews( const forge::ArraySpan< renderer::IShaderResourceView* >& input, Uint32 startIndex )
 	{
 		std::vector< ID3D11ShaderResourceView* > srvs;
 		srvs.reserve( input.GetSize() );
@@ -174,8 +177,8 @@ namespace d3d11
 			srvs.emplace_back( static_cast< const D3D11ShaderResourceView* >( srv )->GetTypedSRV() );
 		}
 
-		GetContext()->GetDeviceContext()->VSSetShaderResources( 0, static_cast<Uint32>( srvs.size() ), srvs.data() );
-		GetContext()->GetDeviceContext()->PSSetShaderResources( 0, static_cast< Uint32 >( srvs.size() ), srvs.data() );
+		GetContext()->GetDeviceContext()->VSSetShaderResources( startIndex, static_cast<Uint32>( srvs.size() ), srvs.data() );
+		GetContext()->GetDeviceContext()->PSSetShaderResources( startIndex, static_cast< Uint32 >( srvs.size() ), srvs.data() );
 	}
 
 	void D3D11Renderer::ClearShaderResourceViews()
@@ -308,7 +311,7 @@ namespace d3d11
 		return std::make_unique< renderer::RawRenderablesPacks >( std::move( packs ) );
 	}
 
-	void D3D11Renderer::Draw( const renderer::IRawRenderablesPack& rawRenderables, const renderer::ShaderDefine* shaderDefine )
+	void D3D11Renderer::Draw( const renderer::IRawRenderablesPack& rawRenderables, const renderer::ShaderDefine* shaderDefine, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs )
 	{
 		if( rawRenderables.IsEmpty() )
 		{
@@ -317,6 +320,11 @@ namespace d3d11
 
 		auto* context = GetContext()->GetDeviceContext();
 		context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+		if( !additionalSRVs.IsEmpty() )
+		{
+			SetShaderResourceViews( additionalSRVs, D3D11_STANDARD_VERTEX_ELEMENT_COUNT - additionalSRVs.GetSize() ); //todo: this is shit, srvs should be next to each other
+		}
 
 		const RawRenderablesPack& renderables = static_cast< const RawRenderablesPack& >( rawRenderables );
 

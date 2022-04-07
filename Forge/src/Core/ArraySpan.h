@@ -50,6 +50,11 @@ namespace forge
 			return static_cast< Uint32 >( m_end - m_begin );
 		}
 
+		FORGE_INLINE Bool IsEmpty() const
+		{
+			return m_begin == m_end;
+		}
+
 		FORGE_INLINE T* begin()
 		{
 			return m_begin;

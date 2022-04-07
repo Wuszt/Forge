@@ -19,8 +19,8 @@ namespace renderer
 			return m_baseShaderDefines;
 		}
 
-		std::shared_ptr< ShaderPack< IVertexShader > > GetVertexShader( const std::string& path, std::vector< ShaderDefine > defines );
-		std::shared_ptr< ShaderPack< IPixelShader > > GetPixelShader( const std::string& path, std::vector< ShaderDefine > defines );
+		std::shared_ptr< ShaderPack< IVertexShader > > GetVertexShader( const std::string& path, std::vector< ShaderDefine > defines, Bool withSubshaders );
+		std::shared_ptr< ShaderPack< IPixelShader > > GetPixelShader( const std::string& path, std::vector< ShaderDefine > defines, Bool withSubshaders );
 
 		void ClearCache();
 

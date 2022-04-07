@@ -12,7 +12,7 @@ namespace renderer
 		FullScreenRenderingPass( IRenderer& renderer, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines );
 		FullScreenRenderingPass( IRenderer& renderer, const std::string& fullscreenVSPath, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines );
 
-		void Draw( std::vector< IShaderResourceView* > input );
+		void Draw( forge::ArraySpan< IShaderResourceView* > input );
 
 		FORGE_INLINE void SetShaderDefines( forge::ArraySpan< renderer::ShaderDefine > shaderDefines )
 		{
@@ -30,6 +30,8 @@ namespace renderer
 		}
 
 	private:
+		void AdjustViewportSize();
+
 		std::string m_vertexShaderName;;
 		std::string m_pixelShaderName;
 		std::vector< renderer::ShaderDefine > m_shaderDefines;

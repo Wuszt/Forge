@@ -7,6 +7,7 @@
 #include "LightingSystem.h"
 #include "../Renderer/ForwardRenderingPass.h"
 #include "../Renderer/DeferredRenderingPass.h"
+#include "../Renderer/IDepthStencilBuffer.h"
 #include "../Renderer/IDepthStencilState.h"
 #include "../Core/IWindow.h"
 #include "../Renderer/FullScreenRenderingPass.h"
@@ -15,6 +16,7 @@
 #include "../../External/imgui/imgui.h"
 #include "../Renderer/ICamera.h"
 #endif
+#include "../Renderer/ShadowMapsGenerator.h"
 
 systems::RenderingSystem::RenderingSystem( forge::EngineInstance& engineInstance )
 	: ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >( engineInstance )
@@ -31,16 +33,29 @@ void systems::RenderingSystem::OnInitialize()
 	m_renderer = &GetEngineInstance().GetRenderer();
 	m_camerasSystem = &GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >();
 	m_depthStencilBuffer = m_renderer->CreateDepthStencilBuffer( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight() );
+	m_shadowMapsGenerator = std::make_unique<renderer::ShadowMapsGenerator>( *m_renderer );
+
+	{
+		m_samplerStates.emplace_back( m_renderer->CreateSamplerState( renderer::SamplerStateFilterType::MIN_MAG_MIP_LINEAR, renderer::SamplerStateComparisonType::ALWAYS ) );
+		m_samplerStates.emplace_back( m_renderer->CreateSamplerState( renderer::SamplerStateFilterType::COMPARISON_MIN_MAG_LINEAR_MIP_POINT, renderer::SamplerStateComparisonType::LESS ) );
+
+		std::vector< renderer::ISamplerState* > samplerStates;
+		for( auto& samplerState : m_samplerStates )
+		{
+			samplerStates.emplace_back( samplerState.get() );
+		}
+
+		m_renderer->SetSamplerStates( samplerStates );
+	}
 
 	m_beforeDrawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::RenderingSystem::OnBeforeDraw, this ) );
 	m_drawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::RenderingSystem::OnDraw, this ) );
 	m_presentToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Present, std::bind( &systems::RenderingSystem::OnPresent, this ) );
-	m_cameraCB = m_renderer->CreateStaticConstantBuffer< renderer::cbCamera >();
 	m_rawRenderablesPacks = m_renderer->CreateRawRenderablesPackage( {} );
 
 	m_targetTexture = m_renderer->CreateTexture( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight(), 
 		renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
-		renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Format::R8G8B8A8_UNORM );
+		renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
 
 	SetRenderingMode( RenderingMode::Deferred );
 
@@ -158,7 +173,7 @@ void systems::RenderingSystem::OnRenderDebug()
 				}
 
 				{
-					const forge::ICamera& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
+					const renderer::ICamera& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
 					Float maxValue = currentCamera.GetFarPlane() - currentCamera.GetNearPlane();
 					m_depthBufferDenominator = Math::Min( m_depthBufferDenominator, maxValue );
 					ImGui::SliderFloat( "Denominator", &m_depthBufferDenominator, maxValue * 0.1f, maxValue );
@@ -176,7 +191,7 @@ void systems::RenderingSystem::OnRenderDebug()
 
 					m_temporaryTexture = m_renderer->CreateTexture( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight(),
 						renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
-						renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Format::R8G8B8A8_UNORM );
+						renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
 
 					renderer::FullScreenRenderingPass fsPass( *m_renderer, "DepthBufferDebug.fx", {} );
 					fsPass.SetTargetTexture( *m_temporaryTexture );
@@ -189,9 +204,8 @@ void systems::RenderingSystem::OnRenderDebug()
 
 			ImGui::EndTabBar();
 		}
-
-		ImGui::End();
 	}
+	ImGui::End();
 }
 
 #endif
@@ -202,7 +216,7 @@ void systems::RenderingSystem::SetRenderingMode( RenderingMode renderingMode )
 	switch( renderingMode )
 	{
 	case RenderingMode::Deferred:
-		m_opaqueRenderingPass = std::make_unique< renderer::DeferredRenderingPass >( *m_renderer, [ cameraSystem = m_camerasSystem ]() -> decltype( auto ) { return cameraSystem->GetActiveCamera()->GetCamera(); } );
+		m_opaqueRenderingPass = std::make_unique< renderer::DeferredRenderingPass >( *m_renderer );
 		break;
 	case RenderingMode::Forward:
 		m_opaqueRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
@@ -242,10 +256,6 @@ void systems::RenderingSystem::OnBeforeDraw()
 void systems::RenderingSystem::OnDraw()
 {
 	PC_SCOPE_FUNC();
-	m_renderer->SetViewportSize( GetRenderingResolution() );
-
-	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData >() );
-
 	auto* activeCamera = m_camerasSystem->GetActiveCamera();
 
 	if( !activeCamera )
@@ -253,15 +263,7 @@ void systems::RenderingSystem::OnDraw()
 		return;
 	}
 
-	m_cameraCB->GetData().VP = activeCamera->GetCamera().GetViewProjectionMatrix();
-	m_cameraCB->GetData().CameraPosition = activeCamera->GetCamera().GetPosition();
-	m_cameraCB->GetData().CameraDirection = activeCamera->GetCamera().GetOrientation() * Vector3::EY();
-	m_cameraCB->GetData().ProjectionA = activeCamera->GetCamera().GetProjectionMatrix()[ 1 ][ 2 ];
-	m_cameraCB->GetData().ProjectionB = activeCamera->GetCamera().GetProjectionMatrix()[ 3 ][ 2 ];
-	m_cameraCB->UpdateBuffer();
-	m_cameraCB->SetVS( renderer::VSConstantBufferType::Camera );
-	m_cameraCB->SetPS( renderer::PSConstantBufferType::Camera );
-
+	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData >() );
 	std::vector< const renderer::Renderable* > renderables;
 	for( systems::Archetype* archetype : archetypes )
 	{
@@ -299,8 +301,10 @@ void systems::RenderingSystem::OnDraw()
 
 	auto& lightingSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::LightingSystem >();
 	renderer::LightingData lightingData = lightingSystem.GetLightingData();
-	m_opaqueRenderingPass->Draw( m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Opaque ), &lightingData );
-	m_overlayRenderingPass->Draw( m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Overlay ), nullptr );
+	m_shadowMapsGenerator->GenerateShadowMaps( *m_rawRenderablesPacks, lightingData );
+
+	m_opaqueRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Opaque ), &lightingData );
+	m_overlayRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Overlay ), nullptr );
 
 	m_renderer->SetViewportSize( Vector2( static_cast< Float >( GetEngineInstance().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetWindow().GetHeight() ) ) );
 	renderer::FullScreenRenderingPass copyResourcePass( *m_renderer, "CopyTexture.fx", {} );
@@ -311,21 +315,4 @@ void systems::RenderingSystem::OnDraw()
 void systems::RenderingSystem::OnPresent()
 {
 	m_renderer->GetSwapchain()->Present();
-}
-
-void systems::RenderingSystem::SetSamplers( const forge::ArraySpan< const renderer::SamplerStateFilterType >& filterTypes )
-{
-	std::vector< renderer::ISamplerState* > samplerStates;
-	for( auto filterType : filterTypes )
-	{
-		auto it = m_samplerStates.find( filterType );
-		if( it == m_samplerStates.end() )
-		{
-			it = m_samplerStates.emplace( filterType, m_renderer->CreateSamplerState( filterType ) ).first;
-		}
-
-		samplerStates.push_back( it->second.get() );
-	}
-
-	m_renderer->SetSamplerStates( samplerStates );
 }

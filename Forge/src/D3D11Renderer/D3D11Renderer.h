@@ -63,17 +63,17 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::IInputLayout > CreateInputLayout( const renderer::IVertexShader& vertexShader, const renderer::IVertexBuffer& vertexBuffer ) const override;
 		virtual std::unique_ptr< renderer::IVertexBuffer > CreateVertexBuffer( const renderer::Vertices& vertices ) const override;
 		virtual std::unique_ptr< renderer::IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const override;
-		virtual std::unique_ptr< renderer::ITexture > CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Format srvFormat = renderer::ITexture::Format::Unknown ) const override;
+		virtual std::unique_ptr< renderer::ITexture > CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Type type, renderer::ITexture::Format srvFormat = renderer::ITexture::Format::Unknown ) const override;
 		virtual std::unique_ptr< renderer::IBlendState > CreateBlendState( const renderer::BlendOperationDesc& rgbOperation, const renderer::BlendOperationDesc& alphaDesc ) const override;
-		virtual std::unique_ptr< renderer::IDepthStencilBuffer > CreateDepthStencilBuffer( Uint32 width, Uint32 height ) const override;
+		virtual std::unique_ptr< renderer::IDepthStencilBuffer > CreateDepthStencilBuffer( Uint32 width, Uint32 height, Bool cubeTexture = false ) const override;
 		virtual std::unique_ptr< renderer::IDepthStencilState > CreateDepthStencilState( renderer::DepthStencilComparisonFunc comparisonFunc ) const override;
 
-		virtual void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilBuffer* depthStencilBuffer ) override;
+		virtual void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilView* depthStencilView ) override;
 
-		virtual std::unique_ptr< renderer::ISamplerState > CreateSamplerState( renderer::SamplerStateFilterType filterType ) override;
+		virtual std::unique_ptr< renderer::ISamplerState > CreateSamplerState( renderer::SamplerStateFilterType filterType, renderer::SamplerStateComparisonType comparisonType ) override;
 		virtual void SetSamplerStates( const forge::ArraySpan< renderer::ISamplerState* > samplerStates ) override;
 
-		virtual void SetShaderResourceViews( const forge::ArraySpan< renderer::IShaderResourceView* >& input ) override;
+		virtual void SetShaderResourceViews( const forge::ArraySpan< renderer::IShaderResourceView* >& input, Uint32 startIndex = 0u ) override;
 		virtual void ClearShaderResourceViews() override;
 
 		virtual void OnBeforeDraw() override;
@@ -82,7 +82,7 @@ namespace d3d11
 
 		virtual std::unique_ptr< renderer::RawRenderablesPacks > CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* >& renderables ) const override;
 
-		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const renderer::ShaderDefine* shaderDefine = nullptr ) override;
+		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) override;
 		virtual void DrawRawVertices( Uint32 amount ) override;
 
 		FORGE_INLINE virtual renderer::RendererType GetType() const override
@@ -95,7 +95,7 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::ITexturesLoader > CreateTexturesLoader() const override;
 
 	private:
-		void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilBuffer* depthStencilBuffer );
+		void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilView* depthStencilView );
 		void InitializeSwapChainAndContext( const windows::WindowsWindow& window, Uint32 renderingResolutionWidth, Uint32 renderingResolutionHeight );
 		void InitializeRasterizer();
 

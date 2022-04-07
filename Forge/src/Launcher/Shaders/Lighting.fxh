@@ -8,6 +8,8 @@ struct PointLightData
     float3 Position;
     float Power;
     float3 Color;
+    float ProjectionA;
+    float ProjectionB;
 };
 
 struct SpotLightData
@@ -18,6 +20,7 @@ struct SpotLightData
     float OuterAngle;  
     float3 Color;
     float Power;
+    float4x4 VP;
 };
 
 struct DirectionalLightData
@@ -97,4 +100,24 @@ float3 CalcSpotLight(float3 surfPos, float3 surfNormal, SpotLightData lightingDa
     
     return CalculateBlinnPhong(toLight, surfPos, surfNormal) * attn;
 }
+
+float CalcShadowMultiplierFromTexture(float3 surfPos, SpotLightData lightData, Texture2D shadowMap)
+{
+    float4 lightPerspectivePos = mul(lightData.VP, float4(surfPos, 1));
+    lightPerspectivePos.xyz /= lightPerspectivePos.w;
+    lightPerspectivePos.xy = float2((lightPerspectivePos.x + 1.0f) * 0.5f, 1.0f - (lightPerspectivePos.y + 1.0f) * 0.5f);
+    return shadowMap.SampleCmpLevelZero(ComparisonSamplerState, lightPerspectivePos.xy, lightPerspectivePos.z - 0.0001f);
+}
+
+float CalcShadowMultiplierFromCube(float3 surfPos, PointLightData lightData, TextureCube shadowMap)
+{    
+    float3 toPixel = surfPos - lightData.Position;
+    float3 toPixelAbs = abs(toPixel);
+    float z = max(toPixelAbs.x, max(toPixelAbs.y, toPixelAbs.z));
+    
+    float depth = (lightData.ProjectionA * z + lightData.ProjectionB) / z;
+    
+    return shadowMap.SampleCmpLevelZero(ComparisonSamplerState, toPixel.xzy, depth - 0.00001f);
+}
+
 #endif // __LIGHTING_HEADER__

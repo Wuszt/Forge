@@ -29,6 +29,13 @@ struct Quaternion
 	FORGE_INLINE static Quaternion J() { return Quaternion( 0.0f, 1.0f, 0.0f, 0.0f ); }
 	FORGE_INLINE static Quaternion K() { return Quaternion( 0.0f, 0.0f, 1.0f, 0.0f ); }
 
+	static Quaternion GetRotationBetweenVectors( const Vector3& first, const Vector3& second, const Vector3& up = Vector3::EZ() );
+
+	FORGE_INLINE static Quaternion CreateFromDirection( const Vector3& direction, const Vector3& up = Vector3::EZ() )
+	{
+		return GetRotationBetweenVectors( Vector3::EY(), direction );
+	}
+
 	Vector4 Transform( const Vector4& vec ) const;
 	FORGE_INLINE Vector4 TransformInvert( const Vector4& vec ) const
 	{

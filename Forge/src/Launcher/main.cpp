@@ -69,7 +69,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -1000.0f, 200.0f } );
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -1100.0f, 200.0f } );
 			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 1.0f, 0.0f, 0.0f };
 		} );
 	} );
@@ -90,15 +90,6 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		{
 			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 1100.0f, 200.0f } );
 			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
-		} );
-	} );
-
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
-	{
-		light->RequestAddingComponents< forge::DirectionalLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
-		{
-			light->GetComponent< forge::DirectionalLightComponent >()->GetData().m_color = { 0.25f, 0.1f, 0.0f };
-			light->GetComponent< forge::DirectionalLightComponent >()->GetData().m_direction = Vector3( 1.0f, 0.0f, 0.0f ).Normalized();
 		} );
 	} );
 }
@@ -145,11 +136,12 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 
 	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
 	{
-		light->RequestAddingComponents< forge::TransformComponent, forge::SpotLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 100.0f, 0.0f, 200.0f } );
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, FORGE_PI_HALF * 0.5f ).Normalized() );
-			light->GetComponent< forge::SpotLightComponent >()->GetData().m_color = { 1.0f, 1.0f, 0.0f };
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -450.0f, 300.0f } );
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion::CreateFromDirection( { 0.0f, 0.96, -0.26f } ) );
+			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 1.0f, 1.0f, 0.0f };
+			light->GetComponent< forge::PointLightComponent >()->GetData().m_power = 4000.0f;
 		} );
 	} );
 }
@@ -215,7 +207,6 @@ Int32 main()
 
 			engineInstance.GetSystemsManager().Boot( ctx );
 
-			engineInstance.GetSystemsManager().GetSystem< systems::RenderingSystem >().SetSamplers( { renderer::SamplerStateFilterType::MIN_MAG_MIP_LINEAR } );
 			engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor( { 0.05f, 0.05f, 0.05f } );
 
 			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* player )
@@ -224,7 +215,7 @@ Int32 main()
 				{
 					player->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -400.0f, 200.0f } );
 					auto* cameraComp = player->GetComponent< forge::CameraComponent >();
-					cameraComp->CreateImplementation< forge::PerspectiveCamera >( engineInstancePtr->GetWindow().GetAspectRatio(), FORGE_PI / 3.0f, 1.0f, 10000.0f );
+					cameraComp->CreateImplementation< renderer::PerspectiveCamera >( engineInstancePtr->GetWindow().GetAspectRatio(), FORGE_PI / 3.0f, 1.0f, 10000.0f );
 					auto& camerasSystem = engineInstancePtr->GetSystemsManager().GetSystem< systems::CamerasSystem >();
 					camerasSystem.SetActiveCamera( cameraComp );
 
@@ -233,8 +224,8 @@ Int32 main()
 				} );
 			} );
 
-			//SponzaScene( engineInstance );
-			BunnyScene( engineInstance );
+			SponzaScene( engineInstance );
+			//BunnyScene( engineInstance );
 		}
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override

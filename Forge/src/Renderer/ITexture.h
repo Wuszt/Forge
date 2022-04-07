@@ -7,19 +7,26 @@ namespace renderer
 
 	class ITexture
 	{
-
 	public:
+		enum class Type
+		{
+			Texture2D,
+			TextureCube
+		};
+
 		enum class Format
 		{
 			Unknown,
 			R8G8B8A8_UNORM,
-			R24G8_TYPELESS
+			R24G8_TYPELESS,
+			R24_UNORM_X8_TYPELESS
 		};
 
 		enum class Flags
 		{
 			BIND_RENDER_TARGET = 1 << 0,
-			BIND_SHADER_RESOURCE = 1 << 1,
+			BIND_DEPTH_STENCIL = 1 << 1,
+			BIND_SHADER_RESOURCE = 1 << 2,
 			Last = BIND_SHADER_RESOURCE
 		};
 
@@ -28,6 +35,8 @@ namespace renderer
 		virtual IRenderTargetView* GetRenderTargetView() const = 0;
 		virtual forge::Callback< const Vector2& >& GetOnResizedCallback() = 0;
 		virtual Vector2 GetTextureSize() const = 0;
+		virtual Type GetType() const = 0;
+
 		virtual ~ITexture() = default;
 	};
 

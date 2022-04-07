@@ -1,19 +1,16 @@
 #include "Fpch.h"
 #include "D3D11DepthStencilBuffer.h"
 #include "D3D11Device.h"
+#include "D3D11DepthStencilView.h"
 
 namespace d3d11
 {
-	D3D11DepthStencilBuffer::D3D11DepthStencilBuffer( const D3D11Device& device, const D3D11RenderContext& context, Uint32 width, Uint32 height )
+	D3D11DepthStencilBuffer::D3D11DepthStencilBuffer( const D3D11Device& device, const D3D11RenderContext& context, Uint32 width, Uint32 height, Bool cubeTexture )
 		: m_device( device )
 		, m_context( context )
 	{
-		CreateDepthStencil(width, height );
-	}
-
-	D3D11DepthStencilBuffer::~D3D11DepthStencilBuffer()
-	{
-		m_view->Release();
+		CreateTexture( width, height, cubeTexture );
+		CreateDepthStencilViews();
 	}
 
 	std::shared_ptr< renderer::ITexture > D3D11DepthStencilBuffer::GetTexture() const
@@ -21,42 +18,44 @@ namespace d3d11
 		return m_texture;
 	}
 
+	renderer::IDepthStencilView& D3D11DepthStencilBuffer::GetView( Uint32 index ) const
+	{
+		return *m_dsvs[ index ];
+	}
+
+	void D3D11DepthStencilBuffer::CreateDepthStencilViews()
+	{
+		m_dsvs.clear();
+
+		switch( m_texture->GetType() )
+		{
+		case renderer::ITexture::Type::Texture2D:
+			m_dsvs.emplace_back( std::make_shared< D3D11DepthStencilView >( m_device, m_context, *m_texture->GetTexture() ) );
+			break;
+
+		case renderer::ITexture::Type::TextureCube:
+			for( Uint32 i = 0u; i < 6u; ++i )
+			{
+				m_dsvs.emplace_back( std::make_shared< D3D11DepthStencilView >( m_device, m_context, *m_texture->GetTexture(), i ) );
+			}
+			break;
+
+		default:
+			FORGE_FATAL( "Unknown type" );
+		}		
+	}
+
+	void D3D11DepthStencilBuffer::CreateTexture( Uint32 width, Uint32 height, Bool cubeTexture )
+	{
+		renderer::ITexture::Type textureType = cubeTexture ? renderer::ITexture::Type::TextureCube : renderer::ITexture::Type::Texture2D;
+
+		m_texture = std::make_shared< D3D11Texture >( m_device, m_context, width, height, renderer::ITexture::Flags::BIND_DEPTH_STENCIL | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
+			renderer::ITexture::Format::R24G8_TYPELESS, textureType, renderer::ITexture::Format::R24_UNORM_X8_TYPELESS );
+	}
+
 	void D3D11DepthStencilBuffer::Resize( Uint32 width, Uint32 height )
 	{
-		m_view->Release();
-
-		CreateDepthStencil( width, height );
-	}
-
-	void D3D11DepthStencilBuffer::CreateDepthStencil( Uint32 width, Uint32 height )
-	{
-		D3D11_TEXTURE2D_DESC desc;
-
-		ZeroMemory( &desc, sizeof( desc ) );
-
-		desc.Width = width;
-		desc.Height = height;
-		desc.MipLevels = 1;
-		desc.ArraySize = 1;
-		desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-
-		m_texture = std::make_shared< D3D11Texture >( m_device, m_context, desc, DXGI_FORMAT_R24_UNORM_X8_TYPELESS );
-
-		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-		dsvDesc.Flags = 0;
-		dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		dsvDesc.Texture2D.MipSlice = 0;
-
-		FORGE_ASSURE( m_device.GetDevice()->CreateDepthStencilView( m_texture->GetTexture(), &dsvDesc, &m_view ) == S_OK );
-	}
-
-	void D3D11DepthStencilBuffer::Clear()
-	{
-		m_context.GetDeviceContext()->ClearDepthStencilView( GetView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
+		CreateTexture( width, height, m_texture->GetType() == renderer::ITexture::Type::TextureCube );
+		CreateDepthStencilViews();
 	}
 }

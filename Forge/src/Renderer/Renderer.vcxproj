@@ -35,6 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CustomCamera.cpp" />
     <ClCompile Include="DeferredRenderingPass.cpp" />
     <ClCompile Include="ForwardRenderingPass.cpp" />
     <ClCompile Include="Fpch.cpp">
@@ -53,6 +54,7 @@
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="IDepthStencilBuffer.cpp" />
     <ClCompile Include="IDepthStencilState.cpp" />
+    <ClCompile Include="IDepthStencilView.cpp" />
     <ClCompile Include="IIndexBuffer.cpp" />
     <ClCompile Include="IInputLayout.cpp" />
     <ClCompile Include="IModelsLoader.cpp" />
@@ -74,6 +76,7 @@
     <ClCompile Include="IVertexShader.cpp" />
     <ClCompile Include="ResourcesManager.cpp" />
     <ClCompile Include="ShaderPack.cpp" />
+    <ClCompile Include="ShadowMapsGenerator.cpp" />
     <ClCompile Include="TinyObjModelsLoader.cpp" />
     <ClCompile Include="PerspectiveCamera.cpp" />
     <ClCompile Include="Renderable.cpp" />
@@ -81,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\External\tinyobjloader\tiny_obj_loader.h" />
+    <ClInclude Include="CustomCamera.h" />
     <ClInclude Include="DeferredRenderingPass.h" />
     <ClInclude Include="ForwardRenderingPass.h" />
     <ClInclude Include="Fpch.h" />
@@ -90,6 +94,7 @@
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="IDepthStencilBuffer.h" />
     <ClInclude Include="IDepthStencilState.h" />
+    <ClInclude Include="IDepthStencilView.h" />
     <ClInclude Include="IIndexBuffer.h" />
     <ClInclude Include="IInputLayout.h" />
     <ClInclude Include="IModelsLoader.h" />
@@ -112,6 +117,7 @@
     <ClInclude Include="IVertexShader.h" />
     <ClInclude Include="ResourcesManager.h" />
     <ClInclude Include="ShaderPack.h" />
+    <ClInclude Include="ShadowMapsGenerator.h" />
     <ClInclude Include="TinyObjModelsLoader.h" />
     <ClInclude Include="PerspectiveCamera.h" />
     <ClInclude Include="PublicDefaults.h" />

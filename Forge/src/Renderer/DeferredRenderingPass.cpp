@@ -5,6 +5,9 @@
 #include "ICamera.h"
 #include "LightData.h"
 #include "IBlendState.h"
+#include "ForwardRenderingPass.h"
+#include "CustomCamera.h"
+#include "ShadowMapsGenerator.h"
 
 struct CBDeferredRendering
 {
@@ -41,11 +44,10 @@ forge::ArraySpan< const renderer::ShaderDefine > renderer::DeferredRenderingPass
 	return shaderDefines;
 }
 
-renderer::DeferredRenderingPass::DeferredRenderingPass( IRenderer& renderer, std::function< const forge::ICamera&( ) > activeCameraGetter )
+renderer::DeferredRenderingPass::DeferredRenderingPass( IRenderer& renderer )
 	: IMeshesRenderingPass( renderer )
-	, m_activeCameraGetter( activeCameraGetter )
 {
-	m_lightingPass = std::make_unique<FullScreenRenderingPass>( GetRenderer(), "DeferredLighting.fx", "DeferredLighting.fx", forge::ArraySpan< renderer::ShaderDefine >( {} ) );
+	m_lightingPass = std::make_unique< FullScreenRenderingPass >( GetRenderer(), "DeferredLighting.fx", "DeferredLighting.fx", forge::ArraySpan< renderer::ShaderDefine >( {} ) );
 
 	m_cbDeferredRendering = GetRenderer().CreateStaticConstantBuffer< CBDeferredRendering >();
 	m_cbPointLight = GetRenderer().CreateStaticConstantBuffer< CBPointLight >();
@@ -56,11 +58,13 @@ renderer::DeferredRenderingPass::DeferredRenderingPass( IRenderer& renderer, std
 		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ONE } );
 }
 
-void renderer::DeferredRenderingPass::Draw( const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
+void renderer::DeferredRenderingPass::Draw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
 {
-	std::vector< renderer::IRenderTargetView* > views{ GetTargetTexture()->GetRenderTargetView(), m_diffuseTexture->GetRenderTargetView(), m_normalsTexture->GetRenderTargetView() };
-	GetRenderer().SetRenderTargets( views, GetDepthStencilBuffer() );
+	AdjustViewportSize();
+	UpdateCameraConstantBuffer( camera );
 
+	std::vector< renderer::IRenderTargetView* > views{ GetTargetTexture()->GetRenderTargetView(), m_diffuseTexture->GetRenderTargetView(), m_normalsTexture->GetRenderTargetView() };
+	GetRenderer().SetRenderTargets( views, &GetDepthStencilView() );
 
 	StaticConstantBuffer< CBDeferredRendering >* cbRendering = static_cast<StaticConstantBuffer< CBDeferredRendering >*>( m_cbDeferredRendering.get() );
 	if( lightingData )
@@ -68,7 +72,7 @@ void renderer::DeferredRenderingPass::Draw( const renderer::IRawRenderablesPack&
 		cbRendering->GetData().AmbientLighting = lightingData->m_ambientLight;
 	}
 
-	cbRendering->GetData().InvVP = m_activeCameraGetter().GetProjectionMatrix().AffineInverted() * m_activeCameraGetter().GetInvViewMatrix();
+	cbRendering->GetData().InvVP = camera.GetProjectionMatrix().AffineInverted() * camera.GetInvViewMatrix();
 
 	cbRendering->UpdateBuffer();
 	cbRendering->SetVS( renderer::VSConstantBufferType::RenderingPass );
@@ -78,12 +82,15 @@ void renderer::DeferredRenderingPass::Draw( const renderer::IRawRenderablesPack&
 
 	if( lightingData )
 	{
-		std::vector< renderer::IShaderResourceView* > srvs =
+		renderer::IShaderResourceView* srvs[] =
 		{
 			m_diffuseTexture->GetShaderResourceView(),
 			GetDepthStencilBuffer()->GetTexture()->GetShaderResourceView(),
-			m_normalsTexture->GetShaderResourceView()
+			m_normalsTexture->GetShaderResourceView(),
+			nullptr
 		};
+
+		renderer::IShaderResourceView*& shadowMapSRV = srvs[3];
 
 		m_blendState->Set();
 
@@ -95,8 +102,14 @@ void renderer::DeferredRenderingPass::Draw( const renderer::IRawRenderablesPack&
 
 			for( const auto& light : lightingData->m_pointLights )
 			{
-				cbLighting->GetData().LightingData = light;
+				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
+
+				shadowMapSRV = nullptr;
+				if( light.m_shadowMap )
+				{
+					shadowMapSRV = light.m_shadowMap->GetTexture()->GetShaderResourceView();
+				}
 
 				m_lightingPass->Draw( srvs );
 			}
@@ -110,7 +123,18 @@ void renderer::DeferredRenderingPass::Draw( const renderer::IRawRenderablesPack&
 
 			for( const auto& light : lightingData->m_spotLights )
 			{
-				cbLighting->GetData().LightingData = light;
+				shadowMapSRV = nullptr;
+				if( light.m_shadowMap )
+				{
+					shadowMapSRV = light.m_shadowMap->GetTexture()->GetShaderResourceView();
+				}
+
+				cbRendering->SetVS( renderer::VSConstantBufferType::RenderingPass );
+				cbRendering->SetPS( renderer::PSConstantBufferType::RenderingPass );
+
+				UpdateCameraConstantBuffer( camera );
+
+				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
 				m_lightingPass->Draw( srvs );
@@ -125,7 +149,7 @@ void renderer::DeferredRenderingPass::Draw( const renderer::IRawRenderablesPack&
 
 			for( const auto& light : lightingData->m_directionalLights )
 			{
-				cbLighting->GetData().LightingData = light;
+				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
 				m_lightingPass->Draw( srvs );
@@ -151,8 +175,8 @@ void renderer::DeferredRenderingPass::SetTargetTexture( ITexture& targetTexture 
 
 	ITexture::Flags flags = ITexture::Flags::BIND_RENDER_TARGET | ITexture::Flags::BIND_SHADER_RESOURCE;
 
-	m_normalsTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetTextureSize().X ), static_cast<Uint32>( targetTexture.GetTextureSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, ITexture::Format::R8G8B8A8_UNORM );
-	m_diffuseTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetTextureSize().X ), static_cast< Uint32 >( targetTexture.GetTextureSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, ITexture::Format::R8G8B8A8_UNORM );
+	m_normalsTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetTextureSize().X ), static_cast<Uint32>( targetTexture.GetTextureSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, ITexture::Format::R8G8B8A8_UNORM );
+	m_diffuseTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetTextureSize().X ), static_cast< Uint32 >( targetTexture.GetTextureSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, ITexture::Format::R8G8B8A8_UNORM );
 }
 
 void renderer::DeferredRenderingPass::OnTargetTextureResized( const Vector2& size )

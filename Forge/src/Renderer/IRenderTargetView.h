@@ -2,7 +2,6 @@
 
 namespace renderer
 {
-	class ITexture;
 	class IRenderTargetView
 	{
 	public:

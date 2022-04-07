@@ -7,6 +7,7 @@
 #define DEG2RAD 0.01745329251f
 
 SamplerState LinearSamplerState : register(s0);
+SamplerComparisonState ComparisonSamplerState : register(s1);
 
 cbuffer cbFrame : register(b0)
 {

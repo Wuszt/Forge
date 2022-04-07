@@ -1,6 +1,20 @@
 #include "Fpch.h"
 #include "Quaternion.h"
 
+Quaternion Quaternion::GetRotationBetweenVectors( const Vector3& first, const Vector3& second, const Vector3& up /*= Vector3::EZ()*/ )
+{
+	Float kcos = first.Dot( second );
+	Float k = sqrt( first.SquareMag() * second.SquareMag() );
+
+	if( Math::IsAlmostZero( kcos / k + 1.0f ) )
+	{
+		return Quaternion( up.X, up.Y, up.Z, 0.0f );
+	}
+
+	Vector3 perpendicular = first.Cross( second );
+	return Quaternion( perpendicular.X, perpendicular.Y, perpendicular.Z, kcos + k ).Normalized();
+}
+
 Vector4 Quaternion::Transform( const Vector4& vec ) const
 {
 	FORGE_ASSERT( Math::IsAlmostZero( 1.0f - vec4.SquareMag4() ) );

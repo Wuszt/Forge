@@ -17,7 +17,7 @@ namespace d3d11
 	public:
 		D3D11Texture( const D3D11Device& device, const D3D11RenderContext& context, ID3D11Texture2D& texture, DXGI_FORMAT srvFormat = DXGI_FORMAT_UNKNOWN );
 		D3D11Texture( const D3D11Device& device, const D3D11RenderContext& context, const D3D11_TEXTURE2D_DESC& desc, DXGI_FORMAT srvFormat = DXGI_FORMAT_UNKNOWN );
-		D3D11Texture( const D3D11Device& device, const D3D11RenderContext& context, Uint32 width, Uint32 height, Flags flags, Format format, Format srvFormat = ITexture::Format::Unknown );
+		D3D11Texture( const D3D11Device& device, const D3D11RenderContext& context, Uint32 width, Uint32 height, Flags flags, Format format, renderer::ITexture::Type textureType, Format srvFormat = ITexture::Format::Unknown );
 		
 		~D3D11Texture();
 
@@ -44,6 +44,11 @@ namespace d3d11
 		}
 
 		virtual Vector2 GetTextureSize() const override;
+
+		virtual FORGE_INLINE renderer::ITexture::Type GetType() const override
+		{
+			return m_textureType;
+		}
 
 	protected:
 		void SetTexture( ID3D11Texture2D& texture )
@@ -73,5 +78,6 @@ namespace d3d11
 		std::unique_ptr< D3D11ShaderResourceView > m_srv;
 		std::unique_ptr< D3D11RenderTargetView > m_rtv;
 		forge::Callback< const Vector2& > m_onResizedCallback;
+		renderer::ITexture::Type m_textureType;
 	};
 }

@@ -1,5 +1,6 @@
 #include "Fpch.h"
 #include "FullScreenRenderingPass.h"
+#include "IRenderer.h"
 
 renderer::FullScreenRenderingPass::FullScreenRenderingPass( IRenderer& renderer, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines )
 	: FullScreenRenderingPass( renderer, "VS_Fullscreen.fx", fullscreenEffectPath, shaderDefines )
@@ -12,12 +13,19 @@ renderer::FullScreenRenderingPass::FullScreenRenderingPass( IRenderer& renderer,
 	, m_shaderDefines( shaderDefines.begin(), shaderDefines.end() )
 {}
 
-void renderer::FullScreenRenderingPass::Draw( std::vector< IShaderResourceView* > input )
+void renderer::FullScreenRenderingPass::Draw( forge::ArraySpan< IShaderResourceView* > input )
 {
-	GetRenderer().GetShadersManager()->GetVertexShader( m_vertexShaderName, m_shaderDefines )->GetMainShader()->Set();
-	GetRenderer().GetShadersManager()->GetPixelShader( m_pixelShaderName, m_shaderDefines )->GetMainShader()->Set();
+	AdjustViewportSize();
+
+	GetRenderer().GetShadersManager()->GetVertexShader( m_vertexShaderName, m_shaderDefines, false )->GetMainShader()->Set();
+	GetRenderer().GetShadersManager()->GetPixelShader( m_pixelShaderName, m_shaderDefines, false )->GetMainShader()->Set();
 	GetRenderer().SetRenderTargets( { GetTargetTexture()->GetRenderTargetView() }, nullptr );
 	GetRenderer().SetShaderResourceViews( input );
 	GetRenderer().DrawRawVertices( 4 );
 	GetRenderer().ClearShaderResourceViews();
+}
+
+void renderer::FullScreenRenderingPass::AdjustViewportSize()
+{
+	GetRenderer().SetViewportSize( GetTargetTexture()->GetTextureSize() );
 }

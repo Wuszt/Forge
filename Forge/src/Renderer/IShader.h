@@ -11,6 +11,11 @@ namespace renderer
 		{
 			return define.m_define == m_define && m_name == define.m_name;
 		}
+
+		Bool IsValid() const
+		{
+			return !m_name.empty();
+		}
 	};
 
 	class IShader

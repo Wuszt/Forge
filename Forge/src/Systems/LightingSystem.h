@@ -4,6 +4,7 @@
 #include "PointLightComponent.h"
 #include "SpotLightComponent.h"
 #include "DirectionalLight.h"
+#include "../Renderer/LightData.h"
 
 namespace renderer
 {
@@ -23,17 +24,17 @@ namespace systems
 
 		virtual void OnInitialize();
 
-		FORGE_INLINE forge::ArraySpan< const renderer::PointLightData > GetPointLights() const
+		FORGE_INLINE forge::ArraySpan< const renderer::LightData< renderer::PointLightData > > GetPointLights() const
 		{
 			return m_pointsLightsData;
 		}
 
-		FORGE_INLINE forge::ArraySpan< const renderer::SpotLightData > GetSpotLights() const
+		FORGE_INLINE forge::ArraySpan< const renderer::LightData< renderer::SpotLightData > > GetSpotLights() const
 		{
 			return m_spotLightsData;
 		}
 
-		FORGE_INLINE forge::ArraySpan< const renderer::DirectionalLightData > GetDirectionalLights() const
+		FORGE_INLINE forge::ArraySpan< const renderer::LightData< renderer::DirectionalLightData > > GetDirectionalLights() const
 		{
 			return m_directionalLightsData;
 		}
@@ -54,10 +55,11 @@ namespace systems
 		void Update();
 
 		forge::CallbackToken m_updateToken;
-		std::vector< renderer::PointLightData > m_pointsLightsData;
-		std::vector< renderer::SpotLightData > m_spotLightsData;
-		std::vector< renderer::DirectionalLightData > m_directionalLightsData;
+		std::vector< renderer::LightData< renderer::PointLightData > > m_pointsLightsData;
+		std::vector< renderer::LightData< renderer::SpotLightData > > m_spotLightsData;
+		std::vector< renderer::LightData< renderer::DirectionalLightData > > m_directionalLightsData;
 		Vector3 m_ambientColor;
+		Float m_shadowsResolutionScale = 1.0f;
 
 #ifdef FORGE_DEBUGGING
 		virtual const std::string& GetDebugFriendlyName() const { static std::string name = "Lighting System"; return name; }
@@ -65,7 +67,6 @@ namespace systems
 
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;
-		Bool m_drawAllLights = false;
 #endif
 	};
 

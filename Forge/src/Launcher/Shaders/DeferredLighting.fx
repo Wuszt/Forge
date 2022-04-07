@@ -15,6 +15,12 @@ Texture2D DiffuseBuffer : register(t0);
 Texture2D DepthBuffer : register(t1);
 Texture2D NormalsBuffer : register(t2);
 
+#if defined __SPOT_LIGHT__
+Texture2D ShadowMap : register(t3);
+#elif defined __POINT_LIGHT__
+TextureCube ShadowMap : register(t3);
+#endif
+
 float CalculateLinearDepth(float nonLinearDepth)
 {
     return ProjectionB / (nonLinearDepth - ProjectionA);
@@ -60,7 +66,15 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
     float viewZDist = dot(CameraDir, viewRay);
     float3 worldPos = CameraPosition + viewRay * (depth / viewZDist);
     
-    float4 lightColor = float4(DiffuseBuffer.Sample(LinearSamplerState, texCoord).rgb * LightingData.Color, 1.0f );
+    float shadowMultiplier = 1.0f;
+   
+#ifdef __SPOT_LIGHT__
+    shadowMultiplier = CalcShadowMultiplierFromTexture( worldPos, LightingData, ShadowMap );
+#elif defined __POINT_LIGHT__
+    shadowMultiplier = CalcShadowMultiplierFromCube( worldPos, LightingData, ShadowMap );
+#endif
+    
+    float4 lightColor = float4(DiffuseBuffer.Sample(LinearSamplerState, texCoord).rgb * LightingData.Color, 1.0f) * shadowMultiplier;
 #if defined __POINT_LIGHT__
     return lightColor * float4( CalcPointLight(worldPos, normal, LightingData), 1.0f);
 #elif defined __SPOT_LIGHT__

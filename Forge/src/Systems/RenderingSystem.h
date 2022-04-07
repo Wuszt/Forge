@@ -7,6 +7,7 @@ namespace renderer
 	class IRenderer;
 	class IMeshesRenderingPass;
 	class FullScreenRenderingPass;
+	class ShadowMapsGenerator;
 
 	class IVertexShader;
 	class IPixelShader;
@@ -47,6 +48,8 @@ namespace systems
 
 		void SetSamplers( const forge::ArraySpan< const renderer::SamplerStateFilterType >& filterTypes );
 
+		Vector2 GetRenderingResolution();
+
 #ifdef FORGE_DEBUGGING
 		virtual const std::string& GetDebugFriendlyName() const { static std::string name = "Rendering System"; return name; }
 #endif
@@ -64,7 +67,6 @@ namespace systems
 
 		void SetRenderingMode( RenderingMode renderingMode );
 		void UpdateRenderingResolution( Float scale );
-		Vector2 GetRenderingResolution();
 
 		systems::CamerasSystem* m_camerasSystem = nullptr;
 		forge::CallbackToken m_beforeDrawToken;
@@ -73,8 +75,7 @@ namespace systems
 		renderer::IRenderer* m_renderer;
 
 		std::unique_ptr< renderer::RawRenderablesPacks > m_rawRenderablesPacks;
-		std::unique_ptr< renderer::StaticConstantBuffer< renderer::cbCamera > > m_cameraCB;
-		std::unordered_map< renderer::SamplerStateFilterType, std::unique_ptr< renderer::ISamplerState > > m_samplerStates;
+		std::vector< std::unique_ptr< renderer::ISamplerState > > m_samplerStates;
 
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_opaqueRenderingPass;
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_overlayRenderingPass;
@@ -83,6 +84,8 @@ namespace systems
 		std::unique_ptr< renderer::IDepthStencilState > m_depthStencilState;
 
 		std::unique_ptr< renderer::ITexture > m_targetTexture;
+
+		std::unique_ptr< renderer::ShadowMapsGenerator > m_shadowMapsGenerator;
 
 		RenderingMode m_renderingMode = RenderingMode::Deferred;
 		forge::CallbackToken m_windowCallbackToken;

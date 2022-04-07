@@ -3,24 +3,22 @@
 
 namespace renderer
 {
-	class PerspectiveCamera : public ICamera
+	class CustomCamera : public ICamera
 	{
 	public:
-		PerspectiveCamera( Float aspectRatio, Float fov, Float nearPlane, Float farPlane );
-		~PerspectiveCamera();
+		CustomCamera( Matrix projectionMatrix, Float nearPlane, Float farPlane )
+			: m_projectionMatrix( projectionMatrix )
+			, m_nearPlane( nearPlane )
+			, m_farPlane( farPlane )
+		{}
 
-		virtual Matrix GetProjectionMatrix() const override;
 		virtual Matrix GetInvViewMatrix() const override;
 		virtual Matrix GetViewMatrix() const override;
 		virtual Matrix GetViewProjectionMatrix() const override;
-
 		virtual void SetPosition( const Vector3& pos ) override;
 		virtual const Vector3& GetPosition() const override;
-
 		virtual void SetOrientation( const Quaternion& rot ) override;
 		virtual const Quaternion& GetOrientation() const override;
-
-		static Matrix ConstructProjectionMatrix( Float aspectRatio, Float fov, Float nearPlane, Float farPlane );
 
 		FORGE_INLINE virtual void SetTransform( Transform transform ) override
 		{
@@ -34,7 +32,12 @@ namespace renderer
 
 		FORGE_INLINE virtual ICamera::Type GetType() const override
 		{
-			return ICamera::Type::Perspective;
+			return ICamera::Type::Custom;
+		}
+
+		FORGE_INLINE virtual Matrix GetProjectionMatrix() const override
+		{
+			return m_projectionMatrix;
 		}
 
 		FORGE_INLINE virtual Float GetNearPlane() const override
@@ -48,11 +51,10 @@ namespace renderer
 		}
 
 	private:
-		Float m_aspectRatio;
-		Float m_fov;
-		Float m_nearPlane;
-		Float m_farPlane;
+		Float m_nearPlane = 0.0f;
+		Float m_farPlane = 0.0f;
 		Transform m_transform;
+		Matrix m_projectionMatrix;
 	};
 }
 
