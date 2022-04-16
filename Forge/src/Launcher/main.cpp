@@ -248,8 +248,8 @@ Int32 main()
 				} );
 			} );
 
-			//MinecraftScene( engineInstance );
-			SponzaScene( engineInstance );
+			MinecraftScene( engineInstance );
+			//SponzaScene( engineInstance );
 			//BunnyScene( engineInstance );	
 		}
 

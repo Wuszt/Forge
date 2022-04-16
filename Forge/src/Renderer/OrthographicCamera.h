@@ -6,7 +6,7 @@ namespace renderer
 	class OrthographicCamera : public ICamera
 	{
 	public:
-		OrthographicCamera( const Vector2& volumeSize, Float nearPlane, Float farPlane );
+		OrthographicCamera( Float width, Float aspectRatio, Float nearPlane, Float farPlane );
 		~OrthographicCamera();
 
 		static Matrix ConstructOrthographicMatrix( const Vector2& volumeSize, Float nearPlane, Float farPlane );
@@ -99,9 +99,15 @@ namespace renderer
 			return Type::Orthographic;
 		}
 
-		FORGE_INLINE void SetVolumeSize( const Vector2& volumeSize )
+		FORGE_INLINE void SetAspectRatio( Float aspectRatio )
 		{
-			m_volumeSize = volumeSize;
+			m_volumeSize = { m_volumeSize.X, m_volumeSize.X / aspectRatio };
+		}
+
+		FORGE_INLINE void SetWidth( Float width )
+		{
+			Float aspectRatio = m_volumeSize.X / m_volumeSize.Y;
+			m_volumeSize = { width, width / aspectRatio };
 		}
 
 		FORGE_INLINE const Vector2& GetVolumeSize() const

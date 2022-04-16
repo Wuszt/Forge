@@ -118,9 +118,9 @@ void systems::PlayerSystem::OnRenderDebug()
 					}
 
 					{
-						Vector2 volumeSize = camera.GetVolumeSize();
-						ImGui::SliderFloat2( "VolumeSize", volumeSize.AsArray(), 1.0f, 10000.0f );
-						camera.SetVolumeSize( volumeSize );
+						Float width = camera.GetVolumeSize().X;
+						ImGui::SliderFloat( "Width", &width, 1.0f, 10000.0f );
+						camera.SetWidth( width );
 					}
 				}
 

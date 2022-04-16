@@ -16,8 +16,17 @@ void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
 			switch( GetType() )
 			{
 			case renderer::ICamera::Type::Perspective:
-				m_implementation = std::make_unique< renderer::PerspectiveCamera >( GetDefaultPerspectiveCamera( *window ) );
+			{
+				auto& camera = static_cast<renderer::PerspectiveCamera&>( *m_implementation );
+				m_implementation = std::make_unique< renderer::PerspectiveCamera >( window->GetAspectRatio(), camera.GetFOV(), camera.GetNearPlane(), camera.GetFarPlane() );
 				break;
+			}
+			case renderer::ICamera::Type::Orthographic:
+			{
+				auto& camera = static_cast<renderer::OrthographicCamera&>( *m_implementation );
+				m_implementation = std::make_unique< renderer::OrthographicCamera >( camera.GetVolumeSize().X, window->GetAspectRatio(), camera.GetNearPlane(), camera.GetFarPlane() );
+				break;
+			}
 
 			default:
 				FORGE_FATAL( "Unknown type" );
@@ -39,5 +48,5 @@ renderer::PerspectiveCamera forge::CameraComponent::GetDefaultPerspectiveCamera(
 
 renderer::OrthographicCamera forge::CameraComponent::GetDefaultOrthographicCamera( const forge::IWindow& window )
 {
-	return renderer::OrthographicCamera( Vector2( 1.0f, 1.0f / window.GetAspectRatio() ) * 1000.0f, 1.0f, 10000.0f );
+	return renderer::OrthographicCamera( 1000.0f, window.GetAspectRatio(), 1.0f, 10000.0f );
 }

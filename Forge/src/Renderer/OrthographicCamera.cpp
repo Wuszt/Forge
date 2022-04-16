@@ -1,8 +1,8 @@
 #include "Fpch.h"
 #include "OrthographicCamera.h"
 
-renderer::OrthographicCamera::OrthographicCamera( const Vector2& volumeSize, Float nearPlane, Float farPlane )
-	: m_volumeSize( volumeSize )
+renderer::OrthographicCamera::OrthographicCamera( Float width, Float aspectRatio, Float nearPlane, Float farPlane )
+	: m_volumeSize{ width, width / aspectRatio }
 	, m_nearPlane( nearPlane )
 	, m_farPlane( farPlane )
 {}

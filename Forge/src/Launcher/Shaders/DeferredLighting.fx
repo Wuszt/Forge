@@ -63,7 +63,7 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
     float viewZDist = dot(CameraDir, viewRay);
     float3 worldPos = CameraPosition + viewRay * (depth / viewZDist);
 #else
-    float3 worldPos = CameraPosition + input.ViewRayWS + CameraDir * depth * (FarPlane + NearPlane);
+    float3 worldPos = CameraPosition + input.ViewRayWS + CameraDir * depth * (FarPlane - NearPlane);
 #endif
     
     float shadowMultiplier = 1.0f;
