@@ -36,6 +36,7 @@ namespace
 	const renderer::ShaderDefine c_pointLightDefine{ "__POINT_LIGHT__" };
 	const renderer::ShaderDefine c_spotLightDefine{ "__SPOT_LIGHT__" };
 	const renderer::ShaderDefine c_directionalLightDefine{ "__DIRECTIONAL_LIGHT__" };
+	const renderer::ShaderDefine c_perspectiveCameraDefine{ "__PERSPECTIVE_CAMERA__" };
 }
 
 forge::ArraySpan< const renderer::ShaderDefine > renderer::DeferredRenderingPass::GetRequiredShaderDefines()
@@ -72,7 +73,7 @@ void renderer::DeferredRenderingPass::Draw( const renderer::ICamera& camera, con
 		cbRendering->GetData().AmbientLighting = lightingData->m_ambientLight;
 	}
 
-	cbRendering->GetData().InvVP = camera.GetProjectionMatrix().AffineInverted() * camera.GetInvViewMatrix();
+	cbRendering->GetData().InvVP = camera.GetInvProjectionMatrix() * camera.GetInvViewMatrix();
 
 	cbRendering->UpdateBuffer();
 	cbRendering->SetVS( renderer::VSConstantBufferType::RenderingPass );
@@ -95,7 +96,7 @@ void renderer::DeferredRenderingPass::Draw( const renderer::ICamera& camera, con
 		m_blendState->Set();
 
 		{
-			m_lightingPass->SetShaderDefines( { c_pointLightDefine } );
+			m_lightingPass->SetShaderDefines( camera.HasNonLinearDepth() ? forge::ArraySpan< renderer::ShaderDefine >{ c_pointLightDefine, c_perspectiveCameraDefine } : forge::ArraySpan< renderer::ShaderDefine >{ c_pointLightDefine } );
 			StaticConstantBuffer< CBPointLight >* cbLighting = static_cast<StaticConstantBuffer< CBPointLight >*>( m_cbPointLight.get() );
 			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
 			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
@@ -116,7 +117,7 @@ void renderer::DeferredRenderingPass::Draw( const renderer::ICamera& camera, con
 		}
 
 		{
-			m_lightingPass->SetShaderDefines( { c_spotLightDefine } );
+			m_lightingPass->SetShaderDefines( camera.HasNonLinearDepth() ? forge::ArraySpan< renderer::ShaderDefine >{ c_spotLightDefine, c_perspectiveCameraDefine } : forge::ArraySpan< renderer::ShaderDefine >{ c_spotLightDefine } );
 			StaticConstantBuffer< CBSpotLight >* cbLighting = static_cast<StaticConstantBuffer < CBSpotLight >*>( m_cbSpotLight.get() );
 			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
 			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
@@ -142,7 +143,7 @@ void renderer::DeferredRenderingPass::Draw( const renderer::ICamera& camera, con
 		}
 
 		{
-			m_lightingPass->SetShaderDefines( { c_directionalLightDefine } );
+			m_lightingPass->SetShaderDefines( camera.HasNonLinearDepth() ? forge::ArraySpan< renderer::ShaderDefine >{ c_directionalLightDefine, c_perspectiveCameraDefine } : forge::ArraySpan< renderer::ShaderDefine >{ c_directionalLightDefine } );
 			StaticConstantBuffer< CBDirectionalLight >* cbLighting = static_cast<StaticConstantBuffer < CBDirectionalLight >*>( m_cbDirectionalLight.get() );
 			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
 			cbLighting->SetPS( renderer::PSConstantBufferType::Light );

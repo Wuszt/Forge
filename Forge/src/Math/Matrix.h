@@ -131,10 +131,10 @@ struct Matrix
 	}
 
 	void OrthonormInvert();
-	Matrix OrthonormInverted();
+	Matrix OrthonormInverted() const;
 
 	void AffineInvert();
-	Matrix AffineInverted();
+	Matrix AffineInverted() const;
 
 	FORGE_INLINE Quaternion ToQuat() const
 	{

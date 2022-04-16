@@ -26,6 +26,9 @@ namespace renderer
 		Float ProjectionA;
 		Vector3 CameraDirection;
 		Float ProjectionB;
+		Float NearPlane;
+		Float FarPlane;
+		Float padding[2];
 	};
 
 	class IRenderingPass

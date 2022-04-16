@@ -35,6 +35,14 @@ namespace systems
 		forge::CallbackToken m_updateToken;
 
 		Bool m_wasShiftAndWheelPressed = false;
+
+#ifdef FORGE_DEBUGGING
+		virtual const std::string& GetDebugFriendlyName() const { static std::string name = "Player System"; return name; }
+#endif
+
+#ifdef FORGE_IMGUI_ENABLED
+		virtual void OnRenderDebug() override;
+#endif
 	};
 }
 

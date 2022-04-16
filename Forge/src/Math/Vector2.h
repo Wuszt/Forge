@@ -92,6 +92,16 @@ struct Vector2
 		Y /= val;
 	}
 
+	FORGE_INLINE const Float* AsArray() const
+	{
+		return &X;
+	}
+
+	FORGE_INLINE Float* AsArray()
+	{
+		return &X;
+	}
+
 	FORGE_INLINE Bool operator==( const Vector2& vec ) const { return X == vec.X && Y == vec.Y; }
 
 	FORGE_INLINE Bool operator!=( const Vector2& vec ) const { return X != vec.X || Y != vec.Y; }

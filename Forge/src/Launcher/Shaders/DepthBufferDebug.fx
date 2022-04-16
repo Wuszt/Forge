@@ -10,7 +10,7 @@ cbuffer cbMaterial : register(b1)
 float4 PS(VS_OUTPUT input) : SV_TARGET
 {
     float2 texCoord = float2((input.UV.x + 1.0f) * 0.5f, 1.0f - (input.UV.y + 1.0f) * 0.5f);
-    float depth = CalculateLinearDepth(DepthBuffer.Sample(LinearSamplerState, texCoord).r);
+    float depth = CalculateLinearDepth( ProjectionA, ProjectionB, DepthBuffer.Sample(LinearSamplerState, texCoord).r);
     
     depth /= Denominator;
     

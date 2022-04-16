@@ -60,6 +60,8 @@ void renderer::IMeshesRenderingPass::UpdateCameraConstantBuffer( const renderer:
 	m_cameraCB->GetData().CameraDirection = camera.GetOrientation() * Vector3::EY();
 	m_cameraCB->GetData().ProjectionA = camera.GetProjectionMatrix()[ 1 ][ 2 ];
 	m_cameraCB->GetData().ProjectionB = camera.GetProjectionMatrix()[ 3 ][ 2 ];
+	m_cameraCB->GetData().NearPlane = camera.GetNearPlane();
+	m_cameraCB->GetData().FarPlane = camera.GetFarPlane();
 	m_cameraCB->UpdateBuffer();
 	m_cameraCB->SetVS( renderer::VSConstantBufferType::Camera );
 	m_cameraCB->SetPS( renderer::PSConstantBufferType::Camera );

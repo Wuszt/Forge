@@ -103,7 +103,7 @@ void systems::RenderingSystem::OnInitialize()
 #ifdef FORGE_IMGUI_ENABLED
 void systems::RenderingSystem::OnRenderDebug()
 {
-	if( ImGui::Begin( "RenderingDebug" ) )
+	if( ImGui::Begin( "Rendering System" ) )
 	{
 		if( ImGui::BeginTabBar( "##tabs" ) )
 		{
@@ -174,9 +174,9 @@ void systems::RenderingSystem::OnRenderDebug()
 
 				{
 					const renderer::ICamera& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
-					Float maxValue = currentCamera.GetFarPlane() - currentCamera.GetNearPlane();
+					Float maxValue = currentCamera.GetType() == renderer::ICamera::Type::Perspective ? currentCamera.GetFarPlane() - currentCamera.GetNearPlane() : 1.0f;
 					m_depthBufferDenominator = Math::Min( m_depthBufferDenominator, maxValue );
-					ImGui::SliderFloat( "Denominator", &m_depthBufferDenominator, maxValue * 0.1f, maxValue );
+					ImGui::SliderFloat( "Denominator", &m_depthBufferDenominator, maxValue * 0.001f, maxValue );
 
 					struct CB
 					{
@@ -193,7 +193,7 @@ void systems::RenderingSystem::OnRenderDebug()
 						renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
 						renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
 
-					renderer::FullScreenRenderingPass fsPass( *m_renderer, "DepthBufferDebug.fx", {} );
+					renderer::FullScreenRenderingPass fsPass( *m_renderer, "DepthBufferDebug.fx", currentCamera.HasNonLinearDepth() ? forge::ArraySpan< renderer::ShaderDefine >{ renderer::ShaderDefine{ "__NON_LINEAR_DEPTH__" } } : forge::ArraySpan< renderer::ShaderDefine >{} );
 					fsPass.SetTargetTexture( *m_temporaryTexture );
 					fsPass.Draw( { m_depthStencilBuffer->GetTexture()->GetShaderResourceView() } );
 					funcDrawTexture( "Depth", *m_temporaryTexture );

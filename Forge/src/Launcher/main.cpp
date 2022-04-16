@@ -5,21 +5,17 @@
 #include "../Systems/PublicDefaults.h"
 
 #include "../Core/IWindow.h"
-
 #include "../Systems/CamerasSystem.h"
 #include "../Systems/PlayerControllerComponent.h"
 #include "../Systems/PlayerSystem.h"
 #include "../Systems/CameraComponent.h"
 #include "../Systems/RenderingSystem.h"
-#include "../D3D11Renderer/D3D11TexturesLoader.h"
 #include "../Renderer/IRenderer.h"
 #include "../Core/IInput.h"
-#include "../Systems/PointLightComponent.h"
 #include "../Systems/LightingSystem.h"
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/PerspectiveCamera.h"
-#include "../Renderer/ISamplerState.h"
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -40,6 +36,33 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 			transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 1000.0f };
+		} );
+	} );
+
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	{
+		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+		{
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -1100.0f, 200.0f } );
+			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 1.0f, 0.0f, 0.0f };
+		} );
+	} );
+
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	{
+		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+		{
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 200.0f } );
+			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 1.0f, 0.0f };
+		} );
+	} );
+
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	{
+		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+		{
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 1100.0f, 200.0f } );
+			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
 		} );
 	} );
 }
@@ -139,7 +162,7 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
 			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -450.0f, 300.0f } );
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion::CreateFromDirection( { 0.0f, 0.96, -0.26f } ) );
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion::CreateFromDirection( { 0.0f, 0.96f, -0.26f } ) );
 			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 1.0f, 1.0f, 0.0f };
 			light->GetComponent< forge::PointLightComponent >()->GetData().m_power = 4000.0f;
 		} );
@@ -215,7 +238,8 @@ Int32 main()
 				{
 					player->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -400.0f, 200.0f } );
 					auto* cameraComp = player->GetComponent< forge::CameraComponent >();
-					cameraComp->CreateImplementation< renderer::PerspectiveCamera >( engineInstancePtr->GetWindow().GetAspectRatio(), FORGE_PI / 3.0f, 1.0f, 10000.0f );
+					cameraComp->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstancePtr->GetWindow() ));
+
 					auto& camerasSystem = engineInstancePtr->GetSystemsManager().GetSystem< systems::CamerasSystem >();
 					camerasSystem.SetActiveCamera( cameraComp );
 
@@ -224,8 +248,9 @@ Int32 main()
 				} );
 			} );
 
+			//MinecraftScene( engineInstance );
 			SponzaScene( engineInstance );
-			//BunnyScene( engineInstance );
+			//BunnyScene( engineInstance );	
 		}
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override

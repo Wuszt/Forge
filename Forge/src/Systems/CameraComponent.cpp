@@ -3,6 +3,7 @@
 #include "../Core/IWindow.h"
 #include "../Renderer/PerspectiveCamera.h"
 #include "TransformComponent.h"
+#include "../Renderer/OrthographicCamera.h"
 
 void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
 {
@@ -15,7 +16,7 @@ void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
 			switch( GetType() )
 			{
 			case renderer::ICamera::Type::Perspective:
-				m_implementation = std::make_unique< renderer::PerspectiveCamera >( window->GetAspectRatio(), FORGE_PI / 3.0f, 1.0f, 10000.0f );
+				m_implementation = std::make_unique< renderer::PerspectiveCamera >( GetDefaultPerspectiveCamera( *window ) );
 				break;
 
 			default:
@@ -29,4 +30,14 @@ void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
 void forge::CameraComponent::Update()
 {
 	m_implementation->SetTransform( m_transformComponent->GetData().m_transform );
+}
+
+renderer::PerspectiveCamera forge::CameraComponent::GetDefaultPerspectiveCamera( const forge::IWindow& window )
+{
+	return renderer::PerspectiveCamera( window.GetAspectRatio(), FORGE_PI / 3.0f, 1.0f, 10000.0f );
+}
+
+renderer::OrthographicCamera forge::CameraComponent::GetDefaultOrthographicCamera( const forge::IWindow& window )
+{
+	return renderer::OrthographicCamera( Vector2( 1.0f, 1.0f / window.GetAspectRatio() ) * 1000.0f, 1.0f, 10000.0f );
 }

@@ -1,10 +1,17 @@
 #pragma once
 #include "../Renderer/ICamera.h"
 
+namespace renderer
+{
+	class PerspectiveCamera;
+	class OrthographicCamera;
+}
+
 namespace forge
 {
 	class ICamera;
 	class TransformComponent;
+	class IWindow;
 
 	class CameraComponent : public IComponent
 	{
@@ -23,6 +30,11 @@ namespace forge
 			return *m_implementation;
 		}
 
+		FORGE_INLINE renderer::ICamera& GetCamera()
+		{
+			return *m_implementation;
+		}
+
 		void Update();
 
 		template< class T, class... TArgs >
@@ -30,6 +42,9 @@ namespace forge
 		{
 			m_implementation = std::make_unique< T >( std::forward< TArgs >( args )... );
 		}
+
+		static renderer::PerspectiveCamera GetDefaultPerspectiveCamera( const forge::IWindow& window );
+		static renderer::OrthographicCamera GetDefaultOrthographicCamera( const forge::IWindow& window );
 
 	private:
 		std::unique_ptr< renderer::ICamera > m_implementation;

@@ -9,9 +9,4 @@ struct VS_OUTPUT
     float2 UV : TEXCOORD0;
 };
 
-float CalculateLinearDepth(float nonLinearDepth)
-{
-    return ProjectionB / (nonLinearDepth - ProjectionA);
-}
-
 #endif // __FULLSCREEN_COMMON_HEADER__

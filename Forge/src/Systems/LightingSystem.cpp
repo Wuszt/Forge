@@ -83,7 +83,7 @@ void systems::LightingSystem::Update()
 
 void systems::LightingSystem::OnRenderDebug()
 {
-	if( ImGui::Begin( "LightingDebug" ) )
+	if( ImGui::Begin( "Lighting System" ) )
 	{
 		{
 			Int32 scale = static_cast<Int32>( m_shadowsResolutionScale * 100.0f );

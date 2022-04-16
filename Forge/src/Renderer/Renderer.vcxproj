@@ -74,6 +74,7 @@
     <ClCompile Include="ISwapchain.cpp" />
     <ClCompile Include="IVertexBuffer.cpp" />
     <ClCompile Include="IVertexShader.cpp" />
+    <ClCompile Include="OrthographicCamera.cpp" />
     <ClCompile Include="ResourcesManager.cpp" />
     <ClCompile Include="ShaderPack.cpp" />
     <ClCompile Include="ShadowMapsGenerator.cpp" />
@@ -115,6 +116,7 @@
     <ClInclude Include="ISwapchain.h" />
     <ClInclude Include="IVertexBuffer.h" />
     <ClInclude Include="IVertexShader.h" />
+    <ClInclude Include="OrthographicCamera.h" />
     <ClInclude Include="ResourcesManager.h" />
     <ClInclude Include="ShaderPack.h" />
     <ClInclude Include="ShadowMapsGenerator.h" />

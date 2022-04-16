@@ -12,46 +12,6 @@ namespace renderer
 
 	PerspectiveCamera::~PerspectiveCamera() = default;
 
-	Matrix PerspectiveCamera::GetProjectionMatrix() const
-	{
-		return ConstructProjectionMatrix( m_aspectRatio, m_fov, m_nearPlane, m_farPlane );
-	}
-
-	Matrix PerspectiveCamera::GetInvViewMatrix() const
-	{
-		return m_transform.ToMatrix();
-	}
-
-	Matrix PerspectiveCamera::GetViewMatrix() const
-	{
-		return m_transform.ToMatrix().OrthonormInverted();
-	}
-
-	Matrix PerspectiveCamera::GetViewProjectionMatrix() const
-	{
-		return GetViewMatrix() * GetProjectionMatrix();
-	}
-
-	void PerspectiveCamera::SetPosition( const Vector3& pos )
-	{
-		m_transform.SetPosition( pos );
-	}
-
-	const Vector3& PerspectiveCamera::GetPosition() const
-	{
-		return m_transform.GetPosition3();
-	}
-
-	void PerspectiveCamera::SetOrientation( const Quaternion& rot )
-	{
-		m_transform.SetOrientation( rot );
-	}
-
-	const Quaternion& PerspectiveCamera::GetOrientation() const
-	{
-		return m_transform.GetOrientation();
-	}
-
 	Matrix PerspectiveCamera::ConstructProjectionMatrix( Float aspectRatio, Float fov, Float nearPlane, Float farPlane )
 	{
 		Float d = Math::Ctg( fov * 0.5f );

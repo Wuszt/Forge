@@ -26,5 +26,17 @@ cbuffer cbCamera : register(b3)
     float ProjectionA;
     float3 CameraDir;
     float ProjectionB;
+    float NearPlane;
+    float FarPlane;
 };
+
+float CalculateLinearDepth(float ProjectionA, float ProjectionB, float nonLinearDepth)
+{
+#if defined __NON_LINEAR_DEPTH__ || defined __PERSPECTIVE_CAMERA__
+    return ProjectionB / (nonLinearDepth - ProjectionA);
+#else
+    return nonLinearDepth;
+#endif
+}
+
 #endif // __COMMON_HEADER__

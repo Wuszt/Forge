@@ -125,6 +125,9 @@
     <ClCompile Include="IDepthStencilView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OrthographicCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IRenderer.h">
@@ -245,6 +248,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IDepthStencilView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OrthographicCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

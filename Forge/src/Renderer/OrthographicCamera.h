@@ -3,21 +3,13 @@
 
 namespace renderer
 {
-	class PerspectiveCamera : public ICamera
+	class OrthographicCamera : public ICamera
 	{
 	public:
-		PerspectiveCamera( Float aspectRatio, Float fov, Float nearPlane, Float farPlane );
-		~PerspectiveCamera();
+		OrthographicCamera( const Vector2& volumeSize, Float nearPlane, Float farPlane );
+		~OrthographicCamera();
 
-		FORGE_INLINE virtual Matrix GetProjectionMatrix() const override
-		{
-			return ConstructProjectionMatrix( m_aspectRatio, m_fov, m_nearPlane, m_farPlane );
-		}
-
-		FORGE_INLINE virtual Matrix GetInvProjectionMatrix() const override
-		{
-			return GetProjectionMatrix().AffineInverted();
-		}
+		static Matrix ConstructOrthographicMatrix( const Vector2& volumeSize, Float nearPlane, Float farPlane );
 
 		FORGE_INLINE virtual Matrix GetInvViewMatrix() const override
 		{
@@ -27,6 +19,22 @@ namespace renderer
 		FORGE_INLINE virtual Matrix GetViewMatrix() const override
 		{
 			return m_transform.ToMatrix().OrthonormInverted();
+		}
+
+		FORGE_INLINE virtual Matrix GetProjectionMatrix() const override
+		{
+			return ConstructOrthographicMatrix( m_volumeSize, m_nearPlane, m_farPlane );
+		}
+
+		FORGE_INLINE virtual Matrix GetInvProjectionMatrix() const override
+		{
+			return Matrix
+			{
+				m_volumeSize.X / 2.0f, 0.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, m_volumeSize.Y / 2.0f, 0.0f,
+				0.0f, m_farPlane - m_nearPlane, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f, 1.0f
+			};
 		}
 
 		FORGE_INLINE virtual Matrix GetViewProjectionMatrix() const override
@@ -48,13 +56,11 @@ namespace renderer
 		{
 			m_transform.SetOrientation( rot );
 		}
-
+		
 		FORGE_INLINE virtual const Quaternion& GetOrientation() const override
 		{
 			return m_transform.GetOrientation();
 		}
-
-		static Matrix ConstructProjectionMatrix( Float aspectRatio, Float fov, Float nearPlane, Float farPlane );
 
 		FORGE_INLINE virtual void SetTransform( Transform transform ) override
 		{
@@ -66,14 +72,9 @@ namespace renderer
 			return m_transform;
 		}
 
-		FORGE_INLINE virtual ICamera::Type GetType() const override
-		{
-			return ICamera::Type::Perspective;
-		}
-
 		FORGE_INLINE virtual void SetNearPlane( Float nearPlane ) override
 		{
-			m_nearPlane = nearPlane;
+			m_nearPlane = nearPlane;	
 		}
 
 		FORGE_INLINE virtual void SetFarPlane( Float farPlane ) override
@@ -86,34 +87,30 @@ namespace renderer
 			return m_nearPlane;
 		}
 
+
 		FORGE_INLINE virtual Float GetFarPlane() const override
 		{
 			return m_farPlane;
 		}
 
-		FORGE_INLINE void SetAspectRatio( Float ratio )
+
+		FORGE_INLINE virtual Type GetType() const override
 		{
-			m_aspectRatio = ratio;
+			return Type::Orthographic;
 		}
 
-		FORGE_INLINE void SetFOV( Float fov )
+		FORGE_INLINE void SetVolumeSize( const Vector2& volumeSize )
 		{
-			m_fov = fov;
+			m_volumeSize = volumeSize;
 		}
 
-		FORGE_INLINE Float GetAspectRatio() const
+		FORGE_INLINE const Vector2& GetVolumeSize() const
 		{
-			return m_aspectRatio;
-		}
-
-		FORGE_INLINE Float GetFOV() const
-		{
-			return m_fov;
+			return m_volumeSize;
 		}
 
 	private:
-		Float m_aspectRatio;
-		Float m_fov;
+		Vector2 m_volumeSize;
 		Float m_nearPlane;
 		Float m_farPlane;
 		Transform m_transform;

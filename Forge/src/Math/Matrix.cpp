@@ -85,10 +85,11 @@ void Matrix::OrthonormInvert()
 	W = translation;
 }
 
-Matrix Matrix::OrthonormInverted()
+Matrix Matrix::OrthonormInverted() const
 {
 	Matrix copy = *this;
 	copy.OrthonormInvert();
+
 	return copy;
 }
 
@@ -126,7 +127,7 @@ void Matrix::AffineInvert()
 	AffineInversion( *this, *this );
 }
 
-Matrix Matrix::AffineInverted()
+Matrix Matrix::AffineInverted() const
 {
 	Matrix result;
 	AffineInversion( *this, result );

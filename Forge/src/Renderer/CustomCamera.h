@@ -40,6 +40,21 @@ namespace renderer
 			return m_projectionMatrix;
 		}
 
+		FORGE_INLINE virtual Matrix GetInvProjectionMatrix() const override
+		{
+			return m_projectionMatrix.AffineInverted();
+		}
+
+		FORGE_INLINE virtual void SetNearPlane( Float nearPlane )
+		{
+			m_nearPlane = nearPlane;
+		}
+
+		FORGE_INLINE virtual void SetFarPlane( Float farPlane )
+		{
+			m_farPlane = farPlane;
+		}
+
 		FORGE_INLINE virtual Float GetNearPlane() const override
 		{
 			return m_nearPlane;
