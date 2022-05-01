@@ -56,6 +56,7 @@ namespace renderer
 		Float padding0;
 		Vector3 Color = { 1.0f, 1.0f, 1.0f };
 		Float padding1;
+		Matrix VP;
 	};
 
 	template< class T >

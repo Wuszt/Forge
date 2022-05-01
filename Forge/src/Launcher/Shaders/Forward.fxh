@@ -15,7 +15,7 @@ cbuffer cbForwardLighting : register(b5)
 };
 #endif
 
-#if defined __SPOT_LIGHT__
+#if defined __SPOT_LIGHT__ || defined __DIRECTIONAL_LIGHT__
 Texture2D ShadowMap : register(t31);
 #elif defined __POINT_LIGHT__
 TextureCube ShadowMap : register(t31);
@@ -49,10 +49,12 @@ float4 PS(Custom_VS_Output input) : SV_Target
     normal = input.Normal;
 #endif
     
-#ifdef __SPOT_LIGHT__
-    color *= CalcShadowMultiplierFromTexture( input.WorldPos, LightingData, ShadowMap );
+#if defined __SPOT_LIGHT__
+    color *= CalcShadowMultiplierForSpotLight( input.WorldPos, LightingData, ShadowMap );
+#elif defined __DIRECTIONAL_LIGHT__
+    color *= CalcShadowMultiplierForDirectionalLight( input.WorldPos, LightingData, ShadowMap );
 #elif defined __POINT_LIGHT__
-    color *= CalcShadowMultiplierFromCube( input.WorldPos, LightingData, ShadowMap );
+    color *= CalcShadowMultiplierForPointLight( input.WorldPos, LightingData, ShadowMap );
 #endif
     
 #ifdef __AMBIENT_LIGHT__

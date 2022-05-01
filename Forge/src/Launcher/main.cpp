@@ -16,6 +16,7 @@
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/PerspectiveCamera.h"
+#include "../Core/Time.h"
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -101,9 +102,10 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::SpotLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 200.0f } );
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 1000.0f } );
 			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, 0.0f ) );
-			light->GetComponent< forge::SpotLightComponent >()->GetData().m_color = { 0.0f, 1.0f, 0.0f };
+			light->GetComponent< forge::SpotLightComponent >()->GetData().m_color = { 0.62f, 0.74f, 0.3f };
+			light->GetComponent< forge::SpotLightComponent >()->GetData().m_power = 8000.0f;
 		} );
 	} );
 
@@ -154,17 +156,6 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 			transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 0.01f };
-		} );
-	} );
-
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
-	{
-		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
-		{
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -450.0f, 300.0f } );
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion::CreateFromDirection( { 0.0f, 0.96f, -0.26f } ) );
-			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 1.0f, 1.0f, 0.0f };
-			light->GetComponent< forge::PointLightComponent >()->GetData().m_power = 4000.0f;
 		} );
 	} );
 }
@@ -248,9 +239,18 @@ Int32 main()
 				} );
 			} );
 
-			MinecraftScene( engineInstance );
-			//SponzaScene( engineInstance );
+			//MinecraftScene( engineInstance );
+			SponzaScene( engineInstance );
 			//BunnyScene( engineInstance );	
+
+			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+			{
+				light->RequestAddingComponents< forge::DirectionalLightComponent >( [ this, engineInstancePtr = &engineInstance, light ]()
+				{
+					m_sun = light->GetComponent< forge::DirectionalLightComponent >();
+					light->GetComponent< forge::DirectionalLightComponent >()->GetData().Direction = { 0.0f, 0.0f, -1.0f };
+				} );
+			} );
 		}
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
@@ -258,6 +258,13 @@ Int32 main()
 			if( engineInstance.GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
 			{
 				Shutdown();
+			}
+
+			if( m_sun )
+			{
+				Float currentAngle = DEG2RAD * 10.0f * forge::Time::GetRealTime();
+				m_sun->GetData().Direction = Quaternion( -FORGE_PI_HALF, 0.0f, currentAngle ) * Vector3::EY();
+				m_sun->GetData().Color = Vector3{ 1.0f, 1.0f, 1.0f } *Math::Cos( currentAngle );
 			}
 		}
 
@@ -267,6 +274,8 @@ Int32 main()
 		}
 
 	private:
+		forge::DirectionalLightComponent* m_sun = nullptr;
+
 	} gameInstance;
 
 	forge::EngineInstance engineInstance( gameInstance );

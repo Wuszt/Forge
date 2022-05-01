@@ -6,7 +6,7 @@
 
 #ifdef FORGE_IMGUI_ENABLED
 #include "IMGUISystem.h"
-#include "../../External/imgui/imgui.h"
+#include "../IMGUI/PublicDefaults.h"
 #include "TransformComponent.h"
 #include "RenderingComponent.h"
 #include "../Renderer/Renderable.h"

@@ -8,15 +8,19 @@
 #include "../renderer/IDepthStencilBuffer.h"
 
 #ifdef FORGE_IMGUI_ENABLED
-#include "../../External/imgui/imgui.h"
+#include "../IMGUI/PublicDefaults.h"
+#include "../Renderer/FullscreenRenderingPass.h"
+#include "../Core/IWindow.h"
+#include "../Renderer/IShader.h"
 #endif
+
 
 void systems::LightingSystem::OnInitialize()
 {
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostUpdate, [ this ]() { Update(); } );
 }
 
-renderer::LightingData systems::LightingSystem::GetLightingData() const
+renderer::LightingData systems::LightingSystem::GetLightingData()
 {
 	return { GetAmbientColor(), GetPointLights(), GetSpotLights(), GetDirectionalLights() };
 }
@@ -26,30 +30,50 @@ void systems::LightingSystem::Update()
 	const Float shadowMapSize = 1024.0f;
 	Uint32 shadowMapsResolution = static_cast< Uint32 >( shadowMapSize * m_shadowsResolutionScale );
 
+	if( m_shadowMapsRecreationForced )
 	{
 		m_pointsLightsData.clear();
+		m_spotLightsData.clear();
+		m_directionalLightsData.clear();
+		m_shadowMapsRecreationForced = false;
+	}
+
+	{
 		for( auto archetype : GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( PointLightArchetypeType() ) )
 		{
 			const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
 			const forge::DataPackage< forge::PointLightComponentData >& lightsData = archetype->GetData< forge::PointLightComponentData >();
 
-			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
+			m_pointsLightsData.resize( Math::Min( static_cast< Uint32 >( m_pointsLightsData.size() ), lightsData.GetDataSize() ) );
+
+			for( Uint32 i = static_cast< Uint32 >( m_pointsLightsData.size() ); i < lightsData.GetDataSize(); ++i )
 			{
 				auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution, true );
+				m_pointsLightsData.push_back( { renderer::PointLightData(), std::move( shadowMap ) } );
+			}
 
+			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
+			{
 				renderer::PerspectiveCamera camera( 1.0f, FORGE_PI_HALF, 1.0f, 1000.0f);
 				camera.SetPosition( transformComponents[ i ].m_transform.GetPosition3() );
-				m_pointsLightsData.push_back( { renderer::PointLightData{ camera.GetProjectionMatrix(), transformComponents[ i ].m_transform.GetPosition3(), lightsData[ i ].m_power, lightsData[ i ].m_color }, std::move( shadowMap ) } );
+				m_pointsLightsData[ i ].m_shaderData = renderer::PointLightData{ camera.GetProjectionMatrix(), transformComponents[ i ].m_transform.GetPosition3(), lightsData[ i ].m_power, lightsData[ i ].m_color };
 			}
 		}
 	}
 
 	{
-		m_spotLightsData.clear();
 		for( auto archetype : GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( SpotLightArchetypeType() ) )
 		{
 			const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
 			const forge::DataPackage< forge::SpotLightComponentData >& lightsData = archetype->GetData< forge::SpotLightComponentData >();
+
+			m_spotLightsData.resize( Math::Min( static_cast<Uint32>( m_spotLightsData.size() ), lightsData.GetDataSize() ) );
+
+			for( Uint32 i = static_cast< Uint32 >( m_spotLightsData.size() ); i < lightsData.GetDataSize(); ++i )
+			{
+				auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution );
+				m_spotLightsData.push_back( { renderer::SpotLightData(), std::move( shadowMap ) } );
+			}
 
 			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
 			{
@@ -57,23 +81,28 @@ void systems::LightingSystem::Update()
 				camera.SetPosition( transformComponents[ i ].m_transform.GetPosition3() );
 				camera.SetOrientation( Quaternion::CreateFromDirection( transformComponents[ i ].m_transform.GetForward() ) );
 
-				auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution );
-
-				m_spotLightsData.push_back( { renderer::SpotLightData{ transformComponents[ i ].m_transform.GetPosition3(), transformComponents[ i ].m_transform.GetForward(),
-					lightsData[ i ].m_innerAngle, lightsData[ i ].m_outerAngle, lightsData[ i ].m_power, lightsData[ i ].m_color, camera.GetViewProjectionMatrix() }, std::move( shadowMap ) } );
+				m_spotLightsData[ i ].m_shaderData = renderer::SpotLightData{ transformComponents[ i ].m_transform.GetPosition3(), transformComponents[ i ].m_transform.GetForward(),
+					lightsData[ i ].m_innerAngle, lightsData[ i ].m_outerAngle, lightsData[ i ].m_power, lightsData[ i ].m_color, camera.GetViewProjectionMatrix() };
 			}
 		}
 	}
 
 	{
-		m_directionalLightsData.clear();
 		for( auto archetype : GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( DirectionalLightArchetypeType() ) )
 		{
 			const forge::DataPackage< forge::DirectionalLightComponentData >& lightsData = archetype->GetData< forge::DirectionalLightComponentData >();
 
-			for( const auto& light : lightsData )
+			m_directionalLightsData.resize( Math::Min( static_cast<Uint32>( m_directionalLightsData.size() ), lightsData.GetDataSize() ) );
+
+			for( Uint32 i = static_cast<Uint32>( m_directionalLightsData.size() ); i < lightsData.GetDataSize(); ++i )
 			{
-				m_directionalLightsData.push_back( { renderer::DirectionalLightData{ light } } );
+				auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution );
+				m_directionalLightsData.push_back( { renderer::DirectionalLightData(), std::move( shadowMap ) } );
+			}
+
+			for( Uint32 i = 0; i < lightsData.GetDataSize(); ++i )
+			{
+				m_directionalLightsData[ i ].m_shaderData = lightsData[ i ];
 			}
 		}
 	}
@@ -83,13 +112,49 @@ void systems::LightingSystem::Update()
 
 void systems::LightingSystem::OnRenderDebug()
 {
+	m_temporaryTextures.clear();
+
+	auto drawTextureFunc = [ & ]( const renderer::ITexture& texture, forge::ArraySpan< renderer::ShaderDefine > shaderDefines )
+	{
+		Vector2 shadowMapSize = texture.GetTextureSize();
+		auto tempTexture = GetEngineInstance().GetRenderer().CreateTexture( static_cast<Uint32>( shadowMapSize.X ), static_cast<Uint32>( shadowMapSize.Y ),
+			renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
+			renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
+
+
+		forge::imgui::DrawTexture( "Depth", *tempTexture, false, [ & ]()
+		{
+			struct CB
+			{
+				Float Denominator = 1.0f;
+				Float padding[ 3 ];
+			};
+
+			auto cb = GetEngineInstance().GetRenderer().CreateStaticConstantBuffer< CB >();
+			cb->GetData().Denominator = m_depthBufferDenominator;
+			cb->UpdateBuffer();
+			cb->SetPS( renderer::PSConstantBufferType::Material );
+
+			renderer::FullScreenRenderingPass fsPass( GetEngineInstance().GetRenderer(), "DepthBufferDebug.fx", shaderDefines );
+			fsPass.SetTargetTexture( *tempTexture );
+			fsPass.Draw( { texture.GetShaderResourceView() } );
+
+			const Float maxValue = 10000.0f;
+			m_depthBufferDenominator = Math::Min( m_depthBufferDenominator, maxValue );
+			ImGui::SliderFloat( "Denominator", &m_depthBufferDenominator, maxValue * 0.0001f, maxValue );
+		} );
+
+		m_temporaryTextures.emplace_back( std::move( tempTexture ) );
+	};
+
 	if( ImGui::Begin( "Lighting System" ) )
 	{
 		{
 			Int32 scale = static_cast<Int32>( m_shadowsResolutionScale * 100.0f );
-			if( ImGui::SliderInt( "##ResolutionScale", &scale, 1, 800, "Resolution Scale: %d%%" ) )
+			if( ImGui::SliderInt( "##ResolutionScale", &scale, 1, 1600, "Resolution Scale: %d%%" ) )
 			{
 				m_shadowsResolutionScale = static_cast<Float>( scale ) * 0.01f;
+				ForceShadowMapsRecreation();
 			}
 		}
 
@@ -112,6 +177,15 @@ void systems::LightingSystem::OnRenderDebug()
 						ImGui::SliderFloat( "Power", &lightsData[i].m_power, 0.0f, 10000.0f );
 
 						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transforms[ i ].m_transform.GetPosition3(), 50.0f, lightsData[ i ].m_color, 0.0f );
+
+						for( Uint32 c = 0; c < 6u; ++c )
+						{
+							if( GetPointLights()[ i ].m_shadowMap )
+							{
+								drawTextureFunc( *GetPointLights()[ i ].m_shadowMap->GetTexture(), { renderer::ShaderDefine{ "__NON_LINEAR_DEPTH__" }, renderer::ShaderDefine{ "__DEPTH_CUBE_INDEX__", std::to_string( c ) } } );
+							}
+						}
+
 						ImGui::TreePop();
 					}
 				}
@@ -145,6 +219,12 @@ void systems::LightingSystem::OnRenderDebug()
 
 						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transforms[ i ].m_transform.GetPosition3(), 50.0f, lightsData[ i ].m_color, 0.0f );
 						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCube( pos, extents, lightsData[ i ].m_color, 0.0f );
+
+						if( GetSpotLights()[ i ].m_shadowMap )
+						{
+							drawTextureFunc( *GetSpotLights()[ i ].m_shadowMap->GetTexture(), { renderer::ShaderDefine{ "__NON_LINEAR_DEPTH__" } } );
+						}
+
 						ImGui::TreePop();
 					}
 				}
@@ -157,13 +237,18 @@ void systems::LightingSystem::OnRenderDebug()
 			const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( DirectionalLightArchetypeType() );
 			for( systems::Archetype* archetype : archetypes )
 			{
-				const forge::DataPackage< forge::TransformComponentData >& transforms = archetype->GetData< forge::TransformComponentData >();
 				forge::DataPackage< forge::DirectionalLightComponentData >& lightsData = archetype->GetData< forge::DirectionalLightComponentData >();
-				for( Uint32 i = 0; i < transforms.GetDataSize(); ++i )
+				for( Uint32 i = 0; i < lightsData.GetDataSize(); ++i )
 				{
 					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
 					{
 						ImGui::ColorEdit3( "Color", lightsData[ i ].Color.AsArray(), ImGuiColorEditFlags_NoInputs );
+
+						if( GetDirectionalLights()[ i ].m_shadowMap )
+						{
+							drawTextureFunc( *GetDirectionalLights()[ i ].m_shadowMap->GetTexture(), {} );
+						}
+
 						ImGui::TreePop();
 					}
 				}

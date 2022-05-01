@@ -21,6 +21,11 @@ namespace forge
 			, m_end( end )
 		{}
 
+		ArraySpan( T* begin, Uint32 length )
+			: m_begin( begin )
+			, m_end( begin + length )
+		{}
+
 		template< class TContainer >
 		ArraySpan( TContainer& container )
 			: ArraySpan( std::begin( container ), std::end( container ) )
@@ -29,6 +34,16 @@ namespace forge
 		template< class TContainer >
 		ArraySpan( const TContainer& container )
 			: ArraySpan( std::begin( container ), std::end( container ) )
+		{}
+
+		template< class TContainer >
+		ArraySpan( TContainer& container, Uint32 length )
+			: ArraySpan( std::begin( container ), std::begin( container ) + length )
+		{}
+
+		template< class TContainer >
+		ArraySpan( const TContainer& container, Uint32 length )
+			: ArraySpan( std::begin( container ), std::begin( container ) + length )
 		{}
 
 		template< class T >

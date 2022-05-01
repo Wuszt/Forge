@@ -29,6 +29,7 @@ struct DirectionalLightData
     float padding0;
     float3 Color;
     float padding1;
+    float4x4 VP;
 };
 
 #ifdef __POINT_LIGHT__
@@ -101,7 +102,7 @@ float3 CalcSpotLight(float3 surfPos, float3 surfNormal, SpotLightData lightingDa
     return CalculateBlinnPhong(toLight, surfPos, surfNormal) * attn;
 }
 
-float CalcShadowMultiplierFromTexture(float3 surfPos, SpotLightData lightData, Texture2D shadowMap)
+float CalcShadowMultiplierForSpotLight(float3 surfPos, SpotLightData lightData, Texture2D shadowMap)
 {
     float4 lightPerspectivePos = mul(lightData.VP, float4(surfPos, 1));
     lightPerspectivePos.xyz /= lightPerspectivePos.w;
@@ -109,7 +110,7 @@ float CalcShadowMultiplierFromTexture(float3 surfPos, SpotLightData lightData, T
     return shadowMap.SampleCmpLevelZero(ComparisonSamplerState, lightPerspectivePos.xy, lightPerspectivePos.z - 0.0001f);
 }
 
-float CalcShadowMultiplierFromCube(float3 surfPos, PointLightData lightData, TextureCube shadowMap)
+float CalcShadowMultiplierForPointLight(float3 surfPos, PointLightData lightData, TextureCube shadowMap)
 {    
     float3 toPixel = surfPos - lightData.Position;
     float3 toPixelAbs = abs(toPixel);
@@ -118,6 +119,13 @@ float CalcShadowMultiplierFromCube(float3 surfPos, PointLightData lightData, Tex
     float depth = (lightData.ProjectionA * z + lightData.ProjectionB) / z;
     
     return shadowMap.SampleCmpLevelZero(ComparisonSamplerState, toPixel.xzy, depth - 0.00001f);
+}
+
+float CalcShadowMultiplierForDirectionalLight(float3 surfPos, DirectionalLightData lightData, Texture2D shadowMap)
+{
+    float4 lightPerspectivePos = mul(lightData.VP, float4(surfPos, 1));
+    lightPerspectivePos.xy = float2((lightPerspectivePos.x + 1.0f) * 0.5f, 1.0f - (lightPerspectivePos.y + 1.0f) * 0.5f);
+    return shadowMap.SampleCmpLevelZero(ComparisonSamplerState, lightPerspectivePos.xy, lightPerspectivePos.z - 0.001f);
 }
 
 #endif // __LIGHTING_HEADER__

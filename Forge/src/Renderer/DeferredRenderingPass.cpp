@@ -106,13 +106,14 @@ void renderer::DeferredRenderingPass::Draw( const renderer::ICamera& camera, con
 				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
-				shadowMapSRV = nullptr;
+				Uint32 srvsAmount = 3u;
 				if( light.m_shadowMap )
 				{
 					shadowMapSRV = light.m_shadowMap->GetTexture()->GetShaderResourceView();
+					++srvsAmount;
 				}
 
-				m_lightingPass->Draw( srvs );
+				m_lightingPass->Draw( { srvs, srvsAmount } );
 			}
 		}
 
@@ -124,10 +125,11 @@ void renderer::DeferredRenderingPass::Draw( const renderer::ICamera& camera, con
 
 			for( const auto& light : lightingData->m_spotLights )
 			{
-				shadowMapSRV = nullptr;
+				Uint32 srvsAmount = 3u;
 				if( light.m_shadowMap )
 				{
 					shadowMapSRV = light.m_shadowMap->GetTexture()->GetShaderResourceView();
+					++srvsAmount;
 				}
 
 				cbRendering->SetVS( renderer::VSConstantBufferType::RenderingPass );
@@ -138,7 +140,7 @@ void renderer::DeferredRenderingPass::Draw( const renderer::ICamera& camera, con
 				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
-				m_lightingPass->Draw( srvs );
+				m_lightingPass->Draw( { srvs, srvsAmount } );
 			}
 		}
 
@@ -150,10 +152,17 @@ void renderer::DeferredRenderingPass::Draw( const renderer::ICamera& camera, con
 
 			for( const auto& light : lightingData->m_directionalLights )
 			{
+				Uint32 srvsAmount = 3u;
+				if( light.m_shadowMap )
+				{
+					shadowMapSRV = light.m_shadowMap->GetTexture()->GetShaderResourceView();
+					++srvsAmount;
+				}
+
 				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
-				m_lightingPass->Draw( srvs );
+				m_lightingPass->Draw( { srvs, srvsAmount } );
 			}
 		}
 

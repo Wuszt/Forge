@@ -5,7 +5,7 @@
 #include "../Core/IWindow.h"
 
 #ifdef FORGE_IMGUI_ENABLED
-#include "../../External/imgui/imgui.h"
+#include "../IMGUI/PublicDefaults.h"
 #include "CameraComponent.h"
 #include "../Renderer/ICamera.h"
 #include "../Renderer/PerspectiveCamera.h"

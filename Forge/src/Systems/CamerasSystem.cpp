@@ -4,7 +4,7 @@
 
 #ifdef FORGE_IMGUI_ENABLED
 #include "IMGUISystem.h"
-#include "../../External/imgui/imgui.h"
+#include "../IMGUI/PublicDefaults.h"
 #endif
 
 void systems::CamerasSystem::OnInitialize()

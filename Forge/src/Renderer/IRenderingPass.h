@@ -63,9 +63,9 @@ namespace renderer
 	struct LightingData
 	{
 		Vector3 m_ambientLight;
-		forge::ArraySpan< const LightData< PointLightData > > m_pointLights;
-		forge::ArraySpan< const LightData< SpotLightData > > m_spotLights;
-		forge::ArraySpan< const LightData< DirectionalLightData > > m_directionalLights;
+		forge::ArraySpan< LightData< PointLightData > > m_pointLights;
+		forge::ArraySpan< LightData< SpotLightData > > m_spotLights;
+		forge::ArraySpan< LightData< DirectionalLightData > > m_directionalLights;
 	};
 
 	class IMeshesRenderingPass : public IRenderingPass

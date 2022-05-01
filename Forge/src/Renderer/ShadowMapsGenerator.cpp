@@ -3,6 +3,7 @@
 #include "LightData.h"
 #include "ForwardRenderingPass.h"
 #include "CustomCamera.h"
+#include "OrthographicCamera.h"
 
 renderer::ShadowMapsGenerator::ShadowMapsGenerator( IRenderer& renderer )
 	: m_renderer( renderer )
@@ -54,6 +55,24 @@ void renderer::ShadowMapsGenerator::GenerateShadowMaps( const renderer::RawRende
 			shadowsRenderingPass.ClearTargetTexture();
 
 			auto camera = renderer::CustomCamera( lightData.m_shaderData.VP, 0.0f, 0.0f );
+			shadowsRenderingPass.Draw( camera, rawRenderablesPacks.GetRendenderablesPack( RenderingPass::Opaque ), nullptr );
+		}
+	}
+
+	for( auto& lightData : lightingData.m_directionalLights )
+	{
+		if( lightData.m_shadowMap )
+		{
+			lightData.m_shadowMap->GetView().Clear();
+
+			renderer::ForwardRenderingPass shadowsRenderingPass( m_renderer );
+			shadowsRenderingPass.SetDepthStencilBuffer( lightData.m_shadowMap.get() );
+			shadowsRenderingPass.ClearTargetTexture();
+
+			auto camera = renderer::OrthographicCamera( 5000.0f, 1.0f, 0.1f, 6000.0f );
+			camera.SetPosition( -lightData.m_shaderData.Direction * 3500.0f );
+			camera.SetOrientation( Quaternion::CreateFromDirection( lightData.m_shaderData.Direction ) );
+			lightData.m_shaderData.VP = camera.GetViewProjectionMatrix();
 			shadowsRenderingPass.Draw( camera, rawRenderablesPacks.GetRendenderablesPack( RenderingPass::Opaque ), nullptr );
 		}
 	}

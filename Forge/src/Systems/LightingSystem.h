@@ -9,6 +9,10 @@
 namespace renderer
 {
 	struct LightingData;
+
+#ifdef FORGE_IMGUI_ENABLED
+	class ITexture;
+#endif
 }
 
 namespace systems
@@ -27,9 +31,19 @@ namespace systems
 		FORGE_INLINE forge::ArraySpan< const renderer::LightData< renderer::PointLightData > > GetPointLights() const
 		{
 			return m_pointsLightsData;
+		}	
+		
+		FORGE_INLINE forge::ArraySpan< renderer::LightData< renderer::PointLightData > > GetPointLights()
+		{
+			return m_pointsLightsData;
 		}
 
 		FORGE_INLINE forge::ArraySpan< const renderer::LightData< renderer::SpotLightData > > GetSpotLights() const
+		{
+			return m_spotLightsData;
+		}
+
+		FORGE_INLINE forge::ArraySpan< renderer::LightData< renderer::SpotLightData > > GetSpotLights()
 		{
 			return m_spotLightsData;
 		}
@@ -38,8 +52,13 @@ namespace systems
 		{
 			return m_directionalLightsData;
 		}
+
+		FORGE_INLINE forge::ArraySpan< renderer::LightData< renderer::DirectionalLightData > > GetDirectionalLights()
+		{
+			return m_directionalLightsData;
+		}
 		
-		renderer::LightingData GetLightingData() const;
+		renderer::LightingData GetLightingData();
 
 		FORGE_INLINE void SetAmbientColor( Vector3 ambientColor )
 		{
@@ -51,6 +70,11 @@ namespace systems
 			return m_ambientColor;
 		}
 
+		FORGE_INLINE void ForceShadowMapsRecreation()
+		{
+			m_shadowMapsRecreationForced = true;
+		}
+
 	private:
 		void Update();
 
@@ -60,6 +84,7 @@ namespace systems
 		std::vector< renderer::LightData< renderer::DirectionalLightData > > m_directionalLightsData;
 		Vector3 m_ambientColor;
 		Float m_shadowsResolutionScale = 1.0f;
+		Bool m_shadowMapsRecreationForced = false;
 
 #ifdef FORGE_DEBUGGING
 		virtual const std::string& GetDebugFriendlyName() const { static std::string name = "Lighting System"; return name; }
@@ -67,6 +92,9 @@ namespace systems
 
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;
+
+		Float m_depthBufferDenominator = std::numeric_limits< Float >::infinity();
+		std::vector< std::unique_ptr< renderer::ITexture > > m_temporaryTextures;
 #endif
 	};
 

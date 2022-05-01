@@ -120,7 +120,9 @@ void renderer::ForwardRenderingPass::Draw( const renderer::ICamera& camera, cons
 				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
-				GetRenderer().Draw( rawRenderables, &c_directionalLightDefine );
+				IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
+
+				GetRenderer().Draw( rawRenderables, &c_directionalLightDefine, { shadowMapSrv } );
 			}
 		}
 

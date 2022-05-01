@@ -13,7 +13,7 @@
 #include "../Renderer/FullScreenRenderingPass.h"
 
 #ifdef FORGE_IMGUI_ENABLED
-#include "../../External/imgui/imgui.h"
+#include "../IMGUI/PublicDefaults.h"
 #include "../Renderer/ICamera.h"
 #endif
 #include "../Renderer/ShadowMapsGenerator.h"
@@ -127,38 +127,11 @@ void systems::RenderingSystem::OnRenderDebug()
 				ImGui::EndTabItem();
 			}
 
-			auto funcDrawTexture = []( const std::string& name, renderer::ITexture& texture )
-			{
-				if( ImGui::TreeNodeEx( name.c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
-				{
-					const Vector2& size = texture.GetTextureSize();
-					const ImVec2 textureSize = ImVec2( ImGui::GetWindowWidth(), ImGui::GetWindowWidth() * size.Y / size.X );
-					ImGui::Image( texture.GetShaderResourceView()->GetRawSRV(), textureSize );
-					if( ImGui::IsItemHovered() && ImGui::IsMouseDown( ImGuiMouseButton_Right ) )
-					{
-						ImVec2 pos = ImGui::GetCursorScreenPos();
-						ImGuiIO& io = ImGui::GetIO();
-						ImGui::BeginTooltip();
-						Float region_sz = 32.0f;
-						Float region_x = io.MousePos.x - pos.x - region_sz * 0.5f;
-						Float region_y = textureSize.y - Math::Abs( io.MousePos.y - pos.y - region_sz * 0.5f );
-						Float zoom = 4.0f;
-						Math::Clamp( 0.0f, textureSize.x - region_sz, region_x );
-						Math::Clamp( 0.0f, textureSize.y - region_sz, region_y );
-						ImVec2 uv0 = ImVec2( ( region_x ) / textureSize.x, ( region_y ) / textureSize.y );
-						ImVec2 uv1 = ImVec2( ( region_x + region_sz ) / textureSize.x, ( region_y + region_sz ) / textureSize.y );
-						ImGui::Image( texture.GetShaderResourceView()->GetRawSRV(), ImVec2( region_sz * zoom, region_sz * zoom ), uv0, uv1 );
-						ImGui::EndTooltip();
-					}
-					ImGui::TreePop();
-				}
-			};
-
 			if( ImGui::BeginTabItem( "Loaded textures" ) )
 			{
 				for( const auto& texture : m_renderer->GetResourceManager().GetAllLoadedTextures() )
 				{
-					funcDrawTexture( texture.first, *texture.second );
+					forge::imgui::DrawTexture( texture.first, *texture.second );
 				}
 
 				ImGui::EndTabItem();
@@ -168,8 +141,8 @@ void systems::RenderingSystem::OnRenderDebug()
 			{
 				if( dynamic_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() ) )
 				{
-					funcDrawTexture( "Normals", *static_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() )->GetNormalsTexture() );
-					funcDrawTexture( "Diffuse", *static_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() )->GetDiffuseTexture() );
+					forge::imgui::DrawTexture( "Normals", *static_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() )->GetNormalsTexture() );
+					forge::imgui::DrawTexture( "Diffuse", *static_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() )->GetDiffuseTexture() );
 				}
 
 				{
@@ -196,7 +169,7 @@ void systems::RenderingSystem::OnRenderDebug()
 					renderer::FullScreenRenderingPass fsPass( *m_renderer, "DepthBufferDebug.fx", currentCamera.HasNonLinearDepth() ? forge::ArraySpan< renderer::ShaderDefine >{ renderer::ShaderDefine{ "__NON_LINEAR_DEPTH__" } } : forge::ArraySpan< renderer::ShaderDefine >{} );
 					fsPass.SetTargetTexture( *m_temporaryTexture );
 					fsPass.Draw( { m_depthStencilBuffer->GetTexture()->GetShaderResourceView() } );
-					funcDrawTexture( "Depth", *m_temporaryTexture );
+					forge::imgui::DrawTexture( "Depth", *m_temporaryTexture );
 				}
 
 				ImGui::EndTabItem();
