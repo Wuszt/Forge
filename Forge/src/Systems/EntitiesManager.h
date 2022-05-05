@@ -1,4 +1,5 @@
 #pragma once
+#include "EngineInstance.h"
 
 namespace forge
 {
@@ -120,7 +121,7 @@ namespace forge
 		};
 		std::vector< ComponentCreationRequest > m_componentCreationRequests;
 
-		std::unique_ptr< CallbackToken > m_tickToken;
+		forge::CallbackToken m_tickToken;
 
 #ifdef FORGE_IMGUI_ENABLED
 		forge::CallbackToken m_debugOverlayToken;

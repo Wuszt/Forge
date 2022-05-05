@@ -1,4 +1,6 @@
 #pragma once
+#include "EngineInstance.h"
+
 namespace forge
 {
 	class UpdateManager : public IManager

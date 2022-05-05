@@ -335,6 +335,7 @@
     <ClCompile Include="RenderingSystem.cpp" />
     <ClCompile Include="SpotLightComponent.cpp" />
     <ClCompile Include="SystemsManager.cpp" />
+    <ClCompile Include="TimeSystem.cpp" />
     <ClCompile Include="TransformComponent.cpp" />
     <ClCompile Include="TransformSystem.cpp" />
     <ClCompile Include="UpdateManager.cpp" />
@@ -363,6 +364,7 @@
     <ClInclude Include="RenderingSystem.h" />
     <ClInclude Include="SpotLightComponent.h" />
     <ClInclude Include="SystemsManager.h" />
+    <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="TransformSystem.h" />
     <ClInclude Include="UpdateManager.h" />

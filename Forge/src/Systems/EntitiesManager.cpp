@@ -20,7 +20,7 @@ void forge::EntitiesManager::Initialize()
 	} );
 #endif
 
-	 m_tickToken = std::make_unique< CallbackToken >( m_engineInstance.GetUpdateManager().RegisterUpdateFunction( UpdateManager::BucketType::Present, std::bind( &forge::EntitiesManager::HandleRequests, this ) ) );
+	 m_tickToken = m_engineInstance.GetUpdateManager().RegisterUpdateFunction( UpdateManager::BucketType::Present, std::bind( &forge::EntitiesManager::HandleRequests, this ) );
 }
 
 void forge::EntitiesManager::Deinitialize()
@@ -29,7 +29,7 @@ void forge::EntitiesManager::Deinitialize()
 	m_debugOverlayToken.Unregister();
 #endif
 
-	m_tickToken = nullptr;
+	m_tickToken.Unregister();
 }
 
 void forge::EntitiesManager::RemoveEntity( const EntityID& id )

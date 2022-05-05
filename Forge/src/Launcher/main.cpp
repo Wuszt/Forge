@@ -17,6 +17,7 @@
 #include "../Renderer/Material.h"
 #include "../Renderer/PerspectiveCamera.h"
 #include "../Core/Time.h"
+#include "../Systems/TimeSystem.h"
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -210,6 +211,7 @@ Int32 main()
 			ctx.AddSystem< systems::PlayerSystem >();
 			ctx.AddSystem< systems::RenderingSystem >();
 			ctx.AddSystem< systems::LightingSystem >();
+			ctx.AddSystem< systems::TimeSystem >();
 
 #ifdef FORGE_DEBUGGING
 			ctx.AddSystem< systems::DebugSystem >();
@@ -239,8 +241,8 @@ Int32 main()
 				} );
 			} );
 
-			//MinecraftScene( engineInstance );
-			SponzaScene( engineInstance );
+			MinecraftScene( engineInstance );
+			//SponzaScene( engineInstance );
 			//BunnyScene( engineInstance );	
 
 			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
@@ -262,9 +264,9 @@ Int32 main()
 
 			if( m_sun )
 			{
-				Float currentAngle = DEG2RAD * 10.0f * forge::Time::GetRealTime();
+				Float currentAngle = DEG2RAD * 10.0f * engineInstance.GetSystemsManager().GetSystem< systems::TimeSystem >().GetCurrentTime();
 				m_sun->GetData().Direction = Quaternion( -FORGE_PI_HALF, 0.0f, currentAngle ) * Vector3::EY();
-				m_sun->GetData().Color = Vector3{ 1.0f, 1.0f, 1.0f } *Math::Cos( currentAngle );
+				m_sun->GetData().Color = Vector3{ 1.0f, 1.0f, 1.0f } * Math::Cos( currentAngle );
 			}
 		}
 
