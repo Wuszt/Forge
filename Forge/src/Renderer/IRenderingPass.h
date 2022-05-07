@@ -73,7 +73,17 @@ namespace renderer
 	public:
 		IMeshesRenderingPass( IRenderer& renderer );
 
-		virtual void Draw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) = 0;
+		void Draw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
+		{
+			OnBeforeDraw( camera, rawRenderables, lightingData );
+			OnDraw( camera, rawRenderables, lightingData );
+			OnAfterDraw( camera, rawRenderables, lightingData );
+		}
+
+		virtual void OnBeforeDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData );
+		virtual void OnDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) = 0;
+		virtual void OnAfterDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) {}
+
 		virtual void ClearTargetTexture() override;
 
 		FORGE_INLINE void SetDepthStencilBuffer( IDepthStencilBuffer* depthStencilBuffer, Uint32 dsvIndex = 0u )
@@ -92,6 +102,11 @@ namespace renderer
 
 		void AdjustViewportSize();
 		void UpdateCameraConstantBuffer( const renderer::ICamera& camera );
+
+		static const renderer::ShaderDefine c_ambientLightDefine;
+		static const renderer::ShaderDefine c_pointLightDefine;
+		static const renderer::ShaderDefine c_spotLightDefine;
+		static const renderer::ShaderDefine c_directionalLightDefine;
 
 	private:
 		Uint32 m_dsvIndex = 0u;

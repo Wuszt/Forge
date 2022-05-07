@@ -57,6 +57,30 @@ namespace d3d11
 		}
 	};
 
+	D3D11_RASTERIZER_DESC GetDefaultRasterizerDesc()
+	{
+		D3D11_RASTERIZER_DESC rasterizerDesc;
+		ZeroMemory( &rasterizerDesc, sizeof( D3D11_RASTERIZER_DESC ) );
+		rasterizerDesc.AntialiasedLineEnable = false;
+		rasterizerDesc.CullMode = D3D11_CULL_BACK;
+		rasterizerDesc.FrontCounterClockwise = true;
+		rasterizerDesc.DepthBias = 0;
+		rasterizerDesc.DepthBiasClamp = 0.0f;
+		rasterizerDesc.SlopeScaledDepthBias = 0.0f;
+		rasterizerDesc.DepthClipEnable = true;
+		rasterizerDesc.ScissorEnable = false;
+		rasterizerDesc.MultisampleEnable = false;
+		rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+
+		return rasterizerDesc;
+	}
+
+	void InitializeRasterizer( D3D11Device& device, D3D11RenderContext& context, const D3D11_RASTERIZER_DESC& desc, ID3D11RasterizerState** outRasterizerState )
+	{
+		device.GetDevice()->CreateRasterizerState( &desc, outRasterizerState );
+		context.GetDeviceContext()->RSSetState( *outRasterizerState );
+	}
+
 	D3D11Renderer::D3D11Renderer( forge::IWindow& window )
 	{
 		FORGE_ASSERT( dynamic_cast<windows::WindowsWindow*>( &window ) );
@@ -66,7 +90,7 @@ namespace d3d11
 
 		SetViewportSize( Vector2( static_cast< Float >( window.GetWidth() ), static_cast< Float >( window.GetHeight() ) ) );
 
-		InitializeRasterizer();
+		InitializeRasterizer( *m_device, *m_context, GetDefaultRasterizerDesc(), &m_rasterizerState );
 
 		m_windowCallbackToken = window.RegisterEventListener(
 			[ & ]( const forge::IWindow::IEvent& event )
@@ -150,6 +174,16 @@ namespace d3d11
 	std::unique_ptr< renderer::ISamplerState > D3D11Renderer::CreateSamplerState( renderer::SamplerStateFilterType filterType, renderer::SamplerStateComparisonType comparisonType )
 	{
 		return std::make_unique< d3d11::D3D11SamplerState >( *GetDevice(), filterType, comparisonType );
+	}
+
+	void D3D11Renderer::SetDepthBias( Float bias, Float slopeScaledBias, Float clamp )
+	{
+		D3D11_RASTERIZER_DESC desc;
+		m_rasterizerState->GetDesc( &desc );
+		desc.DepthBias = bias;
+		desc.SlopeScaledDepthBias = slopeScaledBias;
+		desc.DepthBiasClamp = clamp;
+		InitializeRasterizer( *m_device, *m_context, desc, &m_rasterizerState );
 	}
 
 	void D3D11Renderer::SetSamplerStates( const forge::ArraySpan< renderer::ISamplerState* > samplerStates )
@@ -398,24 +432,5 @@ namespace d3d11
 		m_device = std::make_unique< D3D11Device >( d3d11Device );
 		m_context = std::make_unique< D3D11RenderContext >( d3d11DevCon );
 		m_swapChain = std::make_unique< D3D11Swapchain >( *m_device, *m_context, swapChain );
-	}
-
-	void D3D11Renderer::InitializeRasterizer()
-	{
-		D3D11_RASTERIZER_DESC rasterizerDesc;
-		ZeroMemory( &rasterizerDesc, sizeof( D3D11_RASTERIZER_DESC ) );
-		rasterizerDesc.AntialiasedLineEnable = false;
-		rasterizerDesc.CullMode = D3D11_CULL_BACK;
-		rasterizerDesc.FrontCounterClockwise = true;
-		rasterizerDesc.DepthBias = 0;
-		rasterizerDesc.DepthBiasClamp = 0.0f;
-		rasterizerDesc.SlopeScaledDepthBias = 0.0f;
-		rasterizerDesc.DepthClipEnable = true;
-		rasterizerDesc.ScissorEnable = false;
-		rasterizerDesc.MultisampleEnable = false;
-		rasterizerDesc.FillMode = D3D11_FILL_SOLID;
-
-		m_device->GetDevice()->CreateRasterizerState( &rasterizerDesc, &m_rasterizerState );
-		m_context->GetDeviceContext()->RSSetState( m_rasterizerState );
 	}
 }

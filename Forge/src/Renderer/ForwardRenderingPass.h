@@ -12,7 +12,7 @@ namespace renderer
 		ForwardRenderingPass( IRenderer& renderer );
 		~ForwardRenderingPass();
 
-		virtual void Draw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) override;
+		virtual void OnDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) override;
 
 		static forge::ArraySpan< const ShaderDefine > GetRequiredShaderDefines();
 

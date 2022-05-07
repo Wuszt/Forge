@@ -11,6 +11,13 @@ renderer::ShadowMapsGenerator::ShadowMapsGenerator( IRenderer& renderer )
 
 void renderer::ShadowMapsGenerator::GenerateShadowMaps( const renderer::RawRenderablesPacks& rawRenderablesPacks, LightingData& lightingData )
 {
+	if( lightingData.m_pointLights.IsEmpty() && lightingData.m_spotLights.IsEmpty() && lightingData.m_directionalLights.IsEmpty() )
+	{
+		return;
+	}
+
+	m_renderer.SetDepthBias( 160.0f, 2.0f, 0.0f );
+
 	for( auto& lightData : lightingData.m_pointLights )
 	{
 		if( lightData.m_shadowMap )
@@ -76,4 +83,6 @@ void renderer::ShadowMapsGenerator::GenerateShadowMaps( const renderer::RawRende
 			shadowsRenderingPass.Draw( camera, rawRenderablesPacks.GetRendenderablesPack( RenderingPass::Opaque ), nullptr );
 		}
 	}
+
+	m_renderer.SetDepthBias( 0.0f, 0.0f, 0.0f );
 }

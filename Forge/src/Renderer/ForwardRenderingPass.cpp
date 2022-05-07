@@ -23,14 +23,6 @@ struct CBDirectionalLight
 	renderer::DirectionalLightData LightingData;
 };
 
-namespace
-{
-	const renderer::ShaderDefine c_ambientLightDefine{ "__AMBIENT_LIGHT__" };
-	const renderer::ShaderDefine c_pointLightDefine{ "__POINT_LIGHT__" };
-	const renderer::ShaderDefine c_spotLightDefine{ "__SPOT_LIGHT__" };
-	const renderer::ShaderDefine c_directionalLightDefine{ "__DIRECTIONAL_LIGHT__" };
-}
-
 forge::ArraySpan< const renderer::ShaderDefine > renderer::ForwardRenderingPass::GetRequiredShaderDefines()
 {
 	thread_local ShaderDefine shaderDefines[] = { c_ambientLightDefine, c_pointLightDefine, c_spotLightDefine, c_directionalLightDefine };
@@ -51,12 +43,8 @@ renderer::ForwardRenderingPass::ForwardRenderingPass( IRenderer& renderer )
 
 renderer::ForwardRenderingPass::~ForwardRenderingPass() = default;
 
-void renderer::ForwardRenderingPass::Draw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
+void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
 {
-	AdjustViewportSize();
-
-	UpdateCameraConstantBuffer( camera );
-
 	std::vector< renderer::IRenderTargetView* > views{ GetTargetTexture() ? GetTargetTexture()->GetRenderTargetView() : nullptr };
 	GetRenderer().SetRenderTargets( views, &GetDepthStencilView() );
 
@@ -90,7 +78,7 @@ void renderer::ForwardRenderingPass::Draw( const renderer::ICamera& camera, cons
 
 				IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
 
-				GetRenderer().Draw( rawRenderables, &c_pointLightDefine, { shadowMapSrv } );
+				GetRenderer().Draw( rawRenderables, &c_pointLightDefine, { &shadowMapSrv, shadowMapSrv ? 1u : 0u } );
 			}
 		}
 
@@ -106,7 +94,7 @@ void renderer::ForwardRenderingPass::Draw( const renderer::ICamera& camera, cons
 
 				IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
 
-				GetRenderer().Draw( rawRenderables, &c_spotLightDefine, { shadowMapSrv } );
+				GetRenderer().Draw( rawRenderables, &c_spotLightDefine, { &shadowMapSrv, shadowMapSrv ? 1u : 0u } );
 			}
 		}
 
@@ -122,7 +110,7 @@ void renderer::ForwardRenderingPass::Draw( const renderer::ICamera& camera, cons
 
 				IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
 
-				GetRenderer().Draw( rawRenderables, &c_directionalLightDefine, { shadowMapSrv } );
+				GetRenderer().Draw( rawRenderables, &c_directionalLightDefine, { &shadowMapSrv, shadowMapSrv ? 1u : 0u } );
 			}
 		}
 

@@ -15,10 +15,12 @@ Texture2D DiffuseBuffer : register(t0);
 Texture2D DepthBuffer : register(t1);
 Texture2D NormalsBuffer : register(t2);
 
-#if defined __SPOT_LIGHT__ || defined __DIRECTIONAL_LIGHT__
-Texture2D ShadowMap : register(t3);
-#elif defined __POINT_LIGHT__
-TextureCube ShadowMap : register(t3);
+#if defined __SHADOW_MAP__
+    #if defined __SPOT_LIGHT__ || defined __DIRECTIONAL_LIGHT__
+    Texture2D ShadowMap : register(t3);
+    #elif defined __POINT_LIGHT__
+    TextureCube ShadowMap : register(t3);
+    #endif
 #endif
 
 struct VS_OUTPUT
@@ -68,12 +70,14 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
     
     float shadowMultiplier = 1.0f;
    
-#if defined __SPOT_LIGHT__
-    shadowMultiplier = CalcShadowMultiplierForSpotLight( worldPos, LightingData, ShadowMap );
-#elif defined __DIRECTIONAL_LIGHT__
-    shadowMultiplier = CalcShadowMultiplierForDirectionalLight( worldPos, LightingData, ShadowMap );
-#elif defined __POINT_LIGHT__
-    shadowMultiplier = CalcShadowMultiplierForPointLight( worldPos, LightingData, ShadowMap );
+#if defined __SHADOW_MAP__
+    #if defined __SPOT_LIGHT__
+        shadowMultiplier = CalcShadowMultiplierForSpotLight( worldPos, LightingData, ShadowMap );
+    #elif defined __DIRECTIONAL_LIGHT__
+        shadowMultiplier = CalcShadowMultiplierForDirectionalLight( worldPos, LightingData, ShadowMap );
+    #elif defined __POINT_LIGHT__
+        shadowMultiplier = CalcShadowMultiplierForPointLight( worldPos, LightingData, ShadowMap );
+    #endif
 #endif
     
     float4 lightColor = float4(DiffuseBuffer.Sample(LinearSamplerState, texCoord).rgb * LightingData.Color, 1.0f) * shadowMultiplier;

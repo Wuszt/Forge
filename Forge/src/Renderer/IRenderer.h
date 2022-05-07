@@ -83,6 +83,8 @@ namespace renderer
 		IRenderer();
 		virtual ~IRenderer();
 
+		void Initialize();
+
 		virtual IRenderContext* GetContext() const = 0;
 		virtual ISwapchain* GetSwapchain() const = 0;
 		virtual IShadersManager* GetShadersManager() const = 0;
@@ -94,21 +96,16 @@ namespace renderer
 		virtual std::unique_ptr< IBlendState > CreateBlendState( const BlendOperationDesc& rgbOperation, const BlendOperationDesc& alphaDesc ) const = 0;
 		virtual std::unique_ptr< renderer::IDepthStencilBuffer > CreateDepthStencilBuffer( Uint32 width, Uint32 height, Bool cubeTexture = false ) const = 0;
 		virtual std::unique_ptr< IDepthStencilState > CreateDepthStencilState( DepthStencilComparisonFunc comparisonFunc ) const = 0;
-
-		void Initialize();
-
-		virtual void SetViewportSize( const Vector2& size ) = 0;
-
-		virtual void SetRenderTargets( const forge::ArraySpan< IRenderTargetView* >& rendererTargetViews, IDepthStencilView* depthStencilView ) = 0;
-
 		virtual std::unique_ptr< ISamplerState > CreateSamplerState( SamplerStateFilterType filterType, SamplerStateComparisonType comparisonType ) = 0;
-		virtual void SetSamplerStates( const forge::ArraySpan< ISamplerState* > samplerStates ) = 0;
 
+		virtual void SetDepthBias( Float bias, Float slopeScaledBias, Float clamp ) = 0;
+		virtual void SetViewportSize( const Vector2& size ) = 0;
+		virtual void SetRenderTargets( const forge::ArraySpan< IRenderTargetView* >& rendererTargetViews, IDepthStencilView* depthStencilView ) = 0;
+		virtual void SetSamplerStates( const forge::ArraySpan< ISamplerState* > samplerStates ) = 0;
 		virtual void SetShaderResourceViews( const forge::ArraySpan< IShaderResourceView* >& input, Uint32 startIndex = 0u ) = 0;
 		virtual void ClearShaderResourceViews() = 0;
 
 		virtual void OnBeforeDraw() = 0;
-
 		virtual RendererType GetType() const = 0;
 
 		virtual void DrawRawVertices( Uint32 amount ) = 0;

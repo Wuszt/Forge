@@ -104,28 +104,45 @@ float3 CalcSpotLight(float3 surfPos, float3 surfNormal, SpotLightData lightingDa
 
 float CalcShadowMultiplierForSpotLight(float3 surfPos, SpotLightData lightData, Texture2D shadowMap)
 {
+    if (shadowMap.Sample(LinearSamplerState, float2(0.0f, 0.0f)).r == 0.0f)
+    {
+        return 1.0f;
+    }
+    
     float4 lightPerspectivePos = mul(lightData.VP, float4(surfPos, 1));
     lightPerspectivePos.xyz /= lightPerspectivePos.w;
     lightPerspectivePos.xy = float2((lightPerspectivePos.x + 1.0f) * 0.5f, 1.0f - (lightPerspectivePos.y + 1.0f) * 0.5f);
-    return shadowMap.SampleCmpLevelZero(ComparisonSamplerState, lightPerspectivePos.xy, lightPerspectivePos.z - 0.0001f);
+    
+    return shadowMap.SampleCmpLevelZero(ComparisonSamplerState, lightPerspectivePos.xy, lightPerspectivePos.z);
 }
 
 float CalcShadowMultiplierForPointLight(float3 surfPos, PointLightData lightData, TextureCube shadowMap)
 {    
+    if (shadowMap.Sample(LinearSamplerState, float3(0.0f, 0.0f,1.0f)).r == 0.0f)
+    {
+        return 1.0f;
+    }
+    
     float3 toPixel = surfPos - lightData.Position;
     float3 toPixelAbs = abs(toPixel);
     float z = max(toPixelAbs.x, max(toPixelAbs.y, toPixelAbs.z));
     
     float depth = (lightData.ProjectionA * z + lightData.ProjectionB) / z;
     
-    return shadowMap.SampleCmpLevelZero(ComparisonSamplerState, toPixel.xzy, depth - 0.00001f);
+    return shadowMap.SampleCmpLevelZero(ComparisonSamplerState, toPixel.xzy, depth);
 }
 
 float CalcShadowMultiplierForDirectionalLight(float3 surfPos, DirectionalLightData lightData, Texture2D shadowMap)
 {
+    if (shadowMap.Sample(LinearSamplerState, float2(0.0f, 0.0f)).r == 0.0f)
+    {
+        return 1.0f;
+    }
+    
     float4 lightPerspectivePos = mul(lightData.VP, float4(surfPos, 1));
     lightPerspectivePos.xy = float2((lightPerspectivePos.x + 1.0f) * 0.5f, 1.0f - (lightPerspectivePos.y + 1.0f) * 0.5f);
-    return shadowMap.SampleCmpLevelZero(ComparisonSamplerState, lightPerspectivePos.xy, lightPerspectivePos.z - 0.001f);
+    
+    return shadowMap.SampleCmpLevelZero(ComparisonSamplerState, lightPerspectivePos.xy, lightPerspectivePos.z);
 }
 
 #endif // __LIGHTING_HEADER__

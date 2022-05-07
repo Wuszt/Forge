@@ -25,6 +25,12 @@ renderer::IMeshesRenderingPass::IMeshesRenderingPass( IRenderer& renderer )
 	m_cameraCB = renderer.CreateStaticConstantBuffer< CBCamera >();
 }
 
+void renderer::IMeshesRenderingPass::OnBeforeDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
+{
+	AdjustViewportSize();
+	UpdateCameraConstantBuffer( camera );
+}
+
 void renderer::IMeshesRenderingPass::ClearTargetTexture()
 {
 	IRenderingPass::ClearTargetTexture();
@@ -66,3 +72,8 @@ void renderer::IMeshesRenderingPass::UpdateCameraConstantBuffer( const renderer:
 	m_cameraCB->SetVS( renderer::VSConstantBufferType::Camera );
 	m_cameraCB->SetPS( renderer::PSConstantBufferType::Camera );
 }
+
+const renderer::ShaderDefine renderer::IMeshesRenderingPass::c_ambientLightDefine{ "__AMBIENT_LIGHT__" };
+const renderer::ShaderDefine renderer::IMeshesRenderingPass::c_pointLightDefine{ "__POINT_LIGHT__" };
+const renderer::ShaderDefine renderer::IMeshesRenderingPass::c_spotLightDefine{ "__SPOT_LIGHT__" };
+const renderer::ShaderDefine renderer::IMeshesRenderingPass::c_directionalLightDefine{ "__DIRECTIONAL_LIGHT__" };

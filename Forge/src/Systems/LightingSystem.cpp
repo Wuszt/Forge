@@ -14,6 +14,7 @@
 #include "../Renderer/IShader.h"
 #endif
 
+const Float c_shadowMapBaseSize = 1024.0f;
 
 void systems::LightingSystem::OnInitialize()
 {
@@ -27,8 +28,7 @@ renderer::LightingData systems::LightingSystem::GetLightingData()
 
 void systems::LightingSystem::Update()
 {
-	const Float shadowMapSize = 1024.0f;
-	Uint32 shadowMapsResolution = static_cast< Uint32 >( shadowMapSize * m_shadowsResolutionScale );
+	Uint32 shadowMapsResolution = static_cast< Uint32 >( c_shadowMapBaseSize * m_shadowsResolutionScale );
 
 	if( m_shadowMapsRecreationForced )
 	{
@@ -114,6 +114,23 @@ void systems::LightingSystem::OnRenderDebug()
 {
 	m_temporaryTextures.clear();
 
+	auto castShadowFunc = [ & ]( auto& light, Bool isPointLight )
+	{
+		Bool castShadows = light.m_shadowMap != nullptr;
+		if( ImGui::Checkbox( "Cast Shadows", &castShadows ) )
+		{
+			if( castShadows )
+			{
+				Uint32 shadowMapsResolution = static_cast<Uint32>( c_shadowMapBaseSize * m_shadowsResolutionScale );
+				light.m_shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution, isPointLight );
+			}
+			else
+			{
+				light.m_shadowMap = nullptr;
+			}
+		}
+	};
+
 	auto drawTextureFunc = [ & ]( const renderer::ITexture& texture, forge::ArraySpan< renderer::ShaderDefine > shaderDefines )
 	{
 		Vector2 shadowMapSize = texture.GetTextureSize();
@@ -178,6 +195,8 @@ void systems::LightingSystem::OnRenderDebug()
 
 						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transforms[ i ].m_transform.GetPosition3(), 50.0f, lightsData[ i ].m_color, 0.0f );
 
+						castShadowFunc( GetPointLights()[ i ], true );
+
 						for( Uint32 c = 0; c < 6u; ++c )
 						{
 							if( GetPointLights()[ i ].m_shadowMap )
@@ -220,6 +239,8 @@ void systems::LightingSystem::OnRenderDebug()
 						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transforms[ i ].m_transform.GetPosition3(), 50.0f, lightsData[ i ].m_color, 0.0f );
 						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCube( pos, extents, lightsData[ i ].m_color, 0.0f );
 
+						castShadowFunc( GetPointLights()[ i ], false );
+
 						if( GetSpotLights()[ i ].m_shadowMap )
 						{
 							drawTextureFunc( *GetSpotLights()[ i ].m_shadowMap->GetTexture(), { renderer::ShaderDefine{ "__NON_LINEAR_DEPTH__" } } );
@@ -243,6 +264,8 @@ void systems::LightingSystem::OnRenderDebug()
 					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
 					{
 						ImGui::ColorEdit3( "Color", lightsData[ i ].Color.AsArray(), ImGuiColorEditFlags_NoInputs );
+
+						castShadowFunc( GetPointLights()[ i ], false );
 
 						if( GetDirectionalLights()[ i ].m_shadowMap )
 						{
