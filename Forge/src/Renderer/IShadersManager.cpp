@@ -4,10 +4,14 @@
 #include "IPixelShader.h"
 #include "IShader.h"
 #include "ShaderPack.h"
+#include "../Core/DepotsContainer.h"
 
 namespace renderer
 {
-	IShadersManager::IShadersManager() = default;
+	IShadersManager::IShadersManager( const forge::DepotsContainer& depotsContainer )
+		: m_depotsContainer( depotsContainer )
+	{}
+
 	IShadersManager::~IShadersManager() = default;
 
 	void IShadersManager::SetBaseShaderDefines( std::vector< ShaderDefine > shaderDefines )

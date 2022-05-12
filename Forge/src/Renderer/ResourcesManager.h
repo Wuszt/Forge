@@ -17,7 +17,7 @@ namespace renderer
 	class ResourcesManager
 	{
 	public:
-		ResourcesManager( IRenderer& renderer );
+		ResourcesManager( const forge::DepotsContainer& depotsContainer, IRenderer& renderer );
 		~ResourcesManager();
 
 		struct ModelMaterialsPackage

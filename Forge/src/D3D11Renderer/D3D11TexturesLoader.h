@@ -9,7 +9,7 @@ namespace d3d11
 	class D3D11TexturesLoader : public renderer::ITexturesLoader
 	{
 	public:
-		D3D11TexturesLoader( const D3D11Device& device, const D3D11RenderContext& context );
+		D3D11TexturesLoader( const forge::DepotsContainer& depotsContainer, const D3D11Device& device, const D3D11RenderContext& context );
 		virtual std::shared_ptr< renderer::ITexture > LoadTexture( const std::string& path ) override;
 
 	private:

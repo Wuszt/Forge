@@ -5,6 +5,7 @@
 namespace forge
 {
 	class IWindow;
+	class DepotsContainer;
 }
 
 namespace renderer
@@ -79,8 +80,8 @@ namespace renderer
 	class IRenderer
 	{
 	public:
-		static std::unique_ptr< IRenderer > CreateRenderer( forge::IWindow& window, RendererType type );
-		IRenderer();
+		static std::unique_ptr< IRenderer > CreateRenderer( const forge::DepotsContainer& depotsContainer, forge::IWindow& window, RendererType type );
+		IRenderer( const forge::DepotsContainer& depotsContainer );
 		virtual ~IRenderer();
 
 		void Initialize();
@@ -145,6 +146,9 @@ namespace renderer
 		}
 
 		virtual std::unique_ptr< ITexturesLoader > CreateTexturesLoader() const = 0;
+
+	protected:
+		const forge::DepotsContainer& m_depotsContainer;
 
 	private:
 		std::unique_ptr< ResourcesManager > m_resourcesManager;

@@ -1,4 +1,5 @@
 #pragma once
+#include "../Core/DepotsContainer.h"
 
 namespace renderer
 {
@@ -49,12 +50,18 @@ namespace forge
 			return *m_window;
 		}
 
+		FORGE_INLINE const DepotsContainer& GetDepotsContainer() const
+		{
+			return m_depotsContainer;
+		}
+
 		void Run();
 
 	private:
 		std::unique_ptr< EntitiesManager > m_entitiesManager;
 		std::unique_ptr< systems::SystemsManager > m_systemManager;
 		std::unique_ptr< UpdateManager > m_updateManager;
+		const DepotsContainer m_depotsContainer;
 
 		std::unique_ptr< renderer::IRenderer > m_renderer;
 		std::unique_ptr< IWindow > m_window;

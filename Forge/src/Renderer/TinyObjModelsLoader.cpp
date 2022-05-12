@@ -6,11 +6,16 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../../External/tinyobjloader/tiny_obj_loader.h"
 #include <fstream>
+#include "../Core/DepotsContainer.h"
 
 std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( const std::string& path, std::vector< renderer::MaterialData >* materialsData )
 {
-	const std::string folderPath = "Resources/Models/";
-	const std::string objFinalPath = folderPath + path;
+	std::string objFinalPath;
+
+	if( !m_depotsContainer.TryToGetExistingFilePath( path, objFinalPath ) )
+	{
+		return nullptr;
+	}
 
 	std::string warning;
 	std::string error;
@@ -19,7 +24,7 @@ std::shared_ptr< renderer::Model > renderer::TinyObjModelsLoader::LoadModel( con
 
 	if( materialsData )
 	{
-		readerConfig.mtl_search_path = folderPath;
+		readerConfig.mtl_search_path = objFinalPath.substr( 0u, objFinalPath.find_last_of('\\') );
 	}
 
 	tinyobj::ObjReader reader;

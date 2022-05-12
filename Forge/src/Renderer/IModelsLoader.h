@@ -7,7 +7,7 @@ namespace renderer
 	class IModelsLoader
 	{
 	public:
-		IModelsLoader( IRenderer& renderer );
+		IModelsLoader( const forge::DepotsContainer& depotsContainer, IRenderer& renderer );
 		virtual ~IModelsLoader();
 
 		virtual std::shared_ptr< renderer::Model > LoadModel( const std::string& path, std::vector< MaterialData >* materialsData = nullptr ) = 0;
@@ -17,6 +17,8 @@ namespace renderer
 		{
 			return m_renderer;
 		}
+
+		const forge::DepotsContainer& m_depotsContainer;
 
 	private:
 		IRenderer& m_renderer;

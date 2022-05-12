@@ -1,5 +1,10 @@
 #pragma once
 
+namespace forge
+{
+	class DepotsContainer;
+}
+
 namespace renderer
 {
 	struct ShaderDefine;
@@ -10,7 +15,7 @@ namespace renderer
 	class IShadersManager
 	{
 	public:
-		IShadersManager();
+		IShadersManager( const forge::DepotsContainer& depotsContainer );
 		~IShadersManager();
 
 		void SetBaseShaderDefines( std::vector< ShaderDefine > shaderDefines );
@@ -29,6 +34,8 @@ namespace renderer
 	protected:
 		virtual std::unique_ptr< IVertexShader > CreateVertexShader( const std::string& path, forge::ArraySpan< const ShaderDefine > defines ) const = 0;
 		virtual std::unique_ptr< IPixelShader > CreatePixelShader( const std::string& path, forge::ArraySpan< const ShaderDefine > defines ) const = 0;
+
+		const forge::DepotsContainer& m_depotsContainer;
 
 	private:
 		std::unordered_map< Uint32, std::shared_ptr< ShaderPack< IVertexShader > > > m_vertexShaders;

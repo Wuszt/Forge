@@ -37,7 +37,7 @@ namespace d3d11
 	class D3D11Renderer : public renderer::IRenderer
 	{
 	public:
-		D3D11Renderer( forge::IWindow& window );
+		D3D11Renderer( const forge::DepotsContainer& depotsContainer, forge::IWindow& window );
 		~D3D11Renderer();
 
 		FORGE_INLINE D3D11Device* GetDevice() const

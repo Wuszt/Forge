@@ -3,9 +3,9 @@
 #include "TinyObjModelsLoader.h"
 #include "ITexturesLoader.h"
 
-renderer::ResourcesManager::ResourcesManager( IRenderer& renderer )
+renderer::ResourcesManager::ResourcesManager( const forge::DepotsContainer& depotsContainer, IRenderer& renderer )
 {
-	m_modelsLoader = std::make_unique< renderer::TinyObjModelsLoader >( renderer );
+	m_modelsLoader = std::make_unique< renderer::TinyObjModelsLoader >( depotsContainer, renderer );
 	m_texturesLoader = renderer.CreateTexturesLoader();
 }
 

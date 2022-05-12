@@ -28,7 +28,7 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-			renderingComponent->LoadMeshAndMaterial( "vokselia_spawn.obj" );
+			renderingComponent->LoadMeshAndMaterial( "Models\\vokselia\\vokselia_spawn.obj" );
 
 			auto renderable = renderingComponent->GetData().m_renderable;
 			for( auto& material : renderable->GetMaterials() )
@@ -78,7 +78,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-			renderingComponent->LoadMeshAndMaterial( "sponza.obj" );
+			renderingComponent->LoadMeshAndMaterial( "Models\\sponza\\sponza.obj" );
 
 			auto renderable = renderingComponent->GetData().m_renderable;
 			for( auto& material : renderable->GetMaterials() )
@@ -129,7 +129,7 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-			renderingComponent->LoadMeshAndMaterial( "bunny.obj" );
+			renderingComponent->LoadMeshAndMaterial( "Models\\bunny.obj" );
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 			transformComponent->GetData().m_transform.SetOrientation( Quaternion( 0.0f, 0.0f, FORGE_PI * 0.6f ) );
@@ -146,13 +146,13 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-			renderingComponent->LoadMeshAndMaterial( "cube.obj" );
+			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
 
 			auto renderable = renderingComponent->GetData().m_renderable;
 			for( auto& material : renderable->GetMaterials() )
 			{
 				material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Opaque );
-				material->SetTexture( "grass.jpg", renderer::Material::TextureType::Diffuse );
+				material->SetTexture( "Textures\\grass.jpg", renderer::Material::TextureType::Diffuse );
 			}
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
@@ -170,7 +170,7 @@ void CubeScene( forge::EngineInstance& engineInstance )
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-			renderingComponent->LoadMeshAndMaterial( "cube.obj" );
+			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 
@@ -189,7 +189,7 @@ void SphereScene( forge::EngineInstance& engineInstance )
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-			renderingComponent->LoadMeshAndMaterial( "sphere.obj" );
+			renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 
@@ -204,6 +204,8 @@ Int32 main()
 	class GameInstance : public forge::ApplicationInstance
 	{
 	public:
+		using forge::ApplicationInstance::ApplicationInstance;
+
 		virtual void Initialize( forge::EngineInstance& engineInstance )
 		{
 			systems::SystemsManager::BootContext ctx;
@@ -241,9 +243,9 @@ Int32 main()
 				} );
 			} );
 
-			MinecraftScene( engineInstance );
+			//MinecraftScene( engineInstance );
 			//SponzaScene( engineInstance );
-			//BunnyScene( engineInstance );	
+			BunnyScene( engineInstance );	
 
 			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
 			{
@@ -278,7 +280,7 @@ Int32 main()
 	private:
 		forge::DirectionalLightComponent* m_sun = nullptr;
 
-	} gameInstance;
+	} gameInstance( "Launcher" );
 
 	forge::EngineInstance engineInstance( gameInstance );
 

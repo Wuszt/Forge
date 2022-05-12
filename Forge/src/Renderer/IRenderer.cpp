@@ -4,14 +4,14 @@
 
 namespace renderer
 {
-	std::unique_ptr< IRenderer > IRenderer::CreateRenderer( forge::IWindow& window, RendererType type )
+	std::unique_ptr< IRenderer > IRenderer::CreateRenderer( const forge::DepotsContainer& depotsContainer, forge::IWindow& window, RendererType type )
 	{
 		std::unique_ptr< IRenderer > result = nullptr;
 
 		switch( type )
 		{
 		case RendererType::D3D11:
-			result = std::make_unique< d3d11::D3D11Renderer >( window );
+			result = std::make_unique< d3d11::D3D11Renderer >( depotsContainer, window );
 			break;
 		default:
 			FORGE_FATAL( "Unknown renderer type" );
@@ -22,13 +22,15 @@ namespace renderer
 		return result;
 	}
 
-	IRenderer::IRenderer() = default;
+	IRenderer::IRenderer( const forge::DepotsContainer& depotsContainer )
+		: m_depotsContainer( depotsContainer )
+	{}
 
 	IRenderer::~IRenderer() = default;
 
 	void IRenderer::Initialize()
 	{
-		m_resourcesManager = std::make_unique< ResourcesManager >( *this );
+		m_resourcesManager = std::make_unique< ResourcesManager >( m_depotsContainer, *this );
 	}
 
 	void IRenderer::Draw( const renderer::Renderable& renderable )

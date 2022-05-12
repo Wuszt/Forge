@@ -106,7 +106,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TimeSystem.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -183,7 +183,7 @@
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="TimeSystem.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Systems</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
