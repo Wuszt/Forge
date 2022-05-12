@@ -13,49 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{dd73895d-9b6a-4960-b5aa-fae30890677a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Headers">
-      <UniqueIdentifier>{0ec10c20-bd10-46b2-b2c5-cdafa8b3859e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Shaders\VS_FullScreen.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\FullScreenCommon.fxh">
-      <Filter>Shaders\Headers</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\GeometryCommon.fxh">
-      <Filter>Shaders\Headers</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\Common.fxh">
-      <Filter>Shaders\Headers</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\Lighting.fxh">
-      <Filter>Shaders\Headers</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\DepthBufferDebug.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\Uber.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="CopyTexture.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\Forward.fxh" />
-    <FxCompile Include="Shaders\DeferredLighting.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\Deferred.fxh">
-      <Filter>Shaders\Headers</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>

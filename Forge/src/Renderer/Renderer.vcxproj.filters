@@ -12,6 +12,9 @@
     <Filter Include="Header Files\External">
       <UniqueIdentifier>{e0668231-8838-41ca-bb73-d80916addf6b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{526c3392-878d-452b-86b1-f2c285c4a2b7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IRenderer.cpp">
@@ -253,5 +256,42 @@
     <ClInclude Include="OrthographicCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Depots\Engine\Shaders\Common.fxh">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Depots\Engine\Shaders\Deferred.fxh">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Depots\Engine\Shaders\Forward.fxh">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Depots\Engine\Shaders\FullScreenCommon.fxh">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Depots\Engine\Shaders\GeometryCommon.fxh">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Depots\Engine\Shaders\Lighting.fxh">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\CopyTexture.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\DeferredLighting.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\DepthBufferDebug.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\Uber.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\VS_FullScreen.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
