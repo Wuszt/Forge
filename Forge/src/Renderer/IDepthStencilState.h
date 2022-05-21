@@ -19,6 +19,7 @@ namespace renderer
 	public:
 		virtual void Set() = 0;
 		virtual void Clear() = 0;
+		virtual void EnableWrite( Bool enable ) = 0;
 
 		virtual ~IDepthStencilState() = default;
 	};

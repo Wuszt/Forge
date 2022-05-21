@@ -101,7 +101,7 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-			renderingComponent->LoadMeshAndMaterial( "sphere.obj" );
+			renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
 
 			transformComponent->GetData().m_transform.SetPosition( position );
 			transformComponent->GetData().m_scale = { radius, radius, radius };
@@ -123,7 +123,7 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-			renderingComponent->LoadMeshAndMaterial( "cube.obj" );
+			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
 
 			transformComponent->GetData().m_transform.SetPosition( position );
 			transformComponent->GetData().m_scale = extension;

@@ -20,6 +20,7 @@ namespace renderer
 	class RawRenderablesPacks;
 	class ISamplerState;
 	class IDepthStencilBuffer;
+	class IBlendState;
 
 	enum class SamplerStateFilterType;
 
@@ -79,6 +80,7 @@ namespace systems
 
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_opaqueRenderingPass;
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_overlayRenderingPass;
+		std::unique_ptr< renderer::IMeshesRenderingPass > m_transparentRenderingPass;
 
 		std::unique_ptr< renderer::IDepthStencilBuffer > m_depthStencilBuffer;
 		std::unique_ptr< renderer::IDepthStencilState > m_depthStencilState;
@@ -91,6 +93,8 @@ namespace systems
 		forge::CallbackToken m_windowCallbackToken;
 
 		Float m_renderingResolutionScale = 1.0f;
+
+		std::unique_ptr< renderer::IBlendState > m_transparencyBlendState;
 
 #ifdef FORGE_IMGUI_ENABLED
 		forge::CallbackToken m_overlayDebugToken;

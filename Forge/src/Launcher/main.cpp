@@ -118,6 +118,46 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
 		} );
 	} );
+
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	{
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		{
+			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+			transformComponent->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 200.0f } );
+			transformComponent->GetData().m_scale = Vector3::ONES() * 250.0f;
+
+			renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
+
+			auto renderable = renderingComponent->GetData().m_renderable;
+			auto& material = renderable->GetMaterials()[0];
+			material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Transparent );
+			material->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 0.0f, 0.0f, 0.1f } );
+			material->GetConstantBuffer()->UpdateBuffer();
+		} );
+	} );
+
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	{
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		{
+			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+			transformComponent->GetData().m_transform.SetPosition( { 0.0f, 200.0f, 200.0f } );
+			transformComponent->GetData().m_scale = Vector3::ONES() * 250.0f;
+
+			renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
+
+			auto renderable = renderingComponent->GetData().m_renderable;
+			auto& material = renderable->GetMaterials()[ 0 ];
+			material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Transparent );
+			material->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 0.0f, 1.0f, 0.0f, 0.1f } );
+			material->GetConstantBuffer()->UpdateBuffer();
+		} );
+	} );
 }
 
 void BunnyScene( forge::EngineInstance& engineInstance )
@@ -244,8 +284,8 @@ Int32 main()
 			} );
 
 			//MinecraftScene( engineInstance );
-			//SponzaScene( engineInstance );
-			BunnyScene( engineInstance );	
+			SponzaScene( engineInstance );
+			//BunnyScene( engineInstance );	
 
 			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
 			{

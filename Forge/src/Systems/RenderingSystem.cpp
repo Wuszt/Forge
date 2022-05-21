@@ -11,22 +11,19 @@
 #include "../Renderer/IDepthStencilState.h"
 #include "../Core/IWindow.h"
 #include "../Renderer/FullScreenRenderingPass.h"
+#include "../Renderer/IBlendState.h"
+#include "../Renderer/ShadowMapsGenerator.h"
 
 #ifdef FORGE_IMGUI_ENABLED
 #include "../IMGUI/PublicDefaults.h"
 #include "../Renderer/ICamera.h"
 #endif
-#include "../Renderer/ShadowMapsGenerator.h"
 
 systems::RenderingSystem::RenderingSystem( forge::EngineInstance& engineInstance )
 	: ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >( engineInstance )
 {}
 
-systems::RenderingSystem::~RenderingSystem()
-{
-	m_opaqueRenderingPass = nullptr;
-	m_overlayRenderingPass = nullptr;
-}
+systems::RenderingSystem::~RenderingSystem() = default;
 
 void systems::RenderingSystem::OnInitialize()
 {
@@ -62,6 +59,13 @@ void systems::RenderingSystem::OnInitialize()
 	m_overlayRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
 	m_overlayRenderingPass->SetTargetTexture( *m_targetTexture );
 	m_overlayRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
+
+	m_transparentRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
+	m_transparentRenderingPass->SetTargetTexture( *m_targetTexture );
+	m_transparentRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
+
+	m_transparencyBlendState = GetEngineInstance().GetRenderer().CreateBlendState( { renderer::BlendOperand::BLEND_SRC_ALPHA, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_INV_SRC_ALPHA },
+		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ZERO } );
 
 	std::vector< renderer::ShaderDefine > baseShaderDefines;
 	baseShaderDefines.insert( baseShaderDefines.end(), renderer::DeferredRenderingPass::GetRequiredShaderDefines().begin(), renderer::DeferredRenderingPass::GetRequiredShaderDefines().end() );
@@ -278,6 +282,12 @@ void systems::RenderingSystem::OnDraw()
 
 	m_opaqueRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Opaque ), &lightingData );
 	m_overlayRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Overlay ), nullptr );
+
+	m_transparencyBlendState->Set();
+	m_depthStencilState->EnableWrite( false );
+	m_transparentRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Transparent ), nullptr );
+	m_depthStencilState->EnableWrite( true );
+	m_transparencyBlendState->Clear();
 
 	m_renderer->SetViewportSize( Vector2( static_cast< Float >( GetEngineInstance().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetWindow().GetHeight() ) ) );
 	renderer::FullScreenRenderingPass copyResourcePass( *m_renderer, "CopyTexture.fx", {} );

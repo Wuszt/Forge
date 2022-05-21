@@ -28,12 +28,11 @@ D3D11_COMPARISON_FUNC GetAsD3D11ComparisonFunc( renderer::DepthStencilComparison
 	}
 }
 
-d3d11::D3D11DepthStencilState::D3D11DepthStencilState( d3d11::D3D11Device& device, d3d11::D3D11RenderContext& context, renderer::DepthStencilComparisonFunc comparisonFunc )
-	: m_context( context )
+D3D11_DEPTH_STENCIL_DESC GetDesc( renderer::DepthStencilComparisonFunc comparisonFunc, Bool writeEnabled )
 {
 	D3D11_DEPTH_STENCIL_DESC desc;
 	desc.DepthEnable = true;
-	desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	desc.DepthWriteMask = writeEnabled ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
 	desc.DepthFunc = GetAsD3D11ComparisonFunc( comparisonFunc );
 
 	desc.StencilEnable = false;
@@ -49,6 +48,15 @@ d3d11::D3D11DepthStencilState::D3D11DepthStencilState( d3d11::D3D11Device& devic
 	desc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 	desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+
+	return desc;
+}
+
+d3d11::D3D11DepthStencilState::D3D11DepthStencilState( d3d11::D3D11Device& device, d3d11::D3D11RenderContext& context, renderer::DepthStencilComparisonFunc comparisonFunc )
+	: m_device( device )
+	, m_context( context )
+{
+	D3D11_DEPTH_STENCIL_DESC desc = GetDesc( comparisonFunc, true );
 
 	FORGE_ASSURE( device.GetDevice()->CreateDepthStencilState( &desc, &m_depthStencilState ) == S_OK );
 }
@@ -66,4 +74,36 @@ void d3d11::D3D11DepthStencilState::Set()
 void d3d11::D3D11DepthStencilState::Clear()
 {
 	m_context.GetDeviceContext()->OMSetDepthStencilState( nullptr, 0 );
+}
+
+void d3d11::D3D11DepthStencilState::EnableWrite( Bool enable )
+{
+	D3D11_DEPTH_STENCIL_DESC desc;
+	m_depthStencilState->GetDesc( &desc );
+
+	desc.DepthWriteMask = enable ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+	FORGE_ASSURE( m_device.GetDevice()->CreateDepthStencilState( &desc, &m_depthStencilState ) == S_OK );
+
+	D3D11_DEPTH_STENCIL_DESC currentStateDesc;
+	ID3D11DepthStencilState* currentState = nullptr;
+	m_context.GetDeviceContext()->OMGetDepthStencilState( &currentState, nullptr );
+	currentState->GetDesc( &currentStateDesc );
+	Bool isSet = currentStateDesc.BackFace.StencilDepthFailOp == desc.BackFace.StencilDepthFailOp
+		&& currentStateDesc.BackFace.StencilFailOp == desc.BackFace.StencilFailOp
+		&& currentStateDesc.BackFace.StencilFunc == desc.BackFace.StencilFunc
+		&& currentStateDesc.BackFace.StencilPassOp == desc.BackFace.StencilPassOp
+		&& currentStateDesc.DepthEnable == desc.DepthEnable
+		&& currentStateDesc.DepthFunc == desc.DepthFunc
+		&& currentStateDesc.FrontFace.StencilDepthFailOp == desc.FrontFace.StencilDepthFailOp
+		&& currentStateDesc.FrontFace.StencilFailOp == desc.FrontFace.StencilFailOp
+		&& currentStateDesc.FrontFace.StencilFunc == desc.FrontFace.StencilFunc
+		&& currentStateDesc.FrontFace.StencilPassOp == desc.FrontFace.StencilPassOp
+		&& currentStateDesc.StencilEnable == desc.StencilEnable
+		&& currentStateDesc.StencilReadMask == desc.StencilReadMask
+		&& currentStateDesc.StencilWriteMask == desc.StencilWriteMask;
+
+	if( isSet )
+	{
+		Set();
+	}
 }
