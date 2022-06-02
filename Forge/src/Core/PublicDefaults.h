@@ -12,3 +12,4 @@
 #include "StringUtils.h"
 #include "DataPackage.h"
 #include "ArraySpan.h"
+#include "RTTI.h"
