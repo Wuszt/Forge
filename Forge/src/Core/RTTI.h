@@ -32,6 +32,11 @@ namespace rtti
 		{
 			return false;
 		}
+
+		Bool operator==( const IType& rhl ) const
+		{
+			return IsA( rhl );
+		}
 	};
 }
 
@@ -44,7 +49,11 @@ namespace rtti
 #define INHERITS_FROM_STATIC_BODY_true return Super::GetTypeStatic().IsA< T >() || Super::InheritsFromStatic< T >();
 #define INHERITS_FROM_STATIC_BODY_false return false;
 
-#define DECLARE_TYPE_INTERNAL_PARENT(ClassName, NamespaceParentClassName, ParentClassName, Inherits, Virtual) \
+
+#define CREATE_DEFAULT_INTERNAL_true(ClassName) return nullptr;
+#define CREATE_DEFAULT_INTERNAL_false(ClassName) return new ClassName##();
+
+#define DECLARE_TYPE_INTERNAL_PARENT(ClassName, NamespaceParentClassName, ParentClassName, Inherits, Virtual, Abstract) \
 public: \
 class ClassName##Type : public NamespaceParentClassName##ParentClassName##Type \
 { \
@@ -55,8 +64,15 @@ public: \
 	{ \
 		INHERITS_FROM_BODY_##Inherits##(NamespaceParentClassName##ParentClassName) \
 	} \
-private: \
-	const std::string m_typeName = #ClassName; \
+	std::unique_ptr<##ClassName##> CreateDefault() const \
+	{ \
+		return std::unique_ptr<##ClassName##>(CreateDefault_Internal()); \
+	} \
+protected: \
+	VIRTUAL_##Virtual ClassName##* CreateDefault_Internal() const \
+	{ \
+		CREATE_DEFAULT_INTERNAL_##Abstract##(ClassName) \
+	} \
 }; \
 	static const ClassName##Type& GetTypeStatic() \
 	{ \
@@ -65,19 +81,19 @@ private: \
 	template< class T > \
 	Bool IsA() const \
 	{ \
-		return GetType().IsA< T >(); \
+		return static_cast<const rtti::IType&>(GetType()).IsA< T >(); \
 	} \
 	template< class T > \
 	Bool InheritsFrom() const \
 	{ \
-		return GetType().InheritsFrom< T >(); \
+		return static_cast<const rtti::IType&>(GetType()).InheritsFrom< T >(); \
 	} \
 	template< class T > \
 	Bool InheritsFromOrIsA() const \
 	{ \
 		return IsA< T >() || InheritsFrom< T >(); \
 	} \
-	VIRTUAL_##Virtual const rtti::IType& GetType() const \
+	VIRTUAL_##Virtual const ClassName##Type& GetType() const \
 	{ \
 		return s_typeInstance; \
 	} \
@@ -95,14 +111,14 @@ private: \
 	static ClassName##Type s_typeInstance;
 
 #define DECLARE_TYPE_INTERNAL_PARENT_NAMESPACE_DIRECT(ClassName, NamespaceParentClassName, ParentClassName) \
-DECLARE_TYPE_INTERNAL_PARENT(ClassName, NamespaceParentClassName##::##ParentClassName##::, ParentClassName, true, true) \
+DECLARE_TYPE_INTERNAL_PARENT(ClassName, NamespaceParentClassName##::##ParentClassName##::, ParentClassName, true, true, false) \
 	using Super = NamespaceParentClassName##::##ParentClassName;
 
 #define DECLARE_TYPE_INTERNAL(ClassName) \
-DECLARE_TYPE_INTERNAL_PARENT(ClassName,, rtti::I, false, false)
+DECLARE_TYPE_INTERNAL_PARENT(ClassName,, rtti::I, false, false, false)
 
 #define DECLARE_TYPE_INTERNAL_PARENT_DIRECT(ClassName, ParentClassName) \
-DECLARE_TYPE_INTERNAL_PARENT( ClassName,, ParentClassName, true, true ) \
+DECLARE_TYPE_INTERNAL_PARENT( ClassName,, ParentClassName, true, true, false) \
 	using Super = ParentClassName;
 
 #define EXPAND( x ) x
@@ -111,7 +127,10 @@ DECLARE_TYPE_INTERNAL_PARENT( ClassName,, ParentClassName, true, true ) \
 #define DECLARE_TYPE(...) EXPAND(GET_DECLARE_TYPE_MACRO(__VA_ARGS__, DECLARE_TYPE_INTERNAL_PARENT_NAMESPACE_DIRECT, DECLARE_TYPE_INTERNAL_PARENT_DIRECT, DECLARE_TYPE_INTERNAL)(__VA_ARGS__))
 
 #define DECLARE_POLYMORPHIC_BASE_TYPE(ClassName) \
-DECLARE_TYPE_INTERNAL_PARENT(ClassName,, rtti::I, false, true)
+DECLARE_TYPE_INTERNAL_PARENT(ClassName,, rtti::I, false, true, false)
+
+#define DECLARE_ABSTRACT_TYPE(ClassName) \
+DECLARE_TYPE_INTERNAL_PARENT(ClassName,, rtti::I, false, true, true)
 
 #define IMPLEMENT_TYPE_INTERNAL(NamespaceClassName, ClassName) NamespaceClassName##::##ClassName##Type NamespaceClassName##::s_typeInstance; \
 const char* NamespaceClassName##::##ClassName##Type::GetName() const \
