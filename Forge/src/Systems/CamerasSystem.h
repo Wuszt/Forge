@@ -10,6 +10,8 @@ namespace systems
 {
 	class CamerasSystem : public ISystem
 	{
+		DECLARE_TYPE(CamerasSystem, systems, ISystem);
+
 	public:
 		using ISystem::ISystem;
 

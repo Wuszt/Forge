@@ -6,6 +6,8 @@ namespace systems
 {
 	class DebugSystem : public ISystem
 	{
+		DECLARE_TYPE( DebugSystem, systems, ISystem );
+
 	public:
 		using ISystem::ISystem;
 

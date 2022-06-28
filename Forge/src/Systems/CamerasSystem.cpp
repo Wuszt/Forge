@@ -7,6 +7,8 @@
 #include "../IMGUI/PublicDefaults.h"
 #endif
 
+IMPLEMENT_TYPE(systems, CamerasSystem)
+
 void systems::CamerasSystem::OnInitialize()
 {
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, std::bind( &systems::CamerasSystem::Update, this ) );

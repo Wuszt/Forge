@@ -14,6 +14,8 @@
 #include "../Renderer/IRenderer.h"
 #endif
 
+IMPLEMENT_TYPE(systems, DebugSystem);
+
 void systems::DebugSystem::OnInitialize()
 {
 #ifdef FORGE_IMGUI_ENABLED

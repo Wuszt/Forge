@@ -3,6 +3,7 @@
 #include "DebugSystem.h"
 
 IMPLEMENT_TYPE(systems, ISystem)
+IMPLEMENT_TYPE(systems, IECSSystem)
 
 void systems::Archetype::MoveEntityTo( forge::EntityID entityId, Archetype* destination )
 {

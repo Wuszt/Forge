@@ -19,6 +19,8 @@
 #include "../Renderer/ICamera.h"
 #endif
 
+IMPLEMENT_TYPE( systems, RenderingSystem );
+
 systems::RenderingSystem::RenderingSystem()
 	: ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >()
 {}

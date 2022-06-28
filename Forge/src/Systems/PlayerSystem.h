@@ -11,6 +11,8 @@ namespace systems
 
 	class PlayerSystem : public ISystem
 	{
+		DECLARE_TYPE( PlayerSystem, systems, ISystem );
+
 	public:
 		using ISystem::ISystem;
 

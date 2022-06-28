@@ -7,6 +7,8 @@
 #include "../Core/StringUtils.h"
 #endif
 
+IMPLEMENT_TYPE( systems, TimeSystem );
+
 void systems::TimeSystem::OnInitialize()
 {
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreUpdate, [ this ]() { Update(); } );

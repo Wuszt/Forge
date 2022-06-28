@@ -12,6 +12,8 @@
 #include "../Renderer/OrthographicCamera.h"
 #endif
 
+IMPLEMENT_TYPE( systems, PlayerSystem );
+
 void systems::PlayerSystem::OnInitialize()
 {
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, std::bind( &systems::PlayerSystem::Update, this ) );

@@ -23,6 +23,8 @@ namespace systems
 
 	class LightingSystem : public ECSSystem< PointLightArchetypeType, SpotLightArchetypeType, DirectionalLightArchetypeType >
 	{
+		DECLARE_TYPE( LightingSystem, systems, IECSSystem );
+
 	public:
 		using ECSSystem::ECSSystem;
 

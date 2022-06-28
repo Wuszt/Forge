@@ -5,6 +5,7 @@ namespace systems
 {
 	class TimeSystem : public ISystem
 	{
+		DECLARE_TYPE( TimeSystem, systems, ISystem );
 	public:
 		using ISystem::ISystem;
 
