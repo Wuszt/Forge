@@ -31,7 +31,7 @@ namespace systems
 			template< class T >
 			FORGE_INLINE void AddSystem()
 			{
-				m_systemsCreations.emplace_back( []( forge::EngineInstance& engineInstance ) { return std::make_unique< T >( engineInstance ); } );
+				m_systemsCreations.emplace_back( []( forge::EngineInstance& engineInstance ) { return std::make_unique< T >(); } );
 			}
 
 			FORGE_INLINE const std::vector< CreationFunc >& GetSystemsCreations() const

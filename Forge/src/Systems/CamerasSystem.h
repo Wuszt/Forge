@@ -3,7 +3,7 @@
 
 namespace forge
 {
-	class CameraComponent;;
+	class CameraComponent;
 }
 
 namespace systems

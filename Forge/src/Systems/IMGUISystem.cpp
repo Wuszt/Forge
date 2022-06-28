@@ -6,14 +6,12 @@
 #include "../IMGUI/IMGUIInstance.h"
 #include "../Core/IWindow.h"
 
-systems::IMGUISystem::IMGUISystem( forge::EngineInstance& engineInstance )
-	: ISystem( engineInstance )
-{
-	m_imguiInstance = std::make_unique< forge::IMGUIInstance >( engineInstance.GetWindow(), engineInstance.GetRenderer() );
-}
+systems::IMGUISystem::IMGUISystem() = default;
+systems::IMGUISystem::~IMGUISystem() = default;
 
 void systems::IMGUISystem::OnInitialize()
 {
+	m_imguiInstance = std::make_unique< forge::IMGUIInstance >( GetEngineInstance().GetWindow(), GetEngineInstance().GetRenderer() );
 	m_preUpdateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreUpdate, [ & ]()
 	{
 		m_imguiInstance->OnNewFrame();

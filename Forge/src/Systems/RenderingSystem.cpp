@@ -19,8 +19,8 @@
 #include "../Renderer/ICamera.h"
 #endif
 
-systems::RenderingSystem::RenderingSystem( forge::EngineInstance& engineInstance )
-	: ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >( engineInstance )
+systems::RenderingSystem::RenderingSystem()
+	: ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >()
 {}
 
 systems::RenderingSystem::~RenderingSystem() = default;

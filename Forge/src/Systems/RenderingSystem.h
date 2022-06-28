@@ -36,7 +36,7 @@ namespace systems
 	class RenderingSystem : public ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >
 	{
 	public:
-		RenderingSystem( forge::EngineInstance& engineInstance );
+		RenderingSystem();
 		~RenderingSystem();
 
 		virtual void OnInitialize() override;

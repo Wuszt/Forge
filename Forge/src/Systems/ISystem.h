@@ -110,17 +110,15 @@ namespace systems
 
 	class ISystem
 	{
+		friend class SystemsManager;
+		DECLARE_ABSTRACT_TYPE( ISystem );
 	public:
-		ISystem( forge::EngineInstance& engineInstance );
-
+		ISystem() = default;
 		virtual ~ISystem() = default;
-
-		virtual void OnInitialize() {}
-		virtual void OnDeinitialize() {}
 
 		FORGE_INLINE forge::EngineInstance& GetEngineInstance() const
 		{
-			return m_engineInstance;
+			return *m_engineInstance;
 		}
 
 #ifdef FORGE_DEBUGGING
@@ -128,8 +126,14 @@ namespace systems
 		virtual void OnRenderDebug() {}
 #endif
 
+	protected:
+		virtual void OnInitialize() {}
+		virtual void OnDeinitialize() {}
+
 	private:
-		forge::EngineInstance& m_engineInstance;
+		void Initialize( forge::EngineInstance& engineInstance );
+		void Deinitialize();
+		forge::EngineInstance* m_engineInstance;
 	};
 
 	class IArchetypeDataTypes

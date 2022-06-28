@@ -2,6 +2,8 @@
 #include "ISystem.h"
 #include "DebugSystem.h"
 
+IMPLEMENT_TYPE(systems, ISystem)
+
 void systems::Archetype::MoveEntityTo( forge::EntityID entityId, Archetype* destination )
 {
 	*std::find( m_sparseSet.begin(), m_sparseSet.end(), m_dataSize - 1u ) = m_sparseSet[ entityId.m_id ];
@@ -45,6 +47,13 @@ void systems::Archetype::MoveEntityFrom( forge::EntityID entityId, std::vector< 
 	m_sparseSet[ entityId.m_id ] = m_dataSize++;
 }
 
-systems::ISystem::ISystem( forge::EngineInstance& engineInstance )
-	: m_engineInstance( engineInstance )
-{}
+void systems::ISystem::Initialize( forge::EngineInstance& engineInstance )
+{
+	m_engineInstance = &engineInstance;
+	OnInitialize();
+}
+
+void systems::ISystem::Deinitialize()
+{
+	OnDeinitialize();
+}

@@ -13,7 +13,8 @@ namespace systems
 	class IMGUISystem : public ISystem
 	{
 	public:
-		IMGUISystem( forge::EngineInstance& engineInstance );
+		IMGUISystem();
+		~IMGUISystem();
 
 		virtual void OnInitialize() override;
 

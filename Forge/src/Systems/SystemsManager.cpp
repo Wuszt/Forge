@@ -262,12 +262,12 @@ void systems::SystemsManager::Boot( const BootContext& ctx )
 
 	for( auto& sys : m_systems )
 	{
-		sys->OnInitialize();
+		sys->Initialize( GetEngineInstance() );
 	}
 
 	for( auto& sys : m_ecsSystems )
 	{
-		sys->OnInitialize();
+		sys->Initialize( GetEngineInstance() );
 	}
 
 	m_onBootCallback.Invoke();
@@ -277,11 +277,11 @@ void systems::SystemsManager::Shutdown()
 {
 	for( auto& sys : m_systems )
 	{
-		sys->OnDeinitialize();
+		sys->Deinitialize();
 	}
 
 	for( auto& sys : m_ecsSystems )
 	{
-		sys->OnDeinitialize();
+		sys->Deinitialize();
 	}
 }
