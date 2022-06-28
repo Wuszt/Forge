@@ -41,14 +41,8 @@ namespace systems
 				return m_systemsClasses;
 			}
 
-			FORGE_INLINE const std::vector< ArchetypeFunc >& GetArchetypesCreations() const
-			{
-				return m_archetypesCreations;
-			}
-
 		private:
 			std::vector< const ISystem::ClassType* > m_systemsClasses;
-			std::vector< ArchetypeFunc > m_archetypesCreations;
 		};
 
 		template< class T >
