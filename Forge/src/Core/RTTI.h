@@ -129,8 +129,19 @@ DECLARE_TYPE_INTERNAL_PARENT( ClassName,, ParentClassName, true, true, false) \
 #define DECLARE_POLYMORPHIC_BASE_TYPE(ClassName) \
 DECLARE_TYPE_INTERNAL_PARENT(ClassName,, rtti::I, false, true, false)
 
-#define DECLARE_ABSTRACT_TYPE(ClassName) \
+#define DECLARE_ABSTRACT_TYPE_INTERNAL(ClassName) \
 DECLARE_TYPE_INTERNAL_PARENT(ClassName,, rtti::I, false, true, true)
+
+#define DECLARE_ABSTRACT_TYPE_INTERNAL_PARENT_DIRECT(ClassName, ParentClassName) \
+DECLARE_TYPE_INTERNAL_PARENT( ClassName,, ParentClassName, true, true, true) \
+	using Super = ParentClassName;
+
+#define DECLARE_ABSTRACT_TYPE_INTERNAL_PARENT_NAMESPACE_DIRECT(ClassName, NamespaceParentClassName, ParentClassName) \
+DECLARE_TYPE_INTERNAL_PARENT(ClassName, NamespaceParentClassName##::##ParentClassName##::, ParentClassName, true, true, true) \
+	using Super = NamespaceParentClassName##::##ParentClassName;
+
+#define GET_DECLARE_ABSTRACT_TYPE_MACRO(_1,_2,_3,NAME,...) NAME
+#define DECLARE_ABSTRACT_TYPE(...) EXPAND(GET_DECLARE_ABSTRACT_TYPE_MACRO(__VA_ARGS__, DECLARE_ABSTRACT_TYPE_INTERNAL_PARENT_NAMESPACE_DIRECT, DECLARE_ABSTRACT_TYPE_INTERNAL_PARENT_DIRECT, DECLARE_ABSTRACT_TYPE_INTERNAL)(__VA_ARGS__))
 
 #define IMPLEMENT_TYPE_INTERNAL(NamespaceClassName, ClassName) NamespaceClassName##::##ClassName##Type NamespaceClassName##::s_typeInstance; \
 const char* NamespaceClassName##::##ClassName##Type::GetName() const \
