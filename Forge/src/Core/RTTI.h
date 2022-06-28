@@ -37,6 +37,11 @@ namespace rtti
 		{
 			return IsA( rhl );
 		}
+
+		virtual Bool IsAbstract() const
+		{
+			return false;
+		}
 	};
 }
 
@@ -64,9 +69,18 @@ public: \
 	{ \
 		INHERITS_FROM_BODY_##Inherits##(NamespaceParentClassName##ParentClassName) \
 	} \
+	template< class T > \
+	Bool InheritsFrom() const \
+	{ \
+		return rtti::IType::InheritsFrom< T >(); \
+	} \
 	std::unique_ptr<##ClassName##> CreateDefault() const \
 	{ \
 		return std::unique_ptr<##ClassName##>(CreateDefault_Internal()); \
+	} \
+	virtual Bool IsAbstract() const override \
+	{ \
+		return Abstract; \
 	} \
 protected: \
 	VIRTUAL_##Virtual ClassName##* CreateDefault_Internal() const \
@@ -107,6 +121,7 @@ protected: \
 	{ \
 		INHERITS_FROM_STATIC_BODY_##Inherits; \
 	} \
+	using ClassType = ClassName##Type; \
 private: \
 	static ClassName##Type s_typeInstance;
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "EntityID.h"
 #include "EngineInstance.h" // todo - separate IManager and EngineInstance
+#include "ISystem.h"
 
 namespace forge
 {
@@ -9,7 +10,6 @@ namespace forge
 
 namespace systems
 {
-	class ISystem;
 	class IECSSystem;
 	class Archetype;
 	class IArchetypeDataTypes;
@@ -31,12 +31,14 @@ namespace systems
 			template< class T >
 			FORGE_INLINE void AddSystem()
 			{
-				m_systemsCreations.emplace_back( []( forge::EngineInstance& engineInstance ) { return std::make_unique< T >(); } );
+				const ISystem::ClassType& type = T::GetTypeStatic();
+				FORGE_ASSERT( type.InheritsFrom< ISystem >() && !type.IsAbstract() );
+				m_systemsClasses.emplace_back( &type );
 			}
 
-			FORGE_INLINE const std::vector< CreationFunc >& GetSystemsCreations() const
+			FORGE_INLINE const std::vector< const ISystem::ClassType* >& GetSystemsClasses() const
 			{
-				return m_systemsCreations;
+				return m_systemsClasses;
 			}
 
 			FORGE_INLINE const std::vector< ArchetypeFunc >& GetArchetypesCreations() const
@@ -45,7 +47,7 @@ namespace systems
 			}
 
 		private:
-			std::vector< CreationFunc > m_systemsCreations;
+			std::vector< const ISystem::ClassType* > m_systemsClasses;
 			std::vector< ArchetypeFunc > m_archetypesCreations;
 		};
 

@@ -237,12 +237,12 @@ void systems::SystemsManager::RemoveECSData( forge::EntityID id, std::type_index
 
 void systems::SystemsManager::Boot( const BootContext& ctx )
 {
-	FORGE_ASSERT( !!m_systems.empty(), "SystemsManager is already booted" );
+	FORGE_ASSERT( m_systems.empty(), "SystemsManager is already booted" );
 
-	const auto& systemsCreations = ctx.GetSystemsCreations();
-	for( const auto& systemCreation : systemsCreations )
+	const auto& systemsClasses = ctx.GetSystemsClasses();
+	for( const systems::ISystem::ClassType* systemClass : systemsClasses )
 	{
-		std::unique_ptr< ISystem > sys = systemCreation( GetEngineInstance() );
+		std::unique_ptr< ISystem > sys = systemClass->CreateDefault();
 
 		ISystem* rawSys = nullptr;
 
