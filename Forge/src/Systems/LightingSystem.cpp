@@ -104,7 +104,7 @@ void systems::LightingSystem::Update()
 
 			for( Uint32 i = 0; i < lightsData.GetDataSize(); ++i )
 			{
-				m_directionalLightsData[ i ].m_shaderData = lightsData[ i ];
+				m_directionalLightsData[ i ].m_shaderData = { lightsData[ i ].Direction, 0.0f, lightsData[ i ].Color, 0.0f, lightsData[ i ].VP };
 			}
 		}
 	}

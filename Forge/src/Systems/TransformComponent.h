@@ -4,6 +4,8 @@ namespace forge
 {
 	struct TransformComponentData
 	{
+		DECLARE_STRUCT( TransformComponentData );
+
 		Transform m_transform;
 		Vector4 m_scale = Vector4::ONES();
 

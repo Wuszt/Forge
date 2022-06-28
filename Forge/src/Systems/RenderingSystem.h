@@ -35,7 +35,7 @@ namespace systems
 
 	class RenderingSystem : public ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >
 	{
-		DECLARE_TYPE( RenderingSystem, systems, IECSSystem );
+		DECLARE_STRUCT( RenderingSystem, systems, IECSSystem );
 
 	public:
 		RenderingSystem();

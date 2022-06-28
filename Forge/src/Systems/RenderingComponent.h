@@ -12,6 +12,8 @@ namespace forge
 {
 	struct RenderingComponentData
 	{
+		DECLARE_STRUCT( RenderingComponentData );
+
 		renderer::Renderable* m_renderable;
 	};
 

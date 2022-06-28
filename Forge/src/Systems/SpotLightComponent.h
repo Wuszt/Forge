@@ -6,6 +6,7 @@ namespace forge
 {
 	struct SpotLightComponentData
 	{
+		DECLARE_STRUCT( SpotLightComponentData )
 		Vector3 m_color = { 1.0f, 1.0f, 1.0f };
 		Float m_innerAngle = FORGE_PI / 12.0f;
 		Float m_outerAngle = FORGE_PI / 6.0f;
