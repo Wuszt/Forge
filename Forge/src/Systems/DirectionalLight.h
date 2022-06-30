@@ -17,6 +17,7 @@ namespace forge
 
 	class DirectionalLightComponent : public DataComponent< DirectionalLightComponentData >
 	{
+		DECLARE_TYPE( DirectionalLightComponent, forge, IComponent );
 	public:
 		using DataComponent::DataComponent;
 	};

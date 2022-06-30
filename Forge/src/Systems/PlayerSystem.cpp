@@ -58,13 +58,13 @@ void systems::PlayerSystem::OnRenderDebug()
 		{
 			if( ImGui::TreeNodeEx( "Camera", ImGuiTreeNodeFlags_DefaultOpen ) )
 			{
-				Int32 currentType = static_cast<Int32>( cameraComponent->GetType() );
+				Int32 currentType = static_cast<Int32>( cameraComponent->GetCameraType() );
 				ImGui::Text( "Type: " );
 				ImGui::SameLine(); ImGui::RadioButton( "Perspective", &currentType, 0 );
 				ImGui::SameLine(); ImGui::RadioButton( "Orthographic", &currentType, 1 );
 
 				auto type = static_cast< renderer::ICamera::Type >( currentType );
-				if( type != cameraComponent->GetType() )
+				if( type != cameraComponent->GetCameraType() )
 				{
 					if( type == renderer::ICamera::Type::Perspective )
 					{
@@ -77,7 +77,7 @@ void systems::PlayerSystem::OnRenderDebug()
 				}
 
 				constexpr Float eps = 0.001f;
-				if( cameraComponent->GetType() == renderer::ICamera::Type::Perspective )
+				if( cameraComponent->GetCameraType() == renderer::ICamera::Type::Perspective )
 				{
 					renderer::PerspectiveCamera& camera = static_cast< renderer::PerspectiveCamera& >( cameraComponent->GetCamera() );
 					{

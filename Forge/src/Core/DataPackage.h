@@ -1,5 +1,10 @@
 #pragma once
 
+namespace rtti
+{
+	class IType;
+}
+
 namespace forge
 {
 	class IDataPackage
@@ -8,7 +13,7 @@ namespace forge
 		virtual ~IDataPackage() = default;
 		virtual void AddEmptyData() = 0;
 		virtual void RemoveDataReorder( Uint32 index ) = 0;
-		virtual std::type_index GetTypeIndex() const = 0;
+		virtual const rtti::IType& GetType() const = 0;
 		virtual void MoveTo( Uint32 index, IDataPackage& destination ) = 0;
 		virtual std::unique_ptr< IDataPackage > CreateNewInstance() const = 0;
 	};
@@ -41,9 +46,9 @@ namespace forge
 			forge::utils::RemoveReorder( m_data, index );
 		}
 
-		FORGE_INLINE virtual std::type_index GetTypeIndex() const override
+		FORGE_INLINE virtual const rtti::IType& GetType() const override
 		{
-			return typeid( T );
+			return T::GetTypeStatic();
 		}
 
 		FORGE_INLINE virtual void MoveTo( Uint32 index, IDataPackage& destination ) override

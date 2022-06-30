@@ -38,9 +38,19 @@ namespace rtti
 			return IsA( rhl );
 		}
 
+		FORGE_INLINE Bool operator!=( const IType& rhl ) const
+		{
+			return !IsA( rhl );
+		}
+
 		FORGE_INLINE virtual Bool IsAbstract() const
 		{
 			return false;
+		}
+
+		Uint64 GetHash() const
+		{
+			return reinterpret_cast< Uint64 >(this);
 		}
 	};
 }

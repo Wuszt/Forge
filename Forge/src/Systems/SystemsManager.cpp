@@ -43,7 +43,7 @@ Uint32 GetTypesHash( const forge::ArraySpan< const std::unique_ptr< forge::IData
 
 	for( auto& package : dataPackages )
 	{
-		typesHash ^= static_cast<Uint32>( package->GetTypeIndex().hash_code() );
+		typesHash ^= static_cast<Uint32>( package->GetType().GetHash() );
 	}
 
 	return typesHash;
@@ -58,9 +58,9 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 {
 	PC_SCOPE_FUNC();
 
-	auto typeIndex = package->GetTypeIndex();
-	FORGE_ASSERT( std::count( m_entityDataTypesLUT[ id ].begin(), m_entityDataTypesLUT[ id ].end(), typeIndex ) == 0u );
-	m_entityDataTypesLUT[ id ].emplace_back( typeIndex );
+	const rtti::IType& type = package->GetType();
+	FORGE_ASSERT( std::count( m_entityDataTypesLUT[ id ].begin(), m_entityDataTypesLUT[ id ].end(), &type ) == 0u );
+	m_entityDataTypesLUT[ id ].emplace_back( &type );
 
 	auto& entityTypes = m_entityDataTypesLUT.at( id );
 
@@ -75,7 +75,7 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 		{
 			auto requiredTypes = archetypeDataTypes->GetRequiredDataTypes();
 
-			if( std::find( requiredTypes.begin(), requiredTypes.end(), typeIndex ) != requiredTypes.end() )
+			if( std::find( requiredTypes.begin(), requiredTypes.end(), &type ) != requiredTypes.end() )
 			{
 				Bool entityHasAllTypes = true;
 				for( auto requiredType : requiredTypes )
@@ -93,7 +93,7 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 
 					for( auto& requiredDataPackage : requiredDataPackages )
 					{
-						auto found = std::find_if( newArchetypePackages.begin(), newArchetypePackages.end(), [ &requiredDataPackage ]( const auto& package ) { return requiredDataPackage->GetTypeIndex() == package->GetTypeIndex(); } );
+						auto found = std::find_if( newArchetypePackages.begin(), newArchetypePackages.end(), [ &requiredDataPackage ]( const auto& package ) { return requiredDataPackage->GetType() == package->GetType(); } );
 						if( found == newArchetypePackages.end() )
 						{
 							newArchetypePackages.emplace_back( std::move( requiredDataPackage ) );
@@ -106,14 +106,14 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 
 	std::vector< Archetype* > donors;
 	Uint32 typesHash = GetTypesHash( newArchetypePackages );
-	std::vector< std::type_index > typesIndices;
+	std::vector< const rtti::IType* > types;
 	for( auto& package : newArchetypePackages )
 	{
-		typesIndices.emplace_back( package->GetTypeIndex() );
+		types.emplace_back( &package->GetType() );
 		auto& entityArchetypes = m_entityArchetypesLUT[ id ];
 		for( auto it = entityArchetypes.begin(); it != entityArchetypes.end(); )
 		{
-			if( ( *it )->ContainsData( package->GetTypeIndex() ) )
+			if( ( *it )->ContainsData( package->GetType() ) )
 			{
 				( *it )->SetDirty( true );
 				donors.emplace_back( *it );
@@ -136,14 +136,14 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 
 		for( auto& package : newArchetypePackages )
 		{
-			m_dataToArchetypesLUT[ package->GetTypeIndex() ].emplace_back( archetype );
+			m_dataToArchetypesLUT[ &package->GetType() ].emplace_back( archetype );
 			archetype->AddDataPackage( std::move( package ) );
 		}
 	}
 	else
 	{
 		archetype = found->second;
-		archetype->GetData( typeIndex ).AddEmptyData();
+		archetype->GetData( type ).AddEmptyData();
 	}
 
 	for( auto& system : m_ecsSystems )
@@ -155,7 +155,7 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 			Bool hasArchetypeAllRequiredTypes = true;
 			for( auto requiredDataType : archetypeDataTypes->GetRequiredDataTypes() )
 			{
-				if( std::find_if( typesIndices.begin(), typesIndices.end(), [ &requiredDataType ]( const auto& typeIndex ) { return typeIndex == requiredDataType; } ) == typesIndices.end() )
+				if( std::find_if( types.begin(), types.end(), [ &requiredDataType ]( const rtti::IType* type ) { return type == requiredDataType; } ) == types.end() )
 				{
 					hasArchetypeAllRequiredTypes = false;
 					break;
@@ -180,14 +180,14 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 	archetype->SetDirty( true );
 }
 
-void systems::SystemsManager::RemoveECSData( forge::EntityID id, std::type_index typeIndex )
+void systems::SystemsManager::RemoveECSData( forge::EntityID id, const rtti::IType& type )
 {
 	PC_SCOPE_FUNC();
 
 	auto& entityTypes = m_entityDataTypesLUT.at( id );
 	auto& entityArchetypes = m_entityArchetypesLUT.at( id );
 
-	auto currentArchetypeIt = std::find_if( entityArchetypes.begin(), entityArchetypes.end(), [ & ]( systems::Archetype* archetype ) { return archetype->ContainsData( typeIndex ); } );
+	auto currentArchetypeIt = std::find_if( entityArchetypes.begin(), entityArchetypes.end(), [ & ]( systems::Archetype* archetype ) { return archetype->ContainsData( type ); } );
 
 	FORGE_ASSERT( currentArchetypeIt != entityArchetypes.end() );
 
@@ -202,7 +202,7 @@ void systems::SystemsManager::RemoveECSData( forge::EntityID id, std::type_index
 
 		for( const auto& dataPackage : tmpDataPackages )
 		{
-			forge::utils::RemoveValueReorder( m_dataToArchetypesLUT.at( dataPackage->GetTypeIndex() ), *currentArchetypeIt );
+			forge::utils::RemoveValueReorder( m_dataToArchetypesLUT.at( &dataPackage->GetType() ), *currentArchetypeIt );
 		}
 
 		for( auto& it : m_archetypeTypesHashToArchetypesLUT )
@@ -221,14 +221,14 @@ void systems::SystemsManager::RemoveECSData( forge::EntityID id, std::type_index
 
 	for( const auto& dataPackage : tmpDataPackages )
 	{
-		forge::utils::RemoveValueReorder( entityTypes, dataPackage->GetTypeIndex() );
+		forge::utils::RemoveValueReorder( entityTypes, &dataPackage->GetType() );
 	}
 
 	forge::utils::RemoveReorder( entityArchetypes, currentArchetypeIt );
 
 	for( auto& dataPackage : tmpDataPackages )
 	{
-		if( dataPackage->GetTypeIndex() != typeIndex )
+		if( dataPackage->GetType() != type )
 		{
 			AddECSData( id, std::move( dataPackage ) );
 		}
@@ -257,7 +257,7 @@ void systems::SystemsManager::Boot( const BootContext& ctx )
 			rawSys = m_systems.back().get();
 		}
 
-		m_systemsLUT.emplace( std::type_index( typeid( *rawSys ) ), rawSys );
+		m_systemsLUT.emplace( &rawSys->GetType(), rawSys );
 	}
 
 	for( auto& sys : m_systems )

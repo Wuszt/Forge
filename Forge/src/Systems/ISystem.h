@@ -17,8 +17,8 @@ namespace systems
 		template< class T >
 		FORGE_INLINE forge::DataPackage< T >& GetData()
 		{
-			FORGE_ASSERT( dynamic_cast< forge::DataPackage< T >* >( m_data.at( typeid( T ) ).get() ) );
-			return *static_cast< forge::DataPackage< T >* >( m_data.at( typeid( T ) ).get() );
+			FORGE_ASSERT( dynamic_cast< forge::DataPackage< T >* >( m_data.at( &T::GetTypeStatic() ).get() ) );
+			return *static_cast< forge::DataPackage< T >* >( m_data.at( &T::GetTypeStatic() ).get() );
 		}
 
 		template< class T >
@@ -35,9 +35,9 @@ namespace systems
 			return GetData< T >()[ index ];
 		}
 
-		FORGE_INLINE forge::IDataPackage& GetData( std::type_index typeIndex )
+		FORGE_INLINE forge::IDataPackage& GetData( const rtti::IType& type )
 		{
-			return *m_data.at( typeIndex );
+			return *m_data.at( &type );
 		}
 
 		FORGE_INLINE void OnEntityCreated()
@@ -58,23 +58,23 @@ namespace systems
 		template< class T >
 		FORGE_INLINE Bool ContainsData() const
 		{
-			return ContainsData( typeid( T ) );
+			return ContainsData( T::GetTypeStatic() );
 		}
 
-		FORGE_INLINE Bool ContainsData( std::type_index typeIndex ) const
+		FORGE_INLINE Bool ContainsData( const rtti::IType& type ) const
 		{
-			return m_data.count( typeIndex ) > 0u;
+			return m_data.count( &type ) > 0u;
 		}
 
 		template< class T >
 		FORGE_INLINE void AddDataPackage()
 		{
-			m_data.emplace( typeid( T ), std::make_unique< forge::DataPackage< T > >( m_dataSize ) );
+			m_data.emplace( &T::GetTypeStatic(), std::make_unique< forge::DataPackage< T > >( m_dataSize ) );
 		}
 
 		FORGE_INLINE void AddDataPackage( std::unique_ptr< forge::IDataPackage > package )
 		{
-			m_data.emplace( package->GetTypeIndex(), std::move( package ) );
+			m_data.emplace( &package->GetType(), std::move( package ) );
 		}
 
 		FORGE_INLINE void SetDirty( Bool dirty )
@@ -102,7 +102,7 @@ namespace systems
 		void MoveEntityFrom( forge::EntityID entityId, std::vector< Archetype* > donorArchetypes );
 
 	private:
-		std::unordered_map< std::type_index, std::unique_ptr< forge::IDataPackage > > m_data;
+		std::unordered_map< const rtti::IType*, std::unique_ptr< forge::IDataPackage > > m_data;
 		std::vector< Int32 > m_sparseSet;
 		Uint32 m_dataSize = 0u;
 		Bool m_dirty = false;
@@ -142,7 +142,7 @@ namespace systems
 		virtual ~IArchetypeDataTypes() = default;
 
 		virtual std::vector< std::unique_ptr< forge::IDataPackage > > GatherDataPackages() const = 0;
-		virtual std::vector< std::type_index > GetRequiredDataTypes() const = 0;
+		virtual std::vector< const rtti::IType* > GetRequiredDataTypes() const = 0;
 	};
 
 	template< class... Ts >
@@ -156,22 +156,22 @@ namespace systems
 			return packages;
 		}
 
-		virtual std::vector< std::type_index > GetRequiredDataTypes() const override
+		virtual std::vector< const rtti::IType* > GetRequiredDataTypes() const override
 		{
-			std::vector< std::type_index > types;
+			std::vector< const rtti::IType* > types;
 			GatherDataTypesInternal< Ts... >( types );
 			return types;
 		}
 
 	private:
 		template< class... Args >
-		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherDataTypesInternal( std::vector< std::type_index >& types )
+		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherDataTypesInternal( std::vector< const rtti::IType* >& types )
 		{}
 
 		template< class T, class... Args >
-		FORGE_INLINE static void GatherDataTypesInternal( std::vector< std::type_index >& types )
+		FORGE_INLINE static void GatherDataTypesInternal( std::vector< const rtti::IType* >& types )
 		{
-			types.emplace_back( typeid( T ) );
+			types.emplace_back( &T::GetTypeStatic() );
 
 			GatherDataTypesInternal< Args... >( types );
 		}

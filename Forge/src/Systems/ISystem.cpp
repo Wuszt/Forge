@@ -11,7 +11,7 @@ void systems::Archetype::MoveEntityTo( forge::EntityID entityId, Archetype* dest
 
 	for( auto& data : m_data )
 	{
-		auto& destinationPackage = destination->GetData( data.first );
+		auto& destinationPackage = destination->GetData( *data.first );
 		data.second->MoveTo( m_sparseSet[ entityId.m_id ], destinationPackage );
 	}
 

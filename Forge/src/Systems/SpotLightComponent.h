@@ -15,6 +15,7 @@ namespace forge
 
 	class SpotLightComponent : public DataComponent< SpotLightComponentData >
 	{
+		DECLARE_TYPE( SpotLightComponent, forge, IComponent );
 	public:
 		using DataComponent::DataComponent;
 	};

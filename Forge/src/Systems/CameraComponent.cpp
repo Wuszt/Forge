@@ -5,6 +5,8 @@
 #include "TransformComponent.h"
 #include "../Renderer/OrthographicCamera.h"
 
+IMPLEMENT_TYPE( forge, CameraComponent );
+
 void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
 {
 	m_transformComponent = GetOwner().GetComponent< TransformComponent >();
@@ -13,7 +15,7 @@ void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
 	{
 		if( event.GetEventType() == forge::IWindow::EventType::OnResized )
 		{
-			switch( GetType() )
+			switch( GetCameraType() )
 			{
 			case renderer::ICamera::Type::Perspective:
 			{

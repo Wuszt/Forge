@@ -2,3 +2,4 @@
 #include "PointLightComponent.h"
 
 IMPLEMENT_TYPE( forge, PointLightComponentData );
+IMPLEMENT_TYPE( forge, PointLightComponent );

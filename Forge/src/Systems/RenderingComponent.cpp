@@ -7,6 +7,10 @@
 #include "../Renderer/IModelsLoader.h"
 
 IMPLEMENT_TYPE( forge, RenderingComponentData )
+IMPLEMENT_TYPE( forge, RenderingComponent )
+
+forge::RenderingComponent::RenderingComponent() = default;
+forge::RenderingComponent::~RenderingComponent() = default;
 
 void forge::RenderingComponent::LoadMeshAndMaterial( const std::string& path )
 {

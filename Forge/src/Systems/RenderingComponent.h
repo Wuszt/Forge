@@ -19,8 +19,10 @@ namespace forge
 
 	class RenderingComponent : public DataComponent< RenderingComponentData >
 	{
+		DECLARE_TYPE( RenderingComponent, IComponent );
 	public:
-		using DataComponent::DataComponent;
+		RenderingComponent();
+		~RenderingComponent();
 
 		void LoadMeshAndMaterial( const std::string& path );
 

@@ -15,12 +15,13 @@ namespace forge
 
 	class CameraComponent : public IComponent
 	{
+		DECLARE_TYPE(CameraComponent, forge, IComponent );
 	public:
 		using IComponent::IComponent;
 
 		virtual void OnAttach( EngineInstance& engineInstance ) override;
 
-		FORGE_INLINE renderer::ICamera::Type GetType() const
+		FORGE_INLINE renderer::ICamera::Type GetCameraType() const
 		{
 			return m_implementation->GetType();
 		}

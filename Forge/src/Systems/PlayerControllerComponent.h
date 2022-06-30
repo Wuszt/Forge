@@ -6,6 +6,7 @@ namespace forge
 
 	class PlayerControllerComponent : public IComponent
 	{
+		DECLARE_TYPE(PlayerControllerComponent, forge, IComponent);
 	public:
 		using IComponent::IComponent;
 

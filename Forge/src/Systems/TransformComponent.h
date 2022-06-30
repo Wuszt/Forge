@@ -1,4 +1,5 @@
 #pragma once
+#include "IComponent.h"
 
 namespace forge
 {
@@ -19,6 +20,7 @@ namespace forge
 
 	class TransformComponent : public DataComponent< TransformComponentData >
 	{
+		DECLARE_TYPE( TransformComponent, forge, IComponent );
 	public:
 		using DataComponent::DataComponent;
 	};

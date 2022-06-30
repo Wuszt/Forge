@@ -48,14 +48,14 @@ namespace systems
 		template< class T >
 		T& GetSystem() const
 		{
-			ISystem* sys = m_systemsLUT.at( typeid( T ) );
+			ISystem* sys = m_systemsLUT.at( &T::GetTypeStatic() );
 			return *static_cast< T* >( sys );
 		}
 
 		template< class T >
 		T* GetSystemPtr() const
 		{
-			auto it = m_systemsLUT.find( typeid( T ) );
+			auto it = m_systemsLUT.find( &T::GetTypeStatic() );
 
 			if( it != m_systemsLUT.end() )
 			{
@@ -78,7 +78,7 @@ namespace systems
 		template< class T >
 		FORGE_INLINE forge::ArraySpan< systems::Archetype* > GetArchetypesContainingDataType()
 		{
-			return m_dataToArchetypesLUT[ typeid( T ) ];
+			return m_dataToArchetypesLUT[ &T::GetTypeStatic() ];
 		}
 
 		FORGE_INLINE const std::vector< Archetype* >& GetArchetypesOfEntity( forge::EntityID id )
@@ -98,13 +98,12 @@ namespace systems
 			AddECSData( id, std::move( package ) );
 		}
 
-		void RemoveECSData( forge::EntityID id, std::type_index typeIndex );
+		void RemoveECSData( forge::EntityID id, const rtti::IType& type );
 
 		template< class T >
 		FORGE_INLINE void RemoveECSData( forge::EntityID id )
 		{
-			const std::type_index typeIndex = typeid( T );
-			RemoveECSData( id, typeIndex );
+			RemoveECSData( id, T::GetTypeStatic() );
 		}
 
 		forge::CallbackToken RegisterToOnBootCallback( const std::function< void() >& callback )
@@ -117,13 +116,13 @@ namespace systems
 		void Shutdown();
 
 	private:
-		std::unordered_map< std::type_index, ISystem* > m_systemsLUT;
+		std::unordered_map< const rtti::IType*, ISystem* > m_systemsLUT;
 		std::vector< std::unique_ptr< ISystem > > m_systems;
 		std::vector< std::unique_ptr< IECSSystem > > m_ecsSystems;
 
 		std::vector< std::unique_ptr< Archetype > > m_archetypes;
-		std::unordered_map< std::type_index, std::vector< Archetype* > > m_dataToArchetypesLUT;
-		std::unordered_map< forge::EntityID, std::vector< std::type_index > > m_entityDataTypesLUT;
+		std::unordered_map< const rtti::IType*, std::vector< Archetype* > > m_dataToArchetypesLUT;
+		std::unordered_map< forge::EntityID, std::vector< const rtti::IType* > > m_entityDataTypesLUT;
 		std::unordered_map< forge::EntityID, std::vector< Archetype* > > m_entityArchetypesLUT;
 		std::unordered_map< Uint32, Archetype* > m_typesHashToArchetypeLUT;
 		std::unordered_map< Uint32, std::vector< Archetype* > > m_archetypeTypesHashToArchetypesLUT;

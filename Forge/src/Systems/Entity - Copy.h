@@ -35,7 +35,7 @@ namespace forge
 		template< class T >
 		T* GetComponent()
 		{
-			return static_cast< T* >( m_components.at( &T::GetTypeStatic() ).get() ); 
+			return static_cast< T* >( m_components.at( &T::GetTypeStatic() ).get() );
 		}
 
 		EngineInstance& GetEngineInstance() const

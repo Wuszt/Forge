@@ -2,3 +2,4 @@
 #include "TransformComponent.h"
 
 IMPLEMENT_TYPE( forge, TransformComponentData );
+IMPLEMENT_TYPE( forge, TransformComponent );

@@ -4,20 +4,29 @@ namespace forge
 {
 	class IComponent
 	{
+		DECLARE_ABSTRACT_TYPE( IComponent );
 	public:
-		IComponent( Entity& owner );
-		virtual ~IComponent() {}
+		template< class T >
+		friend T* Entity::AddComponent<T>();
+		friend void Entity::OnDetach();
 
-		virtual void OnAttach( EngineInstance& engineInstance ) {}
-		virtual void OnDetach( EngineInstance& engineInstance ) {}
+		IComponent();
+		virtual ~IComponent();
 
 		Entity& GetOwner() const
 		{
-			return m_owner;
+			return *m_owner;
 		}
 
+	protected:
+		virtual void OnAttach( EngineInstance& engineInstance ) {}
+		virtual void OnDetach( EngineInstance& engineInstance ) {}
+
 	private:
-		Entity& m_owner;
+		void Attach( EngineInstance& engineInstance, Entity& owner );
+		void Detach( EngineInstance& engineInstance );
+
+		Entity* m_owner;
 	};
 
 	template< class TData >
@@ -25,7 +34,7 @@ namespace forge
 	{
 	public:
 		using IComponent::IComponent;
-		
+
 		virtual void OnAttach( EngineInstance& engineInstance ) override
 		{
 			auto& systemsManager = engineInstance.GetSystemsManager();
@@ -47,11 +56,14 @@ namespace forge
 			const auto& archetypes = sm.GetArchetypesOfEntity( GetOwner().GetEntityID() );
 
 			auto found = std::find_if( archetypes.begin(), archetypes.end(), []( auto* archetype ) { return archetype->ContainsData< TData >(); } );
-			FORGE_ASSERT( found != archetypes.end() );			
-			return (*found)->GetData< TData >( GetOwner().GetEntityID() );
+			if( found == archetypes.end() )
+			{
+				found = found;
+			}
+			FORGE_ASSERT( found != archetypes.end() );
+			return ( *found )->GetData< TData >( GetOwner().GetEntityID() );
 		}
 
 	private:
 	};
 }
-

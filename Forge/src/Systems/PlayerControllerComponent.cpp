@@ -4,6 +4,8 @@
 #include "../Core/IInput.h"
 #include "TransformComponent.h"
 
+IMPLEMENT_TYPE(forge, PlayerControllerComponent);
+
 void forge::FreeCameraControllerComponent::OnAttach( EngineInstance& engineInstance )
 {
 	m_input = engineInstance.GetWindow().GetInput();
