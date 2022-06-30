@@ -116,6 +116,11 @@ namespace systems
 		ISystem() = default;
 		virtual ~ISystem() = default;
 
+		virtual Bool IsECSSystem() const
+		{
+			return false;
+		}
+
 		FORGE_INLINE forge::EngineInstance& GetEngineInstance() const
 		{
 			return *m_engineInstance;
@@ -194,6 +199,11 @@ namespace systems
 		DECLARE_ABSTRACT_TYPE( IECSSystem, systems, ISystem );
 	public:
 		virtual std::vector< std::unique_ptr< IArchetypeDataTypes > > GetArchetypesDataTypes() const = 0;
+
+		virtual Bool IsECSSystem() const override
+		{
+			return true;
+		}
 
 	private:
 		using ISystem::ISystem;

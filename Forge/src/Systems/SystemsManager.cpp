@@ -237,7 +237,7 @@ void systems::SystemsManager::RemoveECSData( forge::EntityID id, const rtti::ITy
 
 void systems::SystemsManager::Boot( const BootContext& ctx )
 {
-	FORGE_ASSERT( m_systems.empty(), "SystemsManager is already booted" );
+	FORGE_ASSERT( m_allSystems.empty(), "SystemsManager is already booted" );
 
 	const auto& systemsClasses = ctx.GetSystemsClasses();
 	for( const systems::ISystem::ClassType* systemClass : systemsClasses )
@@ -246,26 +246,18 @@ void systems::SystemsManager::Boot( const BootContext& ctx )
 
 		ISystem* rawSys = nullptr;
 
-		if( dynamic_cast<IECSSystem*>( sys.get() ) )
+		m_allSystems.emplace_back( std::move( sys ) );
+		rawSys = m_allSystems.back().get();
+
+		if( rawSys->IsECSSystem() )
 		{
-			m_ecsSystems.emplace_back( static_cast<IECSSystem*>( sys.release() ) );
-			rawSys = m_ecsSystems.back().get();
-		}
-		else
-		{
-			m_systems.emplace_back( std::move( sys ) );
-			rawSys = m_systems.back().get();
+			m_ecsSystems.emplace_back( static_cast< IECSSystem* >( rawSys ) );
 		}
 
 		m_systemsLUT.emplace( &rawSys->GetType(), rawSys );
 	}
 
-	for( auto& sys : m_systems )
-	{
-		sys->Initialize( GetEngineInstance() );
-	}
-
-	for( auto& sys : m_ecsSystems )
+	for( auto& sys : m_allSystems )
 	{
 		sys->Initialize( GetEngineInstance() );
 	}
@@ -275,12 +267,7 @@ void systems::SystemsManager::Boot( const BootContext& ctx )
 
 void systems::SystemsManager::Shutdown()
 {
-	for( auto& sys : m_systems )
-	{
-		sys->Deinitialize();
-	}
-
-	for( auto& sys : m_ecsSystems )
+	for( auto& sys : m_allSystems )
 	{
 		sys->Deinitialize();
 	}

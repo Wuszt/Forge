@@ -65,14 +65,14 @@ namespace systems
 			return nullptr;
 		}
 
-		forge::ArraySpan< const std::unique_ptr< IECSSystem > > GetECSSystems()
+		forge::ArraySpan< IECSSystem* > GetECSSystems()
 		{
 			return m_ecsSystems;
 		}
 
-		forge::ArraySpan< const std::unique_ptr< ISystem > > GetSystems()
+		forge::ArraySpan< std::unique_ptr< ISystem > > GetSystems()
 		{
-			return m_systems;
+			return m_allSystems;
 		}
 
 		template< class T >
@@ -117,8 +117,8 @@ namespace systems
 
 	private:
 		std::unordered_map< const rtti::IType*, ISystem* > m_systemsLUT;
-		std::vector< std::unique_ptr< ISystem > > m_systems;
-		std::vector< std::unique_ptr< IECSSystem > > m_ecsSystems;
+		std::vector< std::unique_ptr< ISystem > > m_allSystems;
+		std::vector< IECSSystem* > m_ecsSystems;
 
 		std::vector< std::unique_ptr< Archetype > > m_archetypes;
 		std::unordered_map< const rtti::IType*, std::vector< Archetype* > > m_dataToArchetypesLUT;

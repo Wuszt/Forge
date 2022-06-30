@@ -66,11 +66,6 @@ void systems::DebugSystem::OnInitialize()
 		addSystemToDebug( *system );
 	}
 
-	for( auto& system : GetEngineInstance().GetSystemsManager().GetECSSystems() )
-	{
-		addSystemToDebug( *system );
-	}
-
 	m_onRenderDebugToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering,
 	[ this ]()
 	{
@@ -83,11 +78,6 @@ void systems::DebugSystem::OnInitialize()
 		};
 
 		for( auto& system : GetEngineInstance().GetSystemsManager().GetSystems() )
-		{
-			renderDebug( *system );
-		}
-
-		for( auto& system : GetEngineInstance().GetSystemsManager().GetECSSystems() )
 		{
 			renderDebug( *system );
 		}
