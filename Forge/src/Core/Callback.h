@@ -8,19 +8,19 @@ namespace forge
 		return std::numeric_limits< Uint32 >::max();
 	}
 
-	class ICallback
-	{
-	public:
-		virtual ~ICallback() = default;
-		virtual void RemoveListener( CallbackID id ) = 0;
-	};
-
 	class CallbackToken
 	{
 	public:
-		CallbackToken( CallbackID id, ICallback& callback )
+		class ICallbackImpl
+		{
+		public:
+			virtual ~ICallbackImpl() = default;
+			virtual void RemoveListener( CallbackID id ) = 0;
+		};
+
+		CallbackToken( CallbackID id, std::weak_ptr< ICallbackImpl > callback )
 			: m_id( id )
-			, m_callback( &callback )
+			, m_callback( callback )
 		{}
 
 		CallbackToken() = default;
@@ -30,6 +30,7 @@ namespace forge
 			, m_callback( t.m_callback )
 		{
 			t.m_id = GetInvalidCallbackID();
+			t.m_callback.reset();
 		}
 
 		CallbackToken& operator=( CallbackToken&& t )
@@ -41,31 +42,27 @@ namespace forge
 
 		~CallbackToken()
 		{
-			TryToUnregister();
+			Unregister();
 		}
 
 		void Unregister()
 		{
-			m_callback->RemoveListener( m_id );
-			m_id = GetInvalidCallbackID();
-		}
-
-		void TryToUnregister()
-		{
-			if( IsValid() )
+			if( std::shared_ptr< ICallbackImpl > callback = m_callback.lock() )
 			{
-				Unregister();
+				callback->RemoveListener( m_id );
+				m_id = GetInvalidCallbackID();
+				m_callback.reset();
 			}
 		}
 
 		Bool IsValid()
 		{
-			return m_id != GetInvalidCallbackID();
+			return !m_callback.expired();
 		}
 
 	private:
 		CallbackID m_id = GetInvalidCallbackID();
-		ICallback* m_callback;
+		std::weak_ptr< ICallbackImpl > m_callback;
 		
 		FORGE_INLINE friend void swap( CallbackToken& l, CallbackToken& r )
 		{
@@ -75,68 +72,100 @@ namespace forge
 	};
 
 	template< class ...TParams >
-	class Callback : public ICallback
+	class Callback
 	{
 	public:
-		typedef std::function< void( TParams... ) > TFunc;
+		using TFunc = std::function< void( TParams... ) >;
 
 		Callback() = default;
+		Callback( const Callback& callback ) = delete;
+		Callback( Callback&& callback ) = default;
 		~Callback() = default;
+
+		Callback& operator=( const Callback& callback ) = delete;
+		Callback& operator=( Callback&& callback ) = default;
 
 		FORGE_INLINE void Invoke( TParams... params ) const
 		{
-			for( const auto& func : m_funcs )
-			{
-				func( std::forward< TParams >( params )... );
-			}
+			m_implementation->Invoke( params... );
 		}
 
 		FORGE_INLINE CallbackToken AddListener( const TFunc& func )
 		{
-			m_funcs.emplace_back( func );
-
-			if( m_nextFreeID == GetInvalidCallbackID() )
-			{
-				m_idToFunc.emplace_back( static_cast<Uint32>( m_funcs.size() - 1u ) );
-				m_funcToID.emplace_back( m_idToFunc.back() );
-				return CallbackToken( static_cast< CallbackID >( static_cast<Uint32>( m_funcs.size() ) - 1u ), *this );
-			}
-			else
-			{
-				CallbackID nextFreeID = m_nextFreeID;
-				m_nextFreeID = m_idToFunc[ m_nextFreeID ];
-				m_idToFunc[ nextFreeID ] = static_cast<Uint32>( m_funcs.size() ) - 1;
-				m_funcToID.emplace_back( nextFreeID );
-				return CallbackToken( nextFreeID, *this );
-			}
+			return CallbackToken( m_implementation->AddListener( func ), m_implementation );
 		}
 
-		FORGE_INLINE virtual void RemoveListener( CallbackID id ) override
+		FORGE_INLINE void RemoveListener( CallbackID id )
 		{
-			forge::utils::RemoveReorder( m_funcs, m_idToFunc[ id ] );
-
-			m_idToFunc[ m_funcToID.back() ] = m_idToFunc[ id ];
-
-			forge::utils::RemoveReorder( m_funcToID, m_idToFunc[ id ] );
-			
-			m_idToFunc[ id ] = m_nextFreeID;
-			m_nextFreeID = id;
+			m_implementation->RemoveListener( id );
 		}
 
 		Uint32 GetListenersAmount() const
 		{
-			return static_cast<Uint32>( m_funcs.size() );
+			return m_implementation->GetListenersAmount();
 		}
 
 	private:
-		const CallbackID c_invalidID = std::numeric_limits< Uint32 >::max();
+		class CallbackImpl : public CallbackToken::ICallbackImpl
+		{
+		public:
+			FORGE_INLINE void Invoke( TParams... params ) const
+			{
+				for( const auto& func : m_funcs )
+				{
+					func( std::forward< TParams >( params )... );
+				}
+			}
 
-		std::vector< Uint32 > m_idToFunc;
-		std::vector< Uint32 > m_funcToID;
+			FORGE_INLINE CallbackID AddListener( const TFunc& func )
+			{
+				m_funcs.emplace_back( func );
 
-		std::vector< std::function< void( TParams... ) > > m_funcs;
+				if( m_nextFreeID == GetInvalidCallbackID() )
+				{
+					m_idToFunc.emplace_back( static_cast<Uint32>( m_funcs.size() - 1u ) );
+					m_funcToID.emplace_back( m_idToFunc.back() );
+					return  static_cast<CallbackID>( static_cast<Uint32>( m_funcs.size() ) - 1u );
+				}
+				else
+				{
+					CallbackID nextFreeID = m_nextFreeID;
+					m_nextFreeID = m_idToFunc[ m_nextFreeID ];
+					m_idToFunc[ nextFreeID ] = static_cast<Uint32>( m_funcs.size() ) - 1;
+					m_funcToID.emplace_back( nextFreeID );
+					return nextFreeID;
+				}
+			}
 
-		CallbackID m_nextFreeID = GetInvalidCallbackID();
+			FORGE_INLINE virtual void RemoveListener( CallbackID id ) override
+			{
+				forge::utils::RemoveReorder( m_funcs, m_idToFunc[ id ] );
+
+				m_idToFunc[ m_funcToID.back() ] = m_idToFunc[ id ];
+
+				forge::utils::RemoveReorder( m_funcToID, m_idToFunc[ id ] );
+
+				m_idToFunc[ id ] = m_nextFreeID;
+				m_nextFreeID = id;
+			}
+
+			Uint32 GetListenersAmount() const
+			{
+				return static_cast<Uint32>( m_funcs.size() );
+			}
+
+		private:
+			const CallbackID c_invalidID = std::numeric_limits< Uint32 >::max();
+
+			std::vector< Uint32 > m_idToFunc;
+			std::vector< Uint32 > m_funcToID;
+
+			std::vector< TFunc > m_funcs;
+
+			CallbackID m_nextFreeID = GetInvalidCallbackID();
+		};
+
+		std::shared_ptr< CallbackImpl > m_implementation = std::make_shared< CallbackImpl >();
 	};
 }
 

@@ -38,9 +38,6 @@ forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 
 forge::EngineInstance::~EngineInstance()
 {
-	m_windowClosedToken.TryToUnregister();
-	m_windowUpdateToken.TryToUnregister();
-
 	m_systemManager->Deinitialize();
 	m_entitiesManager->Deinitialize();
 	m_updateManager->Deinitialize();
