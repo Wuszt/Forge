@@ -127,8 +127,11 @@ namespace systems
 		}
 
 #ifdef FORGE_DEBUGGING
-		virtual const std::string& GetDebugFriendlyName() const { static std::string emptyName; return emptyName; }
 		virtual void OnRenderDebug() {}
+		FORGE_INLINE virtual Bool HasDebug() const
+		{
+			return false;
+		}
 #endif
 
 	protected:

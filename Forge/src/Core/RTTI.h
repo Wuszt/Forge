@@ -6,7 +6,7 @@ namespace rtti
 	{
 	public:
 		~IType() = default;
-		virtual const char* GetName() const = 0;
+		virtual const char* GetName( Bool withNamespace ) const = 0;
 
 		FORGE_INLINE Bool IsA( const IType& type ) const
 		{
@@ -74,7 +74,7 @@ class ClassName##Type : public NamespaceParentClassName##ParentClassName##Type \
 { \
 public: \
 	using BaseClassType = NamespaceParentClassName##ParentClassName##Type; \
-	virtual const char* GetName() const override; \
+	virtual const char* GetName( Bool withNamespace ) const override; \
 	virtual Bool InheritsFrom( const rtti::IType& type ) const override \
 	{ \
 		INHERITS_FROM_BODY_##Inherits##(NamespaceParentClassName##ParentClassName) \
@@ -174,9 +174,9 @@ DECLARE_TYPE_INTERNAL_PARENT(ClassName, NamespaceParentClassName##::##ParentClas
 #define DECLARE_ABSTRACT_TYPE(...) EXPAND(GET_DECLARE_ABSTRACT_TYPE_MACRO(__VA_ARGS__, DECLARE_ABSTRACT_TYPE_INTERNAL_PARENT_NAMESPACE_DIRECT, DECLARE_ABSTRACT_TYPE_INTERNAL_PARENT_DIRECT, DECLARE_ABSTRACT_TYPE_INTERNAL)(__VA_ARGS__))
 
 #define IMPLEMENT_TYPE_INTERNAL(NamespaceClassName, ClassName) NamespaceClassName##::##ClassName##Type NamespaceClassName##::s_typeInstance; \
-const char* NamespaceClassName##::##ClassName##Type::GetName() const \
+const char* NamespaceClassName##::##ClassName##Type::GetName( Bool withNamespace ) const \
 { \
-	return #NamespaceClassName; \
+	return withNamespace ? #NamespaceClassName : #ClassName; \
 }
 
 #define IMPLEMENT_TYPE_INTERNAL_1(_0,_1) IMPLEMENT_TYPE_INTERNAL(_0##::##_1, _1)

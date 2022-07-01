@@ -64,9 +64,9 @@ void systems::IMGUISystem::DrawTopBar()
 		{
 			for( auto& systemToDebug : m_systemsToDebug )
 			{
-				if( !systemToDebug.m_system.GetDebugFriendlyName().empty() )
+				if( systemToDebug.m_system.HasDebug() )
 				{
-					ImGui::MenuItem( systemToDebug.m_system.GetDebugFriendlyName().c_str(), nullptr, systemToDebug.m_enabled );
+					ImGui::MenuItem( systemToDebug.m_system.GetType().GetName( false ), nullptr, systemToDebug.m_enabled );
 				}
 			}
 

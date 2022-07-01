@@ -76,7 +76,6 @@ namespace systems
 		{
 			m_shadowMapsRecreationForced = true;
 		}
-
 	private:
 		void Update();
 
@@ -88,12 +87,12 @@ namespace systems
 		Float m_shadowsResolutionScale = 1.0f;
 		Bool m_shadowMapsRecreationForced = false;
 
-#ifdef FORGE_DEBUGGING
-		virtual const std::string& GetDebugFriendlyName() const { static std::string name = "Lighting System"; return name; }
-#endif
-
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;
+		FORGE_INLINE virtual Bool HasDebug() const override
+		{
+			return true;
+		}
 
 		Float m_depthBufferDenominator = std::numeric_limits< Float >::infinity();
 		std::vector< std::unique_ptr< renderer::ITexture > > m_temporaryTextures;

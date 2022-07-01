@@ -38,12 +38,12 @@ namespace systems
 
 		Bool m_wasShiftAndWheelPressed = false;
 
-#ifdef FORGE_DEBUGGING
-		virtual const std::string& GetDebugFriendlyName() const { static std::string name = "Player System"; return name; }
-#endif
-
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;
+		FORGE_INLINE virtual Bool HasDebug() const override
+		{
+			return true;
+		}
 #endif
 	};
 }
