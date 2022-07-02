@@ -90,7 +90,7 @@ namespace forge
 			m_implementation->Invoke( params... );
 		}
 
-		FORGE_INLINE CallbackToken AddListener( const TFunc& func )
+		FORGE_INLINE [[nodiscard]] CallbackToken AddListener( const TFunc& func )
 		{
 			return CallbackToken( m_implementation->AddListener( func ), m_implementation );
 		}

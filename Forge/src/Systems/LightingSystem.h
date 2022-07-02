@@ -89,10 +89,6 @@ namespace systems
 
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;
-		FORGE_INLINE virtual Bool HasDebug() const override
-		{
-			return true;
-		}
 
 		Float m_depthBufferDenominator = std::numeric_limits< Float >::infinity();
 		std::vector< std::unique_ptr< renderer::ITexture > > m_temporaryTextures;

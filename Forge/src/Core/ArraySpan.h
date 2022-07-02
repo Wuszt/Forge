@@ -90,6 +90,16 @@ namespace forge
 			return m_end;
 		}
 
+		FORGE_INLINE T* back()
+		{
+			return m_begin + GetSize() - 1u;
+		}
+
+		FORGE_INLINE const T* back() const
+		{
+			return m_begin + GetSize() - 1u;
+		}
+
 	private:
 		T* m_begin;
 		T* m_end;

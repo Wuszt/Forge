@@ -21,6 +21,7 @@ const Float c_shadowMapBaseSize = 1024.0f;
 void systems::LightingSystem::OnInitialize()
 {
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostUpdate, [ this ]() { Update(); } );
+	SetDebugAvailability( true );
 }
 
 renderer::LightingData systems::LightingSystem::GetLightingData()

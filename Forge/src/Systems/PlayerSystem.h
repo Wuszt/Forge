@@ -40,10 +40,6 @@ namespace systems
 
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;
-		FORGE_INLINE virtual Bool HasDebug() const override
-		{
-			return true;
-		}
 #endif
 	};
 }

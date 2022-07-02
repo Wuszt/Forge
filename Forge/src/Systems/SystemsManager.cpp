@@ -236,7 +236,7 @@ void systems::SystemsManager::RemoveECSData( forge::EntityID id, const rtti::ITy
 
 void systems::SystemsManager::Boot( const BootContext& ctx )
 {
-	FORGE_ASSERT( m_allSystems.empty(), "SystemsManager is already booted" );
+	FORGE_ASSERT( m_allSystems.empty() == true, "SystemsManager is already booted" );
 
 	const auto& systemsClasses = ctx.GetSystemsClasses();
 	for( const systems::ISystem::ClassType* systemClass : systemsClasses )

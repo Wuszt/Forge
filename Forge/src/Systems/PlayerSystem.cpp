@@ -16,6 +16,7 @@ IMPLEMENT_TYPE( systems, PlayerSystem );
 
 void systems::PlayerSystem::OnInitialize()
 {
+	SetDebugAvailability( true );
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, std::bind( &systems::PlayerSystem::Update, this ) );
 }
 

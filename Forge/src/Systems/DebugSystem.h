@@ -29,7 +29,6 @@ namespace systems
 		std::vector< DebugEntity > m_debugEntities;
 		forge::CallbackToken m_updateToken;
 
-		std::unordered_map< const ISystem*, Bool > m_systemsDebugStates;
 		forge::CallbackToken m_onRenderDebugToken;
 
 #ifdef FORGE_IMGUI_ENABLED

@@ -22,7 +22,7 @@ void systems::IMGUISystem::OnInitialize()
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, [ & ]()
 	{
 		DrawOverlay();
-		DrawTopBar();
+		m_topBar.Draw();
 	} );
 
 	m_postRenderingToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [ & ]()
@@ -56,36 +56,115 @@ void systems::IMGUISystem::DrawOverlay()
 	ImGui::End();
 }
 
-void systems::IMGUISystem::DrawTopBar()
+imgui::TopBarItemHandle imgui::TopBar::AddButton( forge::ArraySpan< const char* > path, Bool selectable )
+{
+	std::shared_ptr< Menu > currentParent = nullptr;
+	std::vector< std::weak_ptr< Element > >* children = &m_rootElements;
+	
+	forge::ArraySpan< const char* > purePath = { path, path.GetSize() - 1u };
+
+	auto sortElements = []( std::weak_ptr< Element > a, std::weak_ptr< Element > b )
+	{
+		if( auto hardA = a.lock() )
+		{
+			if( auto hardB = b.lock() )
+			{
+				return std::strcmp( hardA->GetName(), hardB->GetName() ) < 0;
+			}
+		}
+
+		return false;
+	};
+
+	for( const char* name : purePath )
+	{
+		auto it = std::find_if( children->begin(), children->end(), [ name ]( std::weak_ptr< Element > element )
+		{
+			if( auto locked = element.lock() )
+			{
+				return locked->GetName() == name;
+			}
+
+			return false;
+		} );
+
+		if( it == children->end() )
+		{
+			auto tmp = std::make_shared< Menu >( name, currentParent );
+			children->emplace_back( tmp );
+			std::sort( children->begin(), children->end(), sortElements );
+			currentParent = tmp;
+			children = &currentParent->GetChildren();
+		}
+		else
+		{
+			if( auto child = it->lock() )
+			{
+				auto currentParent = std::dynamic_pointer_cast<Menu>( child );
+				FORGE_ASSERT( currentParent );
+				children = &currentParent->GetChildren();
+			}		
+		}
+	}
+
+	const char* itemName = *path.back();
+	FORGE_ASSERT( std::find_if( children->begin(), children->end(), [ itemName ]( std::weak_ptr< Element > element )
+	{
+		if( auto locked = element.lock() )
+		{
+			return locked->GetName() == itemName;
+		}
+		return false;
+	} ) == children->end() );
+
+	std::shared_ptr< TopBarItem > item = std::make_shared< TopBarItem >( itemName, currentParent, selectable );
+	children->emplace_back( item );
+	std::sort( children->begin(), children->end(), sortElements );
+
+	return item;
+}
+
+void DrawElements( std::vector< std::weak_ptr< imgui::TopBar::Element > >& elements )
+{
+	for( auto it = elements.begin(); it != elements.end(); )
+	{
+		if( auto element = it->lock() )
+		{
+			if( auto item = std::dynamic_pointer_cast< imgui::TopBarItem > ( element ) )
+			{
+				Bool isSelected = item->IsSelected();
+				if( ImGui::MenuItem( item->GetName(), nullptr, &isSelected ) )
+				{
+					item->SetSelected( isSelected );
+					item->GetCallback().Invoke();
+				}
+			}
+			else
+			{
+				auto menu = std::dynamic_pointer_cast< imgui::TopBar::Menu >( element );
+				if( ImGui::BeginMenu( menu->GetName() ) )
+				{
+					DrawElements( menu->GetChildren() );
+					ImGui::EndMenu();
+				}
+			}
+			++it;
+		}
+		else
+		{
+			it = forge::utils::RemoveReorder( elements, it );
+		}
+	}
+}
+
+void imgui::TopBar::Draw()
 {
 	if( ImGui::BeginMainMenuBar() )
 	{
-		if( ImGui::BeginMenu( "Systems Debug" ) )
-		{
-			for( auto& systemToDebug : m_systemsToDebug )
-			{
-				if( systemToDebug.m_system.HasDebug() )
-				{
-					ImGui::MenuItem( systemToDebug.m_system.GetType().GetName( false ), nullptr, systemToDebug.m_enabled );
-				}
-			}
-
-			ImGui::EndMenu();
-		}
-
-		if( ImGui::BeginMenu( "Other" ) )
-		{
-			ImGui::MenuItem( "Show IMGUI Demo", nullptr, &m_imguiDemoEnabled );
-			ImGui::EndMenu();
-		}
-
+		DrawElements( m_rootElements );
 		ImGui::EndMainMenuBar();
-	}
-
-	if( m_imguiDemoEnabled )
-	{
-		ImGui::ShowDemoWindow();
 	}
 }
 
 #endif
+
