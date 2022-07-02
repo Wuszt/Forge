@@ -74,7 +74,7 @@ namespace systems
 
 		FORGE_INLINE void AddDataPackage( std::unique_ptr< forge::IDataPackage > package )
 		{
-			m_data.emplace( &package->GetType(), std::move( package ) );
+			m_data.emplace( &package->GetDataType(), std::move( package ) );
 		}
 
 		FORGE_INLINE void SetDirty( Bool dirty )

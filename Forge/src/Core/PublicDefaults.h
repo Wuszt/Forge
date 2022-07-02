@@ -2,9 +2,10 @@
 
 #include "ExternalIncludes.h"
 #include "Core.h"
+#include "Types.h"
+#include "RTTI.h"
 
 #include "Profiling.h"
-#include "Types.h"
 #include "Time.h"
 #include "Logger.h"
 #include "Utils.h"
@@ -12,4 +13,3 @@
 #include "StringUtils.h"
 #include "DataPackage.h"
 #include "ArraySpan.h"
-#include "RTTI.h"

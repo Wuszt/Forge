@@ -13,7 +13,7 @@ namespace forge
 		virtual ~IDataPackage() = default;
 		virtual void AddEmptyData() = 0;
 		virtual void RemoveDataReorder( Uint32 index ) = 0;
-		virtual const rtti::IType& GetType() const = 0;
+		virtual const rtti::IType& GetDataType() const = 0;
 		virtual void MoveTo( Uint32 index, IDataPackage& destination ) = 0;
 		virtual std::unique_ptr< IDataPackage > CreateNewInstance() const = 0;
 	};
@@ -46,7 +46,7 @@ namespace forge
 			forge::utils::RemoveReorder( m_data, index );
 		}
 
-		FORGE_INLINE virtual const rtti::IType& GetType() const override
+		FORGE_INLINE virtual const rtti::IType& GetDataType() const override
 		{
 			return T::GetTypeStatic();
 		}
