@@ -1,5 +1,4 @@
 #pragma once
-#include "../Core/DepotsContainer.h"
 
 namespace renderer
 {
@@ -17,6 +16,8 @@ namespace forge
 	class UpdateManager;
 	class IWindow;
 	class ApplicationInstance;
+	class DepotsContainer;
+	class AssetsManager;
 
 	class EngineInstance
 	{
@@ -52,7 +53,12 @@ namespace forge
 
 		FORGE_INLINE const DepotsContainer& GetDepotsContainer() const
 		{
-			return m_depotsContainer;
+			return *m_depotsContainer;
+		}
+
+		FORGE_INLINE AssetsManager& GetAssetsManager() const
+		{
+			return *m_assetsManager;
 		}
 
 		void Run();
@@ -61,7 +67,8 @@ namespace forge
 		std::unique_ptr< EntitiesManager > m_entitiesManager;
 		std::unique_ptr< systems::SystemsManager > m_systemManager;
 		std::unique_ptr< UpdateManager > m_updateManager;
-		const DepotsContainer m_depotsContainer;
+		std::unique_ptr< DepotsContainer > m_depotsContainer;
+		std::unique_ptr< AssetsManager > m_assetsManager;
 
 		std::unique_ptr< renderer::IRenderer > m_renderer;
 		std::unique_ptr< IWindow > m_window;

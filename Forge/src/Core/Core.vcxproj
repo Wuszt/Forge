@@ -35,12 +35,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Renderer\AssetsManager.h" />
     <ClInclude Include="ArraySpan.h" />
+    <ClInclude Include="IAsset.h" />
     <ClInclude Include="Callback.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="DataPackage.h" />
     <ClInclude Include="DepotsContainer.h" />
     <ClInclude Include="FPSCounter.h" />
+    <ClInclude Include="IAssetsLoader.h" />
     <ClInclude Include="IInput.h" />
     <ClInclude Include="IWindow.h" />
     <ClInclude Include="Logger.h" />
@@ -60,10 +63,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArraySpan.cpp" />
+    <ClCompile Include="IAsset.cpp" />
     <ClCompile Include="Callback.cpp" />
     <ClCompile Include="DataPackage.cpp" />
     <ClCompile Include="DepotsContainer.cpp" />
     <ClCompile Include="FPSCounter.cpp" />
+    <ClCompile Include="IAssetsLoader.cpp" />
     <ClCompile Include="IInput.cpp" />
     <ClCompile Include="IWindow.cpp" />
     <ClCompile Include="Logger.cpp" />

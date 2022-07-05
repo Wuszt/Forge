@@ -192,7 +192,7 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 			for( auto& material : renderable->GetMaterials() )
 			{
 				material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Opaque );
-				material->SetTexture( "Textures\\grass.jpg", renderer::Material::TextureType::Diffuse );
+				material->SetTexture( engineInstancePtr->GetAssetsManager(), "Textures\\grass.jpg", renderer::Material::TextureType::Diffuse );
 			}
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );

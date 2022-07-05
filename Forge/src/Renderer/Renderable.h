@@ -16,10 +16,10 @@ namespace renderer
 	class Renderable
 	{
 	public:
-		Renderable( IRenderer& renderer, const std::string& path );
+		Renderable( IRenderer& renderer, forge::AssetsManager& assetsManager, const std::string& path );
 		~Renderable();
 
-		void SetModel( const std::string& path );
+		void SetModel( forge::AssetsManager& assetsManager, const std::string& path );
 		const Model& GetModel() const
 		{
 			return *m_model;

@@ -18,6 +18,7 @@
 #include "../IMGUI/PublicDefaults.h"
 #include "../Renderer/ICamera.h"
 #endif
+#include "../Renderer/TextureAsset.h"
 
 IMPLEMENT_TYPE( systems, RenderingSystem );
 
@@ -136,9 +137,10 @@ void systems::RenderingSystem::OnRenderDebug()
 
 			if( ImGui::BeginTabItem( "Loaded textures" ) )
 			{
-				for( const auto& texture : m_renderer->GetResourceManager().GetAllLoadedTextures() )
+				auto texturesAssets = GetEngineInstance().GetAssetsManager().GetLoadedAssetsOfType< renderer::TextureAsset >();
+				for( const auto& asset : texturesAssets )
 				{
-					forge::imgui::DrawTexture( texture.first, *texture.second );
+					forge::imgui::DrawTexture( asset->GetPath(), *asset->GetTexture() );
 				}
 
 				ImGui::EndTabItem();

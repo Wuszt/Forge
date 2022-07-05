@@ -68,19 +68,10 @@
     <ClCompile Include="IShadersManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IModelsLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TinyObjModelsLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourcesManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ITexturesLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ITexture.cpp">
@@ -129,6 +120,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OrthographicCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelAsset.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetsManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureAsset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -193,19 +193,10 @@
     <ClInclude Include="..\..\External\tinyobjloader\tiny_obj_loader.h">
       <Filter>Header Files\External</Filter>
     </ClInclude>
-    <ClInclude Include="IModelsLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TinyObjModelsLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourcesManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ITexturesLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ITexture.h">
@@ -256,26 +247,12 @@
     <ClInclude Include="OrthographicCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Depots\Engine\Shaders\Common.fxh">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\Depots\Engine\Shaders\Deferred.fxh">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\Depots\Engine\Shaders\Forward.fxh">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\Depots\Engine\Shaders\FullScreenCommon.fxh">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\Depots\Engine\Shaders\GeometryCommon.fxh">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\Depots\Engine\Shaders\Lighting.fxh">
-      <Filter>Shaders</Filter>
-    </None>
+    <ClInclude Include="ModelAsset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureAsset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\Depots\Engine\Shaders\CopyTexture.fx">
@@ -293,5 +270,11 @@
     <FxCompile Include="..\..\Depots\Engine\Shaders\VS_FullScreen.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\Common.fxh" />
+    <FxCompile Include="..\..\Depots\Engine\Shaders\Deferred.fxh" />
+    <FxCompile Include="..\..\Depots\Engine\Shaders\Forward.fxh" />
+    <FxCompile Include="..\..\Depots\Engine\Shaders\FullScreenCommon.fxh" />
+    <FxCompile Include="..\..\Depots\Engine\Shaders\GeometryCommon.fxh" />
+    <FxCompile Include="..\..\Depots\Engine\Shaders\Lighting.fxh" />
   </ItemGroup>
 </Project>

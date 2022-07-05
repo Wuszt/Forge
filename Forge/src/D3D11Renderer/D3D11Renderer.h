@@ -37,7 +37,7 @@ namespace d3d11
 	class D3D11Renderer : public renderer::IRenderer
 	{
 	public:
-		D3D11Renderer( const forge::DepotsContainer& depotsContainer, forge::IWindow& window );
+		D3D11Renderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window );
 		~D3D11Renderer();
 
 		FORGE_INLINE D3D11Device* GetDevice() const
@@ -90,8 +90,6 @@ namespace d3d11
 		}
 
 		virtual std::unique_ptr< renderer::IConstantBufferImpl > CreateConstantBufferImpl() const override;
-
-		virtual std::unique_ptr< renderer::ITexturesLoader > CreateTexturesLoader() const override;
 
 	private:
 		void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilView* depthStencilView );

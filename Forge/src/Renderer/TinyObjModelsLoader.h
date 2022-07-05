@@ -1,15 +1,24 @@
 #pragma once
-#include "IModelsLoader.h"
+#include "../Core/IAssetsLoader.h"
+
+namespace forge
+{
+	class Asset;
+}
 
 namespace renderer
 {
 	struct MaterialData;
 
-	class TinyObjModelsLoader : public IModelsLoader
-	{
+	class TinyObjModelsLoader : public forge::IAssetsLoader
+	{		
 	public:
-		using IModelsLoader::IModelsLoader;
-		virtual std::shared_ptr< renderer::Model > LoadModel( const std::string& path, std::vector< MaterialData >* materialsData = nullptr ) override;
+		TinyObjModelsLoader( renderer::IRenderer& renderer );
+		virtual std::unique_ptr< forge::IAsset > LoadAsset( const std::string& path ) const override;
+		virtual forge::ArraySpan<const char *> GetHandledExtensions() const override;
+
+	private:
+		IRenderer& m_renderer;
 	};
 }
 

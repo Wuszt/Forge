@@ -81,13 +81,13 @@ namespace d3d11
 		context.GetDeviceContext()->RSSetState( *outRasterizerState );
 	}
 
-	D3D11Renderer::D3D11Renderer( const forge::DepotsContainer& depotsContainer, forge::IWindow& window )
-		: IRenderer( depotsContainer )
+	D3D11Renderer::D3D11Renderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window )
+		: IRenderer( assetsManager )
 	{
 		FORGE_ASSERT( dynamic_cast<windows::WindowsWindow*>( &window ) );
 
 		InitializeSwapChainAndContext( static_cast<windows::WindowsWindow&>( window ), window.GetWidth(), window.GetHeight() );
-		m_shadersManager = std::make_unique< D3D11ShadersManager >( m_depotsContainer, *GetDevice(), *GetContext() );
+		m_shadersManager = std::make_unique< D3D11ShadersManager >( depotsContainer, *GetDevice(), *GetContext() );
 
 		SetViewportSize( Vector2( static_cast< Float >( window.GetWidth() ), static_cast< Float >( window.GetHeight() ) ) );
 
@@ -107,6 +107,8 @@ namespace d3d11
 				break;
 			}
 		} );
+
+		assetsManager.AddAssetsLoader< D3D11TexturesLoader >( *GetDevice(), *GetContext() );
 	}
 
 	D3D11Renderer::~D3D11Renderer()
@@ -406,11 +408,6 @@ namespace d3d11
 	std::unique_ptr< renderer::IConstantBufferImpl > D3D11Renderer::CreateConstantBufferImpl() const
 	{
 		return std::make_unique< D3D11ConstantBufferImpl >( *m_device, *m_context );
-	}
-
-	std::unique_ptr< renderer::ITexturesLoader > D3D11Renderer::CreateTexturesLoader() const
-	{
-		return std::make_unique< d3d11::D3D11TexturesLoader >( m_depotsContainer, *GetDevice(), *GetContext() );
 	}
 
 	void D3D11Renderer::InitializeSwapChainAndContext( const windows::WindowsWindow& window, Uint32 renderingResolutionWidth, Uint32 renderingResolutionHeight )

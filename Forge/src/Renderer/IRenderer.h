@@ -6,6 +6,7 @@ namespace forge
 {
 	class IWindow;
 	class DepotsContainer;
+	class AssetsManager;
 }
 
 namespace renderer
@@ -24,7 +25,6 @@ namespace renderer
 	class IDepthStencilBuffer;
 	class Renderable;
 	class IShadersManager;
-	class ResourcesManager;
 	class ITexturesLoader;
 	class ISamplerState;
 	class IBlendState;
@@ -80,11 +80,9 @@ namespace renderer
 	class IRenderer
 	{
 	public:
-		static std::unique_ptr< IRenderer > CreateRenderer( const forge::DepotsContainer& depotsContainer, forge::IWindow& window, RendererType type );
-		IRenderer( const forge::DepotsContainer& depotsContainer );
+		static std::unique_ptr< IRenderer > CreateRenderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window, RendererType type );
+		IRenderer( forge::AssetsManager& assetsManager );
 		virtual ~IRenderer();
-
-		void Initialize();
 
 		virtual IRenderContext* GetContext() const = 0;
 		virtual ISwapchain* GetSwapchain() const = 0;
@@ -139,19 +137,6 @@ namespace renderer
 		}
 
 		virtual std::unique_ptr< IConstantBufferImpl > CreateConstantBufferImpl() const = 0;
-
-		FORGE_INLINE ResourcesManager& GetResourceManager() const
-		{
-			return *m_resourcesManager;
-		}
-
-		virtual std::unique_ptr< ITexturesLoader > CreateTexturesLoader() const = 0;
-
-	protected:
-		const forge::DepotsContainer& m_depotsContainer;
-
-	private:
-		std::unique_ptr< ResourcesManager > m_resourcesManager;
 	};
 }
 
