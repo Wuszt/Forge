@@ -5,6 +5,7 @@
 #include "../Renderer/PublicDefaults.h"
 #include "../Core/DepotsContainer.h"
 #include "../Renderer/TinyObjModelsLoader.h"
+#include "../Core/AssetsManager.h"
 
 forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 	: m_appInstance( appInstance )

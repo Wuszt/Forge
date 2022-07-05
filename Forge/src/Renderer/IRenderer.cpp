@@ -2,7 +2,7 @@
 #include "IRenderer.h"
 #include "../D3D11Renderer/D3D11Renderer.h"
 #include "TinyObjModelsLoader.h"
-#include "AssetsManager.h"
+#include "../Core/AssetsManager.h"
 
 namespace renderer
 {

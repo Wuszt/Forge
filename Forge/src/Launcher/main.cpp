@@ -18,6 +18,8 @@
 #include "../Renderer/PerspectiveCamera.h"
 #include "../Core/Time.h"
 #include "../Systems/TimeSystem.h"
+#include "../Renderer/TextureAsset.h"
+#include "../Core/AssetsManager.h"
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -192,7 +194,7 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 			for( auto& material : renderable->GetMaterials() )
 			{
 				material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Opaque );
-				material->SetTexture( engineInstancePtr->GetAssetsManager(), "Textures\\grass.jpg", renderer::Material::TextureType::Diffuse );
+				material->SetTexture( engineInstancePtr->GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\grass.jpg" )->GetTexture(), renderer::Material::TextureType::Diffuse );
 			}
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );

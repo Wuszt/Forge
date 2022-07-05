@@ -1,6 +1,8 @@
 #include "Fpch.h"
 #include "Renderable.h"
 #include "ModelAsset.h"
+#include "TextureAsset.h"
+#include "../Core/AssetsManager.h"
 
 renderer::Renderable::Renderable( IRenderer& renderer, forge::AssetsManager& assetsManager, const std::string& path )
 	: m_renderer( renderer )
@@ -24,17 +26,20 @@ void renderer::Renderable::SetModel( forge::AssetsManager& assetsManager, const 
 
 		if( !materialData.m_diffuseTextureName.empty() )
 		{
-			m_materials.back()->SetTexture( assetsManager, texturesFolderPath + materialData.m_diffuseTextureName, Material::TextureType::Diffuse );
+			auto textureAsset = assetsManager.GetAsset< renderer::TextureAsset >( texturesFolderPath + materialData.m_diffuseTextureName );
+			m_materials.back()->SetTexture( textureAsset->GetTexture(), Material::TextureType::Diffuse );
 		}
 
 		if( !materialData.m_normalTextureName.empty() )
 		{
-			m_materials.back()->SetTexture( assetsManager, texturesFolderPath + materialData.m_normalTextureName, Material::TextureType::Normal );
+			auto textureAsset = assetsManager.GetAsset< renderer::TextureAsset >( texturesFolderPath + materialData.m_normalTextureName );
+			m_materials.back()->SetTexture( textureAsset->GetTexture(), Material::TextureType::Normal );
 		}
 
 		if( !materialData.m_alphaTextureName.empty() )
 		{
-			m_materials.back()->SetTexture( assetsManager, texturesFolderPath + materialData.m_alphaTextureName, Material::TextureType::Alpha );
+			auto textureAsset = assetsManager.GetAsset< renderer::TextureAsset >( texturesFolderPath + materialData.m_alphaTextureName );
+			m_materials.back()->SetTexture( textureAsset->GetTexture(), Material::TextureType::Alpha );
 		}
 	}
 

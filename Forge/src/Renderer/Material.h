@@ -57,7 +57,7 @@ namespace renderer
 
 		void SetShaders( const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass );
 		void SetRenderingPass( renderer::RenderingPass renderingPass );
-		void SetTexture( forge::AssetsManager& assetsManager, const std::string& path, Material::TextureType textureType );
+		void SetTexture( std::shared_ptr< const ITexture > texture, Material::TextureType textureType );
 
 		FORGE_INLINE renderer::RenderingPass GetRenderingPass() const
 		{

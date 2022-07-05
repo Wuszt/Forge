@@ -77,13 +77,13 @@
     <ClInclude Include="RTTI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Renderer\AssetsManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IAssetsLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IAsset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -137,6 +137,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IAsset.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

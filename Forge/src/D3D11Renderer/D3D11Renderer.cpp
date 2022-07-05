@@ -9,6 +9,7 @@
 #include "D3D11BlendState.h"
 #include "D3D11DepthStencilState.h"
 #include "D3D11DepthStencilView.h"
+#include "../Core/AssetsManager.h"
 
 namespace d3d11
 {

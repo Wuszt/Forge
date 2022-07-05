@@ -19,6 +19,7 @@
 #include "../Renderer/ICamera.h"
 #endif
 #include "../Renderer/TextureAsset.h"
+#include "../Core/AssetsManager.h"
 
 IMPLEMENT_TYPE( systems, RenderingSystem );
 

@@ -35,8 +35,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Renderer\AssetsManager.h" />
     <ClInclude Include="ArraySpan.h" />
+    <ClInclude Include="AssetsManager.h" />
     <ClInclude Include="IAsset.h" />
     <ClInclude Include="Callback.h" />
     <ClInclude Include="Core.h" />
@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArraySpan.cpp" />
+    <ClCompile Include="AssetsManager.cpp" />
     <ClCompile Include="IAsset.cpp" />
     <ClCompile Include="Callback.cpp" />
     <ClCompile Include="DataPackage.cpp" />

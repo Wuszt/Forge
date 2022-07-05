@@ -125,9 +125,6 @@
     <ClCompile Include="ModelAsset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AssetsManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TextureAsset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

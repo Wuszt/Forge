@@ -74,7 +74,6 @@
     <ClCompile Include="IVertexShader.cpp" />
     <ClCompile Include="ModelAsset.cpp" />
     <ClCompile Include="OrthographicCamera.cpp" />
-    <ClCompile Include="AssetsManager.cpp" />
     <ClCompile Include="ShaderPack.cpp" />
     <ClCompile Include="ShadowMapsGenerator.cpp" />
     <ClCompile Include="TextureAsset.cpp" />

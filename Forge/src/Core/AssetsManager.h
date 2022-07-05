@@ -5,6 +5,7 @@ namespace forge
 	class IRenderer;
 	class IAsset;
 	class IAssetsLoader;
+	class DepotsContainer;
 
 	class AssetsManager
 	{

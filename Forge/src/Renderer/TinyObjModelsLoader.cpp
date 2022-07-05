@@ -1,6 +1,5 @@
 #include "Fpch.h"
 #include "TinyObjModelsLoader.h"
-#include "AssetsManager.h"
 #include <filesystem>
 
 #define TINYOBJLOADER_IMPLEMENTATION

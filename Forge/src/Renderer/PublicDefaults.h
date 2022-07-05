@@ -15,7 +15,6 @@
 #include "Material.h"
 #include "Renderable.h"
 #include "IShadersManager.h"
-#include "AssetsManager.h"
 #include "ITexture.h"
 #include "IShaderResourceView.h"
 #include "ISamplerState.h"
