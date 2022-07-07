@@ -4,9 +4,13 @@
 [submodule "Forge/src/UnitTests"]
 	path = Forge/src/UnitTests
 	url = https://github.com/Wuszt/ForgeUTs.git
+	branch = main
 [submodule "Forge/External/imgui"]
 	path = Forge/External/imgui
 	url = https://github.com/ocornut/imgui.git
 [submodule "Forge/External/tinyobjloader"]
 	path = Forge/External/tinyobjloader
 	url = https://github.com/tinyobjloader/tinyobjloader.git
+[submodule "Forge/External/openfbx"]
+	path = Forge/External/openfbx
+	url = https://github.com/nem0/OpenFBX.git
