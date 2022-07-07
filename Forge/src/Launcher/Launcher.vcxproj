@@ -144,7 +144,11 @@
     </Link>
     <PostBuildEvent>
       <Command>del $(TargetDir)Depots
-mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
+mklink $(TargetDir)Depots $(TargetDir)..\Depots
+
+del $(ProjectDir)Depots
+mklink $(ProjectDir)Depots $(ProjectDir)..\..\Depots
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -165,7 +169,11 @@ mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
     </Link>
     <PostBuildEvent>
       <Command>del $(TargetDir)Depots
-mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
+mklink $(TargetDir)Depots $(TargetDir)..\Depots
+
+del $(ProjectDir)Depots
+mklink $(ProjectDir)Depots $(ProjectDir)..\..\Depots
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -189,7 +197,11 @@ mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
     </Link>
     <PostBuildEvent>
       <Command>del $(TargetDir)Depots
-mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
+mklink $(TargetDir)Depots $(TargetDir)..\Depots
+
+del $(ProjectDir)Depots
+mklink $(ProjectDir)Depots $(ProjectDir)..\..\Depots
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
@@ -215,7 +227,11 @@ mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
     </Link>
     <PostBuildEvent>
       <Command>del $(TargetDir)Depots
-mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
+mklink $(TargetDir)Depots $(TargetDir)..\Depots
+
+del $(ProjectDir)Depots
+mklink $(ProjectDir)Depots $(ProjectDir)..\..\Depots
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profiling|Win32'">
@@ -239,7 +255,11 @@ mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
     </Link>
     <PostBuildEvent>
       <Command>del $(TargetDir)Depots
-mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
+mklink $(TargetDir)Depots $(TargetDir)..\Depots
+
+del $(ProjectDir)Depots
+mklink $(ProjectDir)Depots $(ProjectDir)..\..\Depots
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -263,7 +283,11 @@ mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
     </Link>
     <PostBuildEvent>
       <Command>del $(TargetDir)Depots
-mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
+mklink $(TargetDir)Depots $(TargetDir)..\Depots
+
+del $(ProjectDir)Depots
+mklink $(ProjectDir)Depots $(ProjectDir)..\..\Depots
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|x64'">
@@ -289,7 +313,11 @@ mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
     </Link>
     <PostBuildEvent>
       <Command>del $(TargetDir)Depots
-mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
+mklink $(TargetDir)Depots $(TargetDir)..\Depots
+
+del $(ProjectDir)Depots
+mklink $(ProjectDir)Depots $(ProjectDir)..\..\Depots
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">
@@ -313,7 +341,11 @@ mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
     </Link>
     <PostBuildEvent>
       <Command>del $(TargetDir)Depots
-mklink $(TargetDir)Depots $(TargetDir)..\Depots</Command>
+mklink $(TargetDir)Depots $(TargetDir)..\Depots
+
+del $(ProjectDir)Depots
+mklink $(ProjectDir)Depots $(ProjectDir)..\..\Depots
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
