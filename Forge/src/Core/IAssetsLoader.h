@@ -8,7 +8,7 @@ namespace forge
 	{
 	public:
 		virtual ~IAssetsLoader() = default;
-		virtual std::unique_ptr< forge::IAsset > LoadAsset( const std::string& path ) const = 0;
+		virtual std::vector< std::shared_ptr< forge::IAsset > > LoadAssets( const std::string& path ) const = 0;
 
 		virtual forge::ArraySpan< const char* > GetHandledExtensions() const = 0;
 	};

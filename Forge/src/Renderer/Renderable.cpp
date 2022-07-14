@@ -26,20 +26,38 @@ void renderer::Renderable::SetModel( forge::AssetsManager& assetsManager, const 
 
 		if( !materialData.m_diffuseTextureName.empty() )
 		{
-			auto textureAsset = assetsManager.GetAsset< renderer::TextureAsset >( texturesFolderPath + materialData.m_diffuseTextureName );
-			m_materials.back()->SetTexture( textureAsset->GetTexture(), Material::TextureType::Diffuse );
+			if( auto textureAsset = assetsManager.GetAsset< renderer::TextureAsset >( texturesFolderPath + materialData.m_diffuseTextureName ) )
+			{
+				m_materials.back()->SetTexture( textureAsset->GetTexture(), Material::TextureType::Diffuse );
+			}
+			else
+			{
+				FORGE_LOG_WARNING( "Can't load texture %s", ( texturesFolderPath + materialData.m_diffuseTextureName ).c_str() );
+			}
 		}
 
 		if( !materialData.m_normalTextureName.empty() )
 		{
-			auto textureAsset = assetsManager.GetAsset< renderer::TextureAsset >( texturesFolderPath + materialData.m_normalTextureName );
-			m_materials.back()->SetTexture( textureAsset->GetTexture(), Material::TextureType::Normal );
+			if( auto textureAsset = assetsManager.GetAsset< renderer::TextureAsset >( texturesFolderPath + materialData.m_normalTextureName ) )
+			{
+				m_materials.back()->SetTexture( textureAsset->GetTexture(), Material::TextureType::Normal );
+			}
+			else
+			{
+				FORGE_LOG_WARNING( "Can't load texture %s", ( texturesFolderPath + materialData.m_normalTextureName ).c_str() );
+			}
 		}
 
 		if( !materialData.m_alphaTextureName.empty() )
 		{
-			auto textureAsset = assetsManager.GetAsset< renderer::TextureAsset >( texturesFolderPath + materialData.m_alphaTextureName );
-			m_materials.back()->SetTexture( textureAsset->GetTexture(), Material::TextureType::Alpha );
+			if( auto textureAsset = assetsManager.GetAsset< renderer::TextureAsset >( texturesFolderPath + materialData.m_alphaTextureName ) )
+			{
+				m_materials.back()->SetTexture( textureAsset->GetTexture(), Material::TextureType::Alpha );
+			}
+			else
+			{
+				FORGE_LOG_WARNING( "Can't load texture %s", ( texturesFolderPath + materialData.m_alphaTextureName ).c_str() );
+			}
 		}
 	}
 

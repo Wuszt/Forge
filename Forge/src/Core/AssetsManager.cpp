@@ -10,30 +10,32 @@ forge::AssetsManager::AssetsManager( const forge::DepotsContainer& depotsContain
 
 forge::AssetsManager::~AssetsManager() = default;
 
-std::shared_ptr< forge::IAsset > forge::AssetsManager::GetAssetInternal( const std::string& path )
+forge::ArraySpan< std::shared_ptr< forge::IAsset > > forge::AssetsManager::GetAssetsInternal( const std::string& path )
 {
-	auto cachedAsset = m_assetsCache.find( path );
-	if( cachedAsset != m_assetsCache.end() )
 	{
-		return cachedAsset->second;
+		auto cachedAsset = m_assetsCache.find( path );
+		if( cachedAsset != m_assetsCache.end() )
+		{
+			return cachedAsset->second;
+		}
 	}
 
 	std::string finalPath;
 	if( !m_depotsContainer.TryToGetExistingFilePath( path, finalPath ) )
 	{
-		return nullptr;
+		return {};
 	}
 
 	Uint32 extensionStartIndex = finalPath.find_last_of( '.' ) + 1u;
 
 	if( extensionStartIndex >= finalPath.size() )
 	{
-		return nullptr;
+		return {};
 	}
 
 	std::string extension = finalPath.substr( extensionStartIndex );
 
-	std::shared_ptr< IAsset > loadedAsset = m_assetsLoaders[ extension ]->LoadAsset( finalPath );
-	m_assetsCache.emplace( path, loadedAsset );
-	return loadedAsset;
+	std::vector< std::shared_ptr< IAsset > > loadedAssets = m_assetsLoaders[ extension ]->LoadAssets( finalPath );
+	m_assetsCache.emplace( path, std::move( loadedAssets ) );
+	return m_assetsCache[ path ];
 }

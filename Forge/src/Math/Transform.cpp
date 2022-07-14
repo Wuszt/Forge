@@ -22,7 +22,7 @@ Transform::Transform( const Vector4& pos, const Quaternion& q )
 {}
 
 Transform::Transform( const Matrix& matrix )
-	: m_orientation( matrix.ToQuat() )
+	: m_orientation( matrix.ToQuat().Normalized() )
 	, m_position( matrix.GetTranslation() )
 {}
 

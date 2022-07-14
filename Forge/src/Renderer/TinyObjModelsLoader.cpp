@@ -11,11 +11,8 @@ renderer::TinyObjModelsLoader::TinyObjModelsLoader( renderer::IRenderer& rendere
 	: m_renderer( renderer )
 {}
 
-std::unique_ptr< forge::IAsset > renderer::TinyObjModelsLoader::LoadAsset( const std::string& path ) const
+std::vector< std::shared_ptr< forge::IAsset > > renderer::TinyObjModelsLoader::LoadAssets( const std::string& path ) const
 {
-	std::string warning;
-	std::string error;
-
 	tinyobj::ObjReaderConfig readerConfig;
 
 	readerConfig.mtl_search_path = path.substr( 0u, path.find_last_of( '\\' ) );
@@ -24,11 +21,10 @@ std::unique_ptr< forge::IAsset > renderer::TinyObjModelsLoader::LoadAsset( const
 
 	if( !reader.ParseFromFile( path, readerConfig ) )
 	{
-		return nullptr;
+		return {};
 	}
 
-	Transform transform = Transform( Quaternion{ 0.0f, -FORGE_PI_HALF, 0.0f } *Quaternion{ 0.0f, 0.0f, -FORGE_PI_HALF } );
-
+	Transform transform = Transform( Quaternion{ 0.0f, -FORGE_PI_HALF, 0.0f } * Quaternion{ 0.0f, 0.0f, -FORGE_PI_HALF } );
 	std::vector< renderer::InputPosition > objPoses;
 	auto& rawPositions = reader.GetAttrib().vertices;
 	for( Uint32 i = 0; i < rawPositions.size(); i += 3 )
@@ -103,7 +99,7 @@ std::unique_ptr< forge::IAsset > renderer::TinyObjModelsLoader::LoadAsset( const
 		materialsData.back().m_buffer->UpdateBuffer();
 	}
 
-	return std::make_unique< renderer::ModelAsset >( path, std::make_unique< renderer::Model >( m_renderer, vertices, shapes ), std::move( materialsData ) );
+	return { std::make_shared< renderer::ModelAsset >( path, std::make_unique< renderer::Model >( m_renderer, vertices, shapes ), std::move( materialsData ) ) };
 }
 
 static const char* c_handledExceptions[] = { "obj" };

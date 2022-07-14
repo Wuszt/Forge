@@ -9,7 +9,7 @@ d3d11::D3D11TexturesLoader::D3D11TexturesLoader( const d3d11::D3D11Device& devic
 	, m_context( context )
 {}
 
-std::unique_ptr<forge::IAsset> d3d11::D3D11TexturesLoader::LoadAsset( const std::string& path ) const
+std::vector< std::shared_ptr< forge::IAsset > > d3d11::D3D11TexturesLoader::LoadAssets( const std::string& path ) const
 {
 	std::wstring wPath = std::wstring( path.begin(), path.end() );
 	ID3D11Resource* resource = nullptr;
@@ -21,7 +21,7 @@ std::unique_ptr<forge::IAsset> d3d11::D3D11TexturesLoader::LoadAsset( const std:
 
 	resourceView->Release();
 
-	return std::make_unique< renderer::TextureAsset >( path, std::make_unique< d3d11::D3D11Texture >( m_device, m_context, *static_cast<ID3D11Texture2D*>( resource ), srvDesc.Format ) );
+	return { std::make_shared< renderer::TextureAsset >( path, std::make_unique< d3d11::D3D11Texture >( m_device, m_context, *static_cast<ID3D11Texture2D*>( resource ), srvDesc.Format ) ) };
 }
 
 static const char* c_handledExceptions[] = { "jpg", "png" };

@@ -19,10 +19,13 @@ namespace forge
 			std::vector< std::shared_ptr< T > > result;
 			for( const auto& pair : m_assetsCache )
 			{
-				if( pair.second->IsA< T >() )
+				for( auto asset : pair.second )
 				{
-					result.emplace_back( std::dynamic_pointer_cast<T>( pair.second ) );
-				}
+					if( asset->IsA< T >() )
+					{
+						result.emplace_back( std::dynamic_pointer_cast< T >( asset ) );
+					}
+				}			
 			}
 
 			return result;
@@ -31,7 +34,16 @@ namespace forge
 		template< class T >
 		std::shared_ptr< T > GetAsset( const std::string& path )
 		{
-			return std::dynamic_pointer_cast< T >( GetAssetInternal( path ) );
+			for( auto asset : GetAssetsInternal( path ) )
+			{
+				std::shared_ptr< T > result = std::dynamic_pointer_cast< T >( asset );
+				if( result )
+				{
+					return result;
+				}
+			}
+
+			return nullptr;
 		}
 
 		template< class T, class... Args >
@@ -46,9 +58,9 @@ namespace forge
 		}
 
 	private:
-		std::shared_ptr< IAsset > GetAssetInternal( const std::string& path );
+		forge::ArraySpan< std::shared_ptr< forge::IAsset > > GetAssetsInternal( const std::string& path );
 
-		std::unordered_map< std::string, std::shared_ptr< IAsset > > m_assetsCache;
+		std::unordered_map< std::string, std::vector< std::shared_ptr< IAsset > > > m_assetsCache;
 		std::unordered_map< std::string, std::shared_ptr< IAssetsLoader > > m_assetsLoaders;
 		const forge::DepotsContainer& m_depotsContainer;
 	};
