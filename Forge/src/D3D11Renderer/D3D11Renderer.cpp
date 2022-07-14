@@ -29,10 +29,10 @@ namespace d3d11
 
 		struct Shape
 		{
-			Uint64 m_IBOffset : 24 ;
-			Uint64 m_indicesAmount : 24;
+			Uint64 m_IBOffset : 22 ;
+			Uint64 m_indicesAmount : 22;
 
-			Uint64 m_resourcesStartIndex : 11;
+			Uint64 m_resourcesStartIndex : 15;
 			Uint64 m_resourcesAmount : 5;
 		};
 		static_assert( sizeof( Shape ) == 8, "Shape struct is larger than before!" );
@@ -317,7 +317,7 @@ namespace d3d11
 				auto materialResources = material.GetTextures();
 				Uint32 resourcesAmount = materialResources.GetSize();
 				Uint32 startIndex = static_cast< Uint32 >( pack->m_resourceViews.size() );
-				FORGE_ASSERT( startIndex < ( 1 << 11 ) );
+				FORGE_ASSERT( startIndex < ( 1 << 15 ) );
 				FORGE_ASSERT( resourcesAmount < ( 1 << 5 ) );
 				for( Uint32 resourcesIndex = 0u; resourcesIndex < resourcesAmount; ++resourcesIndex )
 				{
@@ -327,7 +327,7 @@ namespace d3d11
 
 				pack->m_resourceViews.resize( Math::Max( 1u, static_cast< Uint32 >( pack->m_resourceViews.size() ) ) );
 
-				FORGE_ASSERT( ib->GetIndicesAmount() < 1 << 24 );
+				FORGE_ASSERT( ib->GetIndicesAmount() < 1 << 22 );
 				pack->m_shapes.emplace_back( RawRenderablesPack::Shape{ 0u, ib->GetIndicesAmount(), Math::Min( startIndex, static_cast< Uint32 >( pack->m_resourceViews.size() ) - 1u ), resourcesAmount } );
 			}
 
