@@ -34,8 +34,8 @@ void Matrix::SetRotationY( Float rad )
 	Float sin = Math::Sin( rad );
 	Float cos = Math::Cos( rad );
 
-	X.X = 0.0f;
 	X.X = cos;
+	X.Y = 0.0f;
 	X.Z = -sin;
 
 	Y.X = 0.0f;
@@ -93,6 +93,23 @@ Matrix Matrix::OrthonormInverted() const
 	return copy;
 }
 
+Vector3 Matrix::ToEulerAngles() const
+{
+	Vector3 euler;
+	euler.X = std::asin( Math::Clamp( -1.0f, 1.0f, Y[ 2 ] ) );
+	if ( Math::Abs( Y[ 2 ] ) < 1.0f )
+	{
+		euler.Y = std::atan2( -X[ 2 ], Z[ 2 ] );
+		euler.Z = std::atan2( -Y[ 0 ], Y[ 1 ] );
+	}
+	else
+	{
+		euler.Z = std::atan2( X[ 1 ], X[ 0 ] );
+	}
+
+	return euler;
+}
+
 void AffineInversion( Matrix copy, Matrix& destination )
 {
 	Float cofactor0 = copy.Y[ 1 ] * copy.Z[ 2 ] - copy.Y[ 2 ] * copy.Z[ 1 ];
@@ -108,15 +125,15 @@ void AffineInversion( Matrix copy, Matrix& destination )
 	destination.X[ 0 ] = invDet * cofactor0;
 	destination.X[ 1 ] = invDet * cofactor4;
 	destination.X[ 2 ] = invDet * cofactor8;
-	
+
 	destination.Y[ 0 ] = -invDet * ( copy.Y[ 0 ] * copy.Z[ 2 ] - copy.Y[ 2 ] * copy.Z[ 0 ] );
 	destination.Y[ 1 ] = invDet * ( copy.X[ 0 ] * copy.Z[ 2 ] - copy.X[ 2 ] * copy.Z[ 0 ] );
 	destination.Y[ 2 ] = -invDet * ( copy.X[ 0 ] * copy.Y[ 2 ] - copy.Y[ 0 ] * copy.X[ 2 ] );
-	
+
 	destination.Z[ 0 ] = invDet * ( copy.Y[ 0 ] * copy.Z[ 1 ] - copy.Z[ 0 ] * copy.Y[ 1 ] );
 	destination.Z[ 1 ] = -invDet * ( copy.X[ 0 ] * copy.Z[ 1 ] - copy.Z[ 0 ] * copy.X[ 1 ] );
 	destination.Z[ 2 ] = invDet * ( copy.X[ 0 ] * copy.Y[ 1 ] - copy.Y[ 0 ] * copy.X[ 1 ] );
-	
+
 	destination.W[ 0 ] = -( copy.W[ 0 ] * destination.X[ 0 ] + copy.W[ 1 ] * destination.Y[ 0 ] + copy.W[ 2 ] * destination.Z[ 0 ] );
 	destination.W[ 1 ] = -( copy.W[ 0 ] * destination.X[ 1 ] + copy.W[ 1 ] * destination.Y[ 1 ] + copy.W[ 2 ] * destination.Z[ 1 ] );
 	destination.W[ 2 ] = -( copy.W[ 0 ] * destination.X[ 2 ] + copy.W[ 1 ] * destination.Y[ 2 ] + copy.W[ 2 ] * destination.Z[ 2 ] );

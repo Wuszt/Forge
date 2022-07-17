@@ -240,6 +240,8 @@ struct Matrix
 		return result;
 	}
 
+	Vector3 ToEulerAngles() const;
+
 	FORGE_INLINE const Vector4& GetAxisX() const
 	{
 		return X;

@@ -45,24 +45,24 @@ Quaternion::Quaternion( Float xRotation, Float yRotation, Float zRotation )
 	yRotation *= 0.5f;
 	zRotation *= 0.5f;
 
-	Float cX = Math::Cos( xRotation );
-	Float sX = Math::Sin( xRotation );
+	Float c1 = Math::Cos( xRotation );
+	Float s1 = Math::Sin( xRotation );
 
-	Float cY = Math::Cos( yRotation );
-	Float sY = Math::Sin( yRotation );
+	Float c2 = Math::Cos( yRotation );
+	Float s2 = Math::Sin( yRotation );
 
-	Float cZ = Math::Cos( zRotation );
-	Float sZ = Math::Sin( zRotation );
+	Float c3 = Math::Cos( zRotation );
+	Float s3 = Math::Sin( zRotation );
 
-	r = cY * cX * cZ - sY * sX * sZ;
-	j = sY * cX * cZ - cY * sX * sZ;
-	i = cY * sX * cZ + sY * cX * sZ;
-	k = cY * cX * sZ + sY * sX * cY;
+	i = s1 * c2 * c3 - c1 * s2 * s3;
+	j = c1 * s2 * c3 + s1 * c2 * s3;
+	k = c1 * c2 * s3 + s1 * s2 * c3;
+	r = c1 * c2 * c3 - s1 * s2 * s3;
 }
 
-Quaternion::Quaternion( const Vector4& vec )
+Quaternion::Quaternion( Vector4 vec )
 {
-	vec4 = vec;
+	vec4 = std::move( vec );
 }
 
 Quaternion::Quaternion( const Vector3& eulerAngles )
@@ -146,6 +146,24 @@ Float Quaternion::SquareMag() const
 Bool Quaternion::IsAlmostEqual( const Quaternion& q, Float eps ) const
 {
 	return vec4.IsAlmostEqual( q.vec4, eps );
+}
+
+Vector3 Quaternion::ToEulerAngles() const
+{
+	Vector3 euler;
+	Float y2 = Math::Clamp( -1.0f, 1.0f, 2.0f * ( j * k + r * i ) );
+	euler.X = std::asin( y2 );
+	if ( Math::Abs( y2 ) < 1.0f )
+	{
+		euler.Y = std::atan2( 2.0f * ( r * j - i * k ), 1.0f - 2.0f * ( i * i + j * j ) );
+		euler.Z = std::atan2( 2.0f * ( r * k - i * j ), 1.0f - 2.0f * ( i * i + k * k ) );
+	}
+	else
+	{
+		euler.Z = std::atan2( 2.0f * ( i * j + r * k ), 1.0f - 2.0f * ( j * j + k * k ) );
+	}
+
+	return euler;
 }
 
 Vector3 Quaternion::GetXAxis3() const

@@ -63,7 +63,7 @@ struct Quaternion
 		SetAxisAngle( vec, r );
 	}
 
-	explicit Quaternion( const Vector4& vec );
+	explicit Quaternion( Vector4 vec );
 
 	Quaternion( Float xRotation, Float yRotation, Float zRotation );
 
@@ -106,6 +106,8 @@ struct Quaternion
 	Float SquareMag() const;
 
 	Bool IsAlmostEqual( const Quaternion& q, Float eps = std::numeric_limits< Float >::epsilon() ) const;
+
+	Vector3 ToEulerAngles() const;
 
 	Vector3 GetXAxis3() const;
 	Vector3 GetYAxis3() const;
