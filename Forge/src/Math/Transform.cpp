@@ -24,7 +24,15 @@ Transform::Transform( const Vector4& pos, const Quaternion& q )
 Transform::Transform( const Matrix& matrix )
 	: m_orientation( matrix.GetRotation().Normalized() )
 	, m_position( matrix.GetTranslation() )
-{}
+{
+#ifdef FORGE_ASSERTIONS_ENABLED
+	Vector3 scale;
+	Quaternion rotation;
+	Vector3 translation;
+	matrix.Decompose( scale, rotation, translation );
+	FORGE_ASSERT( scale.IsAlmostEqual( Vector3::ONES() ) );
+#endif
+}
 
 Transform::~Transform()
 {}

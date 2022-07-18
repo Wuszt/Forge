@@ -93,7 +93,7 @@ Matrix Matrix::OrthonormInverted() const
 	return copy;
 }
 
-void Matrix::Decompose( Vector3& scale, Quaternion& rotation, Vector3& translation )
+void Matrix::Decompose( Vector3& scale, Quaternion& rotation, Vector3& translation ) const
 {
 	translation = W;
 

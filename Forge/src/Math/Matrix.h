@@ -240,7 +240,7 @@ struct Matrix
 		return result;
 	}
 
-	void Decompose( Vector3& scale, Quaternion& rotation, Vector3& translation );
+	void Decompose( Vector3& scale, Quaternion& rotation, Vector3& translation ) const;
 
 	Vector3 ToEulerAngles() const;
 
