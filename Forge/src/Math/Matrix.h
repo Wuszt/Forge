@@ -136,7 +136,7 @@ struct Matrix
 	void AffineInvert();
 	Matrix AffineInverted() const;
 
-	FORGE_INLINE Quaternion ToQuat() const
+	FORGE_INLINE Quaternion GetRotation() const
 	{
 		Quaternion result;
 
@@ -239,6 +239,8 @@ struct Matrix
 
 		return result;
 	}
+
+	void Decompose( Vector3& scale, Quaternion& rotation, Vector3& translation );
 
 	Vector3 ToEulerAngles() const;
 
