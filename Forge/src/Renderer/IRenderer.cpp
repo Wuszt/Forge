@@ -3,6 +3,7 @@
 #include "../D3D11Renderer/D3D11Renderer.h"
 #include "TinyObjModelsLoader.h"
 #include "../Core/AssetsManager.h"
+#include "FBXLoader.h"
 
 namespace renderer
 {
@@ -26,6 +27,7 @@ namespace renderer
 	IRenderer::IRenderer( forge::AssetsManager& assetsManager )
 	{
 		assetsManager.AddAssetsLoader< TinyObjModelsLoader >( *this );
+		assetsManager.AddAssetsLoader< renderer::FBXLoader >( *this );
 	}
 
 	IRenderer::~IRenderer() = default;

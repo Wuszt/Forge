@@ -268,7 +268,7 @@ void systems::LightingSystem::OnRenderDebug()
 					{
 						ImGui::ColorEdit3( "Color", lightsData[ i ].Color.AsArray(), ImGuiColorEditFlags_NoInputs );
 
-						castShadowFunc( GetPointLights()[ i ], false );
+						castShadowFunc( GetDirectionalLights()[ i ], false );
 
 						if( GetDirectionalLights()[ i ].m_shadowMap )
 						{

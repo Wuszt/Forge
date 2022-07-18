@@ -22,7 +22,7 @@ void renderer::Renderable::SetModel( forge::AssetsManager& assetsManager, const 
 
 	for( auto& materialData : modelAsset->GetMaterialsData() )
 	{
-		m_materials.emplace_back( std::make_unique< Material >( m_renderer, *m_model, m_renderer.CreateConstantBufferFromOther( *materialData.m_buffer ), "Uber.fx", "Uber.fx", renderer::RenderingPass::Overlay ) );
+		m_materials.emplace_back( std::make_unique< Material >( m_renderer, *m_model, m_renderer.CreateConstantBufferFromOther( *materialData.m_buffer ), "Uber.fx", "Uber.fx", renderer::RenderingPass::Opaque ) );
 
 		if( !materialData.m_diffuseTextureName.empty() )
 		{
