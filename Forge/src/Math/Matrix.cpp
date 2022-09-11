@@ -1,6 +1,8 @@
 #include "Fpch.h"
 #include "Matrix.h"
 
+//#define FORGE_MATRIX_ASSERTS
+
 Matrix::Matrix( const Quaternion& q )
 {
 	FORGE_ASSERT( Math::IsAlmostZero( 1.0f - q.SquareMag() ) );
@@ -77,7 +79,7 @@ void Matrix::Transpose()
 
 void Matrix::OrthonormInvert()
 {
-#ifdef FORGE_ASSERTIONS_ENABLED
+#ifdef FORGE_MATRIX_ASSERTS
 	Matrix prev = *this;
 #endif
 
@@ -88,7 +90,7 @@ void Matrix::OrthonormInvert()
 	translation = TransformPoint( -translation );
 	W = translation;
 
-#ifdef FORGE_ASSERTIONS_ENABLED
+#ifdef FORGE_MATRIX_ASSERTS
 	FORGE_ASSERT((prev * *this).IsAlmostEqual(Matrix::IDENTITY(), 0.001f));
 #endif
 }
@@ -163,13 +165,13 @@ void AffineInversion( Matrix copy, Matrix& destination )
 
 void Matrix::AffineInvert()
 {
-#ifdef FORGE_ASSERTIONS_ENABLED
+#ifdef FORGE_MATRIX_ASSERTS
 	Matrix prev = *this;
 #endif
 
 	AffineInversion( *this, *this );
 
-#ifdef FORGE_ASSERTIONS_ENABLED
+#ifdef FORGE_MATRIX_ASSERTS
 	FORGE_ASSERT( ( prev * *this ).IsAlmostEqual( Matrix::IDENTITY(), 0.001f ) );
 #endif
 }
