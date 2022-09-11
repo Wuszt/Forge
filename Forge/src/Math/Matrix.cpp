@@ -77,12 +77,20 @@ void Matrix::Transpose()
 
 void Matrix::OrthonormInvert()
 {
+#ifdef FORGE_ASSERTIONS_ENABLED
+	Matrix prev = *this;
+#endif
+
 	Vector4 translation = W;
 	SetTranslation( 0.0f, 0.0f, 0.0f );
 	Transpose();
 
 	translation = TransformPoint( -translation );
 	W = translation;
+
+#ifdef FORGE_ASSERTIONS_ENABLED
+	FORGE_ASSERT((prev * *this).IsAlmostEqual(Matrix::IDENTITY(), 0.001f));
+#endif
 }
 
 Matrix Matrix::OrthonormInverted() const
@@ -155,7 +163,15 @@ void AffineInversion( Matrix copy, Matrix& destination )
 
 void Matrix::AffineInvert()
 {
+#ifdef FORGE_ASSERTIONS_ENABLED
+	Matrix prev = *this;
+#endif
+
 	AffineInversion( *this, *this );
+
+#ifdef FORGE_ASSERTIONS_ENABLED
+	FORGE_ASSERT( ( prev * *this ).IsAlmostEqual( Matrix::IDENTITY(), 0.001f ) );
+#endif
 }
 
 Matrix Matrix::AffineInverted() const

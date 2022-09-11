@@ -6,7 +6,7 @@ namespace forge
 		DECLARE_ABSTRACT_TYPE( IAsset );
 	public:
 		IAsset( const std::string& path );
-		~IAsset() = default;
+		virtual ~IAsset() = default;
 
 		const std::string& GetPath() const
 		{

@@ -32,6 +32,13 @@ struct Matrix
 
 	Matrix( const Quaternion& q );
 
+	Matrix( const Vector3& translation )
+		: X( Vector4::EX() )
+		, Y( Vector4::EY() )
+		, Z( Vector4::EZ() )
+		, W( translation )
+	{}
+
 	Matrix( Float x0, Float x1, Float x2, Float x3,
 		Float y0, Float y1, Float y2, Float y3,
 		Float z0, Float z1, Float z2, Float z3,
@@ -114,6 +121,11 @@ struct Matrix
 		return result;
 	}
 
+	FORGE_INLINE Bool IsAlmostEqual( const Matrix& m, Float eps = std::numeric_limits< Float >::epsilon() ) const
+	{
+		return X.IsAlmostEqual(m.X, eps) && Y.IsAlmostEqual( m.Y, eps ) && Z.IsAlmostEqual( m.Z, eps ) && W.IsAlmostEqual( m.W, eps );
+	}
+
 	void SetRotationX( Float rad );
 
 	void SetRotationY( Float rad );
@@ -186,6 +198,7 @@ struct Matrix
 			result.j = ( Z[ 1 ] + Y[ 2 ] ) * invS;
 		}
 
+		result.Normalize();
 		return result;
 	}
 

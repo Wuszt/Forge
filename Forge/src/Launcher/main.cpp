@@ -20,6 +20,9 @@
 #include "../Systems/TimeSystem.h"
 #include "../Renderer/TextureAsset.h"
 #include "../Core/AssetsManager.h"
+#include "../Renderer/FBXLoader.h"
+
+std::string animName = "Animations\\Capoeira.fbx";
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -33,10 +36,6 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 			renderingComponent->LoadMeshAndMaterial( "Models\\vokselia\\vokselia_spawn.obj" );
 
 			auto renderable = renderingComponent->GetData().m_renderable;
-			for( auto& material : renderable->GetMaterials() )
-			{
-				material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Opaque );
-			}
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 			transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 1000.0f };
@@ -71,6 +70,24 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 	} );
 }
 
+void SkeletalMesh( forge::EngineInstance& engineInstance )
+{
+	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	{
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		{
+			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+			renderingComponent->LoadMeshAndMaterial( animName );
+
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 0.5f, 0.5f, 0.5f, 0.5f } );
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Transparent );
+			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+		} );
+	} );
+}
+
 void SponzaScene( forge::EngineInstance& engineInstance )
 {
 	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
@@ -83,10 +100,6 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 			renderingComponent->LoadMeshAndMaterial( "Models\\sponza\\sponza.obj" );
 
 			auto renderable = renderingComponent->GetData().m_renderable;
-			for( auto& material : renderable->GetMaterials() )
-			{
-				material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Opaque );
-			}
 
 			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
 		} );
@@ -193,7 +206,6 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 			auto renderable = renderingComponent->GetData().m_renderable;
 			for( auto& material : renderable->GetMaterials() )
 			{
-				material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Opaque );
 				material->SetTexture( engineInstancePtr->GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\grass.jpg" )->GetTexture(), renderer::Material::TextureType::Diffuse );
 			}
 
@@ -286,8 +298,9 @@ Int32 main()
 			} );
 
 			//MinecraftScene( engineInstance );
-			SponzaScene( engineInstance );
+			//SponzaScene( engineInstance );
 			//BunnyScene( engineInstance );	
+			SkeletalMesh( engineInstance );
 
 			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
 			{
@@ -299,8 +312,14 @@ Int32 main()
 			} );
 		}
 
+		Uint32 frame = 0u;
+		Uint32 deltaFrame = 1u;
+
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{
+			float time = forge::Time::GetTime();
+			frame = time / 0.033f;
+
 			if( engineInstance.GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
 			{
 				Shutdown();
@@ -311,6 +330,59 @@ Int32 main()
 				Float currentAngle = DEG2RAD * 10.0f * engineInstance.GetSystemsManager().GetSystem< systems::TimeSystem >().GetCurrentTime();
 				m_sun->GetData().Direction = Quaternion( -FORGE_PI_HALF, 0.0f, currentAngle ) * Vector3::EY();
 				m_sun->GetData().Color = Vector3{ 1.0f, 1.0f, 1.0f } * Math::Cos( currentAngle );
+			}
+
+			{
+				auto tmpAsset = engineInstance.GetAssetsManager().GetAsset<renderer::TMPAsset>( animName );
+				tmpAsset = tmpAsset;
+
+				std::function<void( const renderer::TMPAsset::Bone&, const Matrix& )> func;
+				func = [ & ]( const renderer::TMPAsset::Bone& bone, const Matrix& parentTransform )
+				{
+					Matrix boneMatrix = bone.m_matrix;
+
+					Vector3 pos = boneMatrix.GetTranslation();
+					Vector3 rot = boneMatrix.ToEulerAngles() * RAD2DEG;
+
+					{
+						if( !bone.m_animation.empty() )
+						{
+							frame %= bone.m_animation.size();
+
+							boneMatrix = bone.m_animation[ frame ];
+						}
+					}
+
+					Matrix finalMatrix = boneMatrix * parentTransform;
+
+					for( auto child : bone.m_children )
+					{
+						func( child, finalMatrix );
+					}
+
+					{
+						if( bone.m_parent && bone.m_parent->m_parent )
+						{
+							Vector3 from = parentTransform.GetTranslation();
+							Vector3 to = parentTransform.TransformPoint( boneMatrix.GetTranslation() );
+							Vector3 direction = to - from;
+							Float length = direction.Normalize();
+
+							Float sphereRadius = 4.25f;
+							Uint32 stepsAmount = static_cast<Uint32>( length / sphereRadius );
+
+							for( Uint32 i = 0u; i < stepsAmount; ++i )
+							{
+								Vector3 pos = from + direction * sphereRadius * static_cast<Float>( i );
+								engineInstance.GetSystemsManager().GetSystem<systems::DebugSystem>().DrawSphere( pos, sphereRadius, Vector4( 0.0f, 1.0f, 0.0f, 1.0f ), -1.0f );
+							}
+						}
+					}
+
+					engineInstance.GetSystemsManager().GetSystem<systems::DebugSystem>().DrawSphere( ( finalMatrix ).GetTranslation(), 5.25f, Vector4( 1.0f, 0.0f, 0.0f, 1.0f ), -1.0f );
+				};
+
+				func( tmpAsset->m_rootBone, Matrix::IDENTITY() );
 			}
 		}
 
