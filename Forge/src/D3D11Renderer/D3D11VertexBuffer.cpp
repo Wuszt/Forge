@@ -20,6 +20,12 @@ namespace d3d11
 		case renderer::InputType::Normal:
 			return "NORMAL";
 
+		case renderer::InputType::BlendWeights:
+			return "BLENDWEIGHTS";
+
+		case renderer::InputType::BlendIndices:
+			return "BLENDINDICES";
+
 		default:
 			FORGE_FATAL( "Not known input type" );
 		}
@@ -31,14 +37,26 @@ namespace d3d11
 	{
 		switch( format )
 		{
-		case renderer::InputFormat::R32G32B32:
+		case renderer::InputFormat::R32_UINT:
+			return DXGI_FORMAT_R32_UINT;
+
+		case renderer::InputFormat::R32_FLOAT:
+			return DXGI_FORMAT_R32_FLOAT;
+
+		case renderer::InputFormat::R32G32_FLOAT:
+			return DXGI_FORMAT_R32G32_FLOAT;
+
+		case renderer::InputFormat::R32G32_UINT:
+			return DXGI_FORMAT_R32G32_UINT;
+
+		case renderer::InputFormat::R32G32B32_FLOAT:
 			return DXGI_FORMAT_R32G32B32_FLOAT;
 
-		case renderer::InputFormat::R32G32B32A32:
-			return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		case renderer::InputFormat::R32G32B32A32_UINT:
+			return DXGI_FORMAT_R32G32B32A32_UINT;
 
-		case renderer::InputFormat::R32G32:
-			return DXGI_FORMAT_R32G32_FLOAT;
+		case renderer::InputFormat::R32G32B32A32_FLOAT:
+			return DXGI_FORMAT_R32G32B32A32_FLOAT;
 
 		default:
 			FORGE_FATAL( "Not known format" );

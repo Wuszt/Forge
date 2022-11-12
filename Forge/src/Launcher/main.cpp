@@ -21,6 +21,7 @@
 #include "../Renderer/TextureAsset.h"
 #include "../Core/AssetsManager.h"
 #include "../Renderer/FBXLoader.h"
+#include "../../External/imgui/imgui.h"
 
 std::string animName = "Animations\\Capoeira.fbx";
 
@@ -81,9 +82,9 @@ void SkeletalMesh( forge::EngineInstance& engineInstance )
 
 			renderingComponent->LoadMeshAndMaterial( animName );
 
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 0.5f, 0.5f, 0.5f, 0.5f } );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Transparent );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+			//renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 0.5f, 0.5f, 0.5f, 0.5f } );
+			//renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Transparent );
+			//renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 	} );
 }
@@ -279,7 +280,7 @@ Int32 main()
 
 			engineInstance.GetSystemsManager().Boot( ctx );
 
-			engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor( { 0.05f, 0.05f, 0.05f } );
+			engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor( { 0.55f, 0.55f, 0.55f } );
 
 			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* player )
 			{
@@ -312,13 +313,20 @@ Int32 main()
 			} );
 		}
 
-		Uint32 frame = 0u;
+		Int32 frame = 0u;
 		Uint32 deltaFrame = 1u;
 
-		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
+		struct cbBones
 		{
+			Matrix Bones[100];
+		};
+
+		std::unique_ptr< renderer::StaticConstantBuffer< cbBones > > bonesBuffer;
+
+		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
+		{		
 			float time = forge::Time::GetTime();
-			frame = time / 0.033f;
+			frame = time / 0.005f;
 
 			if( engineInstance.GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
 			{
@@ -334,55 +342,90 @@ Int32 main()
 
 			{
 				auto tmpAsset = engineInstance.GetAssetsManager().GetAsset<renderer::TMPAsset>( animName );
-				tmpAsset = tmpAsset;
 
-				std::function<void( const renderer::TMPAsset::Bone&, const Matrix& )> func;
-				func = [ & ]( const renderer::TMPAsset::Bone& bone, const Matrix& parentTransform )
+				static auto token = engineInstance.GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [tmpAsset, this]()
 				{
-					Matrix boneMatrix = bone.m_matrix;
+					ImGui::SliderInt( "Frame", &frame, 0, tmpAsset->m_boneInfo[ 0 ].m_anim.size() );
+				});
 
-					Vector3 pos = boneMatrix.GetTranslation();
-					Vector3 rot = boneMatrix.ToEulerAngles() * RAD2DEG;
+				for( Uint32 i = 0u; i < tmpAsset->m_boneInfo.size(); ++i )
+				{
+					tmpAsset->m_boneInfo[ i ].m_finalTransformation = tmpAsset->m_boneInfo[ i ].m_anim[ frame % tmpAsset->m_boneInfo[ i ].m_anim.size() ];
+				}
 
+				//if(bonesBuffer == nullptr)
+				{
+					bonesBuffer = engineInstance.GetRenderer().CreateStaticConstantBuffer<cbBones>();
+					
+					for(Uint32 i = 0u; i < tmpAsset->m_boneInfo.size(); ++i)
 					{
-						if( !bone.m_animation.empty() )
-						{
-							frame %= bone.m_animation.size();
-
-							boneMatrix = bone.m_animation[ frame ];
-						}
+						bonesBuffer->GetData().Bones[ i ] = tmpAsset->m_boneInfo[ i ].m_finalTransformation;
 					}
+				}
 
-					Matrix finalMatrix = boneMatrix * parentTransform;
+				bonesBuffer->UpdateBuffer();
+				bonesBuffer->SetVS(renderer::VSConstantBufferType::SkeletalMesh);
+				
+				for(Uint32 i = 0u; i < tmpAsset->m_boneInfo.size(); ++i)
+				{
+					Vector4 translation = tmpAsset->m_boneInfo[i].m_finalTransformation.GetTranslation();
+					//engineInstance.GetSystemsManager().GetSystem<systems::DebugSystem>().DrawSphere(translation, 10.25f, Vector4(1.0f, 1.0f, 0.0f, 1.0f), -1.0f);
+				}
 
-					for( auto child : bone.m_children )
-					{
-						func( child, finalMatrix );
-					}
+				//std::function<void( const renderer::TMPAsset::Bone&, const Matrix& )> func;
+				//func = [ & ]( const renderer::TMPAsset::Bone& bone, const Matrix& parentTransform )
+				//{
+				//	Matrix boneMatrix = bone.m_matrix;
 
-					{
-						if( bone.m_parent && bone.m_parent->m_parent )
-						{
-							Vector3 from = parentTransform.GetTranslation();
-							Vector3 to = parentTransform.TransformPoint( boneMatrix.GetTranslation() );
-							Vector3 direction = to - from;
-							Float length = direction.Normalize();
+				//	Vector3 pos = boneMatrix.GetTranslation();
+				//	Vector3 rot = boneMatrix.ToEulerAngles() * RAD2DEG;
 
-							Float sphereRadius = 4.25f;
-							Uint32 stepsAmount = static_cast<Uint32>( length / sphereRadius );
+				//	{
+				//		if( !bone.m_animation.empty() )
+				//		{
+				//			frame %= bone.m_animation.size();
 
-							for( Uint32 i = 0u; i < stepsAmount; ++i )
-							{
-								Vector3 pos = from + direction * sphereRadius * static_cast<Float>( i );
-								engineInstance.GetSystemsManager().GetSystem<systems::DebugSystem>().DrawSphere( pos, sphereRadius, Vector4( 0.0f, 1.0f, 0.0f, 1.0f ), -1.0f );
-							}
-						}
-					}
+				//			boneMatrix = bone.m_animation[ frame ];
+				//		}
+				//	}
 
-					engineInstance.GetSystemsManager().GetSystem<systems::DebugSystem>().DrawSphere( ( finalMatrix ).GetTranslation(), 5.25f, Vector4( 1.0f, 0.0f, 0.0f, 1.0f ), -1.0f );
-				};
+				//	Matrix finalMatrix = boneMatrix * parentTransform;
 
-				func( tmpAsset->m_rootBone, Matrix::IDENTITY() );
+				//	for( auto child : bone.m_children )
+				//	{
+				//		func( child, finalMatrix );
+				//	}
+
+				//	{
+				//		if( bone.m_parent && bone.m_parent->m_parent )
+				//		{
+				//			Vector3 from = parentTransform.GetTranslation();
+				//			Vector3 to = parentTransform.TransformPoint( boneMatrix.GetTranslation() );
+				//			Vector3 direction = to - from;
+				//			Float length = direction.Normalize();
+
+				//			Float sphereRadius = 4.25f;
+				//			Uint32 stepsAmount = static_cast<Uint32>( length / sphereRadius );
+
+				//			for( Uint32 i = 0u; i < stepsAmount; ++i )
+				//			{
+				//				Vector3 pos = from + direction * sphereRadius * static_cast<Float>( i );
+				//				//engineInstance.GetSystemsManager().GetSystem<systems::DebugSystem>().DrawSphere( pos, sphereRadius, Vector4( 0.0f, 1.0f, 0.0f, 1.0f ), -1.0f );
+				//			}
+				//		}
+				//	}
+
+				//	//engineInstance.GetSystemsManager().GetSystem<systems::DebugSystem>().DrawSphere( ( finalMatrix ).GetTranslation(), 5.25f, Vector4( 1.0f, 0.0f, 0.0f, 1.0f ), -1.0f );
+				//};
+
+				//func( tmpAsset->m_rootBone, Matrix::IDENTITY() );
+
+
+
+				for(const Matrix& m : bonesBuffer->GetData().Bones)
+				{
+					//engineInstance.GetSystemsManager().GetSystem<systems::DebugSystem>().DrawSphere(m.GetTranslation(), 5.25f, Vector4(1.0f, 0.0f, 0.0f, 1.0f), -1.0f);
+				}
 			}
 		}
 

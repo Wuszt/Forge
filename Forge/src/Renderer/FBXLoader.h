@@ -7,19 +7,25 @@ namespace renderer
 	class TMPAsset : public forge::IAsset
 	{
 	public:
-		struct Bone
+		using forge::IAsset::IAsset;
+
+		struct BoneInfo
 		{
-			Matrix m_matrix = Matrix::IDENTITY();
-			Matrix m_offsetMatrix = Matrix::IDENTITY();
-			const Bone* m_parent = nullptr;
-			Uint64 m_id = 0u;
-			std::string m_name;
-			std::vector< Bone > m_children;
-			std::vector< Matrix > m_animation;
+			Matrix m_boneOffset;
+			Matrix m_finalTransformation;
+			std::vector<Matrix> m_anim;
 		};
 
-		using forge::IAsset::IAsset;
-		Bone m_rootBone;
+		std::unordered_map<std::string, Uint32> m_boneMapping;
+		std::vector<BoneInfo> m_boneInfo;
+
+		struct BoneWeights
+		{
+			Uint32 m_boneIDs[10u] = { 0u };
+			Float m_weights[10u] = { 0.0f };
+		};
+
+		std::vector<BoneWeights> m_bones;
 	};
 
 	class FBXLoader : public forge::IAssetsLoader

@@ -21,6 +21,7 @@ namespace renderer
 		Camera = 3,
 		RenderingPass = 4,
 		Light = 5,
+		SkeletalMesh = 6
 	};
 
 	enum class PSConstantBufferType

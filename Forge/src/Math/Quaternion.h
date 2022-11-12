@@ -30,6 +30,8 @@ struct Quaternion
 	FORGE_INLINE static Quaternion K() { return Quaternion( 0.0f, 0.0f, 1.0f, 0.0f ); }
 
 	static Quaternion GetRotationBetweenVectors( const Vector3& first, const Vector3& second, const Vector3& up = Vector3::EZ() );
+	static Quaternion Lerp( const Quaternion& from, const Quaternion& to, float t );
+	static Quaternion Slerp( const Quaternion& from, const Quaternion& to, float t );
 
 	FORGE_INLINE static Quaternion CreateFromDirection( const Vector3& direction, const Vector3& up = Vector3::EZ() )
 	{

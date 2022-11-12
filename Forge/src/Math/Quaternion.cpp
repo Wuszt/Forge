@@ -3,8 +3,8 @@
 
 Quaternion Quaternion::GetRotationBetweenVectors( const Vector3& first, const Vector3& second, const Vector3& up /*= Vector3::EZ()*/ )
 {
-	Float kcos = first.Dot( second );
-	Float k = sqrt( first.SquareMag() * second.SquareMag() );
+	const Float kcos = first.Dot( second );
+	const Float k = sqrt( first.SquareMag() * second.SquareMag() );
 
 	if( Math::IsAlmostZero( kcos / k + 1.0f ) )
 	{
@@ -15,13 +15,52 @@ Quaternion Quaternion::GetRotationBetweenVectors( const Vector3& first, const Ve
 	return Quaternion( perpendicular.X, perpendicular.Y, perpendicular.Z, kcos + k ).Normalized();
 }
 
+Quaternion Quaternion::Lerp( const Quaternion& from, const Quaternion& to, Float t )
+{
+	const float dot = from.vec4.Dot4( to.vec4 );
+	const Float sign = Math::Sign( dot );
+
+	return Math::Lerp( from, to * sign, t );
+}
+
+Quaternion Quaternion::Slerp( const Quaternion& from, const Quaternion& to, Float t )
+{
+	t = Math::Clamp( 0.0f, 1.0f, t );
+
+	const Float cosHalfTheta = from.vec4.Dot4( to.vec4 );
+
+	const Float sign = Math::Sign( cosHalfTheta );
+
+	if( Math::Abs( cosHalfTheta ) >= 1.0f )
+	{
+		return from;
+	}
+
+	const Float halfTheta = Math::Acos( sign * cosHalfTheta );
+	const Float sin = Math::Sin( halfTheta );
+
+	if( Math::IsAlmostZero( sin, 0.01f ) )
+	{
+		return from;
+	}
+
+	FORGE_ASSERT( !Math::IsAlmostZero( sin, 0.001f ) );
+
+	const Float wa = Math::Sin( ( 1.0f - t ) * halfTheta ) / sin;
+	const Float wb = sign * Math::Sin( t * halfTheta ) / sin;
+
+	Quaternion result( from.vec4 * wa + to.vec4 * wb );
+
+	return result.Normalized();
+}
+
 Vector4 Quaternion::Transform( const Vector4& vec ) const
 {
 	FORGE_ASSERT( Math::IsAlmostZero( 1.0f - vec4.SquareMag4() ) );
 
-	float vMult = 2.0f*( i*vec.X + j * vec.Y + k * vec.Z );
-	float crossMult = 2.0f*r;
-	float pMult = crossMult * r - 1.0f;
+	const Float vMult = 2.0f*( i*vec.X + j * vec.Y + k * vec.Z );
+	const Float crossMult = 2.0f*r;
+	const Float pMult = crossMult * r - 1.0f;
 
 	return Vector4( pMult*vec.X + vMult * i + crossMult * ( j*vec.Z - k * vec.Y ),
 		pMult*vec.Y + vMult * j + crossMult * ( k*vec.X - i * vec.Z ),

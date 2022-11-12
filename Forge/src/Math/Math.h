@@ -9,22 +9,32 @@ namespace Math
 {
 	FORGE_INLINE Float Sin( Float rad )
 	{
-		return sin( rad );
+		return std::sin( rad );
 	}
 
 	FORGE_INLINE Float Cos( Float rad )
 	{
-		return cos( rad );
+		return std::cos( rad );
 	}
 
 	FORGE_INLINE Float Ctg( Float rad )
 	{
-		return 1.0f / tan( rad );
+		return 1.0f / std::tan( rad );
 	}
 
 	FORGE_INLINE Float Tg( Float rad )
 	{
-		return tan( rad );
+		return std::tan( rad );
+	}
+
+	FORGE_INLINE Float Acos( Float rad )
+	{
+		return std::acos( rad );
+	}
+
+	FORGE_INLINE Float Sign( Float value )
+	{
+		return std::copysign( 1.0f, value );
 	}
 
 	template< class T >
@@ -111,5 +121,19 @@ namespace Math
 	FORGE_INLINE Uint64 CalculateHash( const Vector4& value )
 	{
 		return Math::CombineHashes( Math::CombineHashes( Math::CombineHashes( Math::CalculateHash( value.X ), Math::CalculateHash( value.Y ) ), Math::CalculateHash( value.Z ) ), Math::CalculateHash( value.W ) );
+	}
+
+	template< class T >
+	FORGE_INLINE T Lerp(const T& from, const T& to, float t)
+	{
+		t = Clamp( 0.0f, 1.0f, t );
+		return from * ( 1.0f - t ) + to * t; 
+	}
+
+	template<>
+	FORGE_INLINE Quaternion Lerp(const Quaternion& from, const Quaternion& to, float t)
+	{
+		Quaternion result( Lerp( from.vec4, to.vec4, t ) );
+		return result.Normalized();
 	}
 }

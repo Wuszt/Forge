@@ -8,14 +8,20 @@ namespace renderer
 		Color,
 		TexCoord,
 		Normal,
+		BlendWeights,
+		BlendIndices,
 		Count
 	};
 
 	enum class InputFormat
 	{
-		R32G32,
-		R32G32B32,
-		R32G32B32A32,
+		R32_UINT,
+		R32_FLOAT,
+		R32G32_UINT,
+		R32G32_FLOAT,
+		R32G32B32_FLOAT,
+		R32G32B32A32_UINT,
+		R32G32B32A32_FLOAT,
 	};
 
 	enum class InputClassification
@@ -38,7 +44,7 @@ namespace renderer
 
 		static constexpr InputElementDescription GetInputDescription()
 		{
-			return { InputType::Color, InputFormat::R32G32B32A32, InputClassification::PerVertex, sizeof( InputColor ) };
+			return { InputType::Color, InputFormat::R32G32B32A32_FLOAT, InputClassification::PerVertex, sizeof( InputColor ) };
 		}
 	};
 
@@ -49,7 +55,7 @@ namespace renderer
 
 		static constexpr InputElementDescription GetInputDescription()
 		{
-			return { InputType::Position, InputFormat::R32G32B32, InputClassification::PerVertex, sizeof( InputPosition ) };
+			return { InputType::Position, InputFormat::R32G32B32_FLOAT, InputClassification::PerVertex, sizeof( InputPosition ) };
 		}
 	};
 
@@ -60,7 +66,7 @@ namespace renderer
 
 		static constexpr InputElementDescription GetInputDescription()
 		{
-			return { InputType::Normal, InputFormat::R32G32B32, InputClassification::PerVertex, sizeof( InputNormal ) };
+			return { InputType::Normal, InputFormat::R32G32B32_FLOAT, InputClassification::PerVertex, sizeof( InputNormal ) };
 		}
 	};
 
@@ -71,7 +77,25 @@ namespace renderer
 
 		static constexpr InputElementDescription GetInputDescription()
 		{
-			return { InputType::TexCoord, InputFormat::R32G32, InputClassification::PerVertex, sizeof( InputTexCoord ) };
+			return { InputType::TexCoord, InputFormat::R32G32_FLOAT, InputClassification::PerVertex, sizeof( InputTexCoord ) };
+		}
+	};
+
+	struct InputBlendWeights
+	{
+		Float m_weights[4] = {0.0f};
+		static constexpr InputElementDescription GetInputDescription()
+		{
+			return {InputType::BlendWeights, InputFormat::R32G32B32A32_FLOAT, InputClassification::PerVertex, sizeof(InputBlendWeights)};
+		}
+	};
+
+	struct InputBlendIndices
+	{
+		Uint32 m_indices[4] = {0u};
+		static constexpr InputElementDescription GetInputDescription()
+		{
+			return {InputType::BlendIndices, InputFormat::R32G32B32A32_UINT, InputClassification::PerVertex, sizeof(InputBlendIndices)};
 		}
 	};
 
