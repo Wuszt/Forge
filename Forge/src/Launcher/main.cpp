@@ -23,7 +23,7 @@
 #include "../Renderer/FBXLoader.h"
 #include "../../External/imgui/imgui.h"
 
-std::string animName = "Animations\\Capoeira.fbx";
+std::string animName = "Animations\\Running.fbx";
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -316,6 +316,9 @@ Int32 main()
 		Int32 frame = 0u;
 		Uint32 deltaFrame = 1u;
 
+		Float accumulator = 0.0f;
+		Float speed = 1.0f;
+
 		struct cbBones
 		{
 			Matrix Bones[100];
@@ -325,8 +328,9 @@ Int32 main()
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{		
-			float time = forge::Time::GetTime();
-			frame = time / 0.005f;
+			accumulator += forge::Time::GetDeltaTime() * speed;
+			frame = accumulator / 0.005f;
+
 
 			if( engineInstance.GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
 			{
@@ -343,14 +347,17 @@ Int32 main()
 			{
 				auto tmpAsset = engineInstance.GetAssetsManager().GetAsset<renderer::TMPAsset>( animName );
 
+				frame %= tmpAsset->m_boneInfo[ 0 ].m_anim.size();
+
 				static auto token = engineInstance.GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [tmpAsset, this]()
 				{
 					ImGui::SliderInt( "Frame", &frame, 0, tmpAsset->m_boneInfo[ 0 ].m_anim.size() );
+					ImGui::SliderFloat( "Speed", &speed, 0.0f, 100.0f );
 				});
 
 				for( Uint32 i = 0u; i < tmpAsset->m_boneInfo.size(); ++i )
 				{
-					tmpAsset->m_boneInfo[ i ].m_finalTransformation = tmpAsset->m_boneInfo[ i ].m_anim[ frame % tmpAsset->m_boneInfo[ i ].m_anim.size() ];
+					tmpAsset->m_boneInfo[ i ].m_finalTransformation = tmpAsset->m_boneInfo[ i ].m_anim[ frame ];
 				}
 
 				//if(bonesBuffer == nullptr)
