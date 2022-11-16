@@ -328,9 +328,7 @@ Int32 main()
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{		
-			accumulator += forge::Time::GetDeltaTime() * speed;
-			frame = accumulator / 0.005f;
-
+			accumulator += engineInstance.GetSystemsManager().GetSystem< systems::TimeSystem >().GetDeltaTime() * speed;
 
 			if( engineInstance.GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
 			{
@@ -347,92 +345,42 @@ Int32 main()
 			{
 				auto tmpAsset = engineInstance.GetAssetsManager().GetAsset<renderer::TMPAsset>( animName );
 
-				frame %= tmpAsset->m_boneInfo[ 0 ].m_anim.size();
+				while( accumulator >= tmpAsset->m_animDuration )
+				{
+					accumulator -= tmpAsset->m_animDuration;
+				}
 
 				static auto token = engineInstance.GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [tmpAsset, this]()
 				{
-					ImGui::SliderInt( "Frame", &frame, 0, tmpAsset->m_boneInfo[ 0 ].m_anim.size() );
-					ImGui::SliderFloat( "Speed", &speed, 0.0f, 100.0f );
+					ImGui::SliderFloat( "Duration", &accumulator, 0, tmpAsset->m_animDuration );
+					ImGui::SliderFloat( "Speed", &speed, 0.0f, 2.0f );
 				});
 
-				for( Uint32 i = 0u; i < tmpAsset->m_boneInfo.size(); ++i )
-				{
-					tmpAsset->m_boneInfo[ i ].m_finalTransformation = tmpAsset->m_boneInfo[ i ].m_anim[ frame ];
-				}
+				bonesBuffer = engineInstance.GetRenderer().CreateStaticConstantBuffer<cbBones>();
 
-				//if(bonesBuffer == nullptr)
+				Uint32 frame = static_cast< Uint32 >( accumulator * 30.0f );
+				Uint32 nextFrame = ( frame + 1u ) % static_cast< Uint32 >( 30u * tmpAsset->m_animDuration );
+				Float t = accumulator * 30.0f - static_cast< Float >( frame );
+
+				for(Uint32 i = 0u; i < tmpAsset->m_boneInfo.size(); ++i)
 				{
-					bonesBuffer = engineInstance.GetRenderer().CreateStaticConstantBuffer<cbBones>();
-					
-					for(Uint32 i = 0u; i < tmpAsset->m_boneInfo.size(); ++i)
-					{
-						bonesBuffer->GetData().Bones[ i ] = tmpAsset->m_boneInfo[ i ].m_finalTransformation;
-					}
+					Vector3 prevTranslation = tmpAsset->m_boneInfo[ i ].m_translationAnim[ frame ];
+					Vector3 nextTranslation = tmpAsset->m_boneInfo[ i ].m_translationAnim[ nextFrame ];
+
+					Vector3 finalTranslation = Math::Lerp( prevTranslation, nextTranslation, t );
+
+					Quaternion prevRotation = tmpAsset->m_boneInfo[ i ].m_rotationAnim[ frame ];
+					Quaternion nextRotation = tmpAsset->m_boneInfo[ i ].m_rotationAnim[ nextFrame ];
+
+					Quaternion finalRotation = Quaternion::Slerp( prevRotation, nextRotation, t );
+
+					Matrix m = tmpAsset->m_boneInfo[ i ].m_boneOffset * Matrix( finalRotation ) * Matrix( finalTranslation );
+
+					bonesBuffer->GetData().Bones[ i ] = m;
 				}
 
 				bonesBuffer->UpdateBuffer();
 				bonesBuffer->SetVS(renderer::VSConstantBufferType::SkeletalMesh);
-				
-				for(Uint32 i = 0u; i < tmpAsset->m_boneInfo.size(); ++i)
-				{
-					Vector4 translation = tmpAsset->m_boneInfo[i].m_finalTransformation.GetTranslation();
-					//engineInstance.GetSystemsManager().GetSystem<systems::DebugSystem>().DrawSphere(translation, 10.25f, Vector4(1.0f, 1.0f, 0.0f, 1.0f), -1.0f);
-				}
-
-				//std::function<void( const renderer::TMPAsset::Bone&, const Matrix& )> func;
-				//func = [ & ]( const renderer::TMPAsset::Bone& bone, const Matrix& parentTransform )
-				//{
-				//	Matrix boneMatrix = bone.m_matrix;
-
-				//	Vector3 pos = boneMatrix.GetTranslation();
-				//	Vector3 rot = boneMatrix.ToEulerAngles() * RAD2DEG;
-
-				//	{
-				//		if( !bone.m_animation.empty() )
-				//		{
-				//			frame %= bone.m_animation.size();
-
-				//			boneMatrix = bone.m_animation[ frame ];
-				//		}
-				//	}
-
-				//	Matrix finalMatrix = boneMatrix * parentTransform;
-
-				//	for( auto child : bone.m_children )
-				//	{
-				//		func( child, finalMatrix );
-				//	}
-
-				//	{
-				//		if( bone.m_parent && bone.m_parent->m_parent )
-				//		{
-				//			Vector3 from = parentTransform.GetTranslation();
-				//			Vector3 to = parentTransform.TransformPoint( boneMatrix.GetTranslation() );
-				//			Vector3 direction = to - from;
-				//			Float length = direction.Normalize();
-
-				//			Float sphereRadius = 4.25f;
-				//			Uint32 stepsAmount = static_cast<Uint32>( length / sphereRadius );
-
-				//			for( Uint32 i = 0u; i < stepsAmount; ++i )
-				//			{
-				//				Vector3 pos = from + direction * sphereRadius * static_cast<Float>( i );
-				//				//engineInstance.GetSystemsManager().GetSystem<systems::DebugSystem>().DrawSphere( pos, sphereRadius, Vector4( 0.0f, 1.0f, 0.0f, 1.0f ), -1.0f );
-				//			}
-				//		}
-				//	}
-
-				//	//engineInstance.GetSystemsManager().GetSystem<systems::DebugSystem>().DrawSphere( ( finalMatrix ).GetTranslation(), 5.25f, Vector4( 1.0f, 0.0f, 0.0f, 1.0f ), -1.0f );
-				//};
-
-				//func( tmpAsset->m_rootBone, Matrix::IDENTITY() );
-
-
-
-				for(const Matrix& m : bonesBuffer->GetData().Bones)
-				{
-					//engineInstance.GetSystemsManager().GetSystem<systems::DebugSystem>().DrawSphere(m.GetTranslation(), 5.25f, Vector4(1.0f, 0.0f, 0.0f, 1.0f), -1.0f);
-				}
 			}
 		}
 

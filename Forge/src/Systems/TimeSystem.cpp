@@ -59,6 +59,7 @@ void systems::TimeSystem::Update()
 #ifdef FORGE_IMGUI_ENABLED
 	if( m_paused )
 	{
+		m_lastDeltaTime = 0.0f;
 		return;
 	}
 #endif

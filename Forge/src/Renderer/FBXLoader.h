@@ -12,12 +12,13 @@ namespace renderer
 		struct BoneInfo
 		{
 			Matrix m_boneOffset;
-			Matrix m_finalTransformation;
-			std::vector<Matrix> m_anim;
+			std::vector< Vector3 > m_translationAnim;
+			std::vector< Quaternion > m_rotationAnim;
 		};
 
-		std::unordered_map<std::string, Uint32> m_boneMapping;
-		std::vector<BoneInfo> m_boneInfo;
+		std::vector< BoneInfo > m_boneInfo;
+
+		Float m_animDuration = 0.0f;
 
 		struct BoneWeights
 		{

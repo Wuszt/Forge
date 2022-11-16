@@ -37,7 +37,24 @@ Vector4 Convert( const ofbx::Vec4& vec )
 	return { static_cast< Float >( vec.x ),static_cast< Float >( vec.y ),static_cast< Float >( vec.z ),static_cast< Float >( vec.w ) };
 }
 
-void LoadBones_OFBX( const ofbx::Mesh* mesh, renderer::TMPAsset& asset )
+struct Context
+{
+	Context( const ofbx::Skin& skin, const ofbx::AnimationLayer& anim, renderer::TMPAsset& asset, Matrix fixingMatrix )
+		: m_skin( skin )
+		, m_anim( anim )
+		, m_asset( asset )
+		, m_fixingMatrix( std::move( fixingMatrix ) )
+	{}
+
+	const ofbx::Skin& m_skin;
+	const ofbx::AnimationLayer& m_anim;
+	renderer::TMPAsset& m_asset;
+	const Matrix m_fixingMatrix;
+
+	std::unordered_map< const ofbx::Object*, Uint32 > m_bonesMap;
+};
+
+void LoadBones_OFBX( const ofbx::Mesh* mesh, Context& ctx )
 {
 	const ofbx::Skin* skin = mesh->getGeometry()->getSkin();
 	for( Uint32 i = 0u; i < skin->getClusterCount(); ++i )
@@ -47,19 +64,11 @@ void LoadBones_OFBX( const ofbx::Mesh* mesh, renderer::TMPAsset& asset )
 		Uint32 boneIndex = 0u;
 		std::string boneName( cluster->name );
 
-		if( asset.m_boneMapping.find( boneName ) == asset.m_boneMapping.end() )
-		{
-			boneIndex = static_cast< Uint32 >( asset.m_boneInfo.size() );
-			asset.m_boneInfo.emplace_back();
-			asset.m_boneMapping.emplace( boneName, 0u );
-		}
-		else
-		{
-			boneIndex = asset.m_boneMapping.at( boneName );
-		}
+		boneIndex = static_cast< Uint32 >( ctx.m_asset.m_boneInfo.size() );
+		ctx.m_asset.m_boneInfo.emplace_back();
+		ctx.m_bonesMap[ cluster->getLink() ] = boneIndex;
 
-		asset.m_boneMapping.at( boneName ) = boneIndex;
-		asset.m_boneInfo[ boneIndex ].m_boneOffset = Convert( cluster->getTransformMatrix() );
+		ctx.m_asset.m_boneInfo[ boneIndex ].m_boneOffset = Convert( cluster->getTransformMatrix() );
 
 		FORGE_ASSERT( cluster->getWeightsCount() == cluster->getIndicesCount() );
 
@@ -68,22 +77,22 @@ void LoadBones_OFBX( const ofbx::Mesh* mesh, renderer::TMPAsset& asset )
 			Uint32 vertexID = cluster->getIndices()[ j ];
 			Float weight = cluster->getWeights()[ j ];
 
-			asset.m_bones.resize( Math::Max<Uint32>( asset.m_bones.size(), vertexID + 1u ) );
+			ctx.m_asset.m_bones.resize( Math::Max<Uint32>( ctx.m_asset.m_bones.size(), vertexID + 1u ) );
 
 			Bool found = false;
 			for( Uint32 x = 0u; x < 10u; ++x )
 			{
-				if( asset.m_bones[ vertexID ].m_boneIDs[ x ] == boneIndex )
+				if( ctx.m_asset.m_bones[ vertexID ].m_boneIDs[ x ] == boneIndex )
 				{
 					found = true;
 					break;
 				}
 
-				found = asset.m_bones[ vertexID ].m_weights[ x ] == 0.0f;
+				found = ctx.m_asset.m_bones[ vertexID ].m_weights[ x ] == 0.0f;
 				if( found )
 				{
-					asset.m_bones[ vertexID ].m_boneIDs[ x ] = boneIndex;
-					asset.m_bones[ vertexID ].m_weights[ x ] = weight;
+					ctx.m_asset.m_bones[ vertexID ].m_boneIDs[ x ] = boneIndex;
+					ctx.m_asset.m_bones[ vertexID ].m_weights[ x ] = weight;
 					break;
 				}
 			}
@@ -93,158 +102,153 @@ void LoadBones_OFBX( const ofbx::Mesh* mesh, renderer::TMPAsset& asset )
 	}
 }
 
-void ReadNodeHierarchy_OFBX( renderer::TMPAsset& asset, const ofbx::AnimationLayer* anim, const ofbx::Object* node, const ofbx::Object* parent, std::vector<Matrix> inBeetweenMatrices )
+Matrix GetNodeLocalTransform( Context& ctx, const ofbx::Object& obj, Uint32 frame )
 {
-	std::string nodeName( node->name );
-
-	auto* skin = node->getScene().getMesh( 0 )->getGeometry()->getSkin();
-
-	const ofbx::Object* link = nullptr;
-	for( Uint32 i = 0u; i < skin->getClusterCount(); ++i )
+	auto it = ctx.m_bonesMap.find( &obj );
+	bool isBone = it != ctx.m_bonesMap.end();
+	if( isBone )
 	{
-		if( std::string( skin->getCluster( i )->getLink()->name) == nodeName )
+		if( !ctx.m_asset.m_boneInfo[ it->second ].m_translationAnim.empty() )
 		{
-			link = skin->getCluster( i )->getLink();
-			break;
-		}
+			return Matrix( ctx.m_asset.m_boneInfo[ it->second ].m_rotationAnim[ frame ] ) * Matrix( ctx.m_asset.m_boneInfo[ it->second ].m_translationAnim[ frame ] );
+		}	
 	}
 
-	const auto* rotationCurveNode = anim->getCurveNode( link ? *link : *node, "Lcl Rotation" );
-	const auto* translationCurveNode = anim->getCurveNode( link ? *link : *node, "Lcl Translation" );
-	const auto* scaleCurveNode = anim->getCurveNode( link ? *link : *node, "Lcl Scaling" );
-
-	Float step = 0.01f;
-	Float duration = ofbx::fbxTimeToSeconds( anim->getCurveNode( 57 )->getCurve( 0 )->getKeyTime()[ anim->getCurveNode( 57 )->getCurve( 0 )->getKeyCount() - 1 ] );
-	duration *= 30.0f;
-	if( inBeetweenMatrices.empty() )
+	Matrix parentTransform = ctx.m_fixingMatrix;
+	if( ofbx::Object* parent = obj.getParent() )
 	{
-		inBeetweenMatrices.resize( ceil( duration / step ) + 1 );
+		parentTransform = GetNodeLocalTransform( ctx, *parent, frame );
 	}
 
-	bool hasAnim = rotationCurveNode || translationCurveNode || scaleCurveNode;
-	auto convertTime = []( auto keyTime ) { return ofbx::fbxTimeToSeconds( keyTime ) * 30.0f; };
+	const auto* rotationCurveNode = ctx.m_anim.getCurveNode( obj, "Lcl Rotation" );
+	const auto* translationCurveNode = ctx.m_anim.getCurveNode( obj, "Lcl Translation" );
+
+	bool hasAnim = rotationCurveNode || translationCurveNode;
+
+	Float frameRate = ctx.m_anim.getScene().getSceneFrameRate();
 	if( hasAnim )
 	{
-		auto sampleLerp = [&convertTime]( const ofbx::AnimationCurve* curve, Float time )
-		{
-			for( Uint32 i = 1; i < curve->getKeyCount(); ++i )
+		if( isBone )
+		{		
+			Uint32 framesAmount = ofbx::fbxTimeToSeconds( ctx.m_anim.getCurveNode( 0 )->getCurve( 0 )->getKeyTime()[ ctx.m_anim.getCurveNode( 0 )->getCurve( 0 )->getKeyCount() - 1 ] ) * frameRate;
+			Matrix parentTransform = ctx.m_fixingMatrix;
+			for( Uint32 i = 0u; i < static_cast< Uint32 >( framesAmount ); ++i )
 			{
-				if( time < convertTime( curve->getKeyTime()[ i ] ) )
+				ofbx::Vec3 translation;
+				if( translationCurveNode )
 				{
-					Float prevKey = curve->getKeyValue()[ i - 1 ];
-					Float nextKey = curve->getKeyValue()[ i ];
-					Float timeDiff = convertTime( curve->getKeyTime()[ i ] ) - convertTime( curve->getKeyTime()[ i - 1 ] );
-					Float t = ( time - convertTime( curve->getKeyTime()[ i - 1 ] ) ) / timeDiff;
-
-					return Math::Lerp( prevKey, nextKey, t );
+					translation = translationCurveNode->getNodeLocalTransform( static_cast< Float >( i ) / frameRate );
 				}
-			}
-		};
 
-		auto sample = [&convertTime]( const ofbx::AnimationCurve* curve, Float time )
-		{
-			for( Uint32 i = 1; i < curve->getKeyCount(); ++i )
-			{
-				if( time < convertTime( curve->getKeyTime()[ i ] ) )
+				ofbx::Vec3 rotation;
+				if( rotationCurveNode )
 				{
-					Float prevKey = curve->getKeyValue()[ i - 1 ];
-					Float nextKey = curve->getKeyValue()[ i ];
-
-					return std::make_pair( prevKey, nextKey );
+					rotation = rotationCurveNode->getNodeLocalTransform( static_cast< Float >( i ) / frameRate );
 				}
+
+				if( ofbx::Object* parent = obj.getParent() )
+				{
+					parentTransform = GetNodeLocalTransform( ctx, *parent, i );
+				}
+
+				Matrix transform = Convert( obj.evalLocal( translation, rotation ) ) * parentTransform;
+
+				ctx.m_asset.m_boneInfo[ it->second ].m_translationAnim.emplace_back( transform.GetTranslation() );
+				ctx.m_asset.m_boneInfo[ it->second ].m_rotationAnim.emplace_back( transform.GetRotation() );
 			}
 
-			return std::pair< Float, Float >();
-		};
-
-		Uint32 x = 0u;
-		Float time = 0.0f;
-		for( Float time = 0.0f; time < duration; time += step )
+			return Matrix( ctx.m_asset.m_boneInfo[ it->second ].m_rotationAnim[ frame ] ) * Matrix( ctx.m_asset.m_boneInfo[ it->second ].m_translationAnim[ frame ] );
+		}
+		else
 		{
-
-			Matrix translationMatrix;
+			ofbx::Vec3 translation;
 			if( translationCurveNode )
 			{
-				Vector3 result = { sampleLerp( translationCurveNode->getCurve( 0 ), time ), sampleLerp( translationCurveNode->getCurve( 1 ), time ), sampleLerp( translationCurveNode->getCurve( 2 ), time ) };
-				translationMatrix = Matrix( result );
+				translation = translationCurveNode->getNodeLocalTransform( static_cast< Float >( frame ) / frameRate );
 			}
 
-			Matrix orientationMatrix;
+			ofbx::Vec3 rotation;
 			if( rotationCurveNode )
 			{
-				Vector3 eulers = { sampleLerp( rotationCurveNode->getCurve( 0 ), time ), sampleLerp( rotationCurveNode->getCurve( 1 ), time ), sampleLerp( rotationCurveNode->getCurve( 2 ), time ) };
-
-				Matrix prevM = Convert( ( link ? *link : *node ).evalLocal( { 0.0f,0.0f,0.0f }, { eulers.X, eulers.Y, eulers.Z } ) );
-
-				orientationMatrix = prevM;
+				rotation = rotationCurveNode->getNodeLocalTransform( static_cast< Float >( frame ) / frameRate );
 			}
 
-			Matrix nodeTransform = orientationMatrix * translationMatrix;
-
-			if( asset.m_boneMapping.find( nodeName ) != asset.m_boneMapping.end() )
-			{
-				Uint32 boneIndex = asset.m_boneMapping.at( nodeName );
-				std::vector< Matrix >& boneAnim = asset.m_boneInfo[ boneIndex ].m_anim;
-
-				Matrix parentMatrix;
-				if( parent )
-				{
-					parentMatrix = asset.m_boneInfo[ asset.m_boneMapping.at( std::string( parent->name ) ) ].m_anim[ boneAnim.size() ];
-				}
-
-				nodeTransform = nodeTransform * inBeetweenMatrices[ boneAnim.size() ] * parentMatrix;
-				boneAnim.emplace_back( nodeTransform );
-			}
-			else
-			{
-				inBeetweenMatrices[ x++ ] = nodeTransform * inBeetweenMatrices[ x ];
-			}
-		}
-
-		if( asset.m_boneMapping.find( nodeName ) != asset.m_boneMapping.end() )
-		{
-			inBeetweenMatrices.clear();
+			return Convert( obj.evalLocal( translation, rotation ) ) * parentTransform;
 		}
 	}
 	else
 	{
-		if( asset.m_boneMapping.find( nodeName ) == asset.m_boneMapping.end() )
+		Matrix transform = Convert( obj.getLocalTransform() ) * parentTransform;
+		if( isBone )
 		{
-			Matrix nodeTransform = Convert( node->getLocalTransform() );
+			Vector3 translation = transform.GetTranslation();
+			Quaternion rotation = transform.GetRotation();
 
-			Quaternion rot = nodeTransform.GetRotation();
-			Vector3 pos = nodeTransform.GetTranslation();
-			Matrix inBeetweenMatrix = Matrix( rot ) * Matrix( pos );
-
-			for( Matrix& m : inBeetweenMatrices )
+			Uint32 framesAmount = ofbx::fbxTimeToSeconds( ctx.m_anim.getCurveNode( 0 )->getCurve( 0 )->getKeyTime()[ ctx.m_anim.getCurveNode( 0 )->getCurve( 0 )->getKeyCount() - 1 ] ) * frameRate;
+			for( Uint32 i = 0u; i < static_cast< Uint32 >( framesAmount ); ++i )
 			{
-				m = inBeetweenMatrix * m;
-			}
+				ctx.m_asset.m_boneInfo[ it->second ].m_translationAnim.emplace_back( translation );
+				ctx.m_asset.m_boneInfo[ it->second ].m_rotationAnim.emplace_back( rotation );
+			}		
 		}
+
+		return transform;
 	}
 
-	for( Uint32 i = 0u; i < node->getScene().getAllObjectCount(); ++i )
+	FORGE_FATAL("");
+	return Matrix();
+}
+
+void LoadAnimation( Context& ctx )
+{
+	ctx.m_asset.m_animDuration = ofbx::fbxTimeToSeconds( ctx.m_anim.getCurveNode( 0 )->getCurve( 0 )->getKeyTime()[ ctx.m_anim.getCurveNode( 0 )->getCurve( 0 )->getKeyCount() - 1 ] );
+
+	for( Uint32 i = 0u; i < ctx.m_skin.getClusterCount(); ++i )
 	{
-		auto* child = node->getScene().getAllObjects()[ i ];
-		if( child->getParent() == node && std::string( child->name ) != nodeName )
-		{
-			ReadNodeHierarchy_OFBX(asset, anim, child, ( hasAnim && asset.m_boneMapping.find( nodeName ) != asset.m_boneMapping.end() ) ? node : parent, inBeetweenMatrices );
-		}
+		const ofbx::Object* link = ctx.m_skin.getCluster( i )->getLink();
+	
+		GetNodeLocalTransform( ctx, *link, 0u );
 	}
+}
 
-	if( hasAnim && asset.m_boneMapping.find( nodeName ) != asset.m_boneMapping.end() )
+Matrix ConstructFixingMatrix( const ofbx::GlobalSettings& globalSettings )
+{
+	Matrix fixingMatrix = Matrix::IDENTITY();
+	if( globalSettings.FrontAxis == ofbx::UpVector_AxisX )
 	{
-		Uint32 boneIndex = asset.m_boneMapping.at( nodeName );
-		std::vector< Matrix >& boneAnim = asset.m_boneInfo[ boneIndex ].m_anim;
-
-		for( Matrix& a : boneAnim )
-		{
-			a = asset.m_boneInfo[ boneIndex ].m_boneOffset * a;
-		}
-
-		asset.m_boneInfo[ boneIndex ].m_finalTransformation = boneAnim[ 0 ];
+		fixingMatrix.Y = Vector4::EX();
+	}
+	else if( globalSettings.FrontAxis == ofbx::UpVector_AxisZ )
+	{
+		fixingMatrix.Y = Vector4::EZ();
+	}
+	if( globalSettings.UpAxis == ofbx::UpVector_AxisX )
+	{
+		fixingMatrix.Z = Vector4::EX();
+	}
+	else if( globalSettings.UpAxis == ofbx::UpVector_AxisY )
+	{
+		fixingMatrix.Z = Vector4::EY();
+	}
+	if( Vector4::EX() != fixingMatrix.Y && Vector4::EX() != fixingMatrix.Z )
+	{
+		fixingMatrix.X = Vector4::EX();
+	}
+	else if( Vector4::EY() != fixingMatrix.Y && Vector4::EY() != fixingMatrix.Z )
+	{
+		fixingMatrix.X = Vector4::EY();
+	}
+	else
+	{
+		fixingMatrix.X = Vector4::EZ();
 	}
 
+	if( globalSettings.CoordAxis == ofbx::CoordSystem_RightHanded )
+	{
+		fixingMatrix.Z = -fixingMatrix.Z;
+	}
+
+	return fixingMatrix;
 }
 
 // TODO: IndexBuffer
@@ -263,37 +267,6 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::FBXLoader::LoadAssets(
 	ofbx::IScene* scene = ofbx::load( ( ofbx::u8* )content, file_size, ( ofbx::u64 )ofbx::LoadFlags::TRIANGULATE );
 	auto* sceneG = scene;
 
-	Matrix fixingMatrix = Matrix::IDENTITY();
-	if( scene->getGlobalSettings()->FrontAxis == ofbx::UpVector_AxisX )
-	{
-		fixingMatrix.Y = Vector4::EX();
-	}
-	else if( scene->getGlobalSettings()->FrontAxis == ofbx::UpVector_AxisZ )
-	{
-		fixingMatrix.Y = Vector4::EZ();
-	}
-	if( scene->getGlobalSettings()->UpAxis == ofbx::UpVector_AxisX )
-	{
-		fixingMatrix.Z = Vector4::EX();
-	}
-	else if( scene->getGlobalSettings()->UpAxis == ofbx::UpVector_AxisY )
-	{
-		fixingMatrix.Z = Vector4::EY();
-	}
-	if( Vector4::EX() != fixingMatrix.Y && Vector4::EX() != fixingMatrix.Z )
-	{
-		fixingMatrix.X = Vector4::EX();
-	}
-	else if( Vector4::EY() != fixingMatrix.Y && Vector4::EY() != fixingMatrix.Z )
-	{
-		fixingMatrix.X = Vector4::EY();
-	}
-	else
-	{
-		fixingMatrix.X = Vector4::EZ();
-	}
-	fixingMatrix.Z = -fixingMatrix.Z;
-
 	std::vector< renderer::Shape > shapes;
 
 	std::vector< renderer::InputPosition > poses;
@@ -305,7 +278,9 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::FBXLoader::LoadAssets(
 	std::vector< renderer::ModelAsset::MaterialData > materialsData;
 	std::shared_ptr< renderer::TMPAsset > tmpAsset = std::make_shared< renderer::TMPAsset >( path );
 
-	LoadBones_OFBX( scene->getMesh( 0 ), *tmpAsset );
+	Context ctx( *scene->getMesh( 0 )->getGeometry()->getSkin(), *scene->getAnimationStack( 0 )->getLayer( 0 ), *tmpAsset, ConstructFixingMatrix( *scene->getGlobalSettings() ) );
+
+	LoadBones_OFBX( scene->getMesh( 0 ), ctx );
 	for( Uint32 i = 0u; i < scene->getMeshCount(); ++i )
 	{
 		auto* mesh = scene->getMesh( i );
@@ -428,13 +403,7 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::FBXLoader::LoadAssets(
 		}
 	}
 
-	auto* animStack = scene->getAnimationStack( 0 );
-	auto* animLayer = animStack->getLayer( 0 );
-
-	Float animLength = ofbx::fbxTimeToSeconds( animLayer->getCurveNode( 57 )->getCurve( 0 )->getKeyTime()[ animLayer->getCurveNode( 57 )->getCurve( 0 )->getKeyCount() - 1 ] );
-	animLength *= 30.0f;
-	std::vector<Matrix> initMatrices( std::ceil( animLength / 0.01f ) + 1u, fixingMatrix );
-	ReadNodeHierarchy_OFBX( *tmpAsset, animLayer, scene->getRoot(), nullptr, initMatrices );
+	LoadAnimation( ctx );
 
 	for( auto& vertex : tmpAsset->m_bones )
 	{
