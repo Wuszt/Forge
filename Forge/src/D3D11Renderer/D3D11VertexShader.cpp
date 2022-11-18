@@ -22,13 +22,20 @@ namespace d3d11
 
 		if( errorMsg )
 		{
+			std::string definesAsString;
+
+			for( const auto& define : defines )
+			{
+				definesAsString += "{" + define.m_name + define.m_define + "}, ";
+			}
+
 			if( result == S_OK )
 			{
-				FORGE_LOG_WARNING( "Vertex Shader [%s] compilation warning: %s", path.c_str(), static_cast<char*>( errorMsg->GetBufferPointer() ) );
+				FORGE_LOG_WARNING( "Vertex Shader [%s] [%s] compilation warning: %s", path.c_str(), definesAsString.c_str(), static_cast<char*>( errorMsg->GetBufferPointer() ) );
 			}
 			else
 			{
-				FORGE_LOG_ERROR( "Vertex Shader [%s] compilation error: %s", path.c_str(), static_cast<char*>( errorMsg->GetBufferPointer() ) );
+				FORGE_LOG_ERROR( "Vertex Shader [%s] [%s] compilation error: %s", path.c_str(), definesAsString.c_str(), static_cast<char*>( errorMsg->GetBufferPointer() ) );
 			}
 
 			errorMsg->Release();

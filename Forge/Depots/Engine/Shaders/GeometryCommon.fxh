@@ -15,6 +15,14 @@ struct VS_INPUT
 {
     float3 Pos : POSITION;
     float3 Normal : NORMAL;
+
+#ifdef __VERTEX_INPUT_BLENDWEIGHTS_AMOUNT__
+    float4 BlendWeights : BLENDWEIGHTS;
+#endif
+
+#ifdef __VERTEX_INPUT_BLENDINDICES_AMOUNT__
+    uint4 BlendIndices : BLENDINDICES;
+#endif
 };
 
 struct VS_OUTPUT
@@ -31,10 +39,15 @@ struct VS_OUTPUT
 };
 
 #ifdef __DEFINE_WORLD_POS__
-#define __CALC_WORLD_POS__ output.WorldPos = mul(W, float4(input.Pos, 1.0f)).xyz;
+#define __CALC_OUTPUT_WORLD_POS__(pos) output.WorldPos = mul(W, pos).xyz;
 #else
-#define __CALC_WORLD_POS__
+#define __CALC_OUTPUT_WORLD_POS__(pos)
 #endif
+
+float4 CalculateOutputPos(float4 pos)
+{
+    return mul(mul(VP, W), pos);
+}
 
 #ifdef __DIFFUSE_TEXTURE__
 Texture2D DiffuseTexture : register(t0);

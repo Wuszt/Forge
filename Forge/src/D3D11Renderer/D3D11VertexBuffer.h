@@ -31,7 +31,10 @@ namespace d3d11
 
 		Uint32 GetElementsAmount() const;
 
+		virtual std::vector< SemanticDesc > GetSemanticDescriptions() const override;
+
 	private:
+		renderer::InputType m_inputTypes;
 		ID3D11Buffer* m_buffer;
 		D3D11RenderContext* m_contextPtr;
 		Uint32 m_stride = 0u;

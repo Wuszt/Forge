@@ -2,6 +2,7 @@
 #define __FORWARD_HEADER__
 
 #include "Lighting.fxh"
+#include "RenderingPassCommon.fxh"
 
 cbuffer cbForwardRendering : register(b4)
 {
@@ -20,20 +21,6 @@ Texture2D ShadowMap : register(t31);
 #elif defined __POINT_LIGHT__
 TextureCube ShadowMap : register(t31);
 #endif
-
-Custom_VS_Output Vert(Custom_VS_Input input);
-
-Custom_VS_Output VS(Custom_VS_Input input)
-{
-    Custom_VS_Output output = Vert(input);
-    __CALC_WORLD_POS__
-    
-#ifndef __NORMAL_TEXTURE__
-    output.Normal = normalize(mul(W, float4(input.Normal, 0.0f)).xyz);
-#endif
-    
-    return output;
-}
 
 float4 CalculateColor(Custom_VS_Output input);
 

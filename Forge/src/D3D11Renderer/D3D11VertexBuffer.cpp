@@ -4,7 +4,7 @@
 
 namespace d3d11
 {
-	const char* InputTypeToString( renderer::InputType type )
+	const char* InputTypeToSemanticName( renderer::InputType type )
 	{
 		switch( type )
 		{
@@ -80,12 +80,12 @@ namespace d3d11
 
 	void ConstructLayout( const forge::ArraySpan< const renderer::InputElementDescription >& inputElements, std::vector< D3D11_INPUT_ELEMENT_DESC >& outLayout )
 	{
-		Uint32 semanticIndices[ static_cast<Uint32>( renderer::InputType::Count ) ] = { 0 };
+		Uint32 semanticIndices[ static_cast< Uint32 >( renderer::InputType::Count  ) ] = { 0 };
 
 		Uint32 currentOffset = 0u;
 		for( const auto& it : inputElements )
 		{
-			outLayout.emplace_back( D3D11_INPUT_ELEMENT_DESC{ InputTypeToString( it.m_inputType ), semanticIndices[ static_cast<Uint32>( it.m_inputType ) ]++, InputFormatToD3D11Format( it.m_inputFormat ), 0, currentOffset, InputClassificationToD3D11Classification( it.m_classification ), 0 } );
+			outLayout.emplace_back( D3D11_INPUT_ELEMENT_DESC{ InputTypeToSemanticName( it.m_inputType ), semanticIndices[ static_cast< Uint32 >( it.m_inputType ) ]++, InputFormatToD3D11Format( it.m_inputFormat ), 0, currentOffset, InputClassificationToD3D11Classification( it.m_classification ), 0 } );
 			currentOffset += it.m_size;
 		}
 	}
@@ -133,5 +133,29 @@ namespace d3d11
 	Uint32 D3D11VertexBuffer::GetElementsAmount() const
 	{
 		return static_cast<Uint32>( m_layout.size() );
+	}
+
+	std::vector< renderer::IVertexBuffer::SemanticDesc > D3D11VertexBuffer::GetSemanticDescriptions() const
+	{
+		std::vector< renderer::IVertexBuffer::SemanticDesc > result;
+
+		for( const auto& entry : m_layout )
+		{
+			auto it = std::find_if( result.begin(), result.end(), [ &entry ]( const renderer::IVertexBuffer::SemanticDesc& desc )
+			{
+				return std::strcmp( desc.m_name.c_str(), entry.SemanticName ) == 0;
+			} );
+
+			if( it == result.end() )
+			{
+				result.emplace_back( renderer::IVertexBuffer::SemanticDesc{ entry.SemanticName, entry.SemanticIndex + 1u } );
+			}
+			else
+			{
+				it->m_amount = Math::Max( it->m_amount, entry.SemanticIndex + 1u );
+			}
+		}
+
+		return result;
 	}
 }

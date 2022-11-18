@@ -75,6 +75,8 @@ namespace renderer
 
 		void Draw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
 		{
+			PC_SCOPE_FUNC();
+
 			OnBeforeDraw( camera, rawRenderables, lightingData );
 			OnDraw( camera, rawRenderables, lightingData );
 			OnAfterDraw( camera, rawRenderables, lightingData );

@@ -2,9 +2,25 @@
 #include "../Renderer/IRenderer.h"
 #include "../Renderer/IShader.h"
 
+std::vector< renderer::ShaderDefine > ConstructShaderDefines( const renderer::Model& model )
+{
+	std::vector< renderer::ShaderDefine > result;
+
+	auto semanticDescriptions = model.GetVertexBuffer()->GetSemanticDescriptions();
+
+	for( const auto& desc : semanticDescriptions )
+	{
+		result.emplace_back( renderer::ShaderDefine{ std::string( "__VERTEX_INPUT_" ) + desc.m_name + std::string( "_AMOUNT__" ) , std::to_string( desc.m_amount ) });
+	}
+
+	return result;
+}
+
 renderer::Material::Material( renderer::IRenderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass )
 	: m_renderer( renderer )
 {
+	m_shadersDefines = ConstructShaderDefines( model );
+
 	SetShaders( vsPath, psPath, renderingPass );
 	m_constantBuffer = std::move( buffer );
 	m_inputLayout = renderer.CreateInputLayout( *m_vertexShader->GetMainShader(), *model.GetVertexBuffer() );
@@ -18,7 +34,7 @@ renderer::Material::Material( renderer::IRenderer& renderer, const Model& model,
 
 void renderer::Material::SetShaders( const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass )
 {
-	std::vector< renderer::ShaderDefine > defines;
+	std::vector< renderer::ShaderDefine > defines = m_shadersDefines;
 
 	if( m_textures[ static_cast< Uint32 >( TextureType::Diffuse ) ] )
 	{

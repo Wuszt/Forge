@@ -183,9 +183,17 @@ namespace renderer
 	class IVertexBuffer
 	{
 	public:
-		~IVertexBuffer() {}
+		virtual ~IVertexBuffer() {}
 
 		virtual void Set() const = 0;
+
+		struct SemanticDesc
+		{
+			std::string m_name;
+			Uint32 m_amount = 0u;
+		};
+
+		virtual std::vector< SemanticDesc > GetSemanticDescriptions() const = 0;
 	};
 }
 

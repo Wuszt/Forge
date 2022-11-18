@@ -23,7 +23,7 @@
 #include "../Renderer/FBXLoader.h"
 #include "../../External/imgui/imgui.h"
 
-std::string animName = "Animations\\Running.fbx";
+std::string animName = "Animations\\Attack.fbx";
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -119,7 +119,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::SpotLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 1000.0f } );
+			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 500.0f } );
 			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, 0.0f ) );
 			light->GetComponent< forge::SpotLightComponent >()->GetData().m_color = { 0.62f, 0.74f, 0.3f };
 			light->GetComponent< forge::SpotLightComponent >()->GetData().m_power = 8000.0f;
@@ -299,7 +299,7 @@ Int32 main()
 			} );
 
 			//MinecraftScene( engineInstance );
-			//SponzaScene( engineInstance );
+			SponzaScene( engineInstance );
 			//BunnyScene( engineInstance );	
 			SkeletalMesh( engineInstance );
 
@@ -321,7 +321,7 @@ Int32 main()
 
 		struct cbBones
 		{
-			Matrix Bones[100];
+			Matrix Bones[ 70u ];
 		};
 
 		std::unique_ptr< renderer::StaticConstantBuffer< cbBones > > bonesBuffer;
@@ -345,6 +345,11 @@ Int32 main()
 			{
 				auto tmpAsset = engineInstance.GetAssetsManager().GetAsset<renderer::TMPAsset>( animName );
 
+				if( tmpAsset->m_animDuration == 0.0f )
+				{
+					return;
+				}
+
 				while( accumulator >= tmpAsset->m_animDuration )
 				{
 					accumulator -= tmpAsset->m_animDuration;
@@ -358,8 +363,8 @@ Int32 main()
 
 				bonesBuffer = engineInstance.GetRenderer().CreateStaticConstantBuffer<cbBones>();
 
-				Uint32 frame = static_cast< Uint32 >( accumulator * 30.0f );
-				Uint32 nextFrame = ( frame + 1u ) % static_cast< Uint32 >( 30u * tmpAsset->m_animDuration );
+				Uint32 frame = static_cast< Uint32 >( accumulator * 30.0f ) % tmpAsset->m_boneInfo[ 0 ].m_translationAnim.size();
+				Uint32 nextFrame = ( frame + 1u ) % tmpAsset->m_boneInfo[ 0 ].m_translationAnim.size();
 				Float t = accumulator * 30.0f - static_cast< Float >( frame );
 
 				for(Uint32 i = 0u; i < tmpAsset->m_boneInfo.size(); ++i)

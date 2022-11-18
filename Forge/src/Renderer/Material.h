@@ -1,5 +1,7 @@
 #pragma once
 
+#include "IShader.h"
+
 namespace renderer
 {
 	class IVertexShader;
@@ -80,6 +82,8 @@ namespace renderer
 		std::unique_ptr< renderer::ConstantBuffer > m_constantBuffer;
 		std::unique_ptr< const IInputLayout > m_inputLayout;
 		IRenderer& m_renderer;
+
+		std::vector< renderer::ShaderDefine > m_shadersDefines;
 
 		std::shared_ptr< const ITexture > m_textures[ static_cast< Uint32 > ( TextureType::Count ) ] = { nullptr };
 

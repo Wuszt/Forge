@@ -2,6 +2,7 @@
 #define __DEFERRED_HEADER__
 
 #include "Lighting.fxh"
+#include "RenderingPassCommon.fxh"
 
 cbuffer cbDeferredRendering : register(b4)
 {
@@ -15,21 +16,6 @@ struct PS_Output
     float4 Diffuse : SV_TARGET1;
     float4 Normal : SV_TARGET2;
 };
-
-Custom_VS_Output Vert(Custom_VS_Input input);
-
-Custom_VS_Output VS(Custom_VS_Input input)
-{
-    Custom_VS_Output output = Vert(input);
-
-    __CALC_WORLD_POS__
-    
-#ifndef __NORMAL_TEXTURE__
-    output.Normal = normalize(mul(W, float4(input.Normal, 0.0f)).xyz);
-#endif
-    
-    return output;
-}
 
 float4 CalculateColor(Custom_VS_Output input);
 

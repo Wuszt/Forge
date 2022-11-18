@@ -248,36 +248,43 @@ void systems::RenderingSystem::OnDraw()
 
 	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData >() );
 	std::vector< const renderer::Renderable* > renderables;
-	for( systems::Archetype* archetype : archetypes )
-	{
-		const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
-		const forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
 
-		for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
+	{
+		PC_SCOPE( "RenderingSystem::OnDraw::CollectingRenderables" );
+		for( systems::Archetype* archetype : archetypes )
 		{
-			renderables.emplace_back( renderableComponents[ i ].m_renderable );
+			const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
+			const forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
+
+			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
+			{
+				renderables.emplace_back( renderableComponents[ i ].m_renderable );
+			}
 		}
 	}
 
 	m_rawRenderablesPacks = m_renderer->CreateRawRenderablesPackage( renderables );
 
-	for( systems::Archetype* archetype : archetypes )
 	{
-		const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
-		const forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
-
-		for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
+		PC_SCOPE( "RenderingSystem::OnDraw::UpdatingBuffers" );
+		for( systems::Archetype* archetype : archetypes )
 		{
-			auto& cb = renderableComponents[ i ].m_renderable->GetCBMesh();
-			auto prev = cb.GetData().W;
-			cb.GetData().W = transformComponents[ i ].ToMatrix();
+			const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
+			const forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
 
-			// It's stupid, but UpdateBuffer takes so much time that it makes sense for now
-			// I should probably separate static and dynamic objects in the future or/and keep an information which entity changed
-			// it's transform somehow
-			if( prev != cb.GetData().W )
+			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
 			{
-				cb.UpdateBuffer();
+				auto& cb = renderableComponents[ i ].m_renderable->GetCBMesh();
+				auto prev = cb.GetData().W;
+				cb.GetData().W = transformComponents[ i ].ToMatrix();
+
+				// It's stupid, but UpdateBuffer takes so much time that it makes sense for now
+				// I should probably separate static and dynamic objects in the future or/and keep an information which entity changed
+				// it's transform somehow
+				if( prev != cb.GetData().W )
+				{
+					cb.UpdateBuffer();
+				}
 			}
 		}
 	}

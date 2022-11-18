@@ -46,44 +46,56 @@ namespace Math
 	}
 
 	template< class T >
-	FORGE_INLINE T Abs( T val )
+	FORGE_INLINE constexpr T Abs( T val )
 	{
 		return abs( val );
 	}
 
-	FORGE_INLINE Bool IsAlmostZero( Float val, Float epsilon = std::numeric_limits< Float >::epsilon() * 10.0f )
+	FORGE_INLINE constexpr Bool IsAlmostZero( Float val, Float epsilon = std::numeric_limits< Float >::epsilon() * 10.0f )
 	{
 		return Abs( val ) <= epsilon;
 	}
 
 	template< class T >
-	FORGE_INLINE const T& Min( const T& l, const T& r )
+	FORGE_INLINE constexpr const T& Min( const T& l, const T& r )
 	{
 		return r > l ? l : r;
 	}
 
 	template< class T >
-	FORGE_INLINE const T& Max( const T& l )
+	FORGE_INLINE constexpr const T& Max( const T& l )
 	{
 		return l;
 	}
 
 	template< class T, class... Ts >
-	FORGE_INLINE const T& Max( const T& l, const T& r, const Ts&... args )
+	FORGE_INLINE constexpr const T& Max( const T& l, const T& r, const Ts&... args )
 	{
 		return Max( r > l ? r : l, args... );
 	}
 
 	template< class T >
-	FORGE_INLINE const T& Clamp( const T& min, const T& max, const T& value )
+	FORGE_INLINE constexpr const T& Clamp( const T& min, const T& max, const T& value )
 	{
 		return Min( Max( min, value ), max );
 	}
 
 	template< class T0, class T1 >
-	FORGE_INLINE T0 Pow( const T0& val, const T1& pow )
+	FORGE_INLINE constexpr T0 Pow( const T0& val, const T1& pow )
 	{
 		return std::pow( val, pow );
+	}
+
+	template< class T >
+	FORGE_INLINE T Log10( const T& value )
+	{
+		return std::log10( value );
+	}
+
+	template< class T >
+	FORGE_INLINE T Log2( const T& value )
+	{
+		return std::log2( value );
 	}
 
 	FORGE_INLINE Uint64 CombineHashes( Uint64 l, Uint64 r )
@@ -135,5 +147,21 @@ namespace Math
 	{
 		Quaternion result( Lerp( from.vec4, to.vec4, t ) );
 		return result.Normalized();
+	}
+
+	FORGE_INLINE Float Truncate( Float value, Uint32 decimalPlaces )
+	{
+		decimalPlaces = Math::Min( static_cast< Uint32 >( std::numeric_limits< Double >::digits10 ), decimalPlaces );
+
+		const Double multiplier = static_cast< double >( Math::Pow( 10.0, decimalPlaces ) );
+		return static_cast< Float >( static_cast< Double >( static_cast< Int64 >( static_cast< Double >( value ) * multiplier ) ) / multiplier );
+	}
+
+	FORGE_INLINE Float Round( Float value, Uint32 decimalPlaces )
+	{
+		decimalPlaces = Math::Min( static_cast< Uint32 >( std::numeric_limits< Double >::digits10 ), decimalPlaces );
+
+		const Double multiplier = Math::Pow( 10.0, decimalPlaces );
+		return static_cast< Float >( std::round( static_cast< Double >( value ) * multiplier ) / multiplier );
 	}
 }

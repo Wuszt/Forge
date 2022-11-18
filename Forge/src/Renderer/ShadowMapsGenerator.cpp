@@ -11,6 +11,8 @@ renderer::ShadowMapsGenerator::ShadowMapsGenerator( IRenderer& renderer )
 
 void renderer::ShadowMapsGenerator::GenerateShadowMaps( const renderer::RawRenderablesPacks& rawRenderablesPacks, LightingData& lightingData )
 {
+	PC_SCOPE_FUNC();
+
 	if( lightingData.m_pointLights.IsEmpty() && lightingData.m_spotLights.IsEmpty() && lightingData.m_directionalLights.IsEmpty() )
 	{
 		return;

@@ -261,6 +261,8 @@ namespace d3d11
 
 	std::unique_ptr< renderer::RawRenderablesPacks > D3D11Renderer::CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* >& renderables ) const
 	{
+		PC_SCOPE_FUNC();
+
 		constexpr Uint32 packsAmount = static_cast< Uint16 >( renderer::RenderingPass::Count );
 		std::array< std::unique_ptr< RawRenderablesPack >, packsAmount > packs;
 

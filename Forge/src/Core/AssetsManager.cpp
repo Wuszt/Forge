@@ -35,7 +35,15 @@ forge::ArraySpan< std::shared_ptr< forge::IAsset > > forge::AssetsManager::GetAs
 
 	std::string extension = finalPath.substr( extensionStartIndex );
 
-	std::vector< std::shared_ptr< IAsset > > loadedAssets = m_assetsLoaders[ extension ]->LoadAssets( finalPath );
+	auto loader = m_assetsLoaders.find( extension );
+
+	if( loader == m_assetsLoaders.end() )
+	{
+		FORGE_LOG_WARNING( "There is no loader which would handle %s extension", extension.c_str() );
+		return {};
+	}
+
+	std::vector< std::shared_ptr< IAsset > > loadedAssets = loader->second->LoadAssets( finalPath );
 	m_assetsCache.emplace( path, std::move( loadedAssets ) );
 	return m_assetsCache[ path ];
 }

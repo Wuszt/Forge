@@ -291,5 +291,6 @@
     <FxCompile Include="..\..\Depots\Engine\Shaders\FullScreenCommon.fxh" />
     <FxCompile Include="..\..\Depots\Engine\Shaders\GeometryCommon.fxh" />
     <FxCompile Include="..\..\Depots\Engine\Shaders\Lighting.fxh" />
+    <FxCompile Include="..\..\Depots\Engine\Shaders\RenderingPassCommon.fxh" />
   </ItemGroup>
 </Project>
