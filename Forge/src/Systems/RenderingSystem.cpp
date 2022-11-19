@@ -156,33 +156,26 @@ void systems::RenderingSystem::OnRenderDebug()
 				}
 
 				{
+					if( m_depthBufferDebugTexture == nullptr || m_depthBufferDebugTexture->GetTextureSize() != m_depthStencilBuffer->GetTexture()->GetTextureSize() )
+					{
+						m_depthBufferDebugTexture = m_renderer->CreateTexture( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight(),
+							renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
+							renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
+					}
+
 					const renderer::ICamera& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
 					Float maxValue = currentCamera.GetType() == renderer::ICamera::Type::Perspective ? currentCamera.GetFarPlane() - currentCamera.GetNearPlane() : 1.0f;
 					m_depthBufferDenominator = Math::Min( m_depthBufferDenominator, maxValue );
 					ImGui::SliderFloat( "Denominator", &m_depthBufferDenominator, maxValue * 0.001f, maxValue );
 
-					struct CB
-					{
-						Float Denominator = 1.0f;
-						Float padding[ 3 ];
-					};
-
-					auto cb = m_renderer->CreateStaticConstantBuffer< CB >();
-					cb->GetData().Denominator = m_depthBufferDenominator;
-					cb->UpdateBuffer();
-					cb->SetPS( renderer::PSConstantBufferType::Material );
-
-					m_temporaryTexture = m_renderer->CreateTexture( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight(),
-						renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
-						renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
-
-					renderer::FullScreenRenderingPass fsPass( *m_renderer, "DepthBufferDebug.fx", currentCamera.HasNonLinearDepth() ? forge::ArraySpan< renderer::ShaderDefine >{ renderer::ShaderDefine{ "__NON_LINEAR_DEPTH__" } } : forge::ArraySpan< renderer::ShaderDefine >{} );
-					fsPass.SetTargetTexture( *m_temporaryTexture );
-					fsPass.Draw( { m_depthStencilBuffer->GetTexture()->GetShaderResourceView() } );
-					forge::imgui::DrawTexture( "Depth", *m_temporaryTexture );
+					forge::imgui::DrawTexture( "Depth", *m_depthBufferDebugTexture );			
 				}
 
 				ImGui::EndTabItem();
+			}
+			else
+			{
+				m_depthBufferDebugTexture = nullptr;
 			}
 
 			ImGui::EndTabBar();
@@ -191,6 +184,27 @@ void systems::RenderingSystem::OnRenderDebug()
 	ImGui::End();
 }
 
+void systems::RenderingSystem::OnBeforeDrawDebug()
+{
+	if( m_depthBufferDebugTexture )
+	{
+		struct CB
+		{
+			Float Denominator = 1.0f;
+			Float padding[ 3 ];
+		};
+
+		auto cb = m_renderer->CreateStaticConstantBuffer< CB >();
+		cb->GetData().Denominator = m_depthBufferDenominator;
+		cb->UpdateBuffer();
+		cb->SetPS( renderer::PSConstantBufferType::Material );
+
+		const renderer::ICamera& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
+		renderer::FullScreenRenderingPass fsPass( *m_renderer, "DepthBufferDebug.fx", currentCamera.HasNonLinearDepth() ? forge::ArraySpan< renderer::ShaderDefine >{ renderer::ShaderDefine{ "__NON_LINEAR_DEPTH__" } } : forge::ArraySpan< renderer::ShaderDefine >{} );
+		fsPass.SetTargetTexture( *m_depthBufferDebugTexture );
+		fsPass.Draw( { m_depthStencilBuffer->GetTexture()->GetShaderResourceView() } );
+	}
+}
 #endif
 
 void systems::RenderingSystem::SetRenderingMode( RenderingMode renderingMode )
@@ -232,7 +246,12 @@ Vector2 systems::RenderingSystem::GetRenderingResolution()
 
 void systems::RenderingSystem::OnBeforeDraw()
 {
+#ifdef FORGE_IMGUI_ENABLED
+	OnBeforeDrawDebug();
+#endif
+
 	m_renderer->OnBeforeDraw();
+
 	m_opaqueRenderingPass->ClearTargetTexture(); // this is fucked up, what about other rendering passes?
 }
 

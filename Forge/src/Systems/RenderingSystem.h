@@ -95,8 +95,9 @@ namespace systems
 		std::unique_ptr< renderer::IBlendState > m_transparencyBlendState;
 
 #ifdef FORGE_IMGUI_ENABLED
+		void OnBeforeDrawDebug();
 		forge::CallbackToken m_overlayDebugToken;
-		std::unique_ptr< renderer::ITexture > m_temporaryTexture;
+		std::unique_ptr< renderer::ITexture > m_depthBufferDebugTexture;
 		Float m_depthBufferDenominator = std::numeric_limits< Float >::infinity();
 #endif
 	};

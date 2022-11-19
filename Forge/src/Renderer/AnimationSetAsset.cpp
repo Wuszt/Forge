@@ -1,9 +1,15 @@
 #include "Fpch.h"
 #include "AnimationSetAsset.h"
 
+IMPLEMENT_TYPE( renderer, AnimationSetAsset );
+
+renderer::AnimationSetAsset::AnimationSetAsset()
+	: forge::IAsset("")
+{}
+
 renderer::AnimationSetAsset::AnimationSetAsset( const std::string& path, std::vector< Animation > animations )
 	: m_animations( std::move( animations ) )
-	, IAsset( path )
+	, forge::IAsset( path )
 {}
 
 std::pair< Uint32, Uint32 > CalculateFramesToInterp( Float time, Float frameRate, Uint32 keysAmount, Bool loop, Float& outT )

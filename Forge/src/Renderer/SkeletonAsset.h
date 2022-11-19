@@ -5,7 +5,10 @@ namespace renderer
 {
 	class SkeletonAsset : public forge::IAsset
 	{
+		DECLARE_TYPE( SkeletonAsset, forge, IAsset );
+
 	public:
+		SkeletonAsset();
 		SkeletonAsset( const std::string& path, std::vector< renderer::InputBlendWeights > blendWeights, std::vector< renderer::InputBlendIndices > blendIndices, std::vector< Matrix > bonesOffsets );
 
 	//private:

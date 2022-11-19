@@ -52,7 +52,10 @@ namespace renderer
 
 	class AnimationSetAsset : public forge::IAsset
 	{
+		DECLARE_TYPE( AnimationSetAsset, forge, IAsset );
+
 	public:
+		AnimationSetAsset();
 		AnimationSetAsset( const std::string& path, std::vector< Animation > animation );
 
 		const std::vector< Animation >& GetAnimations() const

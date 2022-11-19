@@ -191,7 +191,7 @@ void systems::LightingSystem::OnRenderDebug()
 				forge::DataPackage< forge::PointLightComponentData >& lightsData = archetype->GetData< forge::PointLightComponentData >();
 				for( Uint32 i = 0; i < transforms.GetDataSize(); ++i )
 				{
-					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
+					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen) )
 					{
 						ImGui::ColorEdit3( "Color", lightsData[i].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
 						ImGui::SliderFloat( "Power", &lightsData[i].m_power, 0.0f, 10000.0f );
@@ -242,7 +242,7 @@ void systems::LightingSystem::OnRenderDebug()
 						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transforms[ i ].m_transform.GetPosition3(), 50.0f, lightsData[ i ].m_color, 0.0f );
 						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCube( pos, extents, lightsData[ i ].m_color, 0.0f );
 
-						castShadowFunc( GetPointLights()[ i ], false );
+						castShadowFunc( GetSpotLights()[ i ], false );
 
 						if( GetSpotLights()[ i ].m_shadowMap )
 						{
