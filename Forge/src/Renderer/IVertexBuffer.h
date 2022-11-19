@@ -92,7 +92,7 @@ namespace renderer
 
 	struct InputBlendIndices
 	{
-		Uint32 m_indices[4] = {0u};
+		Uint32 m_indices[ 4 ] = { 0u };
 		static constexpr InputElementDescription GetInputDescription()
 		{
 			return {InputType::BlendIndices, InputFormat::R32G32B32A32_UINT, InputClassification::PerVertex, sizeof(InputBlendIndices)};

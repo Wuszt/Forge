@@ -1,10 +1,12 @@
 #include "Fpch.h"
 #include "FBXLoader.h"
 #include "../Core/IAsset.h"
+#include "SkeletonAsset.h"
 #include "ModelAsset.h"
 #include <filesystem>
 #include "../../External/openfbx/src/ofbx.h"
 #include <math.h>
+#include "AnimationSetAsset.h"
 
 renderer::FBXLoader::FBXLoader( renderer::IRenderer& renderer )
 	: m_renderer( renderer )
@@ -14,186 +16,6 @@ renderer::FBXLoader::FBXLoader( renderer::IRenderer& renderer )
 	static_cast< Float >( rawMatrix.m[ 4 ] ), static_cast< Float >( rawMatrix.m[ 5 ] ), static_cast< Float >( rawMatrix.m[ 6 ] ), static_cast< Float >( rawMatrix.m[ 7 ] ), \
 	static_cast< Float >( rawMatrix.m[ 8 ] ), static_cast< Float >( rawMatrix.m[ 9 ] ), static_cast< Float >( rawMatrix.m[ 10 ] ), static_cast< Float >( rawMatrix.m[ 11 ] ), \
 	static_cast< Float >( rawMatrix.m[ 12 ] ), static_cast< Float >( rawMatrix.m[ 13 ] ), static_cast< Float >( rawMatrix.m[ 14 ] ), static_cast< Float >( rawMatrix.m[ 15 ] ) }
-
-struct Context
-{
-	Context( const ofbx::IScene& scene, const ofbx::AnimationLayer& anim, renderer::TMPAsset& asset, Matrix fixingMatrix )
-		: m_scene( scene )
-		, m_asset( asset )
-		, m_fixingMatrix( std::move( fixingMatrix ) )
-	{}
-
-	const ofbx::IScene& m_scene;;
-	renderer::TMPAsset& m_asset;
-	const Matrix m_fixingMatrix;
-
-	std::unordered_map< const ofbx::Object*, Uint32 > m_bonesMap;
-};
-
-void LoadBones_OFBX( Context& ctx )
-{
-	for( Uint32 i = 0u; i < ctx.m_scene.getMesh( 0 )->getGeometry()->getSkin()->getClusterCount(); ++i )
-	{
-		const ofbx::Cluster* mainCluster = ctx.m_scene.getMesh( 0 )->getGeometry()->getSkin()->getCluster( i );
-
-		Uint32 boneIndex = 0u;
-
-		boneIndex = static_cast< Uint32 >( ctx.m_asset.m_boneInfo.size() );
-		ctx.m_asset.m_boneInfo.emplace_back();
-		ctx.m_bonesMap[ mainCluster->getLink() ] = boneIndex;
-
-		ctx.m_asset.m_boneInfo[ boneIndex ].m_boneOffset = CONVERT2FORGE( mainCluster->getTransformMatrix() );
-
-		Uint32 offset = 0u;
-		for( Uint32 s = 0u; s < ctx.m_scene.getMeshCount(); ++s )
-		{
-			const ofbx::Cluster* cluster = ctx.m_scene.getMesh( s )->getGeometry()->getSkin()->getCluster(i);
-			FORGE_ASSERT( cluster->getWeightsCount() == cluster->getIndicesCount() );
-			
-			for( Uint32 j = 0; j < cluster->getWeightsCount(); ++j )
-			{			
-				Uint32 vertexID = offset + cluster->getIndices()[j];
-				Float weight = cluster->getWeights()[ j ];
-
-				ctx.m_asset.m_bones.resize( Math::Max<Uint32>( ctx.m_asset.m_bones.size(), vertexID + 1u ) );
-
-				Bool found = false;
-				for( Uint32 x = 0u; x < 10u; ++x )
-				{
-					if( ctx.m_asset.m_bones[ vertexID ].m_boneIDs[ x ] == boneIndex )
-					{
-						found = true;
-						break;
-					}
-
-					found = ctx.m_asset.m_bones[ vertexID ].m_weights[ x ] == 0.0f;
-					if( found )
-					{
-						ctx.m_asset.m_bones[ vertexID ].m_boneIDs[ x ] = boneIndex;
-						ctx.m_asset.m_bones[ vertexID ].m_weights[ x ] = weight;
-						break;
-					}
-				}
-
-				FORGE_ASSERT( found );
-			}
-
-			offset += ctx.m_scene.getMesh( s )->getGeometry()->getVertexCount();
-		}
-	}
-}
-
-Matrix GetNodeLocalTransform( Context& ctx, const ofbx::Object& obj, Uint32 frame )
-{
-	auto it = ctx.m_bonesMap.find( &obj );
-	bool isBone = it != ctx.m_bonesMap.end();
-	if( isBone )
-	{
-		if( !ctx.m_asset.m_boneInfo[ it->second ].m_translationAnim.empty() )
-		{
-			return Matrix( ctx.m_asset.m_boneInfo[ it->second ].m_rotationAnim[ frame ] ) * Matrix( ctx.m_asset.m_boneInfo[ it->second ].m_translationAnim[ frame ] );
-		}	
-	}
-
-	Matrix parentTransform = ctx.m_fixingMatrix;
-	if( ofbx::Object* parent = obj.getParent() )
-	{
-		parentTransform = GetNodeLocalTransform( ctx, *parent, frame );
-	}
-
-	const auto& anim = *ctx.m_scene.getAnimationStack( 0 )->getLayer( 0 );
-
-	const auto* rotationCurveNode = anim.getCurveNode( obj, "Lcl Rotation" );
-	const auto* translationCurveNode = anim.getCurveNode( obj, "Lcl Translation" );
-
-	bool hasAnim = rotationCurveNode || translationCurveNode;
-
-	Float frameRate = anim.getScene().getSceneFrameRate();
-	if( hasAnim )
-	{
-		if( isBone )
-		{		
-			Uint32 framesAmount = ofbx::fbxTimeToSeconds( anim.getCurveNode( 0 )->getCurve( 0 )->getKeyTime()[ anim.getCurveNode( 0 )->getCurve( 0 )->getKeyCount() - 1 ] ) * frameRate;
-			Matrix parentTransform = ctx.m_fixingMatrix;
-			for( Uint32 i = 0u; i < static_cast< Uint32 >( framesAmount ); ++i )
-			{
-				ofbx::Vec3 translation = { 0.0, 0.0, 0.0 };
-				if( translationCurveNode )
-				{
-					translation = translationCurveNode->getNodeLocalTransform( static_cast< Float >( i ) / frameRate );
-				}
-
-				ofbx::Vec3 rotation = { 0.0, 0.0, 0.0 };
-				if( rotationCurveNode )
-				{
-					rotation = rotationCurveNode->getNodeLocalTransform( static_cast< Float >( i ) / frameRate );
-				}
-
-				if( ofbx::Object* parent = obj.getParent() )
-				{
-					parentTransform = GetNodeLocalTransform( ctx, *parent, i );
-				}
-
-				Matrix transform = CONVERT2FORGE( obj.evalLocal( translation, rotation ) ) * parentTransform;
-
-				ctx.m_asset.m_boneInfo[ it->second ].m_translationAnim.emplace_back( transform.GetTranslation() );
-				ctx.m_asset.m_boneInfo[ it->second ].m_rotationAnim.emplace_back( transform.GetRotation() );
-			}
-
-			return Matrix( ctx.m_asset.m_boneInfo[ it->second ].m_rotationAnim[ frame ] ) * Matrix( ctx.m_asset.m_boneInfo[ it->second ].m_translationAnim[ frame ] );
-		}
-		else
-		{
-			ofbx::Vec3 translation;
-			if( translationCurveNode )
-			{
-				translation = translationCurveNode->getNodeLocalTransform( static_cast< Float >( frame ) / frameRate );
-			}
-
-			ofbx::Vec3 rotation;
-			if( rotationCurveNode )
-			{
-				rotation = rotationCurveNode->getNodeLocalTransform( static_cast< Float >( frame ) / frameRate );
-			}
-
-			return CONVERT2FORGE( obj.evalLocal( translation, rotation ) ) * parentTransform;
-		}
-	}
-	else
-	{
-		Matrix transform = CONVERT2FORGE( obj.getLocalTransform() ) * parentTransform;
-		if( isBone )
-		{
-			Vector3 translation = transform.GetTranslation();
-			Quaternion rotation = transform.GetRotation();
-
-			Uint32 framesAmount = ofbx::fbxTimeToSeconds( anim.getCurveNode( 0 )->getCurve( 0 )->getKeyTime()[ anim.getCurveNode( 0 )->getCurve( 0 )->getKeyCount() - 1 ] ) * frameRate;
-			for( Uint32 i = 0u; i < static_cast< Uint32 >( framesAmount ); ++i )
-			{
-				ctx.m_asset.m_boneInfo[ it->second ].m_translationAnim.emplace_back( translation );
-				ctx.m_asset.m_boneInfo[ it->second ].m_rotationAnim.emplace_back( rotation );
-			}		
-		}
-
-		return transform;
-	}
-
-	FORGE_FATAL("");
-	return Matrix();
-}
-
-void LoadAnimation( Context& ctx )
-{
-	const auto& anim = *ctx.m_scene.getAnimationStack( 0 )->getLayer( 0 );
-	ctx.m_asset.m_animDuration = ofbx::fbxTimeToSeconds( anim.getCurveNode( 0 )->getCurve( 0 )->getKeyTime()[ anim.getCurveNode( 0 )->getCurve( 0 )->getKeyCount() - 1 ] );
-
-	for( Uint32 i = 0u; i < ctx.m_scene.getGeometry( 0 )->getSkin()->getClusterCount(); ++i )
-	{
-		const ofbx::Object* link = ctx.m_scene.getGeometry( 0 )->getSkin()->getCluster(i)->getLink();
-	
-		GetNodeLocalTransform( ctx, *link, 0u );
-	}
-}
 
 Matrix ConstructFixingMatrix( const ofbx::GlobalSettings& globalSettings )
 {
@@ -235,7 +57,8 @@ Matrix ConstructFixingMatrix( const ofbx::GlobalSettings& globalSettings )
 	return fixingMatrix;
 }
 
-ofbx::IScene* LoadScene( const std::string& path )
+using SceneHandle = std::unique_ptr < ofbx::IScene, decltype( []( ofbx::IScene* scene ) { if( scene ) scene->destroy(); } ) > ;
+SceneHandle LoadScene( const std::string& path )
 {
 	struct FileHandle
 	{
@@ -263,42 +86,237 @@ ofbx::IScene* LoadScene( const std::string& path )
 	}
 
 	fseek( handle.m_file, 0, SEEK_END );
-	long file_size = ftell( handle.m_file );
+	Uint64 fileSize = ftell( handle.m_file );
 	fseek( handle.m_file, 0, SEEK_SET );
-	auto* content = new ofbx::u8[ file_size ];
-	fread( content, 1, file_size, handle.m_file );
-	return ofbx::load( ( ofbx::u8* )content, file_size, ( ofbx::u64 )ofbx::LoadFlags::TRIANGULATE );
+	forge::RawSmartPtr content( fileSize );
+	fread( content.GetData(), 1, fileSize, handle.m_file );
+
+	return SceneHandle( ofbx::load( reinterpret_cast< ofbx::u8* >( content.GetData() ), fileSize, static_cast< ofbx::u64 >( ofbx::LoadFlags::TRIANGULATE ) ) );
 }
 
-std::vector< std::shared_ptr< forge::IAsset > > renderer::FBXLoader::LoadAssets( const std::string& path ) const
+std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path, const SceneHandle& scene, std::unordered_map< const ofbx::Object*, Uint32 >& outBonesMap )
 {
+	std::vector< renderer::InputBlendWeights > blendWeights;
+	std::vector< renderer::InputBlendIndices > blendIndices;
+	std::vector< Matrix > bonesOffsets;
+
+	for( Uint32 i = 0u; i < scene->getMesh( 0 )->getGeometry()->getSkin()->getClusterCount(); ++i )
+	{
+		const ofbx::Cluster* mainCluster = scene->getMesh( 0 )->getGeometry()->getSkin()->getCluster( i );
+
+		Uint32 boneIndex = static_cast< Uint32> ( bonesOffsets.size() );
+		outBonesMap[ mainCluster->getLink() ] = boneIndex;
+		bonesOffsets.emplace_back( CONVERT2FORGE( mainCluster->getTransformMatrix() ) );
+
+		Uint32 offset = 0u;
+		for( Uint32 s = 0u; s < scene->getMeshCount(); ++s )
+		{
+			const ofbx::Cluster* cluster = scene->getMesh( s )->getGeometry()->getSkin()->getCluster(i);
+			FORGE_ASSERT( cluster->getWeightsCount() == cluster->getIndicesCount() );
+			
+			for( Uint32 j = 0; j < cluster->getWeightsCount(); ++j )
+			{			
+				Uint32 vertexID = offset + cluster->getIndices()[j];
+				Float weight = cluster->getWeights()[ j ];
+
+				blendWeights.resize( Math::Max< Uint32 >( blendWeights.size(), vertexID + 1u ) );
+				blendIndices.resize( Math::Max< Uint32 >( blendIndices.size(), vertexID + 1u ) );
+
+				Bool found = false;
+				for( Uint32 x = 0u; x < 4u; ++x )
+				{
+					if( blendIndices[ vertexID ].m_indices[ x ] == boneIndex )
+					{
+						found = true;
+						break;
+					}
+
+					found = blendWeights[ vertexID ].m_weights[ x ] == 0.0f;
+					if( found )
+					{
+						blendIndices[ vertexID ].m_indices[ x ] = boneIndex;
+						blendWeights[ vertexID ].m_weights[ x ] = weight;
+						break;
+					}
+				}
+
+				//TODO: Handle more than 4 weights
+				//FORGE_ASSERT( found );
+			}
+
+			offset += scene->getMesh( s )->getGeometry()->getVertexCount();
+		}
+	}
+
+	for( renderer::InputBlendWeights& weightsSet : blendWeights )
+	{
+		Float sum = weightsSet.m_weights[ 0 ] + weightsSet.m_weights[ 1 ] + weightsSet.m_weights[ 2 ] + weightsSet.m_weights[ 3 ];
+
+		if( sum == 0.0f )
+		{
+			weightsSet.m_weights[ 0 ] = 1.0f;
+		}
+		else
+		{
+			weightsSet.m_weights[ 0 ] /= sum;
+			weightsSet.m_weights[ 1 ] /= sum;
+			weightsSet.m_weights[ 2 ] /= sum;
+			weightsSet.m_weights[ 3 ] /= sum;
+		}
+	}
+
+	return std::make_shared< renderer::SkeletonAsset >( path, std::move( blendWeights ), std::move( blendIndices ), bonesOffsets );
+}
+
+Matrix GetNodeLocalTransform( const ofbx::AnimationLayer& animLayer, renderer::Animation& targetAnimation, const ofbx::Object& obj, Uint32 frame, const std::unordered_map< const ofbx::Object*, Uint32 >& bonesMap )
+{
+	const auto& scene = animLayer.getScene();
+	auto it = bonesMap.find( &obj );
+	bool isBone = it != bonesMap.end();
+	if( isBone )
+	{
+		if( !targetAnimation.GeyKeys( it->second ).empty() )
+		{
+			return targetAnimation.GetAnimationKey( it->second, frame ).ToMatrix();
+		}
+	}
+
+	Matrix parentTransform = ConstructFixingMatrix( *scene.getGlobalSettings() );
+	if( ofbx::Object* parent = obj.getParent() )
+	{
+		parentTransform = GetNodeLocalTransform( animLayer, targetAnimation, *parent, frame, bonesMap );
+	}
+
+	const auto* rotationCurveNode = animLayer.getCurveNode( obj, "Lcl Rotation" );
+	const auto* translationCurveNode = animLayer.getCurveNode( obj, "Lcl Translation" );
+
+	bool hasAnim = rotationCurveNode || translationCurveNode;
+
+	if( hasAnim )
+	{
+		Float frameRate = targetAnimation.GetFrameRate();
+		if( isBone )
+		{		
+			Uint32 framesAmount = ofbx::fbxTimeToSeconds( animLayer.getCurveNode( 0 )->getCurve( 0 )->getKeyTime()[ animLayer.getCurveNode( 0 )->getCurve( 0 )->getKeyCount() - 1 ] ) * frameRate;
+			Matrix parentTransform = ConstructFixingMatrix( *scene.getGlobalSettings() );
+			targetAnimation.GeyKeys( it->second ).resize( framesAmount );
+			for( Uint32 i = 0u; i < static_cast< Uint32 >( framesAmount ); ++i )
+			{
+				ofbx::Vec3 translation = { 0.0, 0.0, 0.0 };
+				if( translationCurveNode )
+				{
+					translation = translationCurveNode->getNodeLocalTransform( static_cast< Float >( i ) / frameRate );
+				}
+
+				ofbx::Vec3 rotation = { 0.0, 0.0, 0.0 };
+				if( rotationCurveNode )
+				{
+					rotation = rotationCurveNode->getNodeLocalTransform( static_cast< Float >( i ) / frameRate );
+				}
+
+				if( ofbx::Object* parent = obj.getParent() )
+				{
+					parentTransform = GetNodeLocalTransform( animLayer, targetAnimation, *parent, i, bonesMap );
+				}
+
+				Matrix transform = CONVERT2FORGE( obj.evalLocal( translation, rotation ) ) * parentTransform;
+
+				targetAnimation.GetAnimationKey( it->second, i ) = { transform.GetTranslation(), transform.GetRotation() };
+			}
+
+			return targetAnimation.GetAnimationKey( it->second, frame ).ToMatrix();
+		}
+		else
+		{
+			ofbx::Vec3 translation;
+			if( translationCurveNode )
+			{
+				translation = translationCurveNode->getNodeLocalTransform( static_cast< Float >( frame ) / frameRate );
+			}
+
+			ofbx::Vec3 rotation;
+			if( rotationCurveNode )
+			{
+				rotation = rotationCurveNode->getNodeLocalTransform( static_cast< Float >( frame ) / frameRate );
+			}
+
+			return CONVERT2FORGE( obj.evalLocal( translation, rotation ) ) * parentTransform;
+		}
+	}
+	else
+	{
+		Matrix transform = CONVERT2FORGE( obj.getLocalTransform() ) * parentTransform;
+		if( isBone )
+		{
+			Vector3 translation = transform.GetTranslation();
+			Quaternion rotation = transform.GetRotation();
+
+			Uint32 framesAmount = ofbx::fbxTimeToSeconds( animLayer.getCurveNode( 0 )->getCurve( 0 )->getKeyTime()[ animLayer.getCurveNode( 0 )->getCurve( 0 )->getKeyCount() - 1 ] ) * targetAnimation.GetFrameRate();
+			for( Uint32 i = 0u; i < static_cast< Uint32 >( framesAmount ); ++i )
+			{
+				targetAnimation.GetAnimationKey( it->second, i ) = { translation, rotation };
+			}		
+		}
+
+		return transform;
+	}
+
+	FORGE_FATAL("");
+	return Matrix();
+}
+
+std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHandle& scene, const std::string& path, const std::unordered_map< const ofbx::Object*, Uint32 >& bonesMap, renderer::SkeletonAsset& skeleton )
+{
+	std::vector< renderer::Animation > animations;
+
+	for( Uint32 i = 0u; i < scene->getAnimationStackCount(); ++i )
+	{
+		renderer::Animation& animation = animations.emplace_back( scene->getSceneFrameRate(), skeleton.m_bonesOffsets.size() );
+
+		const auto* animLayer = scene->getAnimationStack( i )->getLayer( 0 );
+
+		if( scene->getAnimationStack( i )->getLayer( 1 ) )
+		{
+			FORGE_LOG_WARNING( "There is more than one layer in animation stack, but just one is handled!" );
+		}
+
+		for( Uint32 j = 0u; j < scene->getGeometry( 0 )->getSkin()->getClusterCount(); ++j )
+		{
+			const ofbx::Object* link = scene->getGeometry( 0 )->getSkin()->getCluster( j )->getLink();
+
+			GetNodeLocalTransform( *animLayer, animation, *link, 0u, bonesMap );
+		}
+	}
+
+	return std::make_shared< renderer::AnimationSetAsset >( path, animations );
+}
+
+std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, renderer::IRenderer& renderer, const SceneHandle & scene, renderer::SkeletonAsset& skeleton )
+{
+	if( scene->getMeshCount() == 0u )
+	{
+		return nullptr;
+	}
+
 	std::vector< renderer::Shape > shapes;
+	std::vector< renderer::ModelAsset::MaterialData > materialsData;
 
 	std::vector< renderer::InputPosition > poses;
 	std::vector< renderer::InputTexCoord > texCoords;
 	std::vector< renderer::InputNormal > normals;
-	std::vector< renderer::InputBlendWeights > blendWeights;
-	std::vector< renderer::InputBlendIndices > blendIndices;
-
-	std::vector< renderer::ModelAsset::MaterialData > materialsData;
-	std::shared_ptr< renderer::TMPAsset > tmpAsset = std::make_shared< renderer::TMPAsset >( path );
-
-	const auto* scene = LoadScene( path );
 
 	for( Uint32 i = 0u; i < scene->getMeshCount(); ++i )
 	{
 		auto* mesh = scene->getMesh( i );
 		auto* geometry = mesh->getGeometry();
 
-		auto rawTransform = mesh->getGlobalTransform();
-		auto cast = [&rawTransform]( Uint32 index ) { return static_cast< Float >( rawTransform.m[ index ] ); };
-		Matrix transformMatrix( cast( 0 ), cast( 1 ), cast( 2 ), cast( 3 ), cast( 4 ), cast( 5 ), cast( 6 ), cast( 7 ), cast( 8 ), cast( 9 ), cast( 10 ), cast( 11 ), cast( 12 ), cast( 13 ), cast( 14 ), cast( 15 ) );
+		Matrix transformMatrix = CONVERT2FORGE( mesh->getGlobalTransform() );
 
 		Uint32 materialIndexOffset = materialsData.size();
 		for( Uint32 i = 0; i < mesh->getMaterialCount(); ++i )
 		{
 			auto* rawMaterial = mesh->getMaterial( i );
-			materialsData.emplace_back( renderer::ModelAsset::MaterialData{ m_renderer.CreateConstantBuffer() } );
+			materialsData.emplace_back( renderer::ModelAsset::MaterialData{ renderer.CreateConstantBuffer() } );
 			auto& materialData = materialsData.back();
 			materialData.m_buffer->AddData( "diffuseColor", Vector4( rawMaterial->getDiffuseColor().r, rawMaterial->getDiffuseColor().g, rawMaterial->getDiffuseColor().b, 1.0f ) );
 			materialData.m_buffer->UpdateBuffer();
@@ -417,44 +435,36 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::FBXLoader::LoadAssets(
 			}
 		}
 	}
-	Context ctx( *scene, *scene->getAnimationStack( 0 )->getLayer( 0 ), *tmpAsset, ConstructFixingMatrix( *scene->getGlobalSettings() ) );
-	LoadBones_OFBX( ctx );
 
-	LoadAnimation( ctx );
+	renderer::Vertices vertices( poses, normals, texCoords, skeleton.m_blendWeights, skeleton.m_blendIndices );
 
-	for( auto& vertex : tmpAsset->m_bones )
-	{
-		Float sum = vertex.m_weights[ 0 ] + vertex.m_weights[ 1 ] + vertex.m_weights[ 2 ] + vertex.m_weights[ 3 ];
-		if( sum == 0.0f )
-		{
-			sum = 1.0f;
-			vertex.m_weights[ 0 ] = 1.0f;
-		}
-
-		renderer::InputBlendWeights tmpWeights;
-		tmpWeights.m_weights[ 0 ] = vertex.m_weights[ 0 ] / sum;
-		tmpWeights.m_weights[ 1 ] = vertex.m_weights[ 1 ] / sum;
-		tmpWeights.m_weights[ 2 ] = vertex.m_weights[ 2 ] / sum;
-		tmpWeights.m_weights[ 3 ] = vertex.m_weights[ 3 ] / sum;
-		blendWeights.emplace_back( tmpWeights );
-
-		renderer::InputBlendIndices tmpIndices;
-		tmpIndices.m_indices[ 0 ] = vertex.m_boneIDs[ 0 ];
-		tmpIndices.m_indices[ 1 ] = vertex.m_boneIDs[ 1 ];
-		tmpIndices.m_indices[ 2 ] = vertex.m_boneIDs[ 2 ];
-		tmpIndices.m_indices[ 3 ] = vertex.m_boneIDs[ 3 ];
-		blendIndices.emplace_back( tmpIndices );
-	}
-
-	blendWeights.resize( poses.size() );
-	blendIndices.resize( poses.size() );
-
-	renderer::Vertices vertices( poses, normals, texCoords, blendWeights, blendIndices );
-
-	std::unique_ptr< renderer::Model > model = std::make_unique< renderer::Model >( m_renderer, vertices, shapes );
+	std::unique_ptr< renderer::Model > model = std::make_unique< renderer::Model >( renderer, vertices, shapes);
 	std::shared_ptr< renderer::ModelAsset > modelAsset = std::make_shared< renderer::ModelAsset >( path, std::move( model ), std::move( materialsData ) );
 
-	return { modelAsset, tmpAsset };
+	return modelAsset;
+}
+
+std::vector< std::shared_ptr< forge::IAsset > > renderer::FBXLoader::LoadAssets( const std::string& path ) const
+{
+	std::vector< std::shared_ptr< forge::IAsset > > loadedAssets;
+
+	SceneHandle scene = LoadScene( path );
+
+	std::unordered_map< const ofbx::Object*, Uint32 > bonesMap;
+	auto skeleton = LoadSkeleton( path, scene, bonesMap );
+	loadedAssets.emplace_back( skeleton );
+
+	if( auto animation = LoadAnimationSet( scene, path, bonesMap, *skeleton ) )
+	{
+		loadedAssets.emplace_back( animation );
+	}	
+
+	if( auto model = LoadModel( path, m_renderer, scene, *skeleton ) )
+	{
+		loadedAssets.emplace_back( model );
+	}
+
+	return loadedAssets;
 }
 
 static const char* c_handledExceptions[] = { "fbx" };

@@ -26,4 +26,41 @@ namespace forge
 			return RemoveReorder( vec, it );
 		}
 	}
+
+	class RawSmartPtr
+	{
+	public:
+		RawSmartPtr( Uint64 size = 0u )
+		{
+			m_data = new Byte[ size ];
+		}
+
+		RawSmartPtr( RawSmartPtr&& ptr )
+		{
+			m_data = ptr.m_data;
+			ptr.m_data = new Byte[ 0 ];
+		}
+
+		RawSmartPtr& operator=( RawSmartPtr&& ptr )
+		{
+			this->~RawSmartPtr();
+			m_data = ptr.m_data;
+			ptr.m_data = new Byte[ 0 ];
+
+			return *this;
+		}
+
+		~RawSmartPtr()
+		{
+			delete[] m_data;
+		}
+
+		Byte* GetData() const
+		{
+			return m_data;
+		}
+
+	private:
+		Byte* m_data = nullptr;
+	};
 }

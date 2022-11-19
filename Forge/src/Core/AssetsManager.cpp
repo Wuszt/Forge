@@ -43,7 +43,10 @@ forge::ArraySpan< std::shared_ptr< forge::IAsset > > forge::AssetsManager::GetAs
 		return {};
 	}
 
+	StopWatch sw;
 	std::vector< std::shared_ptr< IAsset > > loadedAssets = loader->second->LoadAssets( finalPath );
+	FORGE_LOG( "Loaded %s in %.4f seconds", finalPath.c_str(), sw.GetDuration() );
+	 
 	m_assetsCache.emplace( path, std::move( loadedAssets ) );
 	return m_assetsCache[ path ];
 }

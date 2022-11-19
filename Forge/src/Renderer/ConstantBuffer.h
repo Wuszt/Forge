@@ -116,8 +116,8 @@ namespace renderer
 			m_offsets = toCopy.m_offsets;
 			m_dataSize = toCopy.m_dataSize;
 			m_elementsAmount = toCopy.m_elementsAmount;
-			m_rawData = std::move( RawSmartPtr( m_dataSize ) );
-			memcpy( m_rawData.m_data, toCopy.m_rawData.m_data, m_dataSize );
+			m_rawData = std::move( forge::RawSmartPtr( m_dataSize ) );
+			memcpy( m_rawData.GetData(), toCopy.m_rawData.GetData(), m_dataSize);
 
 			CreateBuffer();
 			UpdateBuffer();
@@ -133,11 +133,11 @@ namespace renderer
 			FORGE_ASSURE( m_dataLUT.emplace( name, m_elementsAmount++ ).second );
 			m_offsets.emplace_back( prevSize );
 
-			RawSmartPtr prevData = std::move( m_rawData );
+			forge::RawSmartPtr prevData = std::move( m_rawData );
 
-			m_rawData = std::move( RawSmartPtr( m_dataSize ) );
-			memcpy( m_rawData.m_data, prevData.m_data, prevSize );
-			memcpy( m_rawData.m_data + prevSize, &data, offset );
+			m_rawData = std::move( forge::RawSmartPtr( m_dataSize ) );
+			memcpy( m_rawData.GetData(), prevData.GetData(), prevSize);
+			memcpy( m_rawData.GetData() + prevSize, &data, offset );
 
 			CreateBuffer();
 		}
@@ -150,7 +150,7 @@ namespace renderer
 			{
 				Uint32 offset = m_offsets[ it->second ];
 				
-				memcpy( m_rawData.m_data + offset, &data, sizeof( T ) );
+				memcpy( m_rawData.GetData() + offset, &data, sizeof(T));
 				return true;
 			}
 
@@ -165,7 +165,7 @@ namespace renderer
 			{
 				Uint32 offset = m_offsets[ it->second ];
 
-				memcpy( &output, m_rawData.m_data + offset, sizeof( T ) );
+				memcpy( &output, m_rawData.GetData() + offset, sizeof(T));
 				return true;
 			}
 
@@ -174,7 +174,7 @@ namespace renderer
 
 		FORGE_INLINE virtual void* GetRawData() override
 		{
-			return m_rawData.m_data;
+			return m_rawData.GetData();
 		}
 
 	protected:
@@ -184,42 +184,12 @@ namespace renderer
 		}
 
 	private:
-		struct RawSmartPtr
-		{
-			RawSmartPtr( Uint32 size = 0u )
-			{
-				m_data = new Char[ size ];
-			}
-
-			RawSmartPtr( RawSmartPtr&& ptr )
-			{
-				m_data = ptr.m_data;
-				ptr.m_data = new Char[ 0 ];
-			}
-
-			RawSmartPtr& operator=( RawSmartPtr&& ptr )
-			{
-				this->~RawSmartPtr();
-				m_data = ptr.m_data;
-				ptr.m_data = new Char[ 0 ];
-
-				return *this;
-			}
-
-			~RawSmartPtr()
-			{
-				delete[] m_data;
-			}
-
-			Char* m_data = nullptr;
-		};
-
 		std::unordered_map< std::string, Uint32 > m_dataLUT;
 
 		std::vector< Uint32 > m_offsets;
 
 		Uint32 m_dataSize = 0u;
 		Uint32 m_elementsAmount = 0u;
-		RawSmartPtr m_rawData;
+		forge::RawSmartPtr m_rawData;
 	};
 }

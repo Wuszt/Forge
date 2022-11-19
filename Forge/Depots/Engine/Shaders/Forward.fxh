@@ -27,15 +27,8 @@ float4 CalculateColor(Custom_VS_Output input);
 float4 PS(Custom_VS_Output input) : SV_Target
 {    
     float4 color = CalculateColor(input);
+    float3 normal = CalculateNormal(input).xyz;
 
-    float3 normal;
-    
-#ifdef __NORMAL_TEXTURE__
-    normal = mul(W,(NormalTexture.Sample(LinearSamplerState, input.TexCoord) + 1.0f) * 0.5f).rgb;
-#else
-    normal = input.Normal;
-#endif
-    
 #if defined __SPOT_LIGHT__
     color *= CalcShadowMultiplierForSpotLight( input.WorldPos, LightingData, ShadowMap );
 #elif defined __DIRECTIONAL_LIGHT__

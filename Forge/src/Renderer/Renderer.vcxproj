@@ -55,6 +55,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="AnimationSetAsset.cpp" />
     <ClCompile Include="CustomCamera.cpp" />
     <ClCompile Include="DeferredRenderingPass.cpp" />
     <ClCompile Include="FBXLoader.cpp" />
@@ -97,6 +98,7 @@
     <ClCompile Include="OrthographicCamera.cpp" />
     <ClCompile Include="ShaderPack.cpp" />
     <ClCompile Include="ShadowMapsGenerator.cpp" />
+    <ClCompile Include="SkeletonAsset.cpp" />
     <ClCompile Include="TextureAsset.cpp" />
     <ClCompile Include="TinyObjModelsLoader.cpp" />
     <ClCompile Include="PerspectiveCamera.cpp" />
@@ -107,6 +109,7 @@
     <ClInclude Include="..\..\External\openfbx\src\miniz.h" />
     <ClInclude Include="..\..\External\openfbx\src\ofbx.h" />
     <ClInclude Include="..\..\External\tinyobjloader\tiny_obj_loader.h" />
+    <ClInclude Include="AnimationSetAsset.h" />
     <ClInclude Include="CustomCamera.h" />
     <ClInclude Include="DeferredRenderingPass.h" />
     <ClInclude Include="FBXLoader.h" />
@@ -141,6 +144,7 @@
     <ClInclude Include="OrthographicCamera.h" />
     <ClInclude Include="ShaderPack.h" />
     <ClInclude Include="ShadowMapsGenerator.h" />
+    <ClInclude Include="SkeletonAsset.h" />
     <ClInclude Include="TextureAsset.h" />
     <ClInclude Include="TinyObjModelsLoader.h" />
     <ClInclude Include="PerspectiveCamera.h" />
@@ -388,7 +392,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Fpch.h</PrecompiledHeaderFile>
       <PreprocessorDefinitions>FORGE_RELEASE_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>D:\Repos\vcpkg\packages\assimp_x64-windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -475,7 +479,7 @@
       <PrecompiledHeaderFile>Fpch.h</PrecompiledHeaderFile>
       <PreprocessorDefinitions>FORGE_DEBUG_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>D:\Repos\vcpkg\packages\assimp_x64-windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

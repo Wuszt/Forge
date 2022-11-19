@@ -26,7 +26,7 @@ namespace d3d11
 
 			for( const auto& define : defines )
 			{
-				definesAsString += "{" + define.m_name + define.m_define + "}, ";
+				definesAsString += forge::String::Printf("{ %s %s },", define.m_name.c_str(), define.m_define.c_str() );
 			}
 
 			if( result == S_OK )

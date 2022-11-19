@@ -80,7 +80,7 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::TinyObjModelsLoader::L
 				FORGE_ASSERT( pos == poses[ it->second ] && uvs == texCoords[ it->second ] );
 			}
 
-			shapes.back().m_indices.emplace_back( it->second );
+			shapes.back().m_indices.emplace_back( poses.size() - 1 );
 		}
 	}
 

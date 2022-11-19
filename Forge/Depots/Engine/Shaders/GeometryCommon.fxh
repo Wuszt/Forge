@@ -29,7 +29,11 @@ struct VS_OUTPUT
 {
     float4 Pos : SV_POSITION;
     
-#ifndef __NORMAL_TEXTURE__   
+#ifdef __NORMAL_TEXTURE__  
+    #if defined __VERTEX_INPUT_BLENDWEIGHTS_AMOUNT__ && defined __VERTEX_INPUT_BLENDINDICES_AMOUNT__
+    float4x4 boneTransform;
+    #endif
+#else
     float3 Normal : NORMAL;
 #endif
     

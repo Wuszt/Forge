@@ -23,12 +23,8 @@ PS_Output PS(Custom_VS_Output input)
 {
     PS_Output output;
     output.Diffuse = CalculateColor(input);
-    
-#ifdef __NORMAL_TEXTURE__ 
-    output.Normal = mul(W,NormalTexture.Sample(LinearSamplerState, input.TexCoord));
-#else
-    output.Normal = float4((input.Normal + 1.0f) * 0.5f, 1.0f);
-#endif
+
+    output.Normal = (CalculateNormal(input) + 1.0f) * 0.5f;
        
     output.Target = output.Diffuse * float4(CalcAmbient(output.Normal.xyz * 2.0f - 1.0f, AmbientLighting, AmbientLighting * 0.5f), 1.0f);
     

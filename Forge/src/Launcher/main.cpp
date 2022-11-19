@@ -22,6 +22,8 @@
 #include "../Core/AssetsManager.h"
 #include "../Renderer/FBXLoader.h"
 #include "../../External/imgui/imgui.h"
+#include "../Renderer/AnimationSetAsset.h"
+#include "../Renderer/SkeletonAsset.h"
 
 std::string animName = "Animations\\Attack.fbx";
 
@@ -343,45 +345,27 @@ Int32 main()
 			}
 
 			{
-				auto tmpAsset = engineInstance.GetAssetsManager().GetAsset<renderer::TMPAsset>( animName );
+				auto animation = engineInstance.GetAssetsManager().GetAsset< renderer::AnimationSetAsset >( animName );
+				auto skeleton = engineInstance.GetAssetsManager().GetAsset< renderer::SkeletonAsset >( animName );
 
-				if( tmpAsset->m_animDuration == 0.0f )
+				if( animation->GetAnimations()[ 0 ].GetDuration() == 0.0f )
 				{
 					return;
 				}
 
-				while( accumulator >= tmpAsset->m_animDuration )
+				static auto token = engineInstance.GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [this]()
 				{
-					accumulator -= tmpAsset->m_animDuration;
-				}
-
-				static auto token = engineInstance.GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [tmpAsset, this]()
-				{
-					ImGui::SliderFloat( "Duration", &accumulator, 0, tmpAsset->m_animDuration );
 					ImGui::SliderFloat( "Speed", &speed, 0.0f, 2.0f );
 				});
 
 				bonesBuffer = engineInstance.GetRenderer().CreateStaticConstantBuffer<cbBones>();
 
-				Uint32 frame = static_cast< Uint32 >( accumulator * 30.0f ) % tmpAsset->m_boneInfo[ 0 ].m_translationAnim.size();
-				Uint32 nextFrame = ( frame + 1u ) % tmpAsset->m_boneInfo[ 0 ].m_translationAnim.size();
-				Float t = accumulator * 30.0f - static_cast< Float >( frame );
+				std::vector< Matrix > transforms;
+				animation->GetAnimations()[ 0 ].Sample(accumulator, true, transforms);
 
-				for(Uint32 i = 0u; i < tmpAsset->m_boneInfo.size(); ++i)
+				for( Uint32 i = 0u; i < transforms.size(); ++i )
 				{
-					Vector3 prevTranslation = tmpAsset->m_boneInfo[ i ].m_translationAnim[ frame ];
-					Vector3 nextTranslation = tmpAsset->m_boneInfo[ i ].m_translationAnim[ nextFrame ];
-
-					Vector3 finalTranslation = Math::Lerp( prevTranslation, nextTranslation, t );
-
-					Quaternion prevRotation = tmpAsset->m_boneInfo[ i ].m_rotationAnim[ frame ];
-					Quaternion nextRotation = tmpAsset->m_boneInfo[ i ].m_rotationAnim[ nextFrame ];
-
-					Quaternion finalRotation = Quaternion::Slerp( prevRotation, nextRotation, t );
-
-					Matrix m = tmpAsset->m_boneInfo[ i ].m_boneOffset * Matrix( finalRotation ) * Matrix( finalTranslation );
-
-					bonesBuffer->GetData().Bones[ i ] = m;
+					bonesBuffer->GetData().Bones[ i ] = skeleton->m_bonesOffsets[ i ] * transforms[ i ];
 				}
 
 				bonesBuffer->UpdateBuffer();
