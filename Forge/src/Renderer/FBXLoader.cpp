@@ -192,12 +192,14 @@ Matrix GetNodeLocalTransform( const ofbx::AnimationLayer& animLayer, renderer::A
 
 	bool hasAnim = rotationCurveNode || translationCurveNode;
 
+	Float frameRate = targetAnimation.GetFrameRate();
+
+	Uint32 framesAmount = ofbx::fbxTimeToSeconds( animLayer.getCurveNode( 0 )->getCurve( 0 )->getKeyTime()[ animLayer.getCurveNode( 0 )->getCurve( 0 )->getKeyCount() - 1 ] ) * frameRate;
+
 	if( hasAnim )
 	{
-		Float frameRate = targetAnimation.GetFrameRate();
 		if( isBone )
 		{		
-			Uint32 framesAmount = ofbx::fbxTimeToSeconds( animLayer.getCurveNode( 0 )->getCurve( 0 )->getKeyTime()[ animLayer.getCurveNode( 0 )->getCurve( 0 )->getKeyCount() - 1 ] ) * frameRate;
 			Matrix parentTransform = ConstructFixingMatrix( *scene.getGlobalSettings() );
 			targetAnimation.GeyKeys( it->second ).resize( framesAmount );
 			for( Uint32 i = 0u; i < static_cast< Uint32 >( framesAmount ); ++i )
@@ -251,7 +253,6 @@ Matrix GetNodeLocalTransform( const ofbx::AnimationLayer& animLayer, renderer::A
 			Vector3 translation = transform.GetTranslation();
 			Quaternion rotation = transform.GetRotation();
 
-			Uint32 framesAmount = ofbx::fbxTimeToSeconds( animLayer.getCurveNode( 0 )->getCurve( 0 )->getKeyTime()[ animLayer.getCurveNode( 0 )->getCurve( 0 )->getKeyCount() - 1 ] ) * targetAnimation.GetFrameRate();
 			for( Uint32 i = 0u; i < static_cast< Uint32 >( framesAmount ); ++i )
 			{
 				targetAnimation.GetAnimationKey( it->second, i ) = { translation, rotation };
@@ -303,6 +304,7 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 
 	std::vector< renderer::InputPosition > poses;
 	std::vector< renderer::InputTexCoord > texCoords;
+	std::vector< renderer::InputColor > colors;
 	std::vector< renderer::InputNormal > normals;
 
 	for( Uint32 i = 0u; i < scene->getMeshCount(); ++i )
@@ -368,22 +370,6 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 				};
 			}
 
-			if( auto* uvs = geometry->getUVs( 0 ) )
-			{
-				getUVsFunc = [uvs]( Uint32 j )
-				{
-					const ofbx::Vec2& rawUV = uvs[ j ];
-					return Vector2{ static_cast< Float >( rawUV.x ), static_cast< Float >( rawUV.y ) };
-				};
-			}
-			else
-			{
-				getUVsFunc = []( Uint32 j )
-				{
-					return Vector2();
-				};
-			}
-
 			//for( Uint32 j = i * 3u; j < ( i + 1 ) * 3u; ++j )
 			//{
 			//	const ofbx::Vec3& vertex = geometry->getVertices()[ j ];
@@ -423,23 +409,52 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 			//	shapes.back().m_indices.emplace_back( it->second );
 			//}
 
+			if( auto* color = geometry->getColors() )
+			{
+				for( Uint32 j = i * 3u; j < ( i + 1 ) * 3u; ++j )
+				{
+					const ofbx::Vec4& rawUV = color[ j ];
+					colors.emplace_back( Vector4{ static_cast< Float >( rawUV.x ), static_cast< Float >( rawUV.y ), static_cast< Float >( rawUV.z ), static_cast< Float >( rawUV.w ) } );
+				}
+			}
+
+			if( auto* uvs = geometry->getUVs( 0 ) )
+			{
+				for( Uint32 j = i * 3u; j < ( i + 1 ) * 3u; ++j )
+				{
+					const ofbx::Vec2 & rawUV = uvs[ j ];
+					texCoords.emplace_back( Vector2{ static_cast< Float >( rawUV.x ), static_cast< Float >( rawUV.y ) } );
+				}
+			}
+
 			for( Uint32 j = i * 3u; j < ( i + 1 ) * 3u; ++j )
 			{
 				const ofbx::Vec3& vertex = geometry->getVertices()[ j ];
 				Vector3 pos = transformMatrix.TransformPoint( Vector3{ static_cast< Float >( vertex.x ), static_cast< Float >( vertex.y ), static_cast< Float >( vertex.z ) } );
-				poses.emplace_back( pos );
-				texCoords.emplace_back( getUVsFunc( j ) );
+				poses.emplace_back( pos );		
 				normals.emplace_back( getNormalFunc( i, j ) );
 
 				shapes.back().m_indices.emplace_back( poses.size() - 1 );
 			}
+
+
 		}
 	}
 
 	renderer::VerticesBuilder builder;
 	builder.AddData( std::move( poses ) );
 	builder.AddData( std::move( normals ) );
-	builder.AddData( std::move( texCoords ) );
+
+	if( !texCoords.empty() )
+	{
+		builder.AddData( std::move( texCoords ) );
+	}
+
+	if( !colors.empty() )
+	{
+		builder.AddData( std::move( colors ) );
+	}
+
 	builder.AddData( skeleton.m_blendWeights );
 	builder.AddData( skeleton.m_blendIndices );
 	renderer::Vertices vertices = builder.Build();

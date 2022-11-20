@@ -25,7 +25,7 @@
 #include "../Renderer/AnimationSetAsset.h"
 #include "../Renderer/SkeletonAsset.h"
 
-std::string animName = "Animations\\Attack.fbx";
+std::string animName = "Animations\\Thriller.fbx";
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {

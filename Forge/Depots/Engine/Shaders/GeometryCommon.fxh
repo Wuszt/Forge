@@ -16,6 +16,10 @@ struct VS_INPUT
     float3 Pos : POSITION;
     float3 Normal : NORMAL;
 
+#ifdef __VERTEX_INPUT_COLOR_AMOUNT__
+    float4 Color : COLOR;
+#endif
+
 #ifdef __VERTEX_INPUT_BLENDWEIGHTS_AMOUNT__
     float4 BlendWeights : BLENDWEIGHTS;
 #endif
@@ -39,6 +43,10 @@ struct VS_OUTPUT
     
 #ifdef __DEFINE_WORLD_POS__
     float3 WorldPos : TEXCOORD0;
+#endif
+
+#ifdef __VERTEX_INPUT_COLOR_AMOUNT__
+    float4 Color : COLOR;
 #endif
 };
 

@@ -44,6 +44,10 @@ Custom_VS_Output Vert(Custom_VS_Input input)
 #ifndef __NORMAL_TEXTURE__
     output.Normal = input.Normal;
 #endif
+
+#ifdef __VERTEX_INPUT_COLOR_AMOUNT__
+    output.Color = input.Color;
+#endif
     
     return output;
 }
@@ -51,6 +55,10 @@ Custom_VS_Output Vert(Custom_VS_Input input)
 float4 CalculateColor(Custom_VS_Output input)
 {    
     float4 clr = diffuseColor;
+
+#ifdef __VERTEX_INPUT_COLOR_AMOUNT__
+    clr *= input.Color;
+#endif
     
 #ifdef __VERTEX_INPUT_TEXCOORD_AMOUNT__
 

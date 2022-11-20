@@ -39,7 +39,10 @@ namespace forge
 		RawSmartPtr( RawSmartPtr&& ptr )
 		{
 			m_data = ptr.m_data;
+			m_size = ptr.m_size;
+
 			ptr.m_data = new Byte[ 0 ];
+			ptr.m_size = 0u;
 		}
 
 		RawSmartPtr& operator=( RawSmartPtr&& ptr )

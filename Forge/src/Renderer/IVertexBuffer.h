@@ -202,7 +202,7 @@ namespace renderer
 			m_vertexSize = GetSingleVertexDataSize< arrT, arrTs... >();
 
 			m_buffer = forge::RawSmartPtr( m_vertexSize * m_verticesAmount );
-			AddDataT( 0u, t0, ts... );
+			AddDataInternalT( 0u, t0, ts... );
 		}
 
 		Vertices( const VerticesBuilder& builder )
@@ -215,9 +215,24 @@ namespace renderer
 			Uint32 offset = 0u;
 			for( const auto& element : builder.GetElementsDescs() )
 			{
-				AddData( offset, element->GetData(), element->GetElementSize(), element->GetDesc() );
+				AddDataInternal( offset, element->GetData(), element->GetElementSize(), element->GetDesc() );
 				offset += element->GetElementSize();
 			}
+		}
+
+		template< class arrT, class... arrTs >
+		void AddData( const arrT& t0, const arrTs&... ts )
+		{
+			Uint32 prevVertexSize = m_vertexSize;
+			Uint32 additionalVertexSize = GetSingleVertexDataSize< arrT, arrTs... >();
+
+			m_vertexSize = prevVertexSize + additionalVertexSize;
+			forge::RawSmartPtr oldBuffer = std::move( m_buffer );
+			m_buffer = forge::RawSmartPtr( m_verticesAmount * m_vertexSize );
+
+			AddDataInternal( 0u, oldBuffer.GetData(), prevVertexSize );
+
+			AddDataInternalT( prevVertexSize, t0, ts... );
 		}
 
 		Uint32 GetVertexSize() const
@@ -254,25 +269,30 @@ namespace renderer
 		}
 
 		template< class... arrTs >
-		static decltype( typename std::enable_if<sizeof...( arrTs ) == 0, void>::type() ) AddDataT( Uint32 offset, const arrTs&... arrs )
+		static decltype( typename std::enable_if<sizeof...( arrTs ) == 0, void>::type() ) AddDataInternalT( Uint32 offset, const arrTs&... arrs )
 		{}
 
 		template< class arrT, class... arrTs >
-		void AddDataT( Uint32 offset, const arrT& arr, const arrTs&... arrs )
+		void AddDataInternalT( Uint32 offset, const arrT& arr, const arrTs&... arrs )
 		{
 			Uint32 tSize = sizeof( arrT::value_type );
 
-			AddData( offset, arr.data(), tSize, arrT::value_type::GetInputDescription() );
+			AddDataInternal( offset, arr.data(), tSize, arrT::value_type::GetInputDescription() );
 
-			AddDataT( tSize + offset, arrs... );
+			AddDataInternalT( tSize + offset, arrs... );
 		}
 
-		void AddData( Uint32 offset, const void* data, Uint32 elementSize, const InputElementDescription& desc )
+		void AddDataInternal( Uint32 offset, const void* data, Uint32 elementSize )
 		{
 			for( Uint32 i = 0; i < m_verticesAmount; ++i )
 			{
 				memcpy( m_buffer.GetData() + i * m_vertexSize + offset, reinterpret_cast< const Byte* >( data ) + i * elementSize, elementSize );
 			}
+		}
+
+		void AddDataInternal( Uint32 offset, const void* data, Uint32 elementSize, const InputElementDescription& desc )
+		{
+			AddDataInternal( offset, data, elementSize );
 
 			m_inputElements.emplace_back( desc );
 		}
