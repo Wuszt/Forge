@@ -14,17 +14,17 @@ namespace renderer
 
 		void Draw( forge::ArraySpan< IShaderResourceView* > input );
 
-		FORGE_INLINE void SetShaderDefines( forge::ArraySpan< renderer::ShaderDefine > shaderDefines )
+		void SetShaderDefines( forge::ArraySpan< renderer::ShaderDefine > shaderDefines )
 		{
 			m_shaderDefines = { shaderDefines.begin(), shaderDefines.end() };
 		}
 
-		FORGE_INLINE void SetVSName( const std::string& vsName )
+		void SetVSName( const std::string& vsName )
 		{
 			m_vertexShaderName = vsName;
 		}
 
-		FORGE_INLINE void SetPSName( const std::string& psName )
+		void SetPSName( const std::string& psName )
 		{
 			m_vertexShaderName = psName;
 		}

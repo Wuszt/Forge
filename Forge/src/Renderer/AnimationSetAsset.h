@@ -9,12 +9,12 @@ namespace renderer
 			, m_bonesKeys( bonesAmount )
 		{}
 
-		FORGE_INLINE Float GetDuration() const
+		Float GetDuration() const
 		{
 			return static_cast< Float >( m_bonesKeys.size() ) / m_frameRate;
 		}
 
-		FORGE_INLINE Float GetFrameRate() const
+		Float GetFrameRate() const
 		{
 			return m_frameRate;
 		}
@@ -24,7 +24,7 @@ namespace renderer
 			Vector3 m_translation;
 			Quaternion m_rotation;
 
-			FORGE_INLINE Matrix ToMatrix() const
+			Matrix ToMatrix() const
 			{
 				Matrix m( m_rotation );
 				m.SetTranslation( m_translation );
@@ -35,12 +35,12 @@ namespace renderer
 		Matrix Sample( Float time, Uint32 boneIndex, Bool loop ) const;
 		void Sample( Float time, Bool loop, std::vector< Matrix >& outTransforms ) const;
 
-		FORGE_INLINE std::vector< AnimationKey >& GeyKeys( Uint32 boneIndex )
+		std::vector< AnimationKey >& GeyKeys( Uint32 boneIndex )
 		{
 			return m_bonesKeys[ boneIndex ];
 		}
 
-		FORGE_INLINE AnimationKey& GetAnimationKey( Uint32 boneIndex, Uint32 frame )
+		AnimationKey& GetAnimationKey( Uint32 boneIndex, Uint32 frame )
 		{
 			return m_bonesKeys[ boneIndex ][ frame ];
 		}

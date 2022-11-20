@@ -16,7 +16,7 @@ namespace forge
 		virtual void Deinitialize() override;
 
 		template< class T = forge::Entity >
-		FORGE_INLINE void RequestCreatingEntity( const std::function< void( T* ) >& initializeFunc = nullptr )
+		void RequestCreatingEntity( const std::function< void( T* ) >& initializeFunc = nullptr )
 		{
 			EntityCreationRequest req;
 			req.m_creationFunc = [ this, initializeFunc ]()
@@ -32,7 +32,7 @@ namespace forge
 			m_entityCreationRequests.emplace_back( req );
 		}
 
-		FORGE_INLINE void RequestAddingComponentsToEntity( const std::function< void() >& creationFunc )
+		void RequestAddingComponentsToEntity( const std::function< void() >& creationFunc )
 		{
 			ComponentCreationRequest req;
 			req.m_creationFunc = creationFunc;
@@ -40,33 +40,33 @@ namespace forge
 			m_componentCreationRequests.emplace_back( req );
 		}
 
-		FORGE_INLINE void RequestDestructingEntity( forge::EntityID id )
+		void RequestDestructingEntity( forge::EntityID id )
 		{
 			m_entityDestructionRequests.emplace_back( EntityDestructionRequest{ id } );
 		}
 
-		FORGE_INLINE Callback< EntityID >& GetEntityCreatedCallback()
+		Callback< EntityID >& GetEntityCreatedCallback()
 		{
 			return m_onEntityAdded;
 		}
 
-		FORGE_INLINE Callback< EntityID >& GetEntityDestructedCallback()
+		Callback< EntityID >& GetEntityDestructedCallback()
 		{
 			return m_onEntityDestructed;
 		}
 
-		FORGE_INLINE Uint32 GetEntitiesAmount() const
+		Uint32 GetEntitiesAmount() const
 		{
 			return static_cast< Uint32 >( m_entities.size() );
 		}
 
-		FORGE_INLINE Uint32 GetHighestID() const
+		Uint32 GetHighestID() const
 		{
 			return m_lastUsedEntityID;
 		}
 
 		template< class TEntity = Entity >
-		FORGE_INLINE TEntity* GetEntity( const EntityID& id )
+		TEntity* GetEntity( const EntityID& id )
 		{
 			if( m_entities.count( id ) == 0u )
 			{
@@ -80,7 +80,7 @@ namespace forge
 
 	private:
 		template< class T = forge::Entity >
-		FORGE_INLINE T* CreateEntity()
+		T* CreateEntity()
 		{
 			EntityID id = ++m_lastUsedEntityID;
 			auto ent = std::make_unique< T >( GetEngineInstance(), id );

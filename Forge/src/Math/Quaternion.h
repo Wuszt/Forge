@@ -24,22 +24,22 @@ struct Quaternion
 		};
 	};
 
-	FORGE_INLINE static Quaternion IDENTITY() { return Quaternion( 0.0f, 0.0f, 0.0f, 1.0f ); }
-	FORGE_INLINE static Quaternion I() { return Quaternion( 1.0f, 0.0f, 0.0f, 0.0f ); }
-	FORGE_INLINE static Quaternion J() { return Quaternion( 0.0f, 1.0f, 0.0f, 0.0f ); }
-	FORGE_INLINE static Quaternion K() { return Quaternion( 0.0f, 0.0f, 1.0f, 0.0f ); }
+	static Quaternion IDENTITY() { return Quaternion( 0.0f, 0.0f, 0.0f, 1.0f ); }
+	static Quaternion I() { return Quaternion( 1.0f, 0.0f, 0.0f, 0.0f ); }
+	static Quaternion J() { return Quaternion( 0.0f, 1.0f, 0.0f, 0.0f ); }
+	static Quaternion K() { return Quaternion( 0.0f, 0.0f, 1.0f, 0.0f ); }
 
 	static Quaternion GetRotationBetweenVectors( const Vector3& first, const Vector3& second, const Vector3& up = Vector3::EZ() );
 	static Quaternion Lerp( const Quaternion& from, const Quaternion& to, float t );
 	static Quaternion Slerp( const Quaternion& from, const Quaternion& to, float t );
 
-	FORGE_INLINE static Quaternion CreateFromDirection( const Vector3& direction, const Vector3& up = Vector3::EZ() )
+	static Quaternion CreateFromDirection( const Vector3& direction, const Vector3& up = Vector3::EZ() )
 	{
 		return GetRotationBetweenVectors( Vector3::EY(), direction );
 	}
 
 	Vector4 Transform( const Vector4& vec ) const;
-	FORGE_INLINE Vector4 TransformInvert( const Vector4& vec ) const
+	Vector4 TransformInvert( const Vector4& vec ) const
 	{
 		return Inverted().Transform( vec );
 	}
@@ -75,12 +75,12 @@ struct Quaternion
 
 	Quaternion operator*( const Quaternion& q ) const;
 
-	FORGE_INLINE Vector4 operator*( const Vector4& v ) const
+	Vector4 operator*( const Vector4& v ) const
 	{
 		return Transform( v );
 	}
 
-	FORGE_INLINE Vector3 operator*( const Vector3& v ) const
+	Vector3 operator*( const Vector3& v ) const
 	{
 		return Transform( v );
 	}

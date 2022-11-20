@@ -9,7 +9,7 @@ namespace d3d11
 		D3D11Device( ID3D11Device* device );
 		~D3D11Device();
 
-		FORGE_INLINE ID3D11Device* GetDevice() const
+		ID3D11Device* GetDevice() const
 		{
 			return m_device;
 		}

@@ -21,84 +21,84 @@ namespace systems
 		{}
 
 		template< class T >
-		FORGE_INLINE forge::DataPackage< T >& GetData()
+		forge::DataPackage< T >& GetData()
 		{
 			FORGE_ASSERT( dynamic_cast< forge::DataPackage< T >* >( m_data.at( &T::GetTypeStatic() ).get() ) );
 			return *static_cast< forge::DataPackage< T >* >( m_data.at( &T::GetTypeStatic() ).get() );
 		}
 
 		template< class T >
-		FORGE_INLINE const T& GetData( forge::EntityID id ) const
+		const T& GetData( forge::EntityID id ) const
 		{
 			Int32 index = m_sparseSet[ id.m_id ];
 			return GetData< T >()[ index ];
 		}
 
 		template< class T >
-		FORGE_INLINE T& GetData( forge::EntityID id )
+		T& GetData( forge::EntityID id )
 		{
 			Int32 index = m_sparseSet[ id.m_id ];
 			return GetData< T >()[ index ];
 		}
 
-		FORGE_INLINE forge::IDataPackage& GetData( const rtti::IType& type )
+		forge::IDataPackage& GetData( const rtti::IType& type )
 		{
 			return *m_data.at( &type );
 		}
 
-		FORGE_INLINE void OnEntityCreated()
+		void OnEntityCreated()
 		{
 			m_sparseSet.emplace_back( -1 );
 		}
 
-		FORGE_INLINE virtual void OnEntityDestructed( forge::EntityID id )
+		virtual void OnEntityDestructed( forge::EntityID id )
 		{
 			FORGE_ASSERT( m_sparseSet[ id.m_id ] == -1 ); // pls destroy components before you destroy their owner
 		}
 
-		FORGE_INLINE Bool ContainsEntity( forge::EntityID id ) const
+		Bool ContainsEntity( forge::EntityID id ) const
 		{
 			return m_sparseSet.at( id.m_id ) >= 0;
 		}
 
 		template< class T >
-		FORGE_INLINE Bool ContainsData() const
+		Bool ContainsData() const
 		{
 			return ContainsData( T::GetTypeStatic() );
 		}
 
-		FORGE_INLINE Bool ContainsData( const rtti::IType& type ) const
+		Bool ContainsData( const rtti::IType& type ) const
 		{
 			return m_data.count( &type ) > 0u;
 		}
 
 		template< class T >
-		FORGE_INLINE void AddDataPackage()
+		void AddDataPackage()
 		{
 			m_data.emplace( &T::GetTypeStatic(), std::make_unique< forge::DataPackage< T > >( m_dataSize ) );
 		}
 
-		FORGE_INLINE void AddDataPackage( std::unique_ptr< forge::IDataPackage > package )
+		void AddDataPackage( std::unique_ptr< forge::IDataPackage > package )
 		{
 			m_data.emplace( &package->GetDataType(), std::move( package ) );
 		}
 
-		FORGE_INLINE void SetDirty( Bool dirty )
+		void SetDirty( Bool dirty )
 		{
 			m_dirty = dirty;
 		}
 
-		FORGE_INLINE Bool IsDirty() const
+		Bool IsDirty() const
 		{
 			return m_dirty;
 		}
 
-		FORGE_INLINE Uint32 GetDataSize() const
+		Uint32 GetDataSize() const
 		{
 			return m_dataSize;
 		}
 
-		FORGE_INLINE Bool IsEmpty() const
+		Bool IsEmpty() const
 		{
 			return GetDataSize() == 0u;
 		}
@@ -127,7 +127,7 @@ namespace systems
 			return false;
 		}
 
-		FORGE_INLINE forge::EngineInstance& GetEngineInstance() const
+		forge::EngineInstance& GetEngineInstance() const
 		{
 			return *m_engineInstance;
 		}
@@ -182,11 +182,11 @@ namespace systems
 
 	private:
 		template< class... Args >
-		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherDataTypesInternal( std::vector< const rtti::IType* >& types )
+		static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherDataTypesInternal( std::vector< const rtti::IType* >& types )
 		{}
 
 		template< class T, class... Args >
-		FORGE_INLINE static void GatherDataTypesInternal( std::vector< const rtti::IType* >& types )
+		static void GatherDataTypesInternal( std::vector< const rtti::IType* >& types )
 		{
 			types.emplace_back( &T::GetTypeStatic() );
 
@@ -194,11 +194,11 @@ namespace systems
 		}
 
 		template< class... Args >
-		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherDataPackagesInternal( std::vector< std::unique_ptr< forge::IDataPackage > >& packages )
+		static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherDataPackagesInternal( std::vector< std::unique_ptr< forge::IDataPackage > >& packages )
 		{}
 
 		template< class T, class... Args >
-		FORGE_INLINE static void GatherDataPackagesInternal( std::vector< std::unique_ptr< forge::IDataPackage > >& packages )
+		static void GatherDataPackagesInternal( std::vector< std::unique_ptr< forge::IDataPackage > >& packages )
 		{
 			packages.emplace_back( std::make_unique< forge::DataPackage< T > >() );
 
@@ -227,7 +227,7 @@ namespace systems
 	public:
 		using IECSSystem::IECSSystem;
 
-		FORGE_INLINE virtual std::vector< std::unique_ptr< IArchetypeDataTypes > > GetArchetypesDataTypes() const override
+		virtual std::vector< std::unique_ptr< IArchetypeDataTypes > > GetArchetypesDataTypes() const override
 		{
 			std::vector< std::unique_ptr< IArchetypeDataTypes > > types;
 			GatherArchetypesDataTypesInternal< Ts... >( types );
@@ -236,11 +236,11 @@ namespace systems
 
 	private:
 		template< class... Args >
-		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherArchetypesDataTypesInternal( std::vector< std::unique_ptr< IArchetypeDataTypes > >& )
+		static decltype( typename std::enable_if<sizeof...( Args ) == 0, void>::type() ) GatherArchetypesDataTypesInternal( std::vector< std::unique_ptr< IArchetypeDataTypes > >& )
 		{}
 
 		template< class T, class... Args >
-		FORGE_INLINE static void GatherArchetypesDataTypesInternal( std::vector< std::unique_ptr< IArchetypeDataTypes > >& types )
+		static void GatherArchetypesDataTypesInternal( std::vector< std::unique_ptr< IArchetypeDataTypes > >& types )
 		{
 			types.emplace_back( std::make_unique< T >() );
 

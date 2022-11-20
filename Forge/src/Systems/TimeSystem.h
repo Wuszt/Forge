@@ -11,17 +11,17 @@ namespace systems
 
 		virtual void OnInitialize();
 		
-		FORGE_INLINE float GetCurrentTime() const
+		float GetCurrentTime() const
 		{
 			return m_currentTime;
 		}
 
-		FORGE_INLINE float GetDeltaTime() const
+		float GetDeltaTime() const
 		{
 			return m_lastDeltaTime;
 		}
 
-		FORGE_INLINE float GetTimeDilation() const
+		float GetTimeDilation() const
 		{
 			return m_timeDilation;
 		}

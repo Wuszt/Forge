@@ -18,16 +18,16 @@ struct Vector4
 
 	Float W = 1.0f;
 
-	FORGE_INLINE static Vector4 EX() { return Vector4( 1.0f, 0.0f, 0.0f, 0.0f ); }
-	FORGE_INLINE static Vector4 EY() { return Vector4( 0.0f, 1.0f, 0.0f, 0.0f ); }
-	FORGE_INLINE static Vector4 EZ() { return Vector4( 0.0f, 0.0f, 1.0f, 0.0f ); }
-	FORGE_INLINE static Vector4 EW() { return Vector4( 0.0f, 0.0f, 0.0f, 1.0f ); }
-	FORGE_INLINE static Vector4 ZEROS() { return Vector4( 0.0f, 0.0f, 0.0f, 0.0f ); }
-	FORGE_INLINE static Vector4 ONES() { return Vector4( 1.0f, 1.0f, 1.0f, 1.0f ); }
-	FORGE_INLINE static Vector4 PLUS_MAX() { return Vector4( std::numeric_limits< Float >::max() ); }
-	FORGE_INLINE static Vector4 MINUS_MAX() { return -Vector4( std::numeric_limits< Float >::max() ); }
-	FORGE_INLINE static Vector4 PLUS_INF() { return Vector4( std::numeric_limits< Float >::infinity() ); }
-	FORGE_INLINE static Vector4 MINUS_INF() { return -Vector4( std::numeric_limits< Float >::infinity() ); }
+	static Vector4 EX() { return Vector4( 1.0f, 0.0f, 0.0f, 0.0f ); }
+	static Vector4 EY() { return Vector4( 0.0f, 1.0f, 0.0f, 0.0f ); }
+	static Vector4 EZ() { return Vector4( 0.0f, 0.0f, 1.0f, 0.0f ); }
+	static Vector4 EW() { return Vector4( 0.0f, 0.0f, 0.0f, 1.0f ); }
+	static Vector4 ZEROS() { return Vector4( 0.0f, 0.0f, 0.0f, 0.0f ); }
+	static Vector4 ONES() { return Vector4( 1.0f, 1.0f, 1.0f, 1.0f ); }
+	static Vector4 PLUS_MAX() { return Vector4( std::numeric_limits< Float >::max() ); }
+	static Vector4 MINUS_MAX() { return -Vector4( std::numeric_limits< Float >::max() ); }
+	static Vector4 PLUS_INF() { return Vector4( std::numeric_limits< Float >::infinity() ); }
+	static Vector4 MINUS_INF() { return -Vector4( std::numeric_limits< Float >::infinity() ); }
 
 	Vector4()
 		: X( 0.0f )
@@ -68,34 +68,34 @@ struct Vector4
 
 	~Vector4() {}
 
-	FORGE_INLINE Vector4 operator-()
+	Vector4 operator-()
 	{
 		return Vector4( -X, -Y, -Z, -W );
 	}
 
-	FORGE_INLINE Vector4 operator+( const Vector4& vec ) const
+	Vector4 operator+( const Vector4& vec ) const
 	{
 		return Vector4( X + vec.X, Y + vec.Y, Z + vec.Z, W + vec.W );
 	}
 
-	FORGE_INLINE Vector4 operator-( const Vector4& vec ) const
+	Vector4 operator-( const Vector4& vec ) const
 	{
 		return Vector4( X - vec.X, Y - vec.Y, Z - vec.Z, W - vec.W );
 	}
 
-	FORGE_INLINE Vector4 operator*( Float val ) const
+	Vector4 operator*( Float val ) const
 	{
 		return Vector4( X * val, Y * val, Z * val, W * val );
 	}
 
-	FORGE_INLINE Vector4 operator/( Float val ) const
+	Vector4 operator/( Float val ) const
 	{
 		Float inv = 1.0f / val;
 
 		return Vector4( X * inv, Y * inv, Z * inv, W * inv );
 	}
 
-	FORGE_INLINE Float& operator[]( Uint32 index ) const
+	Float& operator[]( Uint32 index ) const
 	{
 		FORGE_ASSERT( index < 4 );
 
@@ -103,7 +103,7 @@ struct Vector4
 		return *( ptr + index );
 	}
 
-	FORGE_INLINE void operator*=( Float val )
+	void operator*=( Float val )
 	{
 		X *= val;
 		Y *= val;
@@ -111,7 +111,7 @@ struct Vector4
 		W *= val;
 	}
 
-	FORGE_INLINE void operator/=( Float val )
+	void operator/=( Float val )
 	{
 		X /= val;
 		Y /= val;
@@ -119,7 +119,7 @@ struct Vector4
 		W /= val;
 	}
 
-	FORGE_INLINE void operator-=( const Vector4& vec )
+	void operator-=( const Vector4& vec )
 	{
 		X -= vec.X;
 		Y -= vec.Y;
@@ -127,7 +127,7 @@ struct Vector4
 		W -= vec.W;
 	}
 
-	FORGE_INLINE void operator+=( const Vector4& vec )
+	void operator+=( const Vector4& vec )
 	{
 		X += vec.X;
 		Y += vec.Y;
@@ -135,36 +135,36 @@ struct Vector4
 		W += vec.W;
 	}
 
-	FORGE_INLINE Bool operator==( const Vector4& vec ) const
+	Bool operator==( const Vector4& vec ) const
 	{
 		return X == vec.X && Y == vec.Y && vec.Z == Z && vec.W == vec.W;
 	}
 
-	FORGE_INLINE Bool operator!=( const Vector4& vec ) const
+	Bool operator!=( const Vector4& vec ) const
 	{
 		return X != vec.X || Y != vec.Y || vec.Z != Z || vec.W != W;
 	}
 
-	FORGE_INLINE Bool IsZero() const { return X == 0.0f && Y == 0.0f && Z == 0.0f && W == 0.0f; }
+	Bool IsZero() const { return X == 0.0f && Y == 0.0f && Z == 0.0f && W == 0.0f; }
 	Bool IsAlmostZero( Float eps = std::numeric_limits< Float >::epsilon() ) const;
 
-	FORGE_INLINE Float Mag3() const
+	Float Mag3() const
 	{
 		return std::sqrt( X * X + Y * Y + Z * Z );
 	}
 
-	FORGE_INLINE Float SquareMag3() const
+	Float SquareMag3() const
 	{
 		return X * X + Y * Y + Z * Z; 
 	}
 
-	FORGE_INLINE Vector4 Normalized3() const
+	Vector4 Normalized3() const
 	{
 		Float mag = Mag3();
 		return Vector4( X / mag, Y / mag, Z / mag, W / mag );
 	}
 
-	FORGE_INLINE Float Normalize3()
+	Float Normalize3()
 	{
 		Float mag = Mag3();
 
@@ -176,27 +176,27 @@ struct Vector4
 		return mag;
 	}
 
-	FORGE_INLINE Float Dot3( const Vector4& vec ) const
+	Float Dot3( const Vector4& vec ) const
 	{
 		return X * vec.X + Y * vec.Y + Z * vec.Z;
 	}
 
-	FORGE_INLINE Float Mag4() const
+	Float Mag4() const
 	{
 		return std::sqrt( X * X + Y * Y + Z * Z + W * W );
 	}
-	FORGE_INLINE Float SquareMag4() const
+	Float SquareMag4() const
 	{
 		return X * X + Y * Y + Z * Z + W * W; 
 	}
 
-	FORGE_INLINE Vector4 Normalized4() const
+	Vector4 Normalized4() const
 	{
 		Float mag = Mag4();
 		return Vector4( X / mag, Y / mag, Z / mag, W / mag );
 	}
 
-	FORGE_INLINE Float Normalize4()
+	Float Normalize4()
 	{
 		Float mag = Mag4();
 
@@ -208,12 +208,12 @@ struct Vector4
 		return mag;
 	}
 
-	FORGE_INLINE Float Dot4( const Vector4& vec ) const
+	Float Dot4( const Vector4& vec ) const
 	{
 		return X * vec.X + Y * vec.Y + Z * vec.Z + W * vec.W;
 	}
 
-	FORGE_INLINE Bool IsOk() const
+	Bool IsOk() const
 	{
 		return abs( X ) != std::numeric_limits< Float >::infinity()
 			&& abs( Y ) != std::numeric_limits< Float >::infinity()
@@ -221,17 +221,17 @@ struct Vector4
 			&& abs( W ) != std::numeric_limits< Float >::infinity();
 	}
 
-	FORGE_INLINE Bool IsAlmostEqual( const Vector4& vec, Float eps = std::numeric_limits< Float >::epsilon() ) const
+	Bool IsAlmostEqual( const Vector4& vec, Float eps = std::numeric_limits< Float >::epsilon() ) const
 	{
 		return ( *this - vec ).IsAlmostZero( eps );
 	}
 
-	FORGE_INLINE const Vector3& AsVector3() const
+	const Vector3& AsVector3() const
 	{
 		return vec3;
 	}
 
-	FORGE_INLINE const Float* AsArray() const
+	const Float* AsArray() const
 	{
 		return &X;
 	}

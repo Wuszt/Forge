@@ -23,29 +23,29 @@ namespace d3d11
 
 		virtual void Resize( const Vector2& size );
 
-		FORGE_INLINE ID3D11Texture2D* GetTexture() const
+		ID3D11Texture2D* GetTexture() const
 		{
 			return m_texture;
 		}
 
-		virtual FORGE_INLINE D3D11ShaderResourceView* GetShaderResourceView() const override
+		virtual D3D11ShaderResourceView* GetShaderResourceView() const override
 		{
 			return m_srv.get();
 		}
 
-		virtual FORGE_INLINE D3D11RenderTargetView* GetRenderTargetView() const override
+		virtual D3D11RenderTargetView* GetRenderTargetView() const override
 		{
 			return m_rtv.get();
 		}
 
-		virtual FORGE_INLINE forge::Callback< const Vector2& >& GetOnResizedCallback() override
+		virtual forge::Callback< const Vector2& >& GetOnResizedCallback() override
 		{
 			return m_onResizedCallback;
 		}
 
 		virtual Vector2 GetTextureSize() const override;
 
-		virtual FORGE_INLINE renderer::ITexture::Type GetType() const override
+		virtual renderer::ITexture::Type GetType() const override
 		{
 			return m_textureType;
 		}
@@ -58,7 +58,7 @@ namespace d3d11
 
 		void CreateViewsIfRequired( Uint32 flags, Uint32 srvFormat );
 
-		FORGE_INLINE void ReleaseResources()
+		void ReleaseResources()
 		{
 			m_texture->Release();
 			m_texture = nullptr;
@@ -66,7 +66,7 @@ namespace d3d11
 			m_rtv = nullptr;
 		}
 
-		FORGE_INLINE void InvokeResizeCallback( const Vector2& size ) const
+		void InvokeResizeCallback( const Vector2& size ) const
 		{
 			m_onResizedCallback.Invoke( size );
 		}

@@ -60,42 +60,42 @@ namespace forge
 		const T& operator[]( Uint32 index ) const { return *( m_begin + index ); }
 		T& operator[]( Uint32 index ) { return *( m_begin + index ); }
 
-		FORGE_INLINE Uint32 GetSize() const
+		Uint32 GetSize() const
 		{
 			return static_cast< Uint32 >( m_end - m_begin );
 		}
 
-		FORGE_INLINE Bool IsEmpty() const
+		Bool IsEmpty() const
 		{
 			return m_begin == m_end;
 		}
 
-		FORGE_INLINE T* begin()
+		T* begin()
 		{
 			return m_begin;
 		}
 
-		FORGE_INLINE T* end()
+		T* end()
 		{
 			return m_end;
 		}
 
-		FORGE_INLINE const T* begin() const
+		const T* begin() const
 		{
 			return m_begin;
 		}
 
-		FORGE_INLINE const T* end() const
+		const T* end() const
 		{
 			return m_end;
 		}
 
-		FORGE_INLINE T* back()
+		T* back()
 		{
 			return m_begin + GetSize() - 1u;
 		}
 
-		FORGE_INLINE const T* back() const
+		const T* back() const
 		{
 			return m_begin + GetSize() - 1u;
 		}

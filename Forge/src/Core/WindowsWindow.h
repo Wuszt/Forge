@@ -27,19 +27,19 @@ namespace windows
 		WindowsWindow( Uint32 width, Uint32 height );
 		~WindowsWindow();
 
-		FORGE_INLINE HWND GetHWND() const
+		HWND GetHWND() const
 		{
 			FORGE_ASSERT( IsInitialized() );
 
 			return m_hwnd;
 		}
 
-		FORGE_INLINE Bool IsInitialized() const
+		Bool IsInitialized() const
 		{
 			return m_initializationState == InitializationState::Initialized;
 		}
 
-		FORGE_INLINE InitializationState GetInitializationState() const
+		InitializationState GetInitializationState() const
 		{
 			return m_initializationState;
 		}
@@ -48,27 +48,27 @@ namespace windows
 
 		Bool OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam );
 
-		FORGE_INLINE virtual Uint32 GetHeight() const override
+		virtual Uint32 GetHeight() const override
 		{
 			return m_height;
 		}
 
-		FORGE_INLINE virtual Uint32 GetWidth() const override
+		virtual Uint32 GetWidth() const override
 		{
 			return m_width;
 		}
 
-		FORGE_INLINE virtual Uint32 GetPosX() const override
+		virtual Uint32 GetPosX() const override
 		{
 			return m_positionX;
 		}
 
-		FORGE_INLINE virtual Uint32 GetPosY() const override
+		virtual Uint32 GetPosY() const override
 		{
 			return m_positionY;
 		}
 
-		FORGE_INLINE forge::CallbackToken RegisterWindowRawEventListener( const WindowRawEventCallback::TFunc& callback )
+		forge::CallbackToken RegisterWindowRawEventListener( const WindowRawEventCallback::TFunc& callback )
 		{
 			return m_rawEventCallback.AddListener( callback );
 		}

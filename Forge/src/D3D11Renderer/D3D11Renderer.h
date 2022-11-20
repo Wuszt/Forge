@@ -40,22 +40,22 @@ namespace d3d11
 		D3D11Renderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window );
 		~D3D11Renderer();
 
-		FORGE_INLINE D3D11Device* GetDevice() const
+		D3D11Device* GetDevice() const
 		{
 			return m_device.get();
 		}
 
-		FORGE_INLINE virtual D3D11RenderContext* GetContext() const override
+		virtual D3D11RenderContext* GetContext() const override
 		{
 			return m_context.get();
 		}
 
-		FORGE_INLINE virtual D3D11Swapchain* GetSwapchain() const override
+		virtual D3D11Swapchain* GetSwapchain() const override
 		{
 			return m_swapChain.get();
 		}
 
-		FORGE_INLINE virtual D3D11ShadersManager* GetShadersManager() const override
+		virtual D3D11ShadersManager* GetShadersManager() const override
 		{
 			return m_shadersManager.get();
 		}
@@ -84,7 +84,7 @@ namespace d3d11
 		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) override;
 		virtual void DrawRawVertices( Uint32 amount ) override;
 
-		FORGE_INLINE virtual renderer::RendererType GetType() const override
+		virtual renderer::RendererType GetType() const override
 		{
 			return renderer::RendererType::D3D11;
 		}

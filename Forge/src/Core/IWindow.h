@@ -81,7 +81,7 @@ namespace forge
 		virtual Uint32 GetPosX() const = 0;
 		virtual Uint32 GetPosY() const = 0;
 
-		FORGE_INLINE Float GetAspectRatio() const
+		Float GetAspectRatio() const
 		{
 			return static_cast<Float>( GetWidth() ) / static_cast<Float>( GetHeight() );
 		}
@@ -93,7 +93,7 @@ namespace forge
 		typedef forge::Callback< const IEvent& > CallbackType;
 
 		[[nodiscard]]
-		FORGE_INLINE forge::CallbackToken RegisterEventListener( const CallbackType::TFunc& func )
+		forge::CallbackToken RegisterEventListener( const CallbackType::TFunc& func )
 		{
 			return m_windowCallbacks.AddListener( func );
 		}

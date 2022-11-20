@@ -29,14 +29,14 @@ namespace systems
 			using ArchetypeFunc = std::function < std::unique_ptr< Archetype >() >;
 
 			template< class T >
-			FORGE_INLINE void AddSystem()
+			void AddSystem()
 			{
 				const ISystem::ClassType& type = T::GetTypeStatic();
 				FORGE_ASSERT( type.InheritsFrom< ISystem >() && !type.IsAbstract() );
 				m_systemsClasses.emplace_back( &type );
 			}
 
-			FORGE_INLINE const std::vector< const ISystem::ClassType* >& GetSystemsClasses() const
+			const std::vector< const ISystem::ClassType* >& GetSystemsClasses() const
 			{
 				return m_systemsClasses;
 			}
@@ -76,12 +76,12 @@ namespace systems
 		}
 
 		template< class T >
-		FORGE_INLINE forge::ArraySpan< systems::Archetype* > GetArchetypesContainingDataType()
+		forge::ArraySpan< systems::Archetype* > GetArchetypesContainingDataType()
 		{
 			return m_dataToArchetypesLUT[ &T::GetTypeStatic() ];
 		}
 
-		FORGE_INLINE const std::vector< Archetype* >& GetArchetypesOfEntity( forge::EntityID id )
+		const std::vector< Archetype* >& GetArchetypesOfEntity( forge::EntityID id )
 		{
 			return m_entityArchetypesLUT[ id.m_id ];
 		}
@@ -91,7 +91,7 @@ namespace systems
 		void AddECSData( forge::EntityID id, std::unique_ptr< forge::IDataPackage > package );
 
 		template< class T >
-		FORGE_INLINE void AddECSData( forge::EntityID id )
+		void AddECSData( forge::EntityID id )
 		{
 			std::unique_ptr< forge::DataPackage< T > > package = std::make_unique< forge::DataPackage< T > >();
 			package->AddEmptyData();
@@ -101,7 +101,7 @@ namespace systems
 		void RemoveECSData( forge::EntityID id, const rtti::IType& type );
 
 		template< class T >
-		FORGE_INLINE void RemoveECSData( forge::EntityID id )
+		void RemoveECSData( forge::EntityID id )
 		{
 			RemoveECSData( id, T::GetTypeStatic() );
 		}

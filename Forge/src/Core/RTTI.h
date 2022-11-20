@@ -8,13 +8,13 @@ namespace rtti
 		~IType() = default;
 		virtual const char* GetName( Bool withNamespace ) const = 0;
 
-		FORGE_INLINE Bool IsA( const IType& type ) const
+		Bool IsA( const IType& type ) const
 		{
 			return this == &type;
 		}
 
 		template< class T >
-		FORGE_INLINE Bool IsA() const
+		Bool IsA() const
 		{
 			return IsA( T::GetTypeStatic() );
 		}
@@ -22,28 +22,28 @@ namespace rtti
 		virtual Bool InheritsFrom( const IType& type ) const = 0;
 
 		template< class T >
-		FORGE_INLINE Bool InheritsFrom() const
+		Bool InheritsFrom() const
 		{
 			return InheritsFrom( T::GetTypeStatic() );
 		}
 
 		template< class T >
-		FORGE_INLINE static Bool InheritsFromStatic()
+		static Bool InheritsFromStatic()
 		{
 			return false;
 		}
 
-		FORGE_INLINE Bool operator==( const IType& rhl ) const
+		Bool operator==( const IType& rhl ) const
 		{
 			return IsA( rhl );
 		}
 
-		FORGE_INLINE Bool operator!=( const IType& rhl ) const
+		Bool operator!=( const IType& rhl ) const
 		{
 			return !IsA( rhl );
 		}
 
-		FORGE_INLINE virtual Bool IsAbstract() const
+		virtual Bool IsAbstract() const
 		{
 			return false;
 		}
@@ -80,54 +80,54 @@ public: \
 		INHERITS_FROM_BODY_##Inherits##( NamespaceParentClassName##ParentClassName ) \
 	} \
 	template< class T > \
-	FORGE_INLINE Bool InheritsFrom() const \
+	Bool InheritsFrom() const \
 	{ \
 		return rtti::IType::InheritsFrom< T >(); \
 	} \
-	FORGE_INLINE std::unique_ptr<##ClassName##> CreateDefault() const \
+	std::unique_ptr<##ClassName##> CreateDefault() const \
 	{ \
 		return std::unique_ptr< ##ClassName## >( CreateDefault_Internal() ); \
 	} \
-	FORGE_INLINE virtual Bool IsAbstract() const override \
+	virtual Bool IsAbstract() const override \
 	{ \
 		return Abstract; \
 	} \
 protected: \
-	FORGE_INLINE VIRTUAL_##Virtual ClassName##* CreateDefault_Internal() const \
+	VIRTUAL_##Virtual ClassName##* CreateDefault_Internal() const \
 	{ \
 		CREATE_DEFAULT_INTERNAL_##Abstract##( ClassName ) \
 	} \
 }; \
-	FORGE_INLINE static const ClassName##Type& GetTypeStatic() \
+	static const ClassName##Type& GetTypeStatic() \
 	{ \
 		return s_typeInstance; \
 	} \
 	template< class T > \
-	FORGE_INLINE Bool IsA() const \
+	Bool IsA() const \
 	{ \
 		return static_cast<const rtti::IType&>( GetType() ).IsA< T >(); \
 	} \
 	template< class T > \
-	FORGE_INLINE Bool InheritsFrom() const \
+	Bool InheritsFrom() const \
 	{ \
 		return static_cast<const rtti::IType&>( GetType() ).InheritsFrom< T >(); \
 	} \
 	template< class T > \
-	FORGE_INLINE Bool InheritsFromOrIsA() const \
+	Bool InheritsFromOrIsA() const \
 	{ \
 		return IsA< T >() || InheritsFrom< T >(); \
 	} \
-	FORGE_INLINE VIRTUAL_##Virtual const ClassName##Type& GetType() const \
+	VIRTUAL_##Virtual const ClassName##Type& GetType() const \
 	{ \
 		return s_typeInstance; \
 	} \
 	template< class T > \
-	FORGE_INLINE static Bool InheritsFromOrIsAStatic() \
+	static Bool InheritsFromOrIsAStatic() \
 	{ \
 		return GetTypeStatic().IsA< T >() || InheritsFromStatic< T >(); \
 	} \
 	template< class T > \
-	FORGE_INLINE static Bool InheritsFromStatic() \
+	static Bool InheritsFromStatic() \
 	{ \
 		INHERITS_FROM_STATIC_BODY_##Inherits; \
 	} \

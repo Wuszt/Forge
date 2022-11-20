@@ -17,7 +17,7 @@ namespace d3d11
 		D3D11RenderTargetView( const D3D11Device& device, const D3D11RenderContext& context, ID3D11Texture2D& texture );
 		~D3D11RenderTargetView();
 
-		FORGE_INLINE ID3D11RenderTargetView* GetRenderTargetView() const
+		ID3D11RenderTargetView* GetRenderTargetView() const
 		{
 			return m_renderTargetView;
 		}

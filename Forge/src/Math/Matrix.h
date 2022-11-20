@@ -3,7 +3,7 @@
 // ROW MAJOR!!!
 struct Matrix
 {
-	FORGE_INLINE static Matrix IDENTITY() { return Matrix( Vector4::EX(), Vector4::EY(), Vector4::EZ(), Vector4::EW() ); }
+	static Matrix IDENTITY() { return Matrix( Vector4::EX(), Vector4::EY(), Vector4::EZ(), Vector4::EW() ); }
 
 	static Matrix Mul( const Matrix& m0, const Matrix& m1 )
 	{
@@ -51,7 +51,7 @@ struct Matrix
 
 	~Matrix() {}
 
-	FORGE_INLINE void SetIdentity()
+	void SetIdentity()
 	{
 		*this = IDENTITY();
 	}
@@ -68,24 +68,24 @@ struct Matrix
 
 		Float arr[16];
 	};
-	FORGE_INLINE Vector4& operator[]( Uint32 index ) const
+	Vector4& operator[]( Uint32 index ) const
 	{
 		Vector4* ptr = const_cast< Vector4* >( &X );
 		return *( ptr + index );
 	}
 
-	FORGE_INLINE void SetTranslation( const Vector3& vec )
+	void SetTranslation( const Vector3& vec )
 	{
 		W = vec;
 		W.W = 1.0f;
 	}
 
-	FORGE_INLINE void SetTranslation( Float x, Float y, Float z )
+	void SetTranslation( Float x, Float y, Float z )
 	{
 		W = { x, y, z, 1.0f };
 	}
 
-	FORGE_INLINE Vector4 TransformPoint( const Vector4& vec ) const
+	Vector4 TransformPoint( const Vector4& vec ) const
 	{
 		Vector4 result;
 
@@ -97,7 +97,7 @@ struct Matrix
 		return result;
 	}
 
-	FORGE_INLINE Vector4 TransformVector( const Vector4& vec ) const
+	Vector4 TransformVector( const Vector4& vec ) const
 	{
 		Vector4 result;
 
@@ -109,7 +109,7 @@ struct Matrix
 		return result;
 	}
 
-	FORGE_INLINE Vector4 TransformVectorWithW( const Vector4& vec ) const
+	Vector4 TransformVectorWithW( const Vector4& vec ) const
 	{
 		Vector4 result;
 
@@ -121,7 +121,7 @@ struct Matrix
 		return result;
 	}
 
-	FORGE_INLINE Bool IsAlmostEqual( const Matrix& m, Float eps = std::numeric_limits< Float >::epsilon() ) const
+	Bool IsAlmostEqual( const Matrix& m, Float eps = std::numeric_limits< Float >::epsilon() ) const
 	{
 		return X.IsAlmostEqual(m.X, eps) && Y.IsAlmostEqual( m.Y, eps ) && Z.IsAlmostEqual( m.Z, eps ) && W.IsAlmostEqual( m.W, eps );
 	}
@@ -148,7 +148,7 @@ struct Matrix
 	void AffineInvert();
 	Matrix AffineInverted() const;
 
-	FORGE_INLINE Quaternion GetRotation() const
+	Quaternion GetRotation() const
 	{
 		Quaternion result;
 
@@ -202,31 +202,31 @@ struct Matrix
 		return result;
 	}
 
-	FORGE_INLINE void SetScale( Float scale )
+	void SetScale( Float scale )
 	{
 		X.X = scale;
 		Y.Y = scale;
 		Z.Z = scale;
 	}
 
-	FORGE_INLINE void SetScale( const Vector3& scale )
+	void SetScale( const Vector3& scale )
 	{
 		X.X = scale.X;
 		Y.Y = scale.Y;
 		Z.Z = scale.Z;
 	}
 
-	FORGE_INLINE Bool operator==( const Matrix& m ) const
+	Bool operator==( const Matrix& m ) const
 	{
 		return X == m.X && Y == m.Y && Z == m.Z && W == m.W;
 	}
 
-	FORGE_INLINE Bool operator!=( const Matrix& m ) const
+	Bool operator!=( const Matrix& m ) const
 	{
 		return !( *this == m );
 	}
 
-	FORGE_INLINE Matrix operator*( const Matrix& m ) const
+	Matrix operator*( const Matrix& m ) const
 	{
 		Matrix result;
 
@@ -257,22 +257,22 @@ struct Matrix
 
 	Vector3 ToEulerAngles() const;
 
-	FORGE_INLINE const Vector4& GetAxisX() const
+	const Vector4& GetAxisX() const
 	{
 		return X;
 	}
 
-	FORGE_INLINE const Vector4& GetAxisY() const
+	const Vector4& GetAxisY() const
 	{
 		return Y;
 	}
 
-	FORGE_INLINE const Vector4& GetAxisZ() const
+	const Vector4& GetAxisZ() const
 	{
 		return Z;
 	}
 
-	FORGE_INLINE const Vector4& GetTranslation() const
+	const Vector4& GetTranslation() const
 	{
 		return W;
 	}

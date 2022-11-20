@@ -10,7 +10,7 @@ namespace d3d11
 	public:
 		D3D11SamplerState( const D3D11Device& device, renderer::SamplerStateFilterType filterType, renderer::SamplerStateComparisonType comparisonType = renderer::SamplerStateComparisonType::ALWAYS );
 
-		FORGE_INLINE ID3D11SamplerState* GetSamplerState() const
+		ID3D11SamplerState* GetSamplerState() const
 		{
 			return m_samplerState;
 		}

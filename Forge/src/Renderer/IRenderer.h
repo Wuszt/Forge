@@ -68,7 +68,7 @@ namespace renderer
 			}
 		}
 
-		FORGE_INLINE const IRawRenderablesPack& GetRendenderablesPack( RenderingPass renderPass ) const
+		const IRawRenderablesPack& GetRendenderablesPack( RenderingPass renderPass ) const
 		{
 			return *m_packs[ static_cast< Uint32 >( renderPass ) ];
 		}
@@ -114,21 +114,21 @@ namespace renderer
 		virtual std::unique_ptr< renderer::RawRenderablesPacks > CreateRawRenderablesPackage( const forge::ArraySpan< const Renderable* >& renderables ) const = 0;
 
 		template< class T >
-		FORGE_INLINE std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const
+		std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const
 		{
 			auto constBuffer = std::make_unique< StaticConstantBuffer< T > >();
 			constBuffer->SetImpl( CreateConstantBufferImpl() );
 			return constBuffer;
 		}
 
-		FORGE_INLINE std::unique_ptr< ConstantBuffer > CreateConstantBuffer() const
+		std::unique_ptr< ConstantBuffer > CreateConstantBuffer() const
 		{
 			auto constBuffer = std::make_unique< ConstantBuffer >();
 			constBuffer->SetImpl( CreateConstantBufferImpl() );
 			return constBuffer;
 		}
 
-		FORGE_INLINE std::unique_ptr< ConstantBuffer > CreateConstantBufferFromOther( const ConstantBuffer& data ) const
+		std::unique_ptr< ConstantBuffer > CreateConstantBufferFromOther( const ConstantBuffer& data ) const
 		{
 			auto buff = CreateConstantBuffer();
 			buff->CopyDataFrom( data );

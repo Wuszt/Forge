@@ -15,7 +15,7 @@ namespace d3d11
 		D3D11IndexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const Uint32* indices, Uint32 amount );
 		~D3D11IndexBuffer();
 
-		FORGE_INLINE ID3D11Buffer* GetBuffer() const
+		ID3D11Buffer* GetBuffer() const
 		{
 			return m_buffer;
 		}

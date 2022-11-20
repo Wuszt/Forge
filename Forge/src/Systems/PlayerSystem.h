@@ -18,12 +18,12 @@ namespace systems
 
 		virtual void OnInitialize();
 
-		FORGE_INLINE void SetActivePlayerComponent( forge::PlayerControllerComponent& comp )
+		void SetActivePlayerComponent( forge::PlayerControllerComponent& comp )
 		{
 			m_activeController = &comp;
 		}
 
-		FORGE_INLINE forge::PlayerControllerComponent* GetCurrentActiveController() const
+		forge::PlayerControllerComponent* GetCurrentActiveController() const
 		{
 			return m_activeController;
 		}

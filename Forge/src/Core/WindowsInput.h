@@ -37,12 +37,12 @@ namespace windows
 		virtual Bool GetMouseButtonUp( MouseButton button ) const override;
 		virtual const Vector2& GetMouseCurrentAxises() const override;
 
-		FORGE_INLINE virtual void LockCursor( Bool lock ) override
+		virtual void LockCursor( Bool lock ) override
 		{
 			m_lockCursor = lock;
 		}
 
-		FORGE_INLINE virtual Bool IsCursorLocked() const override
+		virtual Bool IsCursorLocked() const override
 		{
 			return m_lockCursor;
 		}

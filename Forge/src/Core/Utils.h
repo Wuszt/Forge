@@ -5,7 +5,7 @@ namespace forge
 	namespace utils
 	{
 		template< class T >
-		FORGE_INLINE typename std::vector< T >::iterator RemoveReorder( std::vector< T >& vec, Uint32 index )
+		typename std::vector< T >::iterator RemoveReorder( std::vector< T >& vec, Uint32 index )
 		{
 			std::swap( vec[ index ], vec.back() );
 			vec.pop_back();
@@ -13,14 +13,14 @@ namespace forge
 		}
 
 		template< class T >
-		FORGE_INLINE typename std::vector< T >::iterator RemoveReorder( std::vector< T >& vec, typename std::vector< T >::iterator it )
+		typename std::vector< T >::iterator RemoveReorder( std::vector< T >& vec, typename std::vector< T >::iterator it )
 		{
 			Uint32 index = static_cast< Uint32 >( it - vec.begin() );
 			return RemoveReorder( vec, index );
 		}
 
 		template< class T >
-		FORGE_INLINE typename std::vector< T >::iterator RemoveValueReorder( std::vector< T >& vec, const T& val )
+		typename std::vector< T >::iterator RemoveValueReorder( std::vector< T >& vec, const T& val )
 		{
 			auto it = std::find( vec.begin(), vec.end(), val );
 			return RemoveReorder( vec, it );
@@ -59,12 +59,12 @@ namespace forge
 			delete[] m_data;
 		}
 
-		FORGE_INLINE Byte* GetData() const
+		Byte* GetData() const
 		{
 			return m_data;
 		}
 
-		FORGE_INLINE Uint32 GetSize() const
+		Uint32 GetSize() const
 		{
 			return m_size;
 		}

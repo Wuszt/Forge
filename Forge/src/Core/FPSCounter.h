@@ -18,17 +18,17 @@ namespace forge
 			return fpsCounter;
 		}
 
-		static FORGE_INLINE void OnUpdate( Float dt )
+		static void OnUpdate( Float dt )
 		{
 			GetFPSCounter().OnUpdateInternal( dt );
 		}
 
-		static FORGE_INLINE Float GetAverageFPS( Uint32 averagingSeconds = 1u )
+		static Float GetAverageFPS( Uint32 averagingSeconds = 1u )
 		{
 			return GetFPSCounter().GetAverageFPSInternal( averagingSeconds );
 		}
 
-		FORGE_INLINE Float GetAverageFPSInternal( Uint32 averagingSeconds = 1u ) const
+		Float GetAverageFPSInternal( Uint32 averagingSeconds = 1u ) const
 		{
 			FORGE_ASSERT( averagingSeconds <= c_bufferSize );
 			FORGE_ASSERT( averagingSeconds >= 1 );
@@ -43,12 +43,12 @@ namespace forge
 			return acc / static_cast<Float>( averagingSeconds );
 		}
 
-		FORGE_INLINE Uint32 GetBufferSize() const
+		Uint32 GetBufferSize() const
 		{
 			return c_bufferSize;
 		}
 
-		FORGE_INLINE Float* GetBuffer( Uint32& outOffset, Uint32& outSize )
+		Float* GetBuffer( Uint32& outOffset, Uint32& outSize )
 		{
 			outOffset = ( m_bufferIndex + 1u ) % c_bufferSize;
 			outSize = c_bufferSize;

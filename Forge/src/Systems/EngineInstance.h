@@ -26,37 +26,37 @@ namespace forge
 		EngineInstance( const EngineInstance& ei ) = delete;
 		~EngineInstance();
 
-		FORGE_INLINE systems::SystemsManager& GetSystemsManager() const
+		systems::SystemsManager& GetSystemsManager() const
 		{
 			return *m_systemManager;
 		}
 
-		FORGE_INLINE EntitiesManager& GetEntitiesManager() const
+		EntitiesManager& GetEntitiesManager() const
 		{
 			return *m_entitiesManager;
 		}
 
-		FORGE_INLINE UpdateManager& GetUpdateManager() const
+		UpdateManager& GetUpdateManager() const
 		{
 			return *m_updateManager;
 		}
 
-		FORGE_INLINE renderer::IRenderer& GetRenderer() const
+		renderer::IRenderer& GetRenderer() const
 		{
 			return *m_renderer;
 		}
 
-		FORGE_INLINE IWindow& GetWindow() const
+		IWindow& GetWindow() const
 		{
 			return *m_window;
 		}
 
-		FORGE_INLINE const DepotsContainer& GetDepotsContainer() const
+		const DepotsContainer& GetDepotsContainer() const
 		{
 			return *m_depotsContainer;
 		}
 
-		FORGE_INLINE AssetsManager& GetAssetsManager() const
+		AssetsManager& GetAssetsManager() const
 		{
 			return *m_assetsManager;
 		}
@@ -91,7 +91,7 @@ namespace forge
 		virtual void Initialize() {}
 		virtual void Deinitialize() {}
 
-		FORGE_INLINE EngineInstance& GetEngineInstance() const
+		EngineInstance& GetEngineInstance() const
 		{
 			return m_engineInstance;
 		}

@@ -39,27 +39,27 @@ namespace renderer
 	public:
 		virtual ~IConstantBuffer() = default;
 
-		FORGE_INLINE virtual void SetImpl( std::unique_ptr< IConstantBufferImpl > impl )
+		virtual void SetImpl( std::unique_ptr< IConstantBufferImpl > impl )
 		{
 			m_impl = std::move( impl );
 		}
 
-		FORGE_INLINE void SetVS( VSConstantBufferType type ) const
+		void SetVS( VSConstantBufferType type ) const
 		{
 			m_impl->SetVS( static_cast< Uint32 >( type ) );
 		}
 
-		FORGE_INLINE void SetPS( PSConstantBufferType type ) const
+		void SetPS( PSConstantBufferType type ) const
 		{
 			m_impl->SetPS( static_cast< Uint32 >( type ) );
 		}
 
-		FORGE_INLINE void UpdateBuffer()
+		void UpdateBuffer()
 		{
 			GetImpl()->UpdateBuffer( GetRawData() );
 		}
 
-		FORGE_INLINE IConstantBufferImpl* GetImpl() const
+		IConstantBufferImpl* GetImpl() const
 		{
 			return m_impl.get();
 		}
@@ -78,18 +78,18 @@ namespace renderer
 	{
 		static_assert( sizeof( T ) % 16 == 0, "Constant Buffer's size must be multiplication of 16" );
 	public:
-		FORGE_INLINE virtual void SetImpl( std::unique_ptr< IConstantBufferImpl > impl ) override
+		virtual void SetImpl( std::unique_ptr< IConstantBufferImpl > impl ) override
 		{
 			IConstantBuffer::SetImpl( std::move( impl ) );
 			CreateBuffer();
 		}
 
-		FORGE_INLINE T& GetData()
+		T& GetData()
 		{
 			return m_data;
 		}
 
-		FORGE_INLINE virtual void* GetRawData() override
+		virtual void* GetRawData() override
 		{
 			return &m_data;
 		}
@@ -172,13 +172,13 @@ namespace renderer
 			return false;
 		}
 
-		FORGE_INLINE virtual void* GetRawData() override
+		virtual void* GetRawData() override
 		{
 			return m_rawData.GetData();
 		}
 
 	protected:
-		FORGE_INLINE virtual void CreateBuffer() override
+		virtual void CreateBuffer() override
 		{
 			GetImpl()->CreateBuffer( m_dataSize );
 		}

@@ -11,22 +11,22 @@ namespace renderer
 
 		static Matrix ConstructOrthographicMatrix( const Vector2& volumeSize, Float nearPlane, Float farPlane );
 
-		FORGE_INLINE virtual Matrix GetInvViewMatrix() const override
+		virtual Matrix GetInvViewMatrix() const override
 		{
 			return m_transform.ToMatrix();
 		}
 
-		FORGE_INLINE virtual Matrix GetViewMatrix() const override
+		virtual Matrix GetViewMatrix() const override
 		{
 			return m_transform.ToMatrix().OrthonormInverted();
 		}
 
-		FORGE_INLINE virtual Matrix GetProjectionMatrix() const override
+		virtual Matrix GetProjectionMatrix() const override
 		{
 			return ConstructOrthographicMatrix( m_volumeSize, m_nearPlane, m_farPlane );
 		}
 
-		FORGE_INLINE virtual Matrix GetInvProjectionMatrix() const override
+		virtual Matrix GetInvProjectionMatrix() const override
 		{
 			return Matrix
 			{
@@ -37,80 +37,80 @@ namespace renderer
 			};
 		}
 
-		FORGE_INLINE virtual Matrix GetViewProjectionMatrix() const override
+		virtual Matrix GetViewProjectionMatrix() const override
 		{
 			return GetViewMatrix() * GetProjectionMatrix();
 		}
 
-		FORGE_INLINE virtual void SetPosition( const Vector3& pos ) override
+		virtual void SetPosition( const Vector3& pos ) override
 		{
 			m_transform.SetPosition( pos );
 		}
 
-		FORGE_INLINE virtual const Vector3& GetPosition() const override
+		virtual const Vector3& GetPosition() const override
 		{
 			return m_transform.GetPosition3();
 		}
 
-		FORGE_INLINE virtual void SetOrientation( const Quaternion& rot ) override
+		virtual void SetOrientation( const Quaternion& rot ) override
 		{
 			m_transform.SetOrientation( rot );
 		}
 		
-		FORGE_INLINE virtual const Quaternion& GetOrientation() const override
+		virtual const Quaternion& GetOrientation() const override
 		{
 			return m_transform.GetOrientation();
 		}
 
-		FORGE_INLINE virtual void SetTransform( Transform transform ) override
+		virtual void SetTransform( Transform transform ) override
 		{
 			m_transform = transform;
 		}
 
-		FORGE_INLINE virtual const Transform& GetTransform() const override
+		virtual const Transform& GetTransform() const override
 		{
 			return m_transform;
 		}
 
-		FORGE_INLINE virtual void SetNearPlane( Float nearPlane ) override
+		virtual void SetNearPlane( Float nearPlane ) override
 		{
 			m_nearPlane = nearPlane;	
 		}
 
-		FORGE_INLINE virtual void SetFarPlane( Float farPlane ) override
+		virtual void SetFarPlane( Float farPlane ) override
 		{
 			m_farPlane = farPlane;
 		}
 
-		FORGE_INLINE virtual Float GetNearPlane() const override
+		virtual Float GetNearPlane() const override
 		{
 			return m_nearPlane;
 		}
 
 
-		FORGE_INLINE virtual Float GetFarPlane() const override
+		virtual Float GetFarPlane() const override
 		{
 			return m_farPlane;
 		}
 
 
-		FORGE_INLINE virtual Type GetType() const override
+		virtual Type GetType() const override
 		{
 			return Type::Orthographic;
 		}
 
-		FORGE_INLINE void SetAspectRatio( Float aspectRatio )
+		void SetAspectRatio( Float aspectRatio )
 		{
 			m_volumeSize = { m_volumeSize.X, m_volumeSize.X / aspectRatio };
 		}
 
-		FORGE_INLINE void SetWidth( Float width )
+		void SetWidth( Float width )
 		{
 			Float aspectRatio = m_volumeSize.X / m_volumeSize.Y;
 			m_volumeSize = { width, width / aspectRatio };
 		}
 
-		FORGE_INLINE const Vector2& GetVolumeSize() const
+		const Vector2& GetVolumeSize() const
 		{
 			return m_volumeSize;
 		}

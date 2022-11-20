@@ -19,27 +19,27 @@ namespace forge
 	class Time
 	{
 	public:
-		static FORGE_INLINE Float GetTime()
+		static Float GetTime()
 		{
 			return TimeImpl::GetTimeInstance().GetTimeInternal();
 		}
 
-		static FORGE_INLINE void Initialize()
+		static void Initialize()
 		{
 			TimeImpl::GetTimeInstance().InitializeInternal();
 		}
 
-		static FORGE_INLINE void Update()
+		static void Update()
 		{
 			TimeImpl::GetTimeInstance().UpdateInternal();
 		}
 
-		static FORGE_INLINE Float GetDeltaTime()
+		static Float GetDeltaTime()
 		{
 			return TimeImpl::GetTimeInstance().GetDeltaTimeInternal();
 		}
 
-		static FORGE_INLINE Float GetRealTime()
+		static Float GetRealTime()
 		{
 			return TimeImpl::GetTimeInstance().GetRealTimeInternal();
 		}
@@ -48,17 +48,17 @@ namespace forge
 	class StopWatch
 	{
 	public:
-		FORGE_INLINE StopWatch()
+		StopWatch()
 		{
 			Reset();
 		}
 
-		FORGE_INLINE void Reset()
+		void Reset()
 		{
 			m_start = Time::GetRealTime();
 		}
 
-		FORGE_INLINE Float GetDuration() const
+		Float GetDuration() const
 		{
 			return Time::GetRealTime() - m_start;
 		}

@@ -42,7 +42,7 @@ namespace renderer
 		template< class... Types >
 		InputColor( Types... types ) : Vector4( std::forward< Types >( types )... ) {}
 
-		FORGE_INLINE static constexpr InputElementDescription GetInputDescription()
+		static constexpr InputElementDescription GetInputDescription()
 		{
 			return { InputType::Color, InputFormat::R32G32B32A32_FLOAT, InputClassification::PerVertex, sizeof( InputColor ) };
 		}
@@ -53,7 +53,7 @@ namespace renderer
 		template< class... Types >
 		InputPosition( Types... types ) : Vector3( std::forward< Types >( types )... ) {}
 
-		FORGE_INLINE static constexpr InputElementDescription GetInputDescription()
+		static constexpr InputElementDescription GetInputDescription()
 		{
 			return { InputType::Position, InputFormat::R32G32B32_FLOAT, InputClassification::PerVertex, sizeof( InputPosition ) };
 		}
@@ -64,7 +64,7 @@ namespace renderer
 		template< class... Types >
 		InputNormal( Types... types ) : Vector3( std::forward< Types >( types )... ) {}
 
-		FORGE_INLINE static constexpr InputElementDescription GetInputDescription()
+		static constexpr InputElementDescription GetInputDescription()
 		{
 			return { InputType::Normal, InputFormat::R32G32B32_FLOAT, InputClassification::PerVertex, sizeof( InputNormal ) };
 		}
@@ -75,7 +75,7 @@ namespace renderer
 		template< class... Types >
 		InputTexCoord( Types... types ) : Vector2( std::forward< Types >( types )... ) {}
 
-		FORGE_INLINE static constexpr InputElementDescription GetInputDescription()
+		static constexpr InputElementDescription GetInputDescription()
 		{
 			return { InputType::TexCoord, InputFormat::R32G32_FLOAT, InputClassification::PerVertex, sizeof( InputTexCoord ) };
 		}
@@ -84,7 +84,7 @@ namespace renderer
 	struct InputBlendWeights
 	{
 		Float m_weights[4] = {0.0f};
-		FORGE_INLINE static constexpr InputElementDescription GetInputDescription()
+		static constexpr InputElementDescription GetInputDescription()
 		{
 			return {InputType::BlendWeights, InputFormat::R32G32B32A32_FLOAT, InputClassification::PerVertex, sizeof(InputBlendWeights)};
 		}
@@ -93,7 +93,7 @@ namespace renderer
 	struct InputBlendIndices
 	{
 		Uint32 m_indices[ 4 ] = { 0u };
-		FORGE_INLINE static constexpr InputElementDescription GetInputDescription()
+		static constexpr InputElementDescription GetInputDescription()
 		{
 			return {InputType::BlendIndices, InputFormat::R32G32B32A32_UINT, InputClassification::PerVertex, sizeof(InputBlendIndices)};
 		}
@@ -115,7 +115,7 @@ namespace renderer
 		Vertices Build();
 
 		template< class T >
-		FORGE_INLINE void AddData( std::vector< T > vec )
+		void AddData( std::vector< T > vec )
 		{
 			FORGE_ASSERT( !vec.empty() );
 			FORGE_ASSERT( m_verticesAmount == 0u || m_verticesAmount == vec.size() );
@@ -134,7 +134,7 @@ namespace renderer
 
 			virtual ~IElementDesc() = default;
 
-			FORGE_INLINE const InputElementDescription& GetDesc() const
+			const InputElementDescription& GetDesc() const
 			{
 				return m_description;
 			}
@@ -155,12 +155,12 @@ namespace renderer
 				, IElementDesc( T::GetInputDescription() )
 			{}
 
-			FORGE_INLINE virtual Uint32 GetElementSize() const override
+			virtual Uint32 GetElementSize() const override
 			{
 				return sizeof( T );
 			}
 
-			FORGE_INLINE virtual const Byte* GetData() const override
+			virtual const Byte* GetData() const override
 			{
 				return reinterpret_cast< const Byte* >( m_elements.data() );
 			}
@@ -169,17 +169,17 @@ namespace renderer
 			std::vector< T > m_elements;
 		};
 
-		FORGE_INLINE const std::vector< std::unique_ptr< IElementDesc > >& GetElementsDescs() const
+		const std::vector< std::unique_ptr< IElementDesc > >& GetElementsDescs() const
 		{
 			return m_elements;
 		}
 
-		FORGE_INLINE Uint32 GetVerticesAmount() const
+		Uint32 GetVerticesAmount() const
 		{
 			return m_verticesAmount;
 		}
 
-		FORGE_INLINE Uint32 GetVertexSize() const
+		Uint32 GetVertexSize() const
 		{
 			return m_vertexSize;
 		}
@@ -220,45 +220,45 @@ namespace renderer
 			}
 		}
 
-		FORGE_INLINE Uint32 GetVertexSize() const
+		Uint32 GetVertexSize() const
 		{
 			return m_vertexSize;
 		}
 
-		FORGE_INLINE Uint32 GetBufferSize() const
+		Uint32 GetBufferSize() const
 		{
 			return m_vertexSize * m_verticesAmount;
 		}
 
-		FORGE_INLINE const void* GetData() const
+		const void* GetData() const
 		{
 			return m_buffer.GetData();
 		}
 
-		FORGE_INLINE const std::vector< InputElementDescription >& GetInputElements() const
+		const std::vector< InputElementDescription >& GetInputElements() const
 		{
 			return m_inputElements;
 		}
 
 	private:
 		template< class... arrTs >
-		FORGE_INLINE decltype( typename std::enable_if<sizeof...( arrTs ) == 0, Uint32>::type() ) GetSingleVertexDataSize()
+		decltype( typename std::enable_if<sizeof...( arrTs ) == 0, Uint32>::type() ) GetSingleVertexDataSize()
 		{
 			return 0u;
 		}
 
 		template< class arrT, class... arrTs >
-		FORGE_INLINE Uint32 GetSingleVertexDataSize()
+		Uint32 GetSingleVertexDataSize()
 		{
 			return sizeof( arrT::value_type ) + GetSingleVertexDataSize< arrTs... >();
 		}
 
 		template< class... arrTs >
-		FORGE_INLINE static decltype( typename std::enable_if<sizeof...( arrTs ) == 0, void>::type() ) AddDataT( Uint32 offset, const arrTs&... arrs )
+		static decltype( typename std::enable_if<sizeof...( arrTs ) == 0, void>::type() ) AddDataT( Uint32 offset, const arrTs&... arrs )
 		{}
 
 		template< class arrT, class... arrTs >
-		FORGE_INLINE void AddDataT( Uint32 offset, const arrT& arr, const arrTs&... arrs )
+		void AddDataT( Uint32 offset, const arrT& arr, const arrTs&... arrs )
 		{
 			Uint32 tSize = sizeof( arrT::value_type );
 
@@ -267,7 +267,7 @@ namespace renderer
 			AddDataT( tSize + offset, arrs... );
 		}
 
-		FORGE_INLINE void AddData( Uint32 offset, const void* data, Uint32 elementSize, const InputElementDescription& desc )
+		void AddData( Uint32 offset, const void* data, Uint32 elementSize, const InputElementDescription& desc )
 		{
 			for( Uint32 i = 0; i < m_verticesAmount; ++i )
 			{

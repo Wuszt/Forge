@@ -11,7 +11,7 @@ namespace forge
 		Entity( EngineInstance& engineInstance, EntityID id );
 		virtual ~Entity();
 
-		FORGE_INLINE EntityID GetEntityID() const
+		EntityID GetEntityID() const
 		{
 			return m_id;
 		}
@@ -55,7 +55,7 @@ namespace forge
 		}
 
 		template< class... Ts >
-		FORGE_INLINE decltype( typename std::enable_if<sizeof...( Ts ) == 0, void>::type() ) AddComponents()
+		decltype( typename std::enable_if<sizeof...( Ts ) == 0, void>::type() ) AddComponents()
 		{}
 
 		template< class T, class... Ts >

@@ -30,49 +30,49 @@ namespace systems
 
 		virtual void OnInitialize();
 
-		FORGE_INLINE forge::ArraySpan< const renderer::LightData< renderer::PointLightData > > GetPointLights() const
+		forge::ArraySpan< const renderer::LightData< renderer::PointLightData > > GetPointLights() const
 		{
 			return m_pointsLightsData;
 		}	
 		
-		FORGE_INLINE forge::ArraySpan< renderer::LightData< renderer::PointLightData > > GetPointLights()
+		forge::ArraySpan< renderer::LightData< renderer::PointLightData > > GetPointLights()
 		{
 			return m_pointsLightsData;
 		}
 
-		FORGE_INLINE forge::ArraySpan< const renderer::LightData< renderer::SpotLightData > > GetSpotLights() const
+		forge::ArraySpan< const renderer::LightData< renderer::SpotLightData > > GetSpotLights() const
 		{
 			return m_spotLightsData;
 		}
 
-		FORGE_INLINE forge::ArraySpan< renderer::LightData< renderer::SpotLightData > > GetSpotLights()
+		forge::ArraySpan< renderer::LightData< renderer::SpotLightData > > GetSpotLights()
 		{
 			return m_spotLightsData;
 		}
 
-		FORGE_INLINE forge::ArraySpan< const renderer::LightData< renderer::DirectionalLightData > > GetDirectionalLights() const
+		forge::ArraySpan< const renderer::LightData< renderer::DirectionalLightData > > GetDirectionalLights() const
 		{
 			return m_directionalLightsData;
 		}
 
-		FORGE_INLINE forge::ArraySpan< renderer::LightData< renderer::DirectionalLightData > > GetDirectionalLights()
+		forge::ArraySpan< renderer::LightData< renderer::DirectionalLightData > > GetDirectionalLights()
 		{
 			return m_directionalLightsData;
 		}
 		
 		renderer::LightingData GetLightingData();
 
-		FORGE_INLINE void SetAmbientColor( Vector3 ambientColor )
+		void SetAmbientColor( Vector3 ambientColor )
 		{
 			m_ambientColor = ambientColor;
 		}
 
-		FORGE_INLINE const Vector3& GetAmbientColor() const
+		const Vector3& GetAmbientColor() const
 		{
 			return m_ambientColor;
 		}
 
-		FORGE_INLINE void ForceShadowMapsRecreation()
+		void ForceShadowMapsRecreation()
 		{
 			m_shadowMapsRecreationForced = true;
 		}

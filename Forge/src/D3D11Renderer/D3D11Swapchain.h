@@ -24,7 +24,7 @@ namespace d3d11
 		D3D11Swapchain( const D3D11Device& device, const D3D11RenderContext& context, IDXGISwapChain* swapChain );
 		~D3D11Swapchain();
 
-		FORGE_INLINE IDXGISwapChain* GetSwapChain() const
+		IDXGISwapChain* GetSwapChain() const
 		{
 			return m_swapChain;
 		}

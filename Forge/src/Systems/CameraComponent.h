@@ -21,17 +21,17 @@ namespace forge
 
 		virtual void OnAttach( EngineInstance& engineInstance ) override;
 
-		FORGE_INLINE renderer::ICamera::Type GetCameraType() const
+		renderer::ICamera::Type GetCameraType() const
 		{
 			return m_implementation->GetType();
 		}
 
-		FORGE_INLINE const renderer::ICamera& GetCamera() const
+		const renderer::ICamera& GetCamera() const
 		{
 			return *m_implementation;
 		}
 
-		FORGE_INLINE renderer::ICamera& GetCamera()
+		renderer::ICamera& GetCamera()
 		{
 			return *m_implementation;
 		}

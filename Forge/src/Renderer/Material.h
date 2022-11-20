@@ -27,32 +27,32 @@ namespace renderer
 
 		Material( renderer::IRenderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass );
 
-		FORGE_INLINE std::shared_ptr< ShaderPack< IVertexShader > > GetVertexShader() const
+		std::shared_ptr< ShaderPack< IVertexShader > > GetVertexShader() const
 		{
 			return m_vertexShader;
 		}
 
-		FORGE_INLINE std::shared_ptr< ShaderPack< IPixelShader > > GetPixelShader() const
+		std::shared_ptr< ShaderPack< IPixelShader > > GetPixelShader() const
 		{
 			return m_pixelShader;
 		}
 
-		FORGE_INLINE const renderer::ConstantBuffer* GetConstantBuffer() const
+		const renderer::ConstantBuffer* GetConstantBuffer() const
 		{
 			return m_constantBuffer.get();
 		}
 
-		FORGE_INLINE renderer::ConstantBuffer* GetConstantBuffer()
+		renderer::ConstantBuffer* GetConstantBuffer()
 		{
 			return m_constantBuffer.get();
 		}
 
-		FORGE_INLINE const renderer::IInputLayout* GetInputLayout() const
+		const renderer::IInputLayout* GetInputLayout() const
 		{
 			return m_inputLayout.get();
 		}
 
-		FORGE_INLINE forge::ArraySpan< const std::shared_ptr< const ITexture > > GetTextures() const
+		forge::ArraySpan< const std::shared_ptr< const ITexture > > GetTextures() const
 		{
 			return m_textures;
 		}
@@ -61,17 +61,17 @@ namespace renderer
 		void SetRenderingPass( renderer::RenderingPass renderingPass );
 		void SetTexture( std::shared_ptr< const ITexture > texture, Material::TextureType textureType );
 
-		FORGE_INLINE renderer::RenderingPass GetRenderingPass() const
+		renderer::RenderingPass GetRenderingPass() const
 		{
 			return m_renderingPass;
 		}
 
-		FORGE_INLINE const std::string& GetVertexShaderPath() const
+		const std::string& GetVertexShaderPath() const
 		{
 			return m_vertexShaderPath;
 		}
 
-		FORGE_INLINE const std::string& GetPixelShaderPath() const
+		const std::string& GetPixelShaderPath() const
 		{
 			return m_pixelShaderPath;
 		}

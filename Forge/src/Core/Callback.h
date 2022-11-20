@@ -64,7 +64,7 @@ namespace forge
 		CallbackID m_id = GetInvalidCallbackID();
 		std::weak_ptr< ICallbackImpl > m_callback;
 		
-		FORGE_INLINE friend void swap( CallbackToken& l, CallbackToken& r )
+		friend void swap( CallbackToken& l, CallbackToken& r )
 		{
 			std::swap( l.m_callback, r.m_callback );
 			std::swap( l.m_id, r.m_id );
@@ -85,17 +85,17 @@ namespace forge
 		Callback& operator=( const Callback& callback ) = delete;
 		Callback& operator=( Callback&& callback ) = default;
 
-		FORGE_INLINE void Invoke( TParams... params ) const
+		void Invoke( TParams... params ) const
 		{
 			m_implementation->Invoke( params... );
 		}
 
-		FORGE_INLINE [[nodiscard]] CallbackToken AddListener( const TFunc& func )
+		[[nodiscard]] CallbackToken AddListener( const TFunc& func )
 		{
 			return CallbackToken( m_implementation->AddListener( func ), m_implementation );
 		}
 
-		FORGE_INLINE void RemoveListener( CallbackID id )
+		void RemoveListener( CallbackID id )
 		{
 			m_implementation->RemoveListener( id );
 		}
@@ -109,7 +109,7 @@ namespace forge
 		class CallbackImpl : public CallbackToken::ICallbackImpl
 		{
 		public:
-			FORGE_INLINE void Invoke( TParams... params ) const
+			void Invoke( TParams... params ) const
 			{
 				for( const auto& func : m_funcs )
 				{
@@ -117,7 +117,7 @@ namespace forge
 				}
 			}
 
-			FORGE_INLINE CallbackID AddListener( const TFunc& func )
+			CallbackID AddListener( const TFunc& func )
 			{
 				m_funcs.emplace_back( func );
 
@@ -137,7 +137,7 @@ namespace forge
 				}
 			}
 
-			FORGE_INLINE virtual void RemoveListener( CallbackID id ) override
+			virtual void RemoveListener( CallbackID id ) override
 			{
 				forge::utils::RemoveReorder( m_funcs, m_idToFunc[ id ] );
 

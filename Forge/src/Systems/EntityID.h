@@ -16,12 +16,12 @@ namespace forge
 
 		static const Uint32 c_invalidID = 0u;
 
-		FORGE_INLINE Bool IsValid()
+		Bool IsValid()
 		{
 			return m_id != c_invalidID;
 		}
 
-		FORGE_INLINE Bool operator==( const EntityID& id ) const
+		Bool operator==( const EntityID& id ) const
 		{
 			return m_id == id.m_id;
 		}

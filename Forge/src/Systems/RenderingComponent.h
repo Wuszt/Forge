@@ -26,12 +26,12 @@ namespace forge
 
 		void LoadMeshAndMaterial( const std::string& path );
 
-		FORGE_INLINE const renderer::Renderable* GetRenderable() const
+		const renderer::Renderable* GetRenderable() const
 		{
 			return m_renderable.get();
 		}
 
-		FORGE_INLINE renderer::Renderable* GetRenderable()
+		renderer::Renderable* GetRenderable()
 		{
 			return m_renderable.get();
 		}

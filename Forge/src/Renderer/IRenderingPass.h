@@ -41,13 +41,13 @@ namespace renderer
 
 		virtual void SetTargetTexture( ITexture& targetTexture );
 
-		FORGE_INLINE ITexture* GetTargetTexture()
+		ITexture* GetTargetTexture()
 		{
 			return m_targetTexture;
 		}
 
 	protected:
-		FORGE_INLINE IRenderer& GetRenderer()
+		IRenderer& GetRenderer()
 		{
 			return m_renderer;
 		}
@@ -88,13 +88,13 @@ namespace renderer
 
 		virtual void ClearTargetTexture() override;
 
-		FORGE_INLINE void SetDepthStencilBuffer( IDepthStencilBuffer* depthStencilBuffer, Uint32 dsvIndex = 0u )
+		void SetDepthStencilBuffer( IDepthStencilBuffer* depthStencilBuffer, Uint32 dsvIndex = 0u )
 		{
 			m_dsvIndex = dsvIndex;
 			m_depthStencilBuffer = depthStencilBuffer;
 		}
 
-		FORGE_INLINE IDepthStencilBuffer* GetDepthStencilBuffer() const
+		IDepthStencilBuffer* GetDepthStencilBuffer() const
 		{
 			return m_depthStencilBuffer;
 		}

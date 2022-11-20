@@ -19,7 +19,7 @@ namespace renderer
 		~IShadersManager();
 
 		void SetBaseShaderDefines( std::vector< ShaderDefine > shaderDefines );
-		FORGE_INLINE forge::ArraySpan< const ShaderDefine > GetBaseShaderDefines() const
+		forge::ArraySpan< const ShaderDefine > GetBaseShaderDefines() const
 		{
 			return m_baseShaderDefines;
 		}

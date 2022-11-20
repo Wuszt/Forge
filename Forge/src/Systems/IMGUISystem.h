@@ -23,7 +23,7 @@ namespace imgui
 
 			virtual ~Element() = default;
 
-			FORGE_INLINE const char* GetName() const
+			const char* GetName() const
 			{
 				return m_name;
 			}
@@ -37,7 +37,7 @@ namespace imgui
 		{
 		public:
 			using Element::Element;
-			FORGE_INLINE std::vector< std::weak_ptr< Element > >& GetChildren()
+			std::vector< std::weak_ptr< Element > >& GetChildren()
 			{
 				return m_children;
 			}
@@ -103,12 +103,12 @@ namespace systems
 
 		virtual void OnInitialize() override;
 
-		FORGE_INLINE forge::CallbackToken AddOverlayListener( const forge::Callback<>::TFunc& func )
+		forge::CallbackToken AddOverlayListener( const forge::Callback<>::TFunc& func )
 		{
 			return m_overlayCallback.AddListener( func );
 		}
 
-		FORGE_INLINE imgui::TopBar& GetTopBar()
+		imgui::TopBar& GetTopBar()
 		{
 			return m_topBar;
 		}

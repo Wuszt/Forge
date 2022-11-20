@@ -18,7 +18,7 @@ namespace d3d11
 		D3D11RenderContext( ID3D11DeviceContext* deviceContext );
 		~D3D11RenderContext();
 
-		FORGE_INLINE ID3D11DeviceContext* GetDeviceContext() const
+		ID3D11DeviceContext* GetDeviceContext() const
 		{
 			return m_deviceContext;
 		}
