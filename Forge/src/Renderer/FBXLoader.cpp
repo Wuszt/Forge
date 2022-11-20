@@ -436,7 +436,13 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 		}
 	}
 
-	renderer::Vertices vertices( poses, normals, texCoords, skeleton.m_blendWeights, skeleton.m_blendIndices );
+	renderer::VerticesBuilder builder;
+	builder.AddData( std::move( poses ) );
+	builder.AddData( std::move( normals ) );
+	builder.AddData( std::move( texCoords ) );
+	builder.AddData( skeleton.m_blendWeights );
+	builder.AddData( skeleton.m_blendIndices );
+	renderer::Vertices vertices = builder.Build();
 
 	std::unique_ptr< renderer::Model > model = std::make_unique< renderer::Model >( renderer, vertices, shapes);
 	std::shared_ptr< renderer::ModelAsset > modelAsset = std::make_shared< renderer::ModelAsset >( path, std::move( model ), std::move( materialsData ) );

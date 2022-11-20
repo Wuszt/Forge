@@ -32,7 +32,8 @@ namespace forge
 	public:
 		RawSmartPtr( Uint64 size = 0u )
 		{
-			m_data = new Byte[ size ];
+			m_size = size;
+			m_data = new Byte[ m_size ];
 		}
 
 		RawSmartPtr( RawSmartPtr&& ptr )
@@ -45,7 +46,10 @@ namespace forge
 		{
 			this->~RawSmartPtr();
 			m_data = ptr.m_data;
-			ptr.m_data = new Byte[ 0 ];
+			m_size = ptr.m_size;
+
+			ptr.m_size = 0u;
+			ptr.m_data = new Byte[ ptr.m_size ];
 
 			return *this;
 		}
@@ -55,12 +59,18 @@ namespace forge
 			delete[] m_data;
 		}
 
-		Byte* GetData() const
+		FORGE_INLINE Byte* GetData() const
 		{
 			return m_data;
 		}
 
+		FORGE_INLINE Uint32 GetSize() const
+		{
+			return m_size;
+		}
+
 	private:
+		Uint32 m_size = 0u;
 		Byte* m_data = nullptr;
 	};
 }

@@ -92,13 +92,13 @@ namespace d3d11
 
 	D3D11VertexBuffer::D3D11VertexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const renderer::Vertices& vertices )
 		: m_contextPtr( contextPtr )
-		, m_stride( vertices.GetVertexByteWidth() )
+		, m_stride( vertices.GetVertexSize() )
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		ZeroMemory( &vertexBufferDesc, sizeof( vertexBufferDesc ) );
 
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = vertices.GetVerticesByteWidth();
+		vertexBufferDesc.ByteWidth = vertices.GetBufferSize();
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;
