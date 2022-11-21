@@ -168,7 +168,7 @@ std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path
 	return std::make_shared< renderer::SkeletonAsset >( path, std::move( blendWeights ), std::move( blendIndices ), bonesOffsets );
 }
 
-Matrix GetNodeLocalTransform( const ofbx::AnimationLayer& animLayer, renderer::Animation& targetAnimation, const ofbx::Object& obj, Uint32 frame, const std::unordered_map< const ofbx::Object*, Uint32 >& bonesMap )
+Matrix GetNodeLocalTransform( const ofbx::AnimationLayer& animLayer, renderer::Animation& targetAnimation, const ofbx::Object& obj, Uint32 frame, Uint32 framesAmount, const std::unordered_map< const ofbx::Object*, Uint32 >& bonesMap )
 {
 	const auto& scene = animLayer.getScene();
 	auto it = bonesMap.find( &obj );
@@ -184,7 +184,7 @@ Matrix GetNodeLocalTransform( const ofbx::AnimationLayer& animLayer, renderer::A
 	Matrix parentTransform = ConstructFixingMatrix( *scene.getGlobalSettings() );
 	if( ofbx::Object* parent = obj.getParent() )
 	{
-		parentTransform = GetNodeLocalTransform( animLayer, targetAnimation, *parent, frame, bonesMap );
+		parentTransform = GetNodeLocalTransform( animLayer, targetAnimation, *parent, frame, framesAmount, bonesMap );
 	}
 
 	const auto* rotationCurveNode = animLayer.getCurveNode( obj, "Lcl Rotation" );
@@ -193,8 +193,6 @@ Matrix GetNodeLocalTransform( const ofbx::AnimationLayer& animLayer, renderer::A
 	bool hasAnim = rotationCurveNode || translationCurveNode;
 
 	Float frameRate = targetAnimation.GetFrameRate();
-
-	Uint32 framesAmount = ofbx::fbxTimeToSeconds( animLayer.getCurveNode( 0 )->getCurve( 0 )->getKeyTime()[ animLayer.getCurveNode( 0 )->getCurve( 0 )->getKeyCount() - 1 ] ) * frameRate;
 
 	if( hasAnim )
 	{
@@ -218,7 +216,7 @@ Matrix GetNodeLocalTransform( const ofbx::AnimationLayer& animLayer, renderer::A
 
 				if( ofbx::Object* parent = obj.getParent() )
 				{
-					parentTransform = GetNodeLocalTransform( animLayer, targetAnimation, *parent, i, bonesMap );
+					parentTransform = GetNodeLocalTransform( animLayer, targetAnimation, *parent, i, framesAmount, bonesMap );
 				}
 
 				Matrix transform = CONVERT2FORGE( obj.evalLocal( translation, rotation ) ) * parentTransform;
@@ -253,6 +251,7 @@ Matrix GetNodeLocalTransform( const ofbx::AnimationLayer& animLayer, renderer::A
 			Vector3 translation = transform.GetTranslation();
 			Quaternion rotation = transform.GetRotation();
 
+			targetAnimation.GeyKeys( it->second ).resize( framesAmount );
 			for( Uint32 i = 0u; i < static_cast< Uint32 >( framesAmount ); ++i )
 			{
 				targetAnimation.GetAnimationKey( it->second, i ) = { translation, rotation };
@@ -272,20 +271,34 @@ std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHand
 
 	for( Uint32 i = 0u; i < scene->getAnimationStackCount(); ++i )
 	{
-		renderer::Animation& animation = animations.emplace_back( scene->getSceneFrameRate(), skeleton.m_bonesOffsets.size() );
-
-		const auto* animLayer = scene->getAnimationStack( i )->getLayer( 0 );
-
 		if( scene->getAnimationStack( i )->getLayer( 1 ) )
 		{
 			FORGE_LOG_WARNING( "There is more than one layer in animation stack, but just one is handled!" );
 		}
 
+		const auto* animLayer = scene->getAnimationStack( i )->getLayer( 0 );
+
+		const ofbx::AnimationCurveNode* curveNode = animLayer->getCurveNode( 0 );
+		const ofbx::AnimationCurve* curve = nullptr;
+		for( Uint32 i = 1u; curveNode != nullptr && curve == nullptr; ++i )
+		{
+			curve = curveNode->getCurve( 0 );
+			curveNode = animLayer->getCurveNode( i );
+		}
+		if( curve == nullptr )
+		{
+			continue;
+		}
+
+		renderer::Animation& animation = animations.emplace_back( scene->getSceneFrameRate(), skeleton.m_bonesOffsets.size() );
+
+		Uint32 framesAmount = ofbx::fbxTimeToSeconds( curve->getKeyTime()[ curve->getKeyCount() - 1 ] ) * animation.GetFrameRate();
+
 		for( Uint32 j = 0u; j < scene->getGeometry( 0 )->getSkin()->getClusterCount(); ++j )
 		{
 			const ofbx::Object* link = scene->getGeometry( 0 )->getSkin()->getCluster( j )->getLink();
 
-			GetNodeLocalTransform( *animLayer, animation, *link, 0u, bonesMap );
+			GetNodeLocalTransform( *animLayer, animation, *link, 0u, framesAmount, bonesMap );
 		}
 	}
 
@@ -345,7 +358,6 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 				shapes.back().m_materialIndex = materialIndexOffset + currentMaterialIndex;
 			}
 
-			std::function< Vector2( Uint32 ) > getUVsFunc;
 			std::function< Vector3( Uint32, Uint32 ) > getNormalFunc;
 
 			if( geometry->getNormals() )
