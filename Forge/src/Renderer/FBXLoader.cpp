@@ -5,8 +5,8 @@
 #include "ModelAsset.h"
 #include <filesystem>
 #include "../../External/openfbx/src/ofbx.h"
-#include <math.h>
 #include "AnimationSetAsset.h"
+#include <regex>
 
 renderer::FBXLoader::FBXLoader( renderer::IRenderer& renderer )
 	: m_renderer( renderer )
@@ -57,8 +57,7 @@ Matrix ConstructFixingMatrix( const ofbx::GlobalSettings& globalSettings )
 	return fixingMatrix;
 }
 
-using SceneHandle = std::unique_ptr < ofbx::IScene, decltype( []( ofbx::IScene* scene ) { if( scene ) scene->destroy(); } ) > ;
-SceneHandle LoadScene( const std::string& path )
+namespace
 {
 	struct FileHandle
 	{
@@ -77,7 +76,11 @@ SceneHandle LoadScene( const std::string& path )
 
 		FILE* m_file;
 	};
+}
 
+using SceneHandle = std::unique_ptr < ofbx::IScene, decltype( []( ofbx::IScene* scene ) { if( scene ) scene->destroy(); } ) > ;
+SceneHandle LoadScene( const std::string& path )
+{
 	FileHandle handle( path );
 
 	if( handle.m_file == nullptr )
@@ -305,7 +308,7 @@ std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHand
 	return std::make_shared< renderer::AnimationSetAsset >( path, animations );
 }
 
-std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, renderer::IRenderer& renderer, const SceneHandle & scene, renderer::SkeletonAsset& skeleton )
+std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, renderer::IRenderer& renderer, const SceneHandle& scene, renderer::SkeletonAsset* skeleton )
 {
 	if( scene->getMeshCount() == 0u )
 	{
@@ -425,8 +428,8 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 			{
 				for( Uint32 j = i * 3u; j < ( i + 1 ) * 3u; ++j )
 				{
-					const ofbx::Vec4& rawUV = color[ j ];
-					colors.emplace_back( Vector4{ static_cast< Float >( rawUV.x ), static_cast< Float >( rawUV.y ), static_cast< Float >( rawUV.z ), static_cast< Float >( rawUV.w ) } );
+					const ofbx::Vec4& rawColor = color[ j ];
+					colors.emplace_back( Vector4{ static_cast< Float >( rawColor.x ), static_cast< Float >( rawColor.y ), static_cast< Float >( rawColor.z ), static_cast< Float >( rawColor.w ) } );
 				}
 			}
 
@@ -435,7 +438,7 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 				for( Uint32 j = i * 3u; j < ( i + 1 ) * 3u; ++j )
 				{
 					const ofbx::Vec2 & rawUV = uvs[ j ];
-					texCoords.emplace_back( Vector2{ static_cast< Float >( rawUV.x ), static_cast< Float >( rawUV.y ) } );
+					texCoords.emplace_back( Vector2{ static_cast< Float >( rawUV.x ), static_cast< Float >( 1.0f - rawUV.y ) } );
 				}
 			}
 
@@ -467,8 +470,8 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 		builder.AddData( std::move( colors ) );
 	}
 
-	builder.AddData( skeleton.m_blendWeights );
-	builder.AddData( skeleton.m_blendIndices );
+	builder.AddData( skeleton->m_blendWeights );
+	builder.AddData( skeleton->m_blendIndices );
 	renderer::Vertices vertices = builder.Build();
 
 	std::unique_ptr< renderer::Model > model = std::make_unique< renderer::Model >( renderer, vertices, shapes);
@@ -477,11 +480,44 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 	return modelAsset;
 }
 
+std::string GetFixedPathOfAsset( const char* path )
+{
+	return std::regex_replace( path, std::regex("\\\\[^\\\\]*fbm\\\\"), "\\" );
+}
+
+void CreateExternalAssets( const SceneHandle& scene )
+{
+	for( Uint32 i = 0u; i < scene->getEmbeddedDataCount(); ++i )
+	{
+		auto data = scene->getEmbeddedData( i );
+
+		char path[ 400 ];
+		scene->getEmbeddedFilename( i ).toString( path );
+		std::string fixedPath = GetFixedPathOfAsset( path );
+		FileHandle fileHandle( fixedPath );
+
+		if( std::filesystem::exists( fixedPath ) )
+		{
+			continue;
+		}
+
+		if( fopen_s( &fileHandle.m_file, fixedPath.c_str(), "wb" ) != 0 )
+		{
+			FORGE_LOG_ERROR( "Couldn't open %s to write external asset", fixedPath.c_str() );
+			continue;
+		}
+		
+		fwrite( data.begin + 4, sizeof( ofbx::u8 ), data.end - data.begin - 4, fileHandle.m_file );
+	}
+}
+
 std::vector< std::shared_ptr< forge::IAsset > > renderer::FBXLoader::LoadAssets( const std::string& path ) const
 {
 	std::vector< std::shared_ptr< forge::IAsset > > loadedAssets;
 
-	SceneHandle scene = LoadScene( path );
+	const SceneHandle scene = LoadScene( path );
+
+	CreateExternalAssets( scene );
 
 	std::unordered_map< const ofbx::Object*, Uint32 > bonesMap;
 	auto skeleton = LoadSkeleton( path, scene, bonesMap );
@@ -490,9 +526,9 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::FBXLoader::LoadAssets(
 	if( auto animation = LoadAnimationSet( scene, path, bonesMap, *skeleton ) )
 	{
 		loadedAssets.emplace_back( animation );
-	}	
+	}
 
-	if( auto model = LoadModel( path, m_renderer, scene, *skeleton ) )
+	if( auto model = LoadModel( path, m_renderer, scene, skeleton.get() ) )
 	{
 		loadedAssets.emplace_back( model );
 	}

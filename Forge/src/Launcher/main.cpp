@@ -25,7 +25,7 @@
 #include "../Renderer/AnimationSetAsset.h"
 #include "../Renderer/SkeletonAsset.h"
 
-std::string animName = "Animations\\Thriller.fbx";
+std::string animName = "Animations\\Attack.fbx";
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -144,7 +144,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-			transformComponent->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 200.0f } );
+			transformComponent->GetData().m_transform.SetPosition( { 0.0f, 800.0f, 200.0f } );
 			transformComponent->GetData().m_scale = Vector3::ONES() * 250.0f;
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
@@ -164,7 +164,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-			transformComponent->GetData().m_transform.SetPosition( { 0.0f, 200.0f, 200.0f } );
+			transformComponent->GetData().m_transform.SetPosition( { 0.0f, 600.0f, 200.0f } );
 			transformComponent->GetData().m_scale = Vector3::ONES() * 250.0f;
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
