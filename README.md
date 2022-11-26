@@ -11,14 +11,25 @@ Engine whose purpose is to create a sandbox for various algorithms.
 Unit Tests have been moved to separate, private submodule. They're obviously not needed to run an application.
 
 ### Current state:
-# 4.03.2022
+
+# 11.2022
+[![](https://markdown-videos.deta.dev/youtube/gvsBKjrnRLk)](https://youtu.be/gvsBKjrnRLk)
+- Spot lights and directional lights
+- Orthographic camera
+- Shadows for point, spot and directional lights
+- Alpha blending
+- Self made RTTI
+- FBXes loading
+- Skeletal animations
+
+# 03.2022
 ![](Journal/040322/state.gif)
 - Deferred shading
 - IMGUI debug with G-Buffer preview
 - Smooth runtime switch between Forward<->Deferred mode thanks to one, macro based Uber shader
 - Separate rendering passes for Opaque, Transparent (not implented yet) and Non-lit (for drawing in-world debugs) objects
 
-# 30.12.2021
+# 12.2021
 ![](Journal/301221/state.gif)
 - ECS Systems, Components and Entities
 - Forward rendering
