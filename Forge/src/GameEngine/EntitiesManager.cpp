@@ -1,25 +1,8 @@
 #include "Fpch.h"
 #include "EntitiesManager.h"
 
-#ifdef FORGE_IMGUI_ENABLED
-#include "IMGUISystem.h"
-#include "../IMGUI/PublicDefaults.h"
-#endif
 void forge::EntitiesManager::Initialize()
 {
-#ifdef FORGE_IMGUI_ENABLED
-	m_debugOverlayToken = GetEngineInstance().GetSystemsManager().RegisterToOnBootCallback( [ this ]()
-	{	
-		if( auto* imguiSystem = GetEngineInstance().GetSystemsManager().GetSystemPtr< systems::IMGUISystem >() )
-		{
-			m_debugOverlayToken = imguiSystem->AddOverlayListener( [ & ]()
-			{
-				ImGui::Text( "Entities amount: %u", GetEntitiesAmount() );
-			} );
-		}
-	} );
-#endif
-
 	 m_tickToken = m_engineInstance.GetUpdateManager().RegisterUpdateFunction( UpdateManager::BucketType::Present, std::bind( &forge::EntitiesManager::HandleRequests, this ) );
 }
 

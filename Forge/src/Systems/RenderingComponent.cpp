@@ -4,7 +4,6 @@
 #include "../Renderer/IRenderer.h"
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
-#include "EngineInstance.h"
 
 IMPLEMENT_TYPE( forge, RenderingComponentData )
 IMPLEMENT_TYPE( forge, RenderingComponent )

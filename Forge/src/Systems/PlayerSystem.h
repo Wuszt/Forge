@@ -1,5 +1,5 @@
 #pragma once
-#include "ISystem.h"
+#include "IDebuggable.h"
 
 namespace forge
 {
@@ -8,8 +8,7 @@ namespace forge
 
 namespace systems
 {
-
-	class PlayerSystem : public ISystem
+	class PlayerSystem : public ISystem, forge::IDebuggable
 	{
 		DECLARE_TYPE( PlayerSystem, systems, ISystem );
 

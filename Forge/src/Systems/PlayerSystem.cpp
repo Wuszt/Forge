@@ -16,7 +16,10 @@ IMPLEMENT_TYPE( systems, PlayerSystem );
 
 void systems::PlayerSystem::OnInitialize()
 {
-	SetDebugAvailability( true );
+#ifdef FORGE_IMGUI_ENABLED
+	InitializeDebuggable< systems::PlayerSystem >( GetEngineInstance() );
+#endif
+
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, std::bind( &systems::PlayerSystem::Update, this ) );
 }
 
@@ -51,6 +54,7 @@ void systems::PlayerSystem::Update()
 	}
 }
 
+#ifdef FORGE_IMGUI_ENABLED
 void systems::PlayerSystem::OnRenderDebug()
 {
 	if( ImGui::Begin( "Player System" ) )
@@ -133,3 +137,4 @@ void systems::PlayerSystem::OnRenderDebug()
 	}
 	ImGui::End();
 }
+#endif

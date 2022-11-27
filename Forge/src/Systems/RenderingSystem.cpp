@@ -31,7 +31,10 @@ systems::RenderingSystem::~RenderingSystem() = default;
 
 void systems::RenderingSystem::OnInitialize()
 {
-	SetDebugAvailability( true );
+#ifdef FORGE_IMGUI_ENABLED
+	InitializeDebuggable< systems::RenderingSystem >( GetEngineInstance() );
+#endif
+
 	m_renderer = &GetEngineInstance().GetRenderer();
 	m_camerasSystem = &GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >();
 	m_depthStencilBuffer = m_renderer->CreateDepthStencilBuffer( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight() );

@@ -1,10 +1,6 @@
 #include "Fpch.h"
 #include "ISystem.h"
 
-#ifdef FORGE_DEBUGGING
-#include "IMGUISystem.h"
-#endif
-
 IMPLEMENT_TYPE(systems, ISystem)
 IMPLEMENT_TYPE(systems, IECSSystem)
 
@@ -50,36 +46,6 @@ void systems::Archetype::MoveEntityFrom( forge::EntityID entityId, std::vector< 
 
 	m_sparseSet[ entityId.m_id ] = m_dataSize++;
 }
-
-#ifdef FORGE_DEBUGGING
-void systems::ISystem::SetDebugAvailability( Bool available )
-{
-	if( available )
-	{
-		m_topBarHandle = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().GetTopBar().AddButton( { "Debug", "Systems", GetType().GetName( false ) }, true );
-		m_onClickedTopBarItemToken = m_topBarHandle->GetCallback().AddListener( [ this ]()
-		{
-			if( m_topBarHandle->IsSelected() )
-			{
-				m_onRenderDebugToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, [ this ]()
-				{
-					OnRenderDebug();
-				} );
-			}
-			else
-			{
-				m_onRenderDebugToken.Unregister();
-			}
-		} );
-	}
-	else
-	{
-		m_topBarHandle = nullptr;
-		m_onRenderDebugToken.Unregister();
-		m_onClickedTopBarItemToken.Unregister();
-	}
-}
-#endif
 
 void systems::ISystem::Initialize( forge::EngineInstance& engineInstance )
 {

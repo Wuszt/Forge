@@ -36,8 +36,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{0B43DD17-1A4E-4AA0-A4BE-505FFB676CD6}</ProjectGuid>
-    <RootNamespace>Systems</RootNamespace>
+    <ProjectGuid>{76FC93F7-8FDC-4CB9-82FE-04CD026F4B0D}</ProjectGuid>
+    <RootNamespace>GameEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -305,67 +305,46 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CameraComponent.cpp" />
-    <ClCompile Include="CamerasSystem.cpp" />
-    <ClCompile Include="DebugSystem.cpp" />
-    <ClCompile Include="DirectionalLightComponent.cpp" />
-    <ClCompile Include="Fpch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="IDebuggable.cpp" />
-    <ClCompile Include="IMGUISystem.cpp" />
-    <ClCompile Include="PointLightComponent.cpp" />
-    <ClCompile Include="LightingSystem.cpp" />
-    <ClCompile Include="PlayerControllerComponent.cpp" />
-    <ClCompile Include="PlayerSystem.cpp" />
-    <ClCompile Include="RenderingComponent.cpp" />
-    <ClCompile Include="RenderingSystem.cpp" />
-    <ClCompile Include="SpotLightComponent.cpp" />
-    <ClCompile Include="TimeSystem.cpp" />
-    <ClCompile Include="TransformComponent.cpp" />
-    <ClCompile Include="TransformSystem.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="CameraComponent.h" />
-    <ClInclude Include="CamerasSystem.h" />
-    <ClInclude Include="DebugSystem.h" />
-    <ClInclude Include="DirectionalLightComponent.h" />
-    <ClInclude Include="Fpch.h" />
-    <ClInclude Include="IDebuggable.h" />
-    <ClInclude Include="IMGUISystem.h" />
-    <ClInclude Include="InternalDefaults.h" />
-    <ClInclude Include="PointLightComponent.h" />
-    <ClInclude Include="LightingSystem.h" />
-    <ClInclude Include="PlayerControllerComponent.h" />
-    <ClInclude Include="PlayerSystem.h" />
-    <ClInclude Include="PublicDefaults.h" />
-    <ClInclude Include="RenderingComponent.h" />
-    <ClInclude Include="RenderingSystem.h" />
-    <ClInclude Include="SpotLightComponent.h" />
-    <ClInclude Include="TimeSystem.h" />
-    <ClInclude Include="TransformComponent.h" />
-    <ClInclude Include="TransformSystem.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">
       <Project>{38e97199-f4e4-4704-b916-dd286525c84b}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\GameEngine\GameEngine.vcxproj">
-      <Project>{76fc93f7-8fdc-4cb9-82fe-04cd026f4b0d}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\IMGUI\IMGUI.vcxproj">
-      <Project>{45b22060-1716-4c8b-8844-c873202adcb2}</Project>
+    <ProjectReference Include="..\Math\Math.vcxproj">
+      <Project>{4ee1f241-1190-4a8f-be2a-2054bcab3709}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Renderer\Renderer.vcxproj">
       <Project>{b80e49a4-1d06-4643-9ef0-34e4e56781ad}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ApplicationInstance.cpp" />
+    <ClCompile Include="EngineInstance.cpp" />
+    <ClCompile Include="EntitiesManager.cpp" />
+    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="EntityID.cpp" />
+    <ClCompile Include="Fpch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="IComponent.cpp" />
+    <ClCompile Include="ISystem.cpp" />
+    <ClCompile Include="SystemsManager.cpp" />
+    <ClCompile Include="UpdateManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ApplicationInstance.h" />
+    <ClInclude Include="EngineInstance.h" />
+    <ClInclude Include="EntitiesManager.h" />
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="EntityID.h" />
+    <ClInclude Include="Fpch.h" />
+    <ClInclude Include="IComponent.h" />
+    <ClInclude Include="InternalDefaults.h" />
+    <ClInclude Include="ISystem.h" />
+    <ClInclude Include="PublicDefaults.h" />
+    <ClInclude Include="SystemsManager.h" />
+    <ClInclude Include="UpdateManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,7 +1,6 @@
 #pragma once
 
 #ifdef FORGE_IMGUI_ENABLED
-#include "ISystem.h"
 
 namespace forge
 {
@@ -62,7 +61,7 @@ namespace imgui
 		{
 			if( selectable )
 			{
-				m_onClicked.AddListener( [ this ]()
+				m_onClickedToken = m_onClicked.AddListener( [ this ]()
 				{
 					m_selected = !m_selected;
 				} );
@@ -86,6 +85,7 @@ namespace imgui
 
 	private:
 		forge::Callback<> m_onClicked;
+		forge::CallbackToken m_onClickedToken;
 		Bool m_selected = false;
 	};
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "RenderingComponent.h"
 #include "TransformComponent.h"
+#include "IDebuggable.h"
 
 namespace renderer
 {
@@ -33,7 +34,7 @@ namespace systems
 {
 	class CamerasSystem;
 
-	class RenderingSystem : public ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >
+	class RenderingSystem : public ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >, public forge::IDebuggable
 	{
 		DECLARE_STRUCT( RenderingSystem, systems, IECSSystem );
 

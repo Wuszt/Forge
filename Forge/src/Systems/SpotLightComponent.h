@@ -1,5 +1,4 @@
 #pragma once
-#include "IComponent.h"
 #include "../Renderer/LightData.h"
 
 namespace forge

@@ -1,10 +1,11 @@
 #pragma once
-#include "ISystem.h"
 #include "TransformComponent.h"
 #include "PointLightComponent.h"
 #include "SpotLightComponent.h"
-#include "DirectionalLight.h"
+#include "DirectionalLightComponent.h"
 #include "../Renderer/LightData.h"
+#include "IMGUISystem.h"
+#include "IDebuggable.h"
 
 namespace renderer
 {
@@ -21,7 +22,7 @@ namespace systems
 	using SpotLightArchetypeType = systems::ArchetypeDataTypes< forge::TransformComponentData, forge::SpotLightComponentData >;
 	using DirectionalLightArchetypeType = systems::ArchetypeDataTypes< forge::DirectionalLightComponentData >;
 
-	class LightingSystem : public ECSSystem< PointLightArchetypeType, SpotLightArchetypeType, DirectionalLightArchetypeType >
+	class LightingSystem : public ECSSystem< PointLightArchetypeType, SpotLightArchetypeType, DirectionalLightArchetypeType >, public forge::IDebuggable
 	{
 		DECLARE_TYPE( LightingSystem, systems, IECSSystem );
 

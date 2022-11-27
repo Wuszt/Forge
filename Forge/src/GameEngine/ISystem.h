@@ -133,11 +133,6 @@ namespace systems
 		}
 
 	protected:
-#ifdef FORGE_DEBUGGING
-		virtual void OnRenderDebug() {}
-		virtual void SetDebugAvailability( Bool available );
-#endif
-
 		virtual void OnInitialize() {}
 		virtual void OnDeinitialize() {}
 
@@ -145,12 +140,6 @@ namespace systems
 		void Initialize( forge::EngineInstance& engineInstance );
 		void Deinitialize();
 		forge::EngineInstance* m_engineInstance;
-
-#ifdef FORGE_IMGUI_ENABLED
-		std::shared_ptr< imgui::TopBarItem > m_topBarHandle;
-		forge::CallbackToken m_onClickedTopBarItemToken;
-		forge::CallbackToken m_onRenderDebugToken;
-#endif;
 	};
 
 	class IArchetypeDataTypes

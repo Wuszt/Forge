@@ -1,7 +1,7 @@
-//Include and link appropriate libraries and headers//
 
 #include "../Core/PublicDefaults.h"
 #include "../Math/PublicDefaults.h"
+#include "../GameEngine/PublicDefaults.h"
 #include "../Systems/PublicDefaults.h"
 
 #include "../Core/IWindow.h"
@@ -24,6 +24,14 @@
 #include "../../External/imgui/imgui.h"
 #include "../Renderer/AnimationSetAsset.h"
 #include "../Renderer/SkeletonAsset.h"
+
+#ifdef FORGE_DEBUGGING
+#include "../Systems/DebugSystem.h"
+#endif
+
+#ifdef FORGE_IMGUI_ENABLED
+#include "../Systems/IMGUISystem.h"
+#endif
 
 std::string animName = "Animations\\Thriller.fbx";
 
@@ -315,10 +323,12 @@ Int32 main()
 					return;
 				}
 
+#ifdef FORGE_IMGUI_ENABLED
 				static auto token = engineInstance.GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [this]()
 				{
 					ImGui::SliderFloat( "Speed", &speed, 0.0f, 2.0f );
 				});
+#endif
 
 				bonesBuffer = engineInstance.GetRenderer().CreateStaticConstantBuffer<cbBones>();
 

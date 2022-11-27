@@ -15,6 +15,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{526c3392-878d-452b-86b1-f2c285c4a2b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Headers">
+      <UniqueIdentifier>{410f5854-1e17-4044-b563-ba1ad75b4d87}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IRenderer.cpp">
@@ -297,12 +300,26 @@
     <FxCompile Include="..\..\Depots\Engine\Shaders\VS_FullScreen.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\Depots\Engine\Shaders\Common.fxh" />
-    <FxCompile Include="..\..\Depots\Engine\Shaders\Deferred.fxh" />
-    <FxCompile Include="..\..\Depots\Engine\Shaders\Forward.fxh" />
-    <FxCompile Include="..\..\Depots\Engine\Shaders\FullScreenCommon.fxh" />
-    <FxCompile Include="..\..\Depots\Engine\Shaders\GeometryCommon.fxh" />
-    <FxCompile Include="..\..\Depots\Engine\Shaders\Lighting.fxh" />
-    <FxCompile Include="..\..\Depots\Engine\Shaders\RenderingPassCommon.fxh" />
+    <FxCompile Include="..\..\Depots\Engine\Shaders\Common.fxh">
+      <Filter>Shaders\Headers</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\Deferred.fxh">
+      <Filter>Shaders\Headers</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\Forward.fxh">
+      <Filter>Shaders\Headers</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\FullScreenCommon.fxh">
+      <Filter>Shaders\Headers</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\GeometryCommon.fxh">
+      <Filter>Shaders\Headers</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\Lighting.fxh">
+      <Filter>Shaders\Headers</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\RenderingPassCommon.fxh">
+      <Filter>Shaders\Headers</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

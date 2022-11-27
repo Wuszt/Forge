@@ -135,7 +135,6 @@ void DrawElements( std::vector< std::weak_ptr< imgui::TopBar::Element > >& eleme
 				Bool isSelected = item->IsSelected();
 				if( ImGui::MenuItem( item->GetName(), nullptr, &isSelected ) )
 				{
-					item->SetSelected( isSelected );
 					item->GetCallback().Invoke();
 				}
 			}
@@ -165,6 +164,4 @@ void imgui::TopBar::Draw()
 		ImGui::EndMainMenuBar();
 	}
 }
-
 #endif
-

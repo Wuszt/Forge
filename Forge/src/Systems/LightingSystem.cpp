@@ -2,7 +2,6 @@
 #include "LightingSystem.h"
 #include "../Renderer/IRenderingPass.h"
 #include "RenderingSystem.h"
-#include "EngineInstance.h"
 #include "../Renderer/IRenderer.h"
 #include "../Renderer/PerspectiveCamera.h"
 #include "../renderer/IDepthStencilBuffer.h"
@@ -14,14 +13,19 @@
 #include "../Renderer/IShader.h"
 #endif
 
+#include "DebugSystem.h"
+
 IMPLEMENT_TYPE( systems, LightingSystem );
 
 const Float c_shadowMapBaseSize = 1024.0f;
 
 void systems::LightingSystem::OnInitialize()
 {
+#ifdef FORGE_IMGUI_ENABLED
+	InitializeDebuggable< systems::LightingSystem >( GetEngineInstance() );
+#endif
+
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostUpdate, [ this ]() { Update(); } );
-	SetDebugAvailability( true );
 }
 
 renderer::LightingData systems::LightingSystem::GetLightingData()
@@ -112,7 +116,6 @@ void systems::LightingSystem::Update()
 }
 
 #ifdef FORGE_IMGUI_ENABLED
-
 void systems::LightingSystem::OnRenderDebug()
 {
 	m_temporaryTextures.clear();
