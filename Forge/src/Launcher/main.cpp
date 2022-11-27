@@ -25,7 +25,7 @@
 #include "../Renderer/AnimationSetAsset.h"
 #include "../Renderer/SkeletonAsset.h"
 
-std::string animName = "Animations\\Attack.fbx";
+std::string animName = "Animations\\Thriller.fbx";
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -84,6 +84,8 @@ void SkeletalMesh( forge::EngineInstance& engineInstance )
 
 			renderingComponent->LoadMeshAndMaterial( animName );
 
+			transformComponent->GetData().m_transform = Vector3{ 0.0f, 400.0f, 0.0f };
+
 			//renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 0.5f, 0.5f, 0.5f, 0.5f } );
 			//renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Transparent );
 			//renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
@@ -123,7 +125,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		{
 			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 500.0f } );
 			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, 0.0f ) );
-			light->GetComponent< forge::SpotLightComponent >()->GetData().m_color = { 0.62f, 0.74f, 0.3f };
+			light->GetComponent< forge::SpotLightComponent >()->GetData().m_color = { 0.5f, 0.5f, 0.5f };
 			light->GetComponent< forge::SpotLightComponent >()->GetData().m_power = 8000.0f;
 		} );
 	} );
@@ -134,46 +136,6 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		{
 			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 1100.0f, 200.0f } );
 			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
-		} );
-	} );
-
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
-	{
-		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
-		{
-			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
-
-			transformComponent->GetData().m_transform.SetPosition( { 0.0f, 800.0f, 200.0f } );
-			transformComponent->GetData().m_scale = Vector3::ONES() * 250.0f;
-
-			renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
-
-			auto renderable = renderingComponent->GetData().m_renderable;
-			auto& material = renderable->GetMaterials()[0];
-			material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Transparent );
-			material->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 0.0f, 0.0f, 0.1f } );
-			material->GetConstantBuffer()->UpdateBuffer();
-		} );
-	} );
-
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
-	{
-		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
-		{
-			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
-
-			transformComponent->GetData().m_transform.SetPosition( { 0.0f, 600.0f, 200.0f } );
-			transformComponent->GetData().m_scale = Vector3::ONES() * 250.0f;
-
-			renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
-
-			auto renderable = renderingComponent->GetData().m_renderable;
-			auto& material = renderable->GetMaterials()[ 0 ];
-			material->SetShaders( "Uber.fx", "Uber.fx", renderer::RenderingPass::Transparent );
-			material->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 0.0f, 1.0f, 0.0f, 0.1f } );
-			material->GetConstantBuffer()->UpdateBuffer();
 		} );
 	} );
 }
@@ -339,9 +301,9 @@ Int32 main()
 
 			if( m_sun )
 			{
-				Float currentAngle = DEG2RAD * 10.0f * engineInstance.GetSystemsManager().GetSystem< systems::TimeSystem >().GetCurrentTime();
-				m_sun->GetData().Direction = Quaternion( -FORGE_PI_HALF, 0.0f, currentAngle ) * Vector3::EY();
-				m_sun->GetData().Color = Vector3{ 1.0f, 1.0f, 1.0f } * Math::Cos( currentAngle );
+				//Float currentAngle = DEG2RAD * 10.0f * engineInstance.GetSystemsManager().GetSystem< systems::TimeSystem >().GetCurrentTime();
+				//m_sun->GetData().Direction = Quaternion( -FORGE_PI_HALF, 0.0f, currentAngle ) * Vector3::EY();
+				m_sun->GetData().Color = Vector3{ 1.0f, 1.0f, 1.0f } * 0.3f;
 			}
 
 			{

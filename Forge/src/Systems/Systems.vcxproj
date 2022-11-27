@@ -161,7 +161,7 @@
       <PrecompiledHeaderFile>Fpch.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessorDefinitions>FORGE_FINAL_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -184,7 +184,7 @@
       <PrecompiledHeaderFile>Fpch.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessorDefinitions>FORGE_PROFILING_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
