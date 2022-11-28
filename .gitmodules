@@ -14,3 +14,6 @@
 [submodule "Forge/External/openfbx"]
 	path = Forge/External/openfbx
 	url = https://github.com/nem0/OpenFBX.git
+[submodule "Forge/External/Mini-RTTI"]
+	path = Forge/External/Mini-RTTI
+	url = https://github.com/Wuszt/Mini-RTTI.git

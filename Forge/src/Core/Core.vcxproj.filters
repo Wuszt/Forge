@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{d22ba02d-bbc9-4755-84d3-305162d98567}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">
@@ -74,9 +77,6 @@
     <ClInclude Include="DepotsContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RTTI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IAssetsLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -85,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="AssetsManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\Mini-RTTI\RTTI.h">
+      <Filter>External</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -128,9 +131,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DepotsContainer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RTTI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IAssetsLoader.cpp">
