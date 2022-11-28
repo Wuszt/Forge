@@ -117,7 +117,7 @@ namespace systems
 	class ISystem
 	{
 		friend class SystemsManager;
-		DECLARE_ABSTRACT_TYPE( ISystem );
+		DECLARE_ABSTRACT_CLASS( ISystem );
 	public:
 		ISystem() = default;
 		virtual ~ISystem() = default;
@@ -197,7 +197,7 @@ namespace systems
 
 	class IECSSystem : public ISystem
 	{
-		DECLARE_ABSTRACT_TYPE( IECSSystem, systems, ISystem );
+		DECLARE_ABSTRACT_CLASS( IECSSystem, systems, ISystem );
 	public:
 		virtual std::vector< std::unique_ptr< IArchetypeDataTypes > > GetArchetypesDataTypes() const = 0;
 

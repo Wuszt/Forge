@@ -4,7 +4,7 @@ namespace forge
 {
 	class IComponent
 	{
-		DECLARE_ABSTRACT_TYPE( IComponent );
+		DECLARE_ABSTRACT_CLASS( IComponent );
 	public:
 		template< class T >
 		friend T* Entity::AddComponent<T>();
