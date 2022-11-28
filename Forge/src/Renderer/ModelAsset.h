@@ -7,7 +7,7 @@ namespace renderer
 
 	class ModelAsset : public forge::IAsset
 	{
-		DECLARE_TYPE( ModelAsset, forge, IAsset );
+		DECLARE_CLASS( ModelAsset, forge, IAsset );
 	public:
 		struct MaterialData
 		{

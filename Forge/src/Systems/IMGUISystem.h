@@ -96,7 +96,7 @@ namespace systems
 {
 	class IMGUISystem : public ISystem
 	{
-		DECLARE_TYPE( IMGUISystem, systems, ISystem );
+		DECLARE_CLASS( IMGUISystem, systems, ISystem );
 	public:
 		IMGUISystem();
 		~IMGUISystem();

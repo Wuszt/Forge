@@ -19,7 +19,7 @@ namespace forge
 
 	class RenderingComponent : public DataComponent< RenderingComponentData >
 	{
-		DECLARE_TYPE( RenderingComponent, IComponent );
+		DECLARE_CLASS( RenderingComponent, IComponent );
 	public:
 		RenderingComponent();
 		~RenderingComponent();

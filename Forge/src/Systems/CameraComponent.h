@@ -15,7 +15,7 @@ namespace forge
 
 	class CameraComponent : public IComponent
 	{
-		DECLARE_TYPE(CameraComponent, forge, IComponent );
+		DECLARE_CLASS(CameraComponent, forge, IComponent );
 	public:
 		using IComponent::IComponent;
 

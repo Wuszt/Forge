@@ -19,7 +19,7 @@ namespace forge
 
 	class TransformComponent : public DataComponent< TransformComponentData >
 	{
-		DECLARE_TYPE( TransformComponent, forge, IComponent );
+		DECLARE_CLASS( TransformComponent, forge, IComponent );
 	public:
 		using DataComponent::DataComponent;
 	};

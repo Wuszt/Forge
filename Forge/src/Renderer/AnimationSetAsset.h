@@ -52,7 +52,7 @@ namespace renderer
 
 	class AnimationSetAsset : public forge::IAsset
 	{
-		DECLARE_TYPE( AnimationSetAsset, forge, IAsset );
+		DECLARE_CLASS( AnimationSetAsset, forge, IAsset );
 
 	public:
 		AnimationSetAsset();

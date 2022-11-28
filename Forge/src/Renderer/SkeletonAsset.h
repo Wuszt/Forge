@@ -5,7 +5,7 @@ namespace renderer
 {
 	class SkeletonAsset : public forge::IAsset
 	{
-		DECLARE_TYPE( SkeletonAsset, forge, IAsset );
+		DECLARE_CLASS( SkeletonAsset, forge, IAsset );
 
 	public:
 		SkeletonAsset();

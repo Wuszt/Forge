@@ -13,7 +13,7 @@ namespace forge
 
 	class PointLightComponent : public DataComponent< PointLightComponentData >
 	{
-		DECLARE_TYPE( PointLightComponent, IComponent );
+		DECLARE_CLASS( PointLightComponent, IComponent );
 	public:
 		using DataComponent::DataComponent;
 	};

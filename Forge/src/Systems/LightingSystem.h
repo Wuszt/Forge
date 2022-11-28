@@ -24,7 +24,7 @@ namespace systems
 
 	class LightingSystem : public ECSSystem< PointLightArchetypeType, SpotLightArchetypeType, DirectionalLightArchetypeType >, public forge::IDebuggable
 	{
-		DECLARE_TYPE( LightingSystem, systems, IECSSystem );
+		DECLARE_CLASS( LightingSystem, systems, IECSSystem );
 
 	public:
 		using ECSSystem::ECSSystem;
