@@ -4,21 +4,21 @@
 
 void systems::SystemsManager::Initialize()
 {
-	m_onEntityCreated = m_engineInstance.GetEntitiesManager().GetEntityCreatedCallback().AddListener(
-		[ this ]( forge::EntityID id )
+	m_onObjectCreated = m_engineInstance.GetObjectsManager().GetObjectCreatedCallback().AddListener(
+		[ this ]( forge::ObjectID id )
 	{
 		for( auto& archetype : m_archetypes )
 		{
-			archetype->OnEntityCreated();
+			archetype->OnObjectCreated();
 		}
 	} );
 
-	m_onEntityDestructed = m_engineInstance.GetEntitiesManager().GetEntityDestructedCallback().AddListener(
-		[ this ]( forge::EntityID id )
+	m_onObjectDestructed = m_engineInstance.GetObjectsManager().GetObjectDestructedCallback().AddListener(
+		[ this ]( forge::ObjectID id )
 	{
 		for( auto& archetype : m_archetypes )
 		{
-			archetype->OnEntityDestructed( id );
+			archetype->OnObjectDestructed( id );
 		}
 	} );
 
@@ -33,7 +33,7 @@ void systems::SystemsManager::Initialize()
 
 void systems::SystemsManager::Deinitialize()
 {
-	m_onEntityCreated.Unregister();
+	m_onObjectCreated.Unregister();
 	m_onTick.Unregister();
 }
 
@@ -54,15 +54,15 @@ forge::ArraySpan< systems::Archetype* > systems::SystemsManager::GetArchetypesWi
 	return m_archetypeTypesHashToArchetypesLUT[ GetTypesHash( archetypeDataTypes.GatherDataPackages() ) ];
 }
 
-void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< forge::IDataPackage > package )
+void systems::SystemsManager::AddECSData( forge::ObjectID id, std::unique_ptr< forge::IDataPackage > package )
 {
 	PC_SCOPE_FUNC();
 
 	const rtti::IType& type = package->GetDataType();
-	FORGE_ASSERT( std::count( m_entityDataTypesLUT[ id ].begin(), m_entityDataTypesLUT[ id ].end(), &type ) == 0u );
-	m_entityDataTypesLUT[ id ].emplace_back( &type );
+	FORGE_ASSERT( std::count( m_objectDataTypesLUT[ id ].begin(), m_objectDataTypesLUT[ id ].end(), &type ) == 0u );
+	m_objectDataTypesLUT[ id ].emplace_back( &type );
 
-	auto& entityTypes = m_entityDataTypesLUT.at( id );
+	auto& objectTypes = m_objectDataTypesLUT.at( id );
 
 	std::vector< std::unique_ptr< forge::IDataPackage > > newArchetypePackages;
 	newArchetypePackages.emplace_back( std::move( package ) );
@@ -77,17 +77,17 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 
 			if( std::find( requiredTypes.begin(), requiredTypes.end(), &type ) != requiredTypes.end() )
 			{
-				Bool entityHasAllTypes = true;
+				Bool objectHasAllTypes = true;
 				for( auto requiredType : requiredTypes )
 				{
-					if( std::find( entityTypes.begin(), entityTypes.end(), requiredType ) == entityTypes.end() )
+					if( std::find( objectTypes.begin(), objectTypes.end(), requiredType ) == objectTypes.end() )
 					{
-						entityHasAllTypes = false;
+						objectHasAllTypes = false;
 						break;
 					}
 				}
 
-				if( entityHasAllTypes )
+				if( objectHasAllTypes )
 				{
 					auto requiredDataPackages = archetypeDataTypes->GatherDataPackages();
 
@@ -110,14 +110,14 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 	for( auto& package : newArchetypePackages )
 	{
 		types.emplace_back( &package->GetDataType() );
-		auto& entityArchetypes = m_entityArchetypesLUT[ id ];
-		for( auto it = entityArchetypes.begin(); it != entityArchetypes.end(); )
+		auto& objectArchetypes = m_objectArchetypesLUT[ id ];
+		for( auto it = objectArchetypes.begin(); it != objectArchetypes.end(); )
 		{
 			if( ( *it )->ContainsData( package->GetDataType() ) )
 			{
 				( *it )->SetDirty( true );
 				donors.emplace_back( *it );
-				it = forge::utils::RemoveReorder( entityArchetypes, it );
+				it = forge::utils::RemoveReorder( objectArchetypes, it );
 			}
 			else
 			{
@@ -130,7 +130,7 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 	auto found = m_typesHashToArchetypeLUT.find( typesHash );
 	if( found == m_typesHashToArchetypeLUT.end() )
 	{
-		m_archetypes.emplace_back( std::make_unique< Archetype >( m_engineInstance.GetEntitiesManager().GetHighestID() ) );
+		m_archetypes.emplace_back( std::make_unique< Archetype >( m_engineInstance.GetObjectsManager().GetHighestID() ) );
 		archetype = m_archetypes.back().get();
 		m_typesHashToArchetypeLUT.emplace( typesHash, archetype );
 
@@ -173,25 +173,25 @@ void systems::SystemsManager::AddECSData( forge::EntityID id, std::unique_ptr< f
 		}
 	}
 
-	archetype->MoveEntityFrom( id, donors );
+	archetype->MoveObjectFrom( id, donors );
 
-	m_entityArchetypesLUT[ id ].emplace_back( archetype );
+	m_objectArchetypesLUT[ id ].emplace_back( archetype );
 	archetype->SetDirty( true );
 }
 
-void systems::SystemsManager::RemoveECSData( forge::EntityID id, const rtti::IType& type )
+void systems::SystemsManager::RemoveECSData( forge::ObjectID id, const rtti::IType& type )
 {
 	PC_SCOPE_FUNC();
 
-	auto& entityTypes = m_entityDataTypesLUT.at( id );
-	auto& entityArchetypes = m_entityArchetypesLUT.at( id );
+	auto& objectTypes = m_objectDataTypesLUT.at( id );
+	auto& objectArchetypes = m_objectArchetypesLUT.at( id );
 
-	auto currentArchetypeIt = std::find_if( entityArchetypes.begin(), entityArchetypes.end(), [ & ]( systems::Archetype* archetype ) { return archetype->ContainsData( type ); } );
+	auto currentArchetypeIt = std::find_if( objectArchetypes.begin(), objectArchetypes.end(), [ & ]( systems::Archetype* archetype ) { return archetype->ContainsData( type ); } );
 
-	FORGE_ASSERT( currentArchetypeIt != entityArchetypes.end() );
+	FORGE_ASSERT( currentArchetypeIt != objectArchetypes.end() );
 
 	std::vector< std::unique_ptr< forge::IDataPackage > > tmpDataPackages;
-	( *currentArchetypeIt )->MoveEntityTo( id, tmpDataPackages );
+	( *currentArchetypeIt )->MoveObjectTo( id, tmpDataPackages );
 
 	( *currentArchetypeIt )->SetDirty( true );
 
@@ -220,10 +220,10 @@ void systems::SystemsManager::RemoveECSData( forge::EntityID id, const rtti::ITy
 
 	for( const auto& dataPackage : tmpDataPackages )
 	{
-		forge::utils::RemoveValueReorder( entityTypes, &dataPackage->GetDataType() );
+		forge::utils::RemoveValueReorder( objectTypes, &dataPackage->GetDataType() );
 	}
 
-	forge::utils::RemoveReorder( entityArchetypes, currentArchetypeIt );
+	forge::utils::RemoveReorder( objectArchetypes, currentArchetypeIt );
 
 	for( auto& dataPackage : tmpDataPackages )
 	{

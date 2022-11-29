@@ -28,14 +28,14 @@ namespace systems
 		}
 
 		template< class T >
-		const T& GetData( forge::EntityID id ) const
+		const T& GetData( forge::ObjectID id ) const
 		{
 			Int32 index = m_sparseSet[ id.m_id ];
 			return GetData< T >()[ index ];
 		}
 
 		template< class T >
-		T& GetData( forge::EntityID id )
+		T& GetData( forge::ObjectID id )
 		{
 			Int32 index = m_sparseSet[ id.m_id ];
 			return GetData< T >()[ index ];
@@ -46,17 +46,17 @@ namespace systems
 			return *m_data.at( &type );
 		}
 
-		void OnEntityCreated()
+		void OnObjectCreated()
 		{
 			m_sparseSet.emplace_back( -1 );
 		}
 
-		virtual void OnEntityDestructed( forge::EntityID id )
+		virtual void OnObjectDestructed( forge::ObjectID id )
 		{
 			FORGE_ASSERT( m_sparseSet[ id.m_id ] == -1 ); // pls destroy components before you destroy their owner
 		}
 
-		Bool ContainsEntity( forge::EntityID id ) const
+		Bool ContainsObject( forge::ObjectID id ) const
 		{
 			return m_sparseSet.at( id.m_id ) >= 0;
 		}
@@ -103,9 +103,9 @@ namespace systems
 			return GetDataSize() == 0u;
 		}
 
-		void MoveEntityTo( forge::EntityID entityId, Archetype* destination );
-		void MoveEntityTo( forge::EntityID entityId, std::vector< std::unique_ptr< forge::IDataPackage > >& destination );
-		void MoveEntityFrom( forge::EntityID entityId, std::vector< Archetype* > donorArchetypes );
+		void MoveObjectTo( forge::ObjectID objectId, Archetype* destination );
+		void MoveObjectTo( forge::ObjectID objectId, std::vector< std::unique_ptr< forge::IDataPackage > >& destination );
+		void MoveObjectFrom( forge::ObjectID objectId, std::vector< Archetype* > donorArchetypes );
 
 	private:
 		std::unordered_map< const rtti::IType*, std::unique_ptr< forge::IDataPackage > > m_data;

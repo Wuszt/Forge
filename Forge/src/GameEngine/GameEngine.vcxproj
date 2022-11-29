@@ -318,9 +318,9 @@
   <ItemGroup>
     <ClCompile Include="ApplicationInstance.cpp" />
     <ClCompile Include="EngineInstance.cpp" />
-    <ClCompile Include="EntitiesManager.cpp" />
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="EntityID.cpp" />
+    <ClCompile Include="ObjectsManager.cpp" />
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="ObjectID.cpp" />
     <ClCompile Include="Fpch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|x64'">Create</PrecompiledHeader>
@@ -335,9 +335,9 @@
   <ItemGroup>
     <ClInclude Include="ApplicationInstance.h" />
     <ClInclude Include="EngineInstance.h" />
-    <ClInclude Include="EntitiesManager.h" />
-    <ClInclude Include="Entity.h" />
-    <ClInclude Include="EntityID.h" />
+    <ClInclude Include="ObjectsManager.h" />
+    <ClInclude Include="Object.h" />
+    <ClInclude Include="ObjectID.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="IComponent.h" />
     <ClInclude Include="InternalDefaults.h" />

@@ -301,7 +301,7 @@ void systems::RenderingSystem::OnDraw()
 				cb.GetData().W = transformComponents[ i ].ToMatrix();
 
 				// It's stupid, but UpdateBuffer takes so much time that it makes sense for now
-				// I should probably separate static and dynamic objects in the future or/and keep an information which entity changed
+				// I should probably separate static and dynamic objects in the future or/and keep an information which object changed
 				// it's transform somehow
 				if( prev != cb.GetData().W )
 				{

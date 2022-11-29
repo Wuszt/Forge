@@ -23,7 +23,7 @@ void systems::PlayerSystem::OnInitialize()
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, std::bind( &systems::PlayerSystem::Update, this ) );
 }
 
-forge::Entity* systems::PlayerSystem::GetCurrentPlayerEntity() const
+forge::Object* systems::PlayerSystem::GetCurrentPlayerObject() const
 {
 	return m_activeController ? &m_activeController->GetOwner() : nullptr;
 }
@@ -59,7 +59,7 @@ void systems::PlayerSystem::OnRenderDebug()
 {
 	if( ImGui::Begin( "Player System" ) )
 	{
-		if( auto* cameraComponent = GetCurrentPlayerEntity()->GetComponent< forge::CameraComponent >() )
+		if( auto* cameraComponent = GetCurrentPlayerObject()->GetComponent< forge::CameraComponent >() )
 		{
 			if( ImGui::TreeNodeEx( "Camera", ImGuiTreeNodeFlags_DefaultOpen ) )
 			{

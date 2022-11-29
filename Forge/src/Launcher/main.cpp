@@ -37,7 +37,7 @@ std::string animName = "Animations\\Thriller.fbx";
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
 	{
 		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
 		{
@@ -53,7 +53,7 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 		} );
 	} );
 
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
@@ -62,7 +62,7 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 		} );
 	} );
 
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
@@ -71,7 +71,7 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 		} );
 	} );
 
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
@@ -83,7 +83,7 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 
 void SkeletalMesh( forge::EngineInstance& engineInstance )
 {
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
 	{
 		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
 		{
@@ -103,7 +103,7 @@ void SkeletalMesh( forge::EngineInstance& engineInstance )
 
 void SponzaScene( forge::EngineInstance& engineInstance )
 {
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
 	{
 		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
 		{
@@ -118,7 +118,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		} );
 	} );
 
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
@@ -127,7 +127,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		} );
 	} );
 
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::SpotLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
@@ -138,7 +138,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		} );
 	} );
 
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
@@ -150,7 +150,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 
 void BunnyScene( forge::EngineInstance& engineInstance )
 {
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
 	{
 		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
 		{
@@ -167,7 +167,7 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 		} );
 	} );
 
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
 	{
 		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
 		{
@@ -190,7 +190,7 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 
 void CubeScene( forge::EngineInstance& engineInstance )
 {
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
 	{
 		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
 		{
@@ -209,7 +209,7 @@ void CubeScene( forge::EngineInstance& engineInstance )
 
 void SphereScene( forge::EngineInstance& engineInstance )
 {
-	engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* obj )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
 	{
 		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
 		{
@@ -254,7 +254,7 @@ Int32 main()
 
 			engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor( { 0.55f, 0.55f, 0.55f } );
 
-			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* player )
+			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* player )
 			{
 				player->RequestAddingComponents< forge::TransformComponent, forge::CameraComponent, forge::FreeCameraControllerComponent >( [ engineInstancePtr = &engineInstance, player ]()
 				{
@@ -275,7 +275,7 @@ Int32 main()
 			//BunnyScene( engineInstance );	
 			SkeletalMesh( engineInstance );
 
-			engineInstance.GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ & ]( forge::Entity* light )
+			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
 			{
 				light->RequestAddingComponents< forge::DirectionalLightComponent >( [ this, engineInstancePtr = &engineInstance, light ]()
 				{

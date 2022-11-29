@@ -19,13 +19,13 @@ namespace systems
 	private:
 		void Update();
 
-		struct DebugEntity
+		struct DebugObject
 		{
-			forge::EntityID m_entityId;
+			forge::ObjectID m_objectId;
 			Float m_timestamp;
 		};
 
-		std::vector< DebugEntity > m_debugEntities;
+		std::vector< DebugObject > m_debugObjects;
 		forge::CallbackToken m_updateToken;
 
 		forge::CallbackToken m_onRenderDebugToken;

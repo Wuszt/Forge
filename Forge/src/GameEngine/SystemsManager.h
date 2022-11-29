@@ -1,5 +1,5 @@
 #pragma once
-#include "EntityID.h"
+#include "ObjectID.h"
 #include "EngineInstance.h" // todo - separate IManager and EngineInstance
 #include "ISystem.h"
 
@@ -81,27 +81,27 @@ namespace systems
 			return m_dataToArchetypesLUT[ &T::GetTypeStatic() ];
 		}
 
-		const std::vector< Archetype* >& GetArchetypesOfEntity( forge::EntityID id )
+		const std::vector< Archetype* >& GetArchetypesOfObject( forge::ObjectID id )
 		{
-			return m_entityArchetypesLUT[ id.m_id ];
+			return m_objectArchetypesLUT[ id.m_id ];
 		}
 
 		forge::ArraySpan< systems::Archetype* > GetArchetypesWithDataTypes( const IArchetypeDataTypes& archetypeDataTypes );
 
-		void AddECSData( forge::EntityID id, std::unique_ptr< forge::IDataPackage > package );
+		void AddECSData( forge::ObjectID id, std::unique_ptr< forge::IDataPackage > package );
 
 		template< class T >
-		void AddECSData( forge::EntityID id )
+		void AddECSData( forge::ObjectID id )
 		{
 			std::unique_ptr< forge::DataPackage< T > > package = std::make_unique< forge::DataPackage< T > >();
 			package->AddEmptyData();
 			AddECSData( id, std::move( package ) );
 		}
 
-		void RemoveECSData( forge::EntityID id, const rtti::IType& type );
+		void RemoveECSData( forge::ObjectID id, const rtti::IType& type );
 
 		template< class T >
-		void RemoveECSData( forge::EntityID id )
+		void RemoveECSData( forge::ObjectID id )
 		{
 			RemoveECSData( id, T::GetTypeStatic() );
 		}
@@ -122,13 +122,13 @@ namespace systems
 
 		std::vector< std::unique_ptr< Archetype > > m_archetypes;
 		std::unordered_map< const rtti::IType*, std::vector< Archetype* > > m_dataToArchetypesLUT;
-		std::unordered_map< forge::EntityID, std::vector< const rtti::IType* > > m_entityDataTypesLUT;
-		std::unordered_map< forge::EntityID, std::vector< Archetype* > > m_entityArchetypesLUT;
+		std::unordered_map< forge::ObjectID, std::vector< const rtti::IType* > > m_objectDataTypesLUT;
+		std::unordered_map< forge::ObjectID, std::vector< Archetype* > > m_objectArchetypesLUT;
 		std::unordered_map< Uint32, Archetype* > m_typesHashToArchetypeLUT;
 		std::unordered_map< Uint32, std::vector< Archetype* > > m_archetypeTypesHashToArchetypesLUT;
 
-		forge::CallbackToken m_onEntityCreated;
-		forge::CallbackToken m_onEntityDestructed;
+		forge::CallbackToken m_onObjectCreated;
+		forge::CallbackToken m_onObjectDestructed;
 		forge::CallbackToken m_onTick;
 		forge::Callback<> m_onBootCallback;
 	};

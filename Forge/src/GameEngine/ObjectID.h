@@ -2,15 +2,15 @@
 
 namespace forge
 {
-	struct EntityID
+	struct ObjectID
 	{
-		EntityID() = default;
+		ObjectID() = default;
 
-		EntityID( Uint32 id )
+		ObjectID( Uint32 id )
 			: m_id( id )
 		{}
 
-		~EntityID() = default;
+		~ObjectID() = default;
 
 		Uint32 m_id = 0u;
 
@@ -21,7 +21,7 @@ namespace forge
 			return m_id != c_invalidID;
 		}
 
-		Bool operator==( const EntityID& id ) const
+		Bool operator==( const ObjectID& id ) const
 		{
 			return m_id == id.m_id;
 		}
@@ -30,8 +30,8 @@ namespace forge
 
 namespace std
 {
-	template<> struct std::hash<forge::EntityID> {
-		std::size_t operator()( const forge::EntityID& s ) const noexcept
+	template<> struct std::hash<forge::ObjectID> {
+		std::size_t operator()( const forge::ObjectID& s ) const noexcept
 		{
 			return s.m_id;
 		}

@@ -56,7 +56,7 @@ void systems::DebugSystem::OnInitialize()
 
 void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const Vector4& color, Float lifetime )
 {
-	GetEngineInstance().GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ = ]( forge::Entity* obj )
+	GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ = ]( forge::Object* obj )
 	{
 		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ = ]()
 		{
@@ -72,13 +72,13 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 
-		m_debugEntities.emplace_back( DebugEntity{ obj->GetEntityID(), forge::Time::GetTime() + lifetime } );
+		m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + lifetime } );
 	} );
 }
 
 void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& extension, const Vector4& color, Float lifetime )
 {
-	GetEngineInstance().GetEntitiesManager().RequestCreatingEntity< forge::Entity >( [ = ]( forge::Entity* obj )
+	GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ = ]( forge::Object* obj )
 	{
 		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ = ]()
 		{
@@ -94,19 +94,19 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 
-		m_debugEntities.emplace_back( DebugEntity{ obj->GetEntityID(), forge::Time::GetTime() + lifetime } );
+		m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + lifetime } );
 	} );
 }
 
 void systems::DebugSystem::Update()
 {
 	Float currentTime = forge::Time::GetTime();
-	for( auto it = m_debugEntities.begin(); it != m_debugEntities.end(); )
+	for( auto it = m_debugObjects.begin(); it != m_debugObjects.end(); )
 	{
 		if( currentTime > it->m_timestamp )
 		{
-			GetEngineInstance().GetEntitiesManager().RequestDestructingEntity( it->m_entityId );
-			it = forge::utils::RemoveReorder( m_debugEntities, it );
+			GetEngineInstance().GetObjectsManager().RequestDestructingObject( it->m_objectId );
+			it = forge::utils::RemoveReorder( m_debugObjects, it );
 		}
 		else
 		{

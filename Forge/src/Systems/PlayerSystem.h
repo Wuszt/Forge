@@ -27,7 +27,7 @@ namespace systems
 			return m_activeController;
 		}
 
-		forge::Entity* GetCurrentPlayerEntity() const;
+		forge::Object* GetCurrentPlayerObject() const;
 
 	private:
 		void Update();

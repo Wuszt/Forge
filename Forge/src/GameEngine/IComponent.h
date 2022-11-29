@@ -7,13 +7,13 @@ namespace forge
 		DECLARE_ABSTRACT_CLASS( IComponent );
 	public:
 		template< class T >
-		friend T* Entity::AddComponent<T>();
-		friend void Entity::OnDetach();
+		friend T* Object::AddComponent<T>();
+		friend void Object::OnDetach();
 
 		IComponent();
 		virtual ~IComponent();
 
-		Entity& GetOwner() const
+		Object& GetOwner() const
 		{
 			return *m_owner;
 		}
@@ -23,10 +23,10 @@ namespace forge
 		virtual void OnDetach( EngineInstance& engineInstance ) {}
 
 	private:
-		void Attach( EngineInstance& engineInstance, Entity& owner );
+		void Attach( EngineInstance& engineInstance, Object& owner );
 		void Detach( EngineInstance& engineInstance );
 
-		Entity* m_owner;
+		Object* m_owner;
 	};
 
 	template< class TData >
@@ -39,21 +39,21 @@ namespace forge
 		{
 			auto& systemsManager = engineInstance.GetSystemsManager();
 
-			systemsManager.AddECSData< TData >( GetOwner().GetEntityID() );
+			systemsManager.AddECSData< TData >( GetOwner().GetObjectID() );
 		}
 
 		virtual void OnDetach( EngineInstance& engineInstance ) override
 		{
 			auto& systemsManager = engineInstance.GetSystemsManager();
 
-			systemsManager.RemoveECSData< TData >( GetOwner().GetEntityID() );
+			systemsManager.RemoveECSData< TData >( GetOwner().GetObjectID() );
 		}
 
 		TData& GetData()
 		{
 			auto& ei = GetOwner().GetEngineInstance();
 			systems::SystemsManager& sm = ei.GetSystemsManager();
-			const auto& archetypes = sm.GetArchetypesOfEntity( GetOwner().GetEntityID() );
+			const auto& archetypes = sm.GetArchetypesOfObject( GetOwner().GetObjectID() );
 
 			auto found = std::find_if( archetypes.begin(), archetypes.end(), []( auto* archetype ) { return archetype->ContainsData< TData >(); } );
 			if( found == archetypes.end() )
@@ -61,7 +61,7 @@ namespace forge
 				found = found;
 			}
 			FORGE_ASSERT( found != archetypes.end() );
-			return ( *found )->GetData< TData >( GetOwner().GetEntityID() );
+			return ( *found )->GetData< TData >( GetOwner().GetObjectID() );
 		}
 
 	private:

@@ -10,13 +10,7 @@
     <ClCompile Include="Fpch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EntitiesManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EntityID.cpp">
+    <ClCompile Include="ObjectsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UpdateManager.cpp">
@@ -31,6 +25,8 @@
     <ClCompile Include="SystemsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="ObjectID.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationInstance.h">
@@ -48,13 +44,7 @@
     <ClInclude Include="PublicDefaults.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EntitiesManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EntityID.h">
+    <ClInclude Include="ObjectsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UpdateManager.h">
@@ -69,6 +59,8 @@
     <ClInclude Include="SystemsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Object.h" />
+    <ClInclude Include="ObjectID.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

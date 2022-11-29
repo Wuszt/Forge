@@ -6,7 +6,7 @@ IMPLEMENT_TYPE( forge, IComponent );
 forge::IComponent::IComponent() = default;
 forge::IComponent::~IComponent() = default;
 
-void forge::IComponent::Attach( EngineInstance& engineInstance, Entity& owner )
+void forge::IComponent::Attach( EngineInstance& engineInstance, Object& owner )
 {
 	m_owner = &owner;
 	OnAttach( engineInstance );

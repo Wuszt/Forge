@@ -5,13 +5,13 @@ namespace forge
 	class IComponent;
 	class EngineInstance;
 
-	class Entity
+	class Object
 	{
 	public:
-		Entity( EngineInstance& engineInstance, EntityID id );
-		virtual ~Entity();
+		Object( EngineInstance& engineInstance, ObjectID id );
+		virtual ~Object();
 
-		EntityID GetEntityID() const
+		ObjectID GetObjectID() const
 		{
 			return m_id;
 		}
@@ -67,7 +67,7 @@ namespace forge
 
 		void RequestAddingComponentsInternal( const std::function< void() >& creationFunc );
 
-		EntityID m_id;
+		ObjectID m_id;
 		EngineInstance& m_engineInstance;
 
 		std::unordered_map< const rtti::IType*, std::unique_ptr< IComponent > > m_components;

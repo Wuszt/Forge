@@ -12,7 +12,7 @@ namespace systems
 
 namespace forge
 {
-	class EntitiesManager;
+	class ObjectsManager;
 	class UpdateManager;
 	class IWindow;
 	class ApplicationInstance;
@@ -31,9 +31,9 @@ namespace forge
 			return *m_systemManager;
 		}
 
-		EntitiesManager& GetEntitiesManager() const
+		ObjectsManager& GetObjectsManager() const
 		{
-			return *m_entitiesManager;
+			return *m_objectsManager;
 		}
 
 		UpdateManager& GetUpdateManager() const
@@ -64,7 +64,7 @@ namespace forge
 		void Run();
 
 	private:
-		std::unique_ptr< EntitiesManager > m_entitiesManager;
+		std::unique_ptr< ObjectsManager > m_objectsManager;
 		std::unique_ptr< systems::SystemsManager > m_systemManager;
 		std::unique_ptr< UpdateManager > m_updateManager;
 		std::unique_ptr< DepotsContainer > m_depotsContainer;
