@@ -82,7 +82,8 @@ namespace forge
 		template< class T = forge::Object >
 		T* CreateObject()
 		{
-			ObjectID id = ++m_lastUsedObjectID;
+			ObjectID id = ObjectID::GenerateNewId();
+			m_lastUsedObjectID = id.AsUint32();
 			auto obj = std::make_unique< T >( GetEngineInstance(), id );
 			auto* rawObj = obj.get();
 

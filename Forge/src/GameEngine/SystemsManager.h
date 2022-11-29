@@ -83,7 +83,7 @@ namespace systems
 
 		const std::vector< Archetype* >& GetArchetypesOfObject( forge::ObjectID id )
 		{
-			return m_objectArchetypesLUT[ id.m_id ];
+			return m_objectArchetypesLUT[ id ];
 		}
 
 		forge::ArraySpan< systems::Archetype* > GetArchetypesWithDataTypes( const IArchetypeDataTypes& archetypeDataTypes );
