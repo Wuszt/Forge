@@ -37,7 +37,7 @@ namespace systems
 		template< class T >
 		T& GetData( forge::ObjectID id )
 		{
-			Int32 index = m_sparseSet[ id.m_id ];
+			Int32 index = m_sparseSet[ id.AsUint32() ];
 			return GetData< T >()[ index ];
 		}
 
@@ -53,12 +53,12 @@ namespace systems
 
 		virtual void OnObjectDestructed( forge::ObjectID id )
 		{
-			FORGE_ASSERT( m_sparseSet[ id.m_id ] == -1 ); // pls destroy components before you destroy their owner
+			FORGE_ASSERT( m_sparseSet[ id.AsUint32() ] == -1 ); // pls destroy components before you destroy their owner
 		}
 
 		Bool ContainsObject( forge::ObjectID id ) const
 		{
-			return m_sparseSet.at( id.m_id ) >= 0;
+			return m_sparseSet.at( id.AsUint32() ) >= 0;
 		}
 
 		template< class T >
