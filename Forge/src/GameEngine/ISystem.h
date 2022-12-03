@@ -197,7 +197,7 @@ namespace systems
 
 	class IECSSystem : public ISystem
 	{
-		DECLARE_ABSTRACT_CLASS( IECSSystem, systems, ISystem );
+		DECLARE_ABSTRACT_CLASS( IECSSystem, systems::ISystem );
 	public:
 		virtual std::vector< std::unique_ptr< IArchetypeDataTypes > > GetArchetypesDataTypes() const = 0;
 

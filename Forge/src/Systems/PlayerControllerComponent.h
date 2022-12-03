@@ -6,7 +6,7 @@ namespace forge
 
 	class PlayerControllerComponent : public IComponent
 	{
-		DECLARE_CLASS(PlayerControllerComponent, forge, IComponent);
+		DECLARE_POLYMORPHIC_CLASS( PlayerControllerComponent, forge::IComponent );
 	public:
 		using IComponent::IComponent;
 

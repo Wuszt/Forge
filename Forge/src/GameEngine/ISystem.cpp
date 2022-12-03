@@ -1,8 +1,8 @@
 #include "Fpch.h"
 #include "ISystem.h"
 
-IMPLEMENT_TYPE(systems, ISystem)
-IMPLEMENT_TYPE(systems, IECSSystem)
+IMPLEMENT_TYPE( systems::ISystem )
+IMPLEMENT_TYPE( systems::IECSSystem )
 
 void systems::Archetype::MoveObjectTo( forge::ObjectID objectId, Archetype* destination )
 {

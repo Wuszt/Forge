@@ -16,7 +16,7 @@ namespace forge
 
 	class DirectionalLightComponent : public DataComponent< DirectionalLightComponentData >
 	{
-		DECLARE_CLASS( DirectionalLightComponent, forge, IComponent );
+		DECLARE_POLYMORPHIC_CLASS( DirectionalLightComponent, forge::IComponent );
 	public:
 		using DataComponent::DataComponent;
 	};

@@ -1,4 +1,4 @@
 #include "Fpch.h"
 #include "TransformSystem.h"
 
-IMPLEMENT_TYPE( systems, TransformSystem );
+IMPLEMENT_TYPE( systems::TransformSystem );

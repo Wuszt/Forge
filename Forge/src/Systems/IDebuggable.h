@@ -15,8 +15,20 @@ namespace forge
 				category = "Systems";
 			}
 
-			const char* name = T::GetTypeStatic().GetName( false );
-			InitializeDebuggable( engineInstance, category, name );
+			const char* name = T::GetTypeStatic().GetName();
+
+			Uint32 classNameStart = static_cast< Uint32 >( std::string( name ).find_last_of( "::" ) );
+			
+			if( classNameStart == static_cast< Uint32 >( std::string::npos ) )
+			{
+				classNameStart = 0u;
+			}
+			else
+			{
+				classNameStart += 1u;
+			}
+
+			InitializeDebuggable( engineInstance, category, name + classNameStart );
 		}
 
 	protected:

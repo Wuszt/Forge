@@ -15,7 +15,7 @@
 
 #include "DebugSystem.h"
 
-IMPLEMENT_TYPE( systems, LightingSystem );
+IMPLEMENT_TYPE( systems::LightingSystem );
 
 const Float c_shadowMapBaseSize = 1024.0f;
 

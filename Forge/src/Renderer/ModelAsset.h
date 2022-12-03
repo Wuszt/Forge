@@ -7,7 +7,7 @@ namespace renderer
 
 	class ModelAsset : public forge::IAsset
 	{
-		DECLARE_CLASS( ModelAsset, forge, IAsset );
+		DECLARE_POLYMORPHIC_CLASS( ModelAsset, forge::IAsset );
 	public:
 		struct MaterialData
 		{

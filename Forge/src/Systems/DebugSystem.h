@@ -5,7 +5,7 @@ namespace systems
 {
 	class DebugSystem : public ISystem
 	{
-		DECLARE_CLASS( DebugSystem, systems, ISystem );
+		DECLARE_POLYMORPHIC_CLASS( DebugSystem, systems::ISystem );
 
 	public:
 		using ISystem::ISystem;

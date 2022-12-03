@@ -4,7 +4,7 @@ namespace systems
 {
 	class TimeSystem : public ISystem
 	{
-		DECLARE_CLASS( TimeSystem, systems, ISystem );
+		DECLARE_POLYMORPHIC_CLASS( TimeSystem, systems::ISystem );
 	public:
 		using ISystem::ISystem;
 

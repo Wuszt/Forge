@@ -5,8 +5,8 @@
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
 
-IMPLEMENT_TYPE( forge, RenderingComponentData )
-IMPLEMENT_TYPE( forge, RenderingComponent )
+IMPLEMENT_TYPE( forge::RenderingComponentData )
+IMPLEMENT_TYPE( forge::RenderingComponent )
 
 forge::RenderingComponent::RenderingComponent() = default;
 forge::RenderingComponent::~RenderingComponent() = default;

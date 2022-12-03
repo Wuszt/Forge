@@ -14,7 +14,7 @@ namespace forge
 
 	class SpotLightComponent : public DataComponent< SpotLightComponentData >
 	{
-		DECLARE_CLASS( SpotLightComponent, forge, IComponent );
+		DECLARE_POLYMORPHIC_CLASS( SpotLightComponent, forge::IComponent );
 	public:
 		using DataComponent::DataComponent;
 	};

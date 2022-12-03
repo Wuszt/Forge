@@ -14,7 +14,7 @@
 #include "../Renderer/IRenderer.h"
 #endif
 
-IMPLEMENT_TYPE(systems, DebugSystem);
+IMPLEMENT_TYPE( systems::DebugSystem);
 
 void systems::DebugSystem::OnInitialize()
 {

@@ -7,7 +7,7 @@
 #include "../IMGUI/PublicDefaults.h"
 #endif
 
-IMPLEMENT_TYPE(systems, CamerasSystem)
+IMPLEMENT_TYPE( systems::CamerasSystem)
 
 void systems::CamerasSystem::OnInitialize()
 {

@@ -52,7 +52,7 @@ namespace renderer
 
 	class AnimationSetAsset : public forge::IAsset
 	{
-		DECLARE_CLASS( AnimationSetAsset, forge, IAsset );
+		DECLARE_POLYMORPHIC_CLASS( AnimationSetAsset, forge::IAsset );
 
 	public:
 		AnimationSetAsset();

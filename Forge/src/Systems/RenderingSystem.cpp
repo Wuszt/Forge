@@ -21,7 +21,7 @@
 #include "../Renderer/TextureAsset.h"
 #include "../Core/AssetsManager.h"
 
-IMPLEMENT_TYPE( systems, RenderingSystem );
+IMPLEMENT_TYPE( systems::RenderingSystem );
 
 systems::RenderingSystem::RenderingSystem()
 	: ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >()

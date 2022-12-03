@@ -19,7 +19,7 @@ namespace forge
 
 	class RenderingComponent : public DataComponent< RenderingComponentData >
 	{
-		DECLARE_CLASS( RenderingComponent, IComponent );
+		DECLARE_POLYMORPHIC_CLASS( RenderingComponent, forge::IComponent );
 	public:
 		RenderingComponent();
 		~RenderingComponent();

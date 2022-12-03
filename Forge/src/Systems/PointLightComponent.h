@@ -13,7 +13,7 @@ namespace forge
 
 	class PointLightComponent : public DataComponent< PointLightComponentData >
 	{
-		DECLARE_CLASS( PointLightComponent, IComponent );
+		DECLARE_POLYMORPHIC_CLASS( PointLightComponent, forge::IComponent );
 	public:
 		using DataComponent::DataComponent;
 	};

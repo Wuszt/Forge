@@ -12,7 +12,7 @@
 #include "../Renderer/OrthographicCamera.h"
 #endif
 
-IMPLEMENT_TYPE( systems, PlayerSystem );
+IMPLEMENT_TYPE( systems::PlayerSystem );
 
 void systems::PlayerSystem::OnInitialize()
 {

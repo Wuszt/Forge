@@ -5,7 +5,7 @@
 #include "TransformComponent.h"
 #include "../Renderer/OrthographicCamera.h"
 
-IMPLEMENT_TYPE( forge, CameraComponent );
+IMPLEMENT_TYPE( forge::CameraComponent );
 
 void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
 {
