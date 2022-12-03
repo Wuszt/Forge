@@ -4,16 +4,12 @@ namespace forge
 {
 	class ObjectID
 	{
+		friend class ObjectsManager;
+
 	public:
 		ObjectID() = default;
 
 		~ObjectID() = default;
-
-		static ObjectID GenerateNewId()
-		{
-			static Uint32 s_nextAvailableID = 1u;
-			return ObjectID( s_nextAvailableID++ );
-		}
 
 		static const Uint32 c_invalidID = 0u;
 
@@ -27,7 +23,7 @@ namespace forge
 			return m_id == id.m_id;
 		}
 
-		Uint32 AsUint32() const
+		explicit operator Uint32() const
 		{
 			return m_id;
 		}
@@ -46,7 +42,7 @@ namespace std
 	template<> struct std::hash<forge::ObjectID> {
 		std::size_t operator()( const forge::ObjectID& s ) const noexcept
 		{
-			return s.AsUint32();
+			return static_cast< Uint32 >( s );
 		}
 	};
 }
