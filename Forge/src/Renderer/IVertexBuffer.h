@@ -118,8 +118,8 @@ namespace renderer
 		void AddData( std::vector< T > vec )
 		{
 			FORGE_ASSERT( !vec.empty() );
-			FORGE_ASSERT( m_verticesAmount == 0u || m_verticesAmount == vec.size() );
-			m_verticesAmount = vec.size();
+			FORGE_ASSERT( m_verticesAmount == 0u || m_verticesAmount == static_cast< Uint32 >( vec.size() ) );
+			m_verticesAmount = static_cast< Uint32 >( vec.size() );
 
 			const auto& element = m_elements.emplace_back( std::make_unique< ElementDesc< T > >( vec ) );
 			m_vertexSize += element->GetElementSize();

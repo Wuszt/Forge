@@ -94,7 +94,7 @@ SceneHandle LoadScene( const std::string& path )
 	forge::RawSmartPtr content( fileSize );
 	fread( content.GetData(), 1, fileSize, handle.m_file );
 
-	return SceneHandle( ofbx::load( reinterpret_cast< ofbx::u8* >( content.GetData() ), fileSize, static_cast< ofbx::u64 >( ofbx::LoadFlags::TRIANGULATE ) ) );
+	return SceneHandle( ofbx::load( reinterpret_cast< ofbx::u8* >( content.GetData() ), static_cast< Int32 >( fileSize ), static_cast< ofbx::u64 >( ofbx::LoadFlags::TRIANGULATE ) ) );
 }
 
 std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path, const SceneHandle& scene, std::unordered_map< const ofbx::Object*, Uint32 >& outBonesMap )
@@ -103,7 +103,7 @@ std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path
 	std::vector< renderer::InputBlendIndices > blendIndices;
 	std::vector< Matrix > bonesOffsets;
 
-	for( Uint32 i = 0u; i < scene->getMesh( 0 )->getGeometry()->getSkin()->getClusterCount(); ++i )
+	for( Uint32 i = 0u; i < static_cast< Uint32 >( scene->getMesh( 0 )->getGeometry()->getSkin()->getClusterCount() ); ++i )
 	{
 		const ofbx::Cluster* mainCluster = scene->getMesh( 0 )->getGeometry()->getSkin()->getCluster( i );
 
@@ -112,18 +112,18 @@ std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path
 		bonesOffsets.emplace_back( CONVERT2FORGE( mainCluster->getTransformMatrix() ) );
 
 		Uint32 offset = 0u;
-		for( Uint32 s = 0u; s < scene->getMeshCount(); ++s )
+		for( Uint32 s = 0u; s < static_cast< Uint32 >( scene->getMeshCount() ); ++s )
 		{
 			const ofbx::Cluster* cluster = scene->getMesh( s )->getGeometry()->getSkin()->getCluster(i);
 			FORGE_ASSERT( cluster->getWeightsCount() == cluster->getIndicesCount() );
 			
-			for( Uint32 j = 0; j < cluster->getWeightsCount(); ++j )
+			for( Uint32 j = 0; j < static_cast< Uint32 >( cluster->getWeightsCount() ); ++j )
 			{			
 				Uint32 vertexID = offset + cluster->getIndices()[j];
-				Float weight = cluster->getWeights()[ j ];
+				Float weight = static_cast< Float >( cluster->getWeights()[ j ] );
 
-				blendWeights.resize( Math::Max< Uint32 >( blendWeights.size(), vertexID + 1u ) );
-				blendIndices.resize( Math::Max< Uint32 >( blendIndices.size(), vertexID + 1u ) );
+				blendWeights.resize( Math::Max< Uint32 >( static_cast< Uint32 >( blendWeights.size() ), vertexID + 1u ) );
+				blendIndices.resize( Math::Max< Uint32 >( static_cast< Uint32 >( blendIndices.size() ), vertexID + 1u ) );
 
 				Bool found = false;
 				for( Uint32 x = 0u; x < 4u; ++x )
@@ -272,7 +272,7 @@ std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHand
 {
 	std::vector< renderer::Animation > animations;
 
-	for( Uint32 i = 0u; i < scene->getAnimationStackCount(); ++i )
+	for( Uint32 i = 0u; i < static_cast< Uint32 >( scene->getAnimationStackCount() ); ++i )
 	{
 		if( scene->getAnimationStack( i )->getLayer( 1 ) )
 		{
@@ -293,11 +293,11 @@ std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHand
 			continue;
 		}
 
-		renderer::Animation& animation = animations.emplace_back( scene->getSceneFrameRate(), skeleton.m_bonesOffsets.size() );
+		renderer::Animation& animation = animations.emplace_back( scene->getSceneFrameRate(), static_cast< Uint32 >( skeleton.m_bonesOffsets.size() ) );
 
-		Uint32 framesAmount = ofbx::fbxTimeToSeconds( curve->getKeyTime()[ curve->getKeyCount() - 1 ] ) * animation.GetFrameRate();
+		Uint32 framesAmount = static_cast< Uint32 >( ofbx::fbxTimeToSeconds( curve->getKeyTime()[ curve->getKeyCount() - 1 ] ) * animation.GetFrameRate() );
 
-		for( Uint32 j = 0u; j < scene->getGeometry( 0 )->getSkin()->getClusterCount(); ++j )
+		for( Uint32 j = 0u; j < static_cast< Uint32 >( scene->getGeometry( 0 )->getSkin()->getClusterCount() ); ++j )
 		{
 			const ofbx::Object* link = scene->getGeometry( 0 )->getSkin()->getCluster( j )->getLink();
 
@@ -323,15 +323,15 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 	std::vector< renderer::InputColor > colors;
 	std::vector< renderer::InputNormal > normals;
 
-	for( Uint32 i = 0u; i < scene->getMeshCount(); ++i )
+	for( Uint32 i = 0u; i < static_cast< Uint32 >( scene->getMeshCount() ); ++i )
 	{
 		auto* mesh = scene->getMesh( i );
 		auto* geometry = mesh->getGeometry();
 
 		Matrix transformMatrix = CONVERT2FORGE( mesh->getGlobalTransform() );
 
-		Uint32 materialIndexOffset = materialsData.size();
-		for( Uint32 i = 0; i < mesh->getMaterialCount(); ++i )
+		Uint32 materialIndexOffset = static_cast< Uint32 >( materialsData.size() );
+		for( Uint32 i = 0; i < static_cast< Uint32 >( mesh->getMaterialCount() ); ++i )
 		{
 			auto* rawMaterial = mesh->getMaterial( i );
 			materialsData.emplace_back( renderer::ModelAsset::MaterialData{ renderer.CreateConstantBuffer() } );
@@ -449,7 +449,7 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 				poses.emplace_back( pos );		
 				normals.emplace_back( getNormalFunc( i, j ) );
 
-				shapes.back().m_indices.emplace_back( poses.size() - 1 );
+				shapes.back().m_indices.emplace_back( static_cast< Uint32 >( poses.size() ) - 1u );
 			}
 
 
@@ -487,7 +487,7 @@ std::string GetFixedPathOfAsset( const char* path )
 
 void CreateExternalAssets( const SceneHandle& scene )
 {
-	for( Uint32 i = 0u; i < scene->getEmbeddedDataCount(); ++i )
+	for( Uint32 i = 0u; i < static_cast< Uint32 >( scene->getEmbeddedDataCount() ); ++i )
 	{
 		auto data = scene->getEmbeddedData( i );
 

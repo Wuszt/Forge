@@ -26,7 +26,7 @@ forge::ArraySpan< std::shared_ptr< forge::IAsset > > forge::AssetsManager::GetAs
 		return {};
 	}
 
-	Uint32 extensionStartIndex = finalPath.find_last_of( '.' ) + 1u;
+	std::size_t extensionStartIndex = finalPath.find_last_of( '.' ) + 1u;
 
 	if( extensionStartIndex >= finalPath.size() )
 	{

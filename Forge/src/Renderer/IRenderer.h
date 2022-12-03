@@ -97,7 +97,7 @@ namespace renderer
 		virtual std::unique_ptr< IDepthStencilState > CreateDepthStencilState( DepthStencilComparisonFunc comparisonFunc ) const = 0;
 		virtual std::unique_ptr< ISamplerState > CreateSamplerState( SamplerStateFilterType filterType, SamplerStateComparisonType comparisonType ) = 0;
 
-		virtual void SetDepthBias( Float bias, Float slopeScaledBias, Float clamp ) = 0;
+		virtual void SetDepthBias( Int32 bias, Float slopeScaledBias, Float clamp ) = 0;
 		virtual void SetViewportSize( const Vector2& size ) = 0;
 		virtual void SetRenderTargets( const forge::ArraySpan< IRenderTargetView* >& rendererTargetViews, IDepthStencilView* depthStencilView ) = 0;
 		virtual void SetSamplerStates( const forge::ArraySpan< ISamplerState* > samplerStates ) = 0;

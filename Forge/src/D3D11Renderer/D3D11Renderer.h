@@ -69,7 +69,7 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::IDepthStencilState > CreateDepthStencilState( renderer::DepthStencilComparisonFunc comparisonFunc ) const override;
 		virtual std::unique_ptr< renderer::ISamplerState > CreateSamplerState( renderer::SamplerStateFilterType filterType, renderer::SamplerStateComparisonType comparisonType ) override;
 
-		virtual void SetDepthBias( Float bias, Float slopeScaledBias, Float clamp ) override;
+		virtual void SetDepthBias( Int32 bias, Float slopeScaledBias, Float clamp ) override;
 		virtual void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilView* depthStencilView ) override;
 		virtual void SetSamplerStates( const forge::ArraySpan< renderer::ISamplerState* > samplerStates ) override;
 		virtual void SetShaderResourceViews( const forge::ArraySpan< renderer::IShaderResourceView* >& input, Uint32 startIndex = 0u ) override;

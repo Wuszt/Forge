@@ -180,7 +180,7 @@ namespace d3d11
 		return std::make_unique< d3d11::D3D11SamplerState >( *GetDevice(), filterType, comparisonType );
 	}
 
-	void D3D11Renderer::SetDepthBias( Float bias, Float slopeScaledBias, Float clamp )
+	void D3D11Renderer::SetDepthBias( Int32 bias, Float slopeScaledBias, Float clamp )
 	{
 		D3D11_RASTERIZER_DESC desc;
 		m_rasterizerState->GetDesc( &desc );

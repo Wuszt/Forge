@@ -67,13 +67,13 @@ namespace forge
 			return m_data;
 		}
 
-		Uint32 GetSize() const
+		Uint64 GetSize() const
 		{
 			return m_size;
 		}
 
 	private:
-		Uint32 m_size = 0u;
+		Uint64 m_size = 0u;
 		Byte* m_data = nullptr;
 	};
 }

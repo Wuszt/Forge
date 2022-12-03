@@ -18,7 +18,7 @@ void renderer::ShadowMapsGenerator::GenerateShadowMaps( const renderer::RawRende
 		return;
 	}
 
-	m_renderer.SetDepthBias( 160.0f, 2.0f, 0.0f );
+	m_renderer.SetDepthBias( 160, 2.0f, 0.0f );
 
 	for( auto& lightData : lightingData.m_pointLights )
 	{
@@ -86,5 +86,5 @@ void renderer::ShadowMapsGenerator::GenerateShadowMaps( const renderer::RawRende
 		}
 	}
 
-	m_renderer.SetDepthBias( 0.0f, 0.0f, 0.0f );
+	m_renderer.SetDepthBias( 0, 0.0f, 0.0f );
 }

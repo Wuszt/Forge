@@ -41,7 +41,7 @@ Matrix InterpolateBetweenKeys( const renderer::Animation::AnimationKey& prev, co
 Matrix renderer::Animation::Sample( Float time, Uint32 boneIndex, Bool loop ) const
 {
 	Float t = 0.0f;
-	auto [ frame, nextFrame ] = CalculateFramesToInterp( time, m_frameRate, m_bonesKeys[ 0 ].size(), loop, t );
+	auto [ frame, nextFrame ] = CalculateFramesToInterp( time, m_frameRate, static_cast< Uint32 >( m_bonesKeys[ 0 ].size() ), loop, t );
 
 	AnimationKey prevKey = m_bonesKeys[ boneIndex ][ frame ];
 	AnimationKey nextKey = m_bonesKeys[ boneIndex ][ nextFrame ];
@@ -54,7 +54,7 @@ void renderer::Animation::Sample( Float time, Bool loop, std::vector< Matrix >& 
 	outTransforms.resize( m_bonesKeys.size() );
 
 	Float t = 0.0f;
-	auto [ frame, nextFrame ] = CalculateFramesToInterp( time, m_frameRate, m_bonesKeys[ 0 ].size(), loop, t );
+	auto [ frame, nextFrame ] = CalculateFramesToInterp( time, m_frameRate, static_cast< Uint32 >( m_bonesKeys[ 0 ].size() ), loop, t );
 
 	for( Uint32 i = 0u; i < m_bonesKeys.size(); ++i )
 	{
