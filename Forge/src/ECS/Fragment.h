@@ -1,5 +1,5 @@
 #pragma once
-#define REGISTER_FRAGMENT(...) static int GetFragmentIndex() { static int id = GetNextID(); return id; }
+#define REGISTER_ECS_FRAGMENT(...) static int GetFragmentIndex() { static int id = GetNextID(); return id; }
 
 namespace ecs
 {
@@ -7,7 +7,7 @@ namespace ecs
 	{
 		DECLARE_STRUCT( Fragment );
 
-		static const Uint32 c_maxFragmentsAmount = 128u;
+		static const Uint32 c_maxFragmentsAmount = 32u;
 
 	protected:
 		static int GetNextID()
@@ -16,4 +16,6 @@ namespace ecs
 			return id++;
 		}
 	};
+
+	using FragmentsFlags = std::bitset< Fragment::c_maxFragmentsAmount >;
 }

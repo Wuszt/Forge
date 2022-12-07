@@ -11,7 +11,7 @@ namespace forge
 
 		~ObjectID() = default;
 
-		static const Uint32 c_invalidID = 0u;
+		static const Uint32 c_invalidID = std::numeric_limits< Uint32 >::max();
 
 		Bool IsValid()
 		{
@@ -33,7 +33,7 @@ namespace forge
 			: m_id( id )
 		{}
 
-		Uint32 m_id = 0u;
+		Uint32 m_id = c_invalidID;
 	};
 }
 

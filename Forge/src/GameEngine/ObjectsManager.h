@@ -62,7 +62,7 @@ namespace forge
 
 		Uint32 GetHighestID() const
 		{
-			return m_lastUsedObjectID;
+			return m_nextObjectID - 1u;
 		}
 
 		template< class TObject = Object >
@@ -82,7 +82,7 @@ namespace forge
 		template< class T = forge::Object >
 		T* CreateObject()
 		{
-			ObjectID id = ObjectID( ++m_lastUsedObjectID );
+			ObjectID id = ObjectID( m_nextObjectID++ );
 			auto obj = std::make_unique< T >( GetEngineInstance(), id );
 			auto* rawObj = obj.get();
 
@@ -97,7 +97,7 @@ namespace forge
 
 		void RemoveObject( const ObjectID& id );
 
-		Uint32 m_lastUsedObjectID = 0u;
+		Uint32 m_nextObjectID = 0u;
 		std::unordered_map< ObjectID, std::unique_ptr< Object > > m_objects;
 
 		Callback< ObjectID > m_onObjectAdded;

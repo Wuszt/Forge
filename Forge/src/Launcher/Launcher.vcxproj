@@ -355,6 +355,9 @@ mklink $(ProjectDir)Depots $(ProjectDir)..\..\Depots
     <ProjectReference Include="..\Core\Core.vcxproj">
       <Project>{38e97199-f4e4-4704-b916-dd286525c84b}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\ECS\ECS.vcxproj">
+      <Project>{c9fac85f-4b82-499c-91eb-dccce726374f}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\GameEngine\GameEngine.vcxproj">
       <Project>{76fc93f7-8fdc-4cb9-82fe-04cd026f4b0d}</Project>
     </ProjectReference>

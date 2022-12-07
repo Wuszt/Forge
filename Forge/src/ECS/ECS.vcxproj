@@ -311,8 +311,12 @@
     <ProjectReference Include="..\GameEngine\GameEngine.vcxproj">
       <Project>{76fc93f7-8fdc-4cb9-82fe-04cd026f4b0d}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Math\Math.vcxproj">
+      <Project>{4ee1f241-1190-4a8f-be2a-2054bcab3709}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Archetype.cpp" />
     <ClCompile Include="ECSManager.cpp" />
     <ClCompile Include="Fpch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

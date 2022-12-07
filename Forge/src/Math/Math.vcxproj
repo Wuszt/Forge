@@ -58,6 +58,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Math.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="Random.cpp" />

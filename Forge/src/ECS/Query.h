@@ -28,6 +28,9 @@ namespace ecs
 			return m_fragments;
 		}
 
+		using VisitFunc = std::function< void(Archetype&) >;
+		void VisitArchetypes( ECSManager& ecsManager, const VisitFunc& visitFunc ) const;
+
 	private:
 		std::bitset< Tag::c_maxTagsAmount > m_tags;
 		std::bitset< Fragment::c_maxFragmentsAmount > m_fragments;

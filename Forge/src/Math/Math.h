@@ -5,6 +5,11 @@
 #define DEG2RAD 0.01745329251f
 #define RAD2DEG 57.295779513f
 
+struct Vector2;
+struct Vector3;
+struct Vector4;
+struct Quaternion;
+
 namespace Math
 {
 	FORGE_INLINE Float Sin( Float rad )
@@ -118,36 +123,23 @@ namespace Math
 	}
 
 	template<>
-	FORGE_INLINE Uint64 CalculateHash( const Vector2& value )
-	{
-		return Math::CombineHashes( Math::CalculateHash( value.X ), Math::CalculateHash( value.Y ) );
-	}
+	Uint64 CalculateHash( const Vector2& value );
 
 	template<>
-	FORGE_INLINE Uint64 CalculateHash( const Vector3& value )
-	{
-		return Math::CombineHashes( Math::CombineHashes( Math::CalculateHash( value.X ), Math::CalculateHash( value.Y ) ), Math::CalculateHash( value.Z ) );
-	}
+	Uint64 CalculateHash( const Vector3& value );
 
 	template<>
-	FORGE_INLINE Uint64 CalculateHash( const Vector4& value )
-	{
-		return Math::CombineHashes( Math::CombineHashes( Math::CombineHashes( Math::CalculateHash( value.X ), Math::CalculateHash( value.Y ) ), Math::CalculateHash( value.Z ) ), Math::CalculateHash( value.W ) );
-	}
+	Uint64 CalculateHash( const Vector4& value );
 
 	template< class T >
-	FORGE_INLINE T Lerp(const T& from, const T& to, float t)
+	FORGE_INLINE T Lerp( const T& from, const T& to, Float t )
 	{
 		t = Clamp( 0.0f, 1.0f, t );
-		return from * ( 1.0f - t ) + to * t; 
+		return from * ( 1.0f - t ) + to * t;
 	}
 
 	template<>
-	FORGE_INLINE Quaternion Lerp(const Quaternion& from, const Quaternion& to, float t)
-	{
-		Quaternion result( Lerp( from.vec4, to.vec4, t ) );
-		return result.Normalized();
-	}
+	Quaternion Lerp( const Quaternion& from, const Quaternion& to, Float t );
 
 	FORGE_INLINE Float Truncate( Float value, Uint32 decimalPlaces )
 	{
