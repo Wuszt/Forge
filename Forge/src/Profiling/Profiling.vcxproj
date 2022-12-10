@@ -256,11 +256,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\External\Tracy\Tracy.hpp" />
+    <ClInclude Include="..\..\External\Tracy\public\tracy\Tracy.hpp" />
     <ClInclude Include="PublicDefaults.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\External\Tracy\TracyClient.cpp" />
+    <ClCompile Include="..\..\External\Tracy\public\TracyClient.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

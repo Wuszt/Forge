@@ -11,15 +11,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\External\Tracy\Tracy.hpp">
+    <ClInclude Include="PublicDefaults.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PublicDefaults.h">
+    <ClInclude Include="..\..\External\Tracy\public\tracy\Tracy.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\External\Tracy\TracyClient.cpp">
+    <ClCompile Include="..\..\External\Tracy\public\TracyClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

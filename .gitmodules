@@ -17,3 +17,6 @@
 [submodule "Forge/External/Mini-RTTI"]
 	path = Forge/External/Mini-RTTI
 	url = https://github.com/Wuszt/Mini-RTTI.git
+[submodule "Forge/External/Tracy"]
+	path = Forge/External/Tracy
+	url = https://github.com/wolfpld/tracy.git

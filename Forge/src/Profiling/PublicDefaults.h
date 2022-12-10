@@ -3,7 +3,7 @@
 #ifdef FORGE_PROFILING_ENABLED
 
 #define TRACY_ENABLE
-#include "../../External/Tracy/Tracy.hpp"
+#include "../../External/Tracy/public/tracy/Tracy.hpp"
 
 #define PC_SCOPE( name ) ZoneScopedN( name )
 #define PC_SCOPE_FUNC() ZoneScoped
