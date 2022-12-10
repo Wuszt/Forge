@@ -3,9 +3,10 @@
 
 namespace forge
 {
-	struct DirectionalLightComponentData
+	struct DirectionalLightFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( DirectionalLightComponentData );
+		DECLARE_STRUCT( DirectionalLightFragment, ecs::Fragment );
+		REGISTER_ECS_FRAGMENT();
 
 		Vector3 Direction;
 		Float padding0;
@@ -14,7 +15,7 @@ namespace forge
 		Matrix VP;
 	};
 
-	class DirectionalLightComponent : public DataComponent< DirectionalLightComponentData >
+	class DirectionalLightComponent : public DataComponent< DirectionalLightFragment >
 	{
 		DECLARE_POLYMORPHIC_CLASS( DirectionalLightComponent, forge::IComponent );
 	public:

@@ -10,14 +10,15 @@ namespace renderer
 
 namespace forge
 {
-	struct RenderingComponentData
+	struct RenderingFragment : ecs::Fragment
 	{
-		DECLARE_STRUCT( RenderingComponentData );
+		DECLARE_STRUCT( RenderingFragment, ecs::Fragment );
+		REGISTER_ECS_FRAGMENT();
 
 		renderer::Renderable* m_renderable;
 	};
 
-	class RenderingComponent : public DataComponent< RenderingComponentData >
+	class RenderingComponent : public DataComponent< RenderingFragment >
 	{
 		DECLARE_POLYMORPHIC_CLASS( RenderingComponent, forge::IComponent );
 	public:

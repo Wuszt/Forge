@@ -10,24 +10,14 @@ namespace forge
 
 namespace systems
 {
-	class IECSSystem;
-	class Archetype;
-	class IArchetypeDataTypes;
-
-	class SystemsManager : public forge::IManager
+	class SystemsManager
 	{
 	public:
-		using forge::IManager::IManager;
-
-		virtual void Initialize() override;
-		virtual void Deinitialize() override;
+		SystemsManager( forge::EngineInstance& engineInstance );
 
 		class BootContext
 		{
 		public:
-			using CreationFunc = std::function < std::unique_ptr< ISystem >( forge::EngineInstance& ) >;
-			using ArchetypeFunc = std::function < std::unique_ptr< Archetype >() >;
-
 			template< class T >
 			void AddSystem()
 			{
@@ -65,47 +55,6 @@ namespace systems
 			return nullptr;
 		}
 
-		forge::ArraySpan< IECSSystem* > GetECSSystems()
-		{
-			return m_ecsSystems;
-		}
-
-		forge::ArraySpan< std::unique_ptr< ISystem > > GetSystems()
-		{
-			return m_allSystems;
-		}
-
-		template< class T >
-		forge::ArraySpan< systems::Archetype* > GetArchetypesContainingDataType()
-		{
-			return m_dataToArchetypesLUT[ &T::GetTypeStatic() ];
-		}
-
-		const std::vector< Archetype* >& GetArchetypesOfObject( forge::ObjectID id )
-		{
-			return m_objectArchetypesLUT[ id ];
-		}
-
-		forge::ArraySpan< systems::Archetype* > GetArchetypesWithDataTypes( const IArchetypeDataTypes& archetypeDataTypes );
-
-		void AddECSData( forge::ObjectID id, std::unique_ptr< forge::IDataPackage > package );
-
-		template< class T >
-		void AddECSData( forge::ObjectID id )
-		{
-			std::unique_ptr< forge::DataPackage< T > > package = std::make_unique< forge::DataPackage< T > >();
-			package->AddEmptyData();
-			AddECSData( id, std::move( package ) );
-		}
-
-		void RemoveECSData( forge::ObjectID id, const rtti::IType& type );
-
-		template< class T >
-		void RemoveECSData( forge::ObjectID id )
-		{
-			RemoveECSData( id, T::GetTypeStatic() );
-		}
-
 		forge::CallbackToken RegisterToOnBootCallback( const std::function< void() >& callback )
 		{
 			return m_onBootCallback.AddListener( callback );
@@ -118,19 +67,9 @@ namespace systems
 	private:
 		std::unordered_map< const rtti::IType*, ISystem* > m_systemsLUT;
 		std::vector< std::unique_ptr< ISystem > > m_allSystems;
-		std::vector< IECSSystem* > m_ecsSystems;
 
-		std::vector< std::unique_ptr< Archetype > > m_archetypes;
-		std::unordered_map< const rtti::IType*, std::vector< Archetype* > > m_dataToArchetypesLUT;
-		std::unordered_map< forge::ObjectID, std::vector< const rtti::IType* > > m_objectDataTypesLUT;
-		std::unordered_map< forge::ObjectID, std::vector< Archetype* > > m_objectArchetypesLUT;
-		std::unordered_map< Uint32, Archetype* > m_typesHashToArchetypeLUT;
-		std::unordered_map< Uint32, std::vector< Archetype* > > m_archetypeTypesHashToArchetypesLUT;
-
-		forge::CallbackToken m_onObjectCreated;
-		forge::CallbackToken m_onObjectDestructed;
-		forge::CallbackToken m_onTick;
 		forge::Callback<> m_onBootCallback;
+		forge::EngineInstance& m_engineInstance;
 	};
 }
 

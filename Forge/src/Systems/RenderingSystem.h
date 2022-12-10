@@ -34,9 +34,9 @@ namespace systems
 {
 	class CamerasSystem;
 
-	class RenderingSystem : public ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >, public forge::IDebuggable
+	class RenderingSystem : public ISystem, public forge::IDebuggable
 	{
-		DECLARE_STRUCT( RenderingSystem, systems::IECSSystem );
+		DECLARE_STRUCT( RenderingSystem, systems::ISystem );
 
 	public:
 		RenderingSystem();

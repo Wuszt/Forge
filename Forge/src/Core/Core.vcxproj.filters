@@ -62,9 +62,6 @@
     <ClInclude Include="StringUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DataPackage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Profiling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -122,9 +119,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StringUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DataPackage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ArraySpan.cpp">

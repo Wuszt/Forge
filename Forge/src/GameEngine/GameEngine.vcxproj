@@ -308,6 +308,9 @@
     <ProjectReference Include="..\Core\Core.vcxproj">
       <Project>{38e97199-f4e4-4704-b916-dd286525c84b}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\ECS\ECS.vcxproj">
+      <Project>{c9fac85f-4b82-499c-91eb-dccce726374f}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Math\Math.vcxproj">
       <Project>{4ee1f241-1190-4a8f-be2a-2054bcab3709}</Project>
     </ProjectReference>

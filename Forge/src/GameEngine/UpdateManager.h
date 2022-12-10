@@ -3,7 +3,7 @@
 
 namespace forge
 {
-	class UpdateManager : public IManager
+	class UpdateManager
 	{
 	public:
 		enum class BucketType : Uint32
@@ -17,8 +17,6 @@ namespace forge
 			Present,
 			Count
 		};
-
-		using IManager::IManager;
 
 		void Update();
 

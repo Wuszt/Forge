@@ -1,4 +1,6 @@
 #pragma once
+#include "../ECS/EntityID.h"
+#include "../ECS/ECSManager.h"
 
 namespace forge
 {
@@ -37,31 +39,30 @@ namespace forge
 
 		virtual void OnAttach( EngineInstance& engineInstance ) override
 		{
-			auto& systemsManager = engineInstance.GetSystemsManager();
+			auto& objectsManager = engineInstance.GetObjectsManager();
+			auto& ecsManager = engineInstance.GetECSManager();
 
-			systemsManager.AddECSData< TData >( GetOwner().GetObjectID() );
+			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
+			ecsManager.AddFragmentToEntity< TData >( id );
 		}
 
 		virtual void OnDetach( EngineInstance& engineInstance ) override
 		{
-			auto& systemsManager = engineInstance.GetSystemsManager();
+			auto& objectsManager = engineInstance.GetObjectsManager();
+			auto& ecsManager = engineInstance.GetECSManager();
 
-			systemsManager.RemoveECSData< TData >( GetOwner().GetObjectID() );
+			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
+			ecsManager.RemoveFragmentFromEntity< TData >( id );
 		}
 
 		TData& GetData()
 		{
-			auto& ei = GetOwner().GetEngineInstance();
-			systems::SystemsManager& sm = ei.GetSystemsManager();
-			const auto& archetypes = sm.GetArchetypesOfObject( GetOwner().GetObjectID() );
+			auto& objectsManager = GetOwner().GetEngineInstance().GetObjectsManager();
+			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
 
-			auto found = std::find_if( archetypes.begin(), archetypes.end(), []( auto* archetype ) { return archetype->ContainsData< TData >(); } );
-			if( found == archetypes.end() )
-			{
-				found = found;
-			}
-			FORGE_ASSERT( found != archetypes.end() );
-			return ( *found )->GetData< TData >( GetOwner().GetObjectID() );
+			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
+			auto* archetype = ecsManager.GetEntityArchetype( id );
+			return *archetype->GetFragment< TData >( id );
 		}
 
 	private:

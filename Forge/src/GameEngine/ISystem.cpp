@@ -2,50 +2,6 @@
 #include "ISystem.h"
 
 IMPLEMENT_TYPE( systems::ISystem )
-IMPLEMENT_TYPE( systems::IECSSystem )
-
-void systems::Archetype::MoveObjectTo( forge::ObjectID objectId, Archetype* destination )
-{
-	*std::find( m_sparseSet.begin(), m_sparseSet.end(), m_dataSize - 1u ) = m_sparseSet[ static_cast< Uint32 >( objectId ) ];
-
-	for( auto& data : m_data )
-	{
-		auto& destinationPackage = destination->GetData( *data.first );
-		data.second->MoveTo( m_sparseSet[ static_cast< Uint32 >( objectId ) ], destinationPackage );
-	}
-
-	--m_dataSize;
-	m_sparseSet[ static_cast< Uint32 >( objectId ) ] = -1;
-}
-
-void systems::Archetype::MoveObjectTo( forge::ObjectID objectId, std::vector< std::unique_ptr< forge::IDataPackage > >& destination )
-{
-	destination.reserve( m_data.size() );
-	*std::find( m_sparseSet.begin(), m_sparseSet.end(), m_dataSize - 1u ) = m_sparseSet[ static_cast< Uint32 >( objectId ) ];
-
-	for( auto& data : m_data )
-	{
-		auto newData = data.second->CreateNewInstance();
-		data.second->MoveTo( m_sparseSet[ static_cast< Uint32 >( objectId ) ], *newData );
-
-		destination.emplace_back( std::move( newData ) );
-	}
-
-	--m_dataSize;
-	m_sparseSet[ static_cast< Uint32 >( objectId ) ] = -1;
-}
-
-void systems::Archetype::MoveObjectFrom( forge::ObjectID objectId, std::vector< Archetype* > donorArchetypes )
-{
-	FORGE_ASSERT( m_sparseSet[ static_cast< Uint32 >( objectId ) ] == -1 );
-
-	for( auto donor : donorArchetypes )
-	{
-		donor->MoveObjectTo( objectId, this );
-	}
-
-	m_sparseSet[ static_cast< Uint32 >( objectId ) ] = m_dataSize++;
-}
 
 void systems::ISystem::Initialize( forge::EngineInstance& engineInstance )
 {

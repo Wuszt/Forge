@@ -2,9 +2,10 @@
 
 namespace forge
 {
-	struct TransformComponentData
+	struct TransformFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( TransformComponentData );
+		DECLARE_STRUCT( TransformFragment, ecs::Fragment );
+		REGISTER_ECS_FRAGMENT();
 
 		Transform m_transform;
 		Vector4 m_scale = Vector4::ONES();
@@ -17,7 +18,7 @@ namespace forge
 		}
 	};
 
-	class TransformComponent : public DataComponent< TransformComponentData >
+	class TransformComponent : public DataComponent< TransformFragment >
 	{
 		DECLARE_POLYMORPHIC_CLASS( TransformComponent, forge::IComponent );
 	public:

@@ -47,6 +47,11 @@ namespace ecs
 			return T::GetTypeStatic();
 		}
 
+		forge::ArraySpan< T > GetFragments()
+		{
+			return m_fragments;
+		}
+
 		forge::ArraySpan< const T > GetFragments() const
 		{
 			return m_fragments;

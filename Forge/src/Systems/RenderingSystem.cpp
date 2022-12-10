@@ -20,12 +20,11 @@
 #endif
 #include "../Renderer/TextureAsset.h"
 #include "../Core/AssetsManager.h"
+#include "../ECS/Query.h"
 
 IMPLEMENT_TYPE( systems::RenderingSystem );
 
-systems::RenderingSystem::RenderingSystem()
-	: ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData > >()
-{}
+systems::RenderingSystem::RenderingSystem() = default;
 
 systems::RenderingSystem::~RenderingSystem() = default;
 
@@ -268,37 +267,39 @@ void systems::RenderingSystem::OnDraw()
 		return;
 	}
 
-	const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( systems::ArchetypeDataTypes< forge::TransformComponentData, forge::RenderingComponentData >() );
 	std::vector< const renderer::Renderable* > renderables;
+
+	ecs::Query query;
+	query.AddFragmentRequirement< forge::TransformFragment >();
+	query.AddFragmentRequirement< forge::RenderingFragment >();
 
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::CollectingRenderables" );
-		for( systems::Archetype* archetype : archetypes )
+		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [&]( ecs::Archetype& archetype )
 		{
-			const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
-			const forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
+			auto renderingFragments = archetype.GetFragments< forge::RenderingFragment >();
 
-			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
+			for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
 			{
-				renderables.emplace_back( renderableComponents[ i ].m_renderable );
+				renderables.emplace_back( renderingFragments[ i ].m_renderable );
 			}
-		}
+		} );
 	}
 
 	m_rawRenderablesPacks = m_renderer->CreateRawRenderablesPackage( renderables );
 
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::UpdatingBuffers" );
-		for( systems::Archetype* archetype : archetypes )
+		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
 		{
-			const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
-			const forge::DataPackage< forge::RenderingComponentData >& renderableComponents = archetype->GetData< forge::RenderingComponentData >();
+			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
+			auto renderingFragments = archetype.GetFragments< forge::RenderingFragment >();
 
-			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
+			for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
 			{
-				auto& cb = renderableComponents[ i ].m_renderable->GetCBMesh();
+				auto& cb = renderingFragments[ i ].m_renderable->GetCBMesh();
 				auto prev = cb.GetData().W;
-				cb.GetData().W = transformComponents[ i ].ToMatrix();
+				cb.GetData().W = transformFragments[ i ].ToMatrix();
 
 				// It's stupid, but UpdateBuffer takes so much time that it makes sense for now
 				// I should probably separate static and dynamic objects in the future or/and keep an information which object changed
@@ -308,7 +309,7 @@ void systems::RenderingSystem::OnDraw()
 					cb.UpdateBuffer();
 				}
 			}
-		}
+		} );
 	}
 
 	auto& lightingSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::LightingSystem >();

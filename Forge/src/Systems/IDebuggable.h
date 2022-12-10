@@ -1,5 +1,12 @@
 #pragma once
 
+#ifdef FORGE_IMGUI_ENABLED
+namespace imgui
+{
+	class TopBarItem;
+}
+#endif
+
 namespace forge
 {
 	class IDebuggable

@@ -9,6 +9,8 @@ namespace forge
 
 namespace imgui
 {
+	class TopBarItem;
+
 	class TopBar
 	{
 	public:

@@ -1,19 +1,21 @@
 #pragma once
 #include "EngineInstance.h"
 
+namespace ecs
+{
+	class EntityID;
+}
+
 namespace forge
 {
 	class Object;
 	class EngineInstance;
 
-	class ObjectsManager : public IManager
+	class ObjectsManager
 	{
 		friend class Object;
 	public:
-		using IManager::IManager;
-
-		virtual void Initialize() override;
-		virtual void Deinitialize() override;
+		ObjectsManager( EngineInstance& engineInstance, UpdateManager& updateManager, ecs::ECSManager& ecsManager );
 
 		template< class T = forge::Object >
 		void RequestCreatingObject( const std::function< void( T* ) >& initializeFunc = nullptr )
@@ -60,10 +62,7 @@ namespace forge
 			return static_cast< Uint32 >( m_objects.size() );
 		}
 
-		Uint32 GetHighestID() const
-		{
-			return m_nextObjectID - 1u;
-		}
+		ecs::EntityID GetOrCreateEntityId( ObjectID id );
 
 		template< class TObject = Object >
 		TObject* GetObject( const ObjectID& id )
@@ -83,7 +82,7 @@ namespace forge
 		T* CreateObject()
 		{
 			ObjectID id = ObjectID( m_nextObjectID++ );
-			auto obj = std::make_unique< T >( GetEngineInstance(), id );
+			auto obj = std::make_unique< T >( m_engineInstance, id );
 			auto* rawObj = obj.get();
 
 			m_objects.emplace( id, std::move( obj ) );
@@ -99,6 +98,10 @@ namespace forge
 
 		Uint32 m_nextObjectID = 0u;
 		std::unordered_map< ObjectID, std::unique_ptr< Object > > m_objects;
+		std::unordered_map< ObjectID, ecs::EntityID > m_objectsToEntities;
+
+		ecs::ECSManager& m_ecsManager;
+		forge::EngineInstance& m_engineInstance;
 
 		Callback< ObjectID > m_onObjectAdded;
 		Callback< ObjectID > m_onObjectDestructed;

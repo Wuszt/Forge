@@ -18,16 +18,12 @@ namespace renderer
 
 namespace systems
 {
-	using PointLightArchetypeType = systems::ArchetypeDataTypes< forge::TransformComponentData, forge::PointLightComponentData >;
-	using SpotLightArchetypeType = systems::ArchetypeDataTypes< forge::TransformComponentData, forge::SpotLightComponentData >;
-	using DirectionalLightArchetypeType = systems::ArchetypeDataTypes< forge::DirectionalLightComponentData >;
-
-	class LightingSystem : public ECSSystem< PointLightArchetypeType, SpotLightArchetypeType, DirectionalLightArchetypeType >, public forge::IDebuggable
+	class LightingSystem : public ISystem, public forge::IDebuggable
 	{
-		DECLARE_POLYMORPHIC_CLASS( LightingSystem, systems::IECSSystem );
+		DECLARE_POLYMORPHIC_CLASS( LightingSystem, systems::ISystem );
 
 	public:
-		using ECSSystem::ECSSystem;
+		using Super::Super;
 
 		virtual void OnInitialize();
 

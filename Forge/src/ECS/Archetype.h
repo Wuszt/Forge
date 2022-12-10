@@ -67,22 +67,34 @@ namespace ecs
 		{}
 
 		template< class T >
-		const forge::ArraySpan< T >& GetFragments()
+		forge::ArraySpan< const T > GetFragments() const
 		{
 			FORGE_ASSERT( dynamic_cast< FragmentsPackage< T >* >( m_fragments.at( &T::GetTypeStatic() ).get() ) );
 			return static_cast< FragmentsPackage< T >* >( m_fragments.at( &T::GetTypeStatic() ).get() )->GetFragments();
 		}
 
 		template< class T >
-		const T& GetFragment( EntityID id ) const
+		forge::ArraySpan< T > GetFragments()
 		{
-			return GetFragments< T >()[ GetFragmentIndex( id ) ];
+			FORGE_ASSERT( dynamic_cast< FragmentsPackage< T >* >( m_fragments.at( &T::GetTypeStatic() ).get() ) );
+			return static_cast< FragmentsPackage< T >* >( m_fragments.at( &T::GetTypeStatic() ).get() )->GetFragments();
 		}
 
 		template< class T >
-		T& GetFragment( EntityID id )
+		const T* GetFragment( EntityID id ) const
 		{
-			return GetFragments< T >()[ GetFragmentIndex( id ) ];
+			if( !ContainsObject( id ) || !m_id.ContainsFragment< T >() )
+			{
+				return nullptr;
+			}
+
+			return &GetFragments< T >()[ GetFragmentIndex( id ) ];
+		}
+
+		template< class T >
+		T* GetFragment( EntityID id )
+		{
+			return const_cast< T* >( static_cast<const Archetype*>( this )->GetFragment< T >( id ) );
 		}
 
 		void OnEntityCreated()
@@ -114,7 +126,7 @@ namespace ecs
 		void RemoveFragmentType()
 		{
 			FORGE_ASSERT( m_fragments.count( &T::GetTypeStatic() ) > 0 );
-			FORGE_ASSERT( !m_id.ContainsFragment< T >()  );
+			FORGE_ASSERT( m_id.ContainsFragment< T >()  );
 
 			m_fragments.emplace( &T::GetTypeStatic(), std::make_unique< FragmentsPackage< T > >( m_entitiesAmount ) );
 			m_id.RemoveFragment< T >();
@@ -146,7 +158,14 @@ namespace ecs
 		{
 			for( auto& fragmentsPackage : m_fragments )
 			{
-				fragmentsPackage.second->CopyFragment( source.GetFragmentIndex( id ), source.GetFragmentsPackage( *fragmentsPackage.first ) );
+				if( source.ContainsFragment( *fragmentsPackage.first ) )
+				{
+					fragmentsPackage.second->CopyFragment( source.GetFragmentIndex( id ), source.GetFragmentsPackage( *fragmentsPackage.first ) );
+				}
+				else
+				{
+					fragmentsPackage.second->AddEmptyFragment();
+				}
 			}
 
 			m_sparseSet[ static_cast< Uint32 >( id ) ] = m_entitiesAmount++;
@@ -173,6 +192,11 @@ namespace ecs
 
 			m_sparseSet[ static_cast< Uint32 >( id ) ] = c_invalidIndex;
 			--m_entitiesAmount;
+		}
+
+		bool ContainsFragment( const Fragment::Type& type ) const
+		{
+			return m_fragments.find( &type ) != m_fragments.end();
 		}
 
 		Archetype GetEmptyCopy() const;

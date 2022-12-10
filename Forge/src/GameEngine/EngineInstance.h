@@ -10,6 +10,11 @@ namespace systems
 	class SystemsManager;
 }
 
+namespace ecs
+{
+	class ECSManager;
+}
+
 namespace forge
 {
 	class ObjectsManager;
@@ -61,6 +66,11 @@ namespace forge
 			return *m_assetsManager;
 		}
 
+		ecs::ECSManager& GetECSManager() const
+		{
+			return *m_ecsManager;
+		}
+
 		void Run();
 
 	private:
@@ -69,6 +79,7 @@ namespace forge
 		std::unique_ptr< UpdateManager > m_updateManager;
 		std::unique_ptr< DepotsContainer > m_depotsContainer;
 		std::unique_ptr< AssetsManager > m_assetsManager;
+		std::unique_ptr< ecs::ECSManager > m_ecsManager;
 
 		std::unique_ptr< renderer::IRenderer > m_renderer;
 		std::unique_ptr< IWindow > m_window;
@@ -78,29 +89,5 @@ namespace forge
 
 		ApplicationInstance& m_appInstance;
 	};
-
-	class IManager
-	{
-	public:
-		IManager( EngineInstance& engineInstance )
-			: m_engineInstance( engineInstance )
-		{}
-
-		IManager( const IManager& manager ) = delete;
-
-		virtual void Initialize() {}
-		virtual void Deinitialize() {}
-
-		EngineInstance& GetEngineInstance() const
-		{
-			return m_engineInstance;
-		}
-
-	protected:
-		virtual ~IManager() = default;
-
-		EngineInstance& m_engineInstance;
-	};
-
 }
 

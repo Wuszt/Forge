@@ -4,36 +4,12 @@
 
 namespace ecs
 {
-	class ECSManager : public forge::IManager
+	class ECSManager
 	{
 	public:
-		using IManager::IManager;
+		EntityID CreateEntity();
 
-		EntityID CreateEntity()
-		{
-			for( auto& archetype : m_archetypes )
-			{
-				archetype->OnEntityCreated();
-			}
-			return ecs::EntityID( m_nextEntityID++ );
-		}
-
-		void RemoveEntity( EntityID id )
-		{
-			auto it = m_entityToArchetype.find( id );
-			if( it != m_entityToArchetype.end() )
-			{
-				it->second->RemoveEntity( id );
-				if( it->second->IsEmpty() )
-				{
-					Uint32 currentArchetypeIndex = 0u;
-					FORGE_ASSURE( TryToFindArchetypeIndex( it->second->GetArchetypeID(), currentArchetypeIndex ) );
-					forge::utils::RemoveReorder( m_archetypes, currentArchetypeIndex );
-				}
-
-				m_entityToArchetype.erase( it );
-			}
-		}
+		void RemoveEntity( EntityID id );
 
 		Archetype& UpdateEntityArchetype( EntityID entityID, const ArchetypeID& newID );
 
@@ -85,6 +61,8 @@ namespace ecs
 			}
 		}
 
+		Archetype* GetEntityArchetype( EntityID id );
+
 		template< class T >
 		void RemoveTagFromEntity( EntityID entityID )
 		{
@@ -101,17 +79,7 @@ namespace ecs
 			}
 		}
 
-		Bool TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex )
-		{
-			auto it = std::find_if( m_archetypes.begin(), m_archetypes.end(), [ &Id ]( const std::unique_ptr< Archetype >& archetype )
-			{
-				return archetype->GetArchetypeID() == Id;
-			});
-
-			outIndex = static_cast< Uint32 >( it - m_archetypes.begin() );
-
-			return it != m_archetypes.end();
-		}
+		Bool TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex ) const;
 
 		forge::ArraySpan< std::unique_ptr< Archetype > > GetArchetypes()
 		{

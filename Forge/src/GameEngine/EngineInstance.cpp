@@ -15,13 +15,10 @@ forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 	m_depotsContainer = std::make_unique< DepotsContainer >( appInstance.GetApplicationName() );
 	m_assetsManager = std::make_unique< AssetsManager >( GetDepotsContainer() );
 
+	m_ecsManager = std::make_unique< ecs::ECSManager >();
+	m_updateManager = std::make_unique< forge::UpdateManager >();
 	m_systemManager = std::make_unique< systems::SystemsManager >( *this );
-	m_objectsManager = std::make_unique< forge::ObjectsManager >( *this );
-	m_updateManager = std::make_unique< forge::UpdateManager >( *this );
-
-	m_systemManager->Initialize();
-	m_objectsManager->Initialize();
-	m_updateManager->Initialize();
+	m_objectsManager = std::make_unique< forge::ObjectsManager >( *this, *m_updateManager, *m_ecsManager ); 
 
 	if( m_appInstance.WithRendering() )
 	{
@@ -41,18 +38,7 @@ forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 	}
 }
 
-forge::EngineInstance::~EngineInstance()
-{
-	m_systemManager->Deinitialize();
-	m_objectsManager->Deinitialize();
-	m_updateManager->Deinitialize();
-
-	m_systemManager = nullptr;
-	m_objectsManager = nullptr;
-	m_updateManager = nullptr;
-	m_renderer = nullptr;
-	m_window = nullptr;
-}
+forge::EngineInstance::~EngineInstance() = default;
 
 void forge::EngineInstance::Run()
 {

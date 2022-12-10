@@ -14,6 +14,7 @@
 #endif
 
 #include "DebugSystem.h"
+#include "../ECS/Query.h"
 
 IMPLEMENT_TYPE( systems::LightingSystem );
 
@@ -46,72 +47,98 @@ void systems::LightingSystem::Update()
 	}
 
 	{
-		for( auto archetype : GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( PointLightArchetypeType() ) )
+		ecs::Query query;
+		query.AddFragmentRequirement< forge::PointLightFragment >();
+		query.AddFragmentRequirement< forge::TransformFragment >();
+
+		Uint32 lightsAmount = 0u;
+		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
 		{
-			const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
-			const forge::DataPackage< forge::PointLightComponentData >& lightsData = archetype->GetData< forge::PointLightComponentData >();
+			lightsAmount += archetype.GetEntitiesAmount();
+		} );
 
-			m_pointsLightsData.resize( Math::Min( static_cast< Uint32 >( m_pointsLightsData.size() ), lightsData.GetDataSize() ) );
+		m_pointsLightsData.resize( Math::Min( static_cast< Uint32 >( m_pointsLightsData.size() ), lightsAmount ) );
+		for( Uint32 i = static_cast< Uint32 >( m_pointsLightsData.size() ); i < lightsAmount; ++i )
+		{
+			auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution, true );
+			m_pointsLightsData.push_back( { renderer::PointLightData(), std::move( shadowMap ) } );
+		}
 
-			for( Uint32 i = static_cast< Uint32 >( m_pointsLightsData.size() ); i < lightsData.GetDataSize(); ++i )
-			{
-				auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution, true );
-				m_pointsLightsData.push_back( { renderer::PointLightData(), std::move( shadowMap ) } );
-			}
-
-			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
+		Uint32 lightOffset = 0u;
+		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+		{
+			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
+			auto lightFragments = archetype.GetFragments< forge::PointLightFragment >();
+			for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i, ++lightOffset )
 			{
 				renderer::PerspectiveCamera camera( 1.0f, FORGE_PI_HALF, 1.0f, 1000.0f);
-				camera.SetPosition( transformComponents[ i ].m_transform.GetPosition3() );
-				m_pointsLightsData[ i ].m_shaderData = renderer::PointLightData{ camera.GetProjectionMatrix(), transformComponents[ i ].m_transform.GetPosition3(), lightsData[ i ].m_power, lightsData[ i ].m_color };
+				camera.SetPosition( transformFragments[ i ].m_transform.GetPosition3() );
+				m_pointsLightsData[ lightOffset ].m_shaderData = renderer::PointLightData{ camera.GetProjectionMatrix(), transformFragments[ i ].m_transform.GetPosition3(), lightFragments[ i ].m_power, lightFragments[ i ].m_color };
 			}
-		}
+		} );
 	}
 
 	{
-		for( auto archetype : GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( SpotLightArchetypeType() ) )
+		ecs::Query query;
+		query.AddFragmentRequirement< forge::SpotLightFragment >();
+		query.AddFragmentRequirement< forge::TransformFragment >();
+
+		Uint32 lightsAmount = 0u;
+		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
 		{
-			const forge::DataPackage< forge::TransformComponentData >& transformComponents = archetype->GetData< forge::TransformComponentData >();
-			const forge::DataPackage< forge::SpotLightComponentData >& lightsData = archetype->GetData< forge::SpotLightComponentData >();
+			lightsAmount += archetype.GetEntitiesAmount();
+		} );
 
-			m_spotLightsData.resize( Math::Min( static_cast<Uint32>( m_spotLightsData.size() ), lightsData.GetDataSize() ) );
-
-			for( Uint32 i = static_cast< Uint32 >( m_spotLightsData.size() ); i < lightsData.GetDataSize(); ++i )
-			{
-				auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution );
-				m_spotLightsData.push_back( { renderer::SpotLightData(), std::move( shadowMap ) } );
-			}
-
-			for( Uint32 i = 0; i < transformComponents.GetDataSize(); ++i )
-			{
-				auto camera = renderer::PerspectiveCamera( 1.0f, lightsData[ i ].m_outerAngle * 2.0f, 1.0f, 1000.0f );
-				camera.SetPosition( transformComponents[ i ].m_transform.GetPosition3() );
-				camera.SetOrientation( Quaternion::CreateFromDirection( transformComponents[ i ].m_transform.GetForward() ) );
-
-				m_spotLightsData[ i ].m_shaderData = renderer::SpotLightData{ transformComponents[ i ].m_transform.GetPosition3(), transformComponents[ i ].m_transform.GetForward(),
-					lightsData[ i ].m_innerAngle, lightsData[ i ].m_outerAngle, lightsData[ i ].m_power, lightsData[ i ].m_color, camera.GetViewProjectionMatrix() };
-			}
+		m_spotLightsData.resize( Math::Min( static_cast< Uint32 >( m_spotLightsData.size() ), lightsAmount ) );
+		for( Uint32 i = static_cast< Uint32 >( m_spotLightsData.size() ); i < lightsAmount; ++i )
+		{
+			auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution, false );
+			m_spotLightsData.push_back( { renderer::SpotLightData(), std::move( shadowMap ) } );
 		}
+
+		Uint32 lightOffset = 0u;
+		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+		{
+			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
+			auto lightFragments = archetype.GetFragments< forge::SpotLightFragment >();
+			for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i, ++lightOffset )
+			{
+				auto camera = renderer::PerspectiveCamera( 1.0f, lightFragments[ i ].m_outerAngle * 2.0f, 1.0f, 1000.0f );
+				camera.SetPosition( transformFragments[ i ].m_transform.GetPosition3() );
+				camera.SetOrientation( Quaternion::CreateFromDirection( transformFragments[ i ].m_transform.GetForward() ) );
+
+				m_spotLightsData[ lightOffset ].m_shaderData = renderer::SpotLightData{ transformFragments[ i ].m_transform.GetPosition3(), transformFragments[ i ].m_transform.GetForward(),
+					lightFragments[ i ].m_innerAngle, lightFragments[ i ].m_outerAngle, lightFragments[ i ].m_power, lightFragments[ i ].m_color, camera.GetViewProjectionMatrix() };
+			}
+		} );
 	}
 
 	{
-		for( auto archetype : GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( DirectionalLightArchetypeType() ) )
+		ecs::Query query;
+		query.AddFragmentRequirement< forge::DirectionalLightFragment >();
+
+		Uint32 lightsAmount = 0u;
+		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
 		{
-			const forge::DataPackage< forge::DirectionalLightComponentData >& lightsData = archetype->GetData< forge::DirectionalLightComponentData >();
+			lightsAmount += archetype.GetEntitiesAmount();
+		} );
 
-			m_directionalLightsData.resize( Math::Min( static_cast<Uint32>( m_directionalLightsData.size() ), lightsData.GetDataSize() ) );
-
-			for( Uint32 i = static_cast<Uint32>( m_directionalLightsData.size() ); i < lightsData.GetDataSize(); ++i )
-			{
-				auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution );
-				m_directionalLightsData.push_back( { renderer::DirectionalLightData(), std::move( shadowMap ) } );
-			}
-
-			for( Uint32 i = 0; i < lightsData.GetDataSize(); ++i )
-			{
-				m_directionalLightsData[ i ].m_shaderData = { lightsData[ i ].Direction, 0.0f, lightsData[ i ].Color, 0.0f, lightsData[ i ].VP };
-			}
+		m_directionalLightsData.resize( Math::Min( static_cast< Uint32 >( m_directionalLightsData.size() ), lightsAmount ) );
+		for( Uint32 i = static_cast< Uint32 >( m_directionalLightsData.size() ); i < lightsAmount; ++i )
+		{
+			auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution );
+			m_directionalLightsData.push_back( { renderer::DirectionalLightData(), std::move( shadowMap ) } );
 		}
+
+		Uint32 lightOffset = 0u;
+		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+		{
+			auto lightFragments = archetype.GetFragments< forge::DirectionalLightFragment >();
+			for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i, ++lightOffset )
+			{
+				m_directionalLightsData[ lightOffset ].m_shaderData = { lightFragments[ i ].Direction, 0.0f, lightFragments[ i ].Color, 0.0f, lightFragments[ i ].VP };
+			}
+		} );
 	}
 }
 
@@ -187,19 +214,22 @@ void systems::LightingSystem::OnRenderDebug()
 
 		if( ImGui::TreeNodeEx( "Point Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
-			const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( PointLightArchetypeType() );
-			for( systems::Archetype* archetype : archetypes )
+			ecs::Query query;
+			query.AddFragmentRequirement< forge::PointLightFragment >();
+			query.AddFragmentRequirement< forge::TransformFragment >();
+
+			query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
 			{
-				const forge::DataPackage< forge::TransformComponentData >& transforms = archetype->GetData< forge::TransformComponentData >();
-				forge::DataPackage< forge::PointLightComponentData >& lightsData = archetype->GetData< forge::PointLightComponentData >();
-				for( Uint32 i = 0; i < transforms.GetDataSize(); ++i )
+				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
+				auto lightFragments = archetype.GetFragments< forge::PointLightFragment >();
+				for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
 				{
 					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen) )
 					{
-						ImGui::ColorEdit3( "Color", lightsData[i].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
-						ImGui::SliderFloat( "Power", &lightsData[i].m_power, 0.0f, 10000.0f );
+						ImGui::ColorEdit3( "Color", lightFragments[i].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
+						ImGui::SliderFloat( "Power", &lightFragments[i].m_power, 0.0f, 10000.0f );
 
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transforms[ i ].m_transform.GetPosition3(), 50.0f, lightsData[ i ].m_color, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transformFragments[ i ].m_transform.GetPosition3(), 50.0f, lightFragments[ i ].m_color, 0.0f );
 
 						castShadowFunc( GetPointLights()[ i ], true );
 
@@ -214,36 +244,39 @@ void systems::LightingSystem::OnRenderDebug()
 						ImGui::TreePop();
 					}
 				}
-			}
+			} );
 			ImGui::TreePop();
 		}
 
 		if( ImGui::TreeNodeEx( "Spot Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
-			const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( SpotLightArchetypeType() );
-			for( systems::Archetype* archetype : archetypes )
+			ecs::Query query;
+			query.AddFragmentRequirement< forge::SpotLightFragment >();
+			query.AddFragmentRequirement< forge::TransformFragment >();
+
+			query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
 			{
-				const forge::DataPackage< forge::TransformComponentData >& transforms = archetype->GetData< forge::TransformComponentData >();
-				forge::DataPackage< forge::SpotLightComponentData >& lightsData = archetype->GetData< forge::SpotLightComponentData >();
-				for( Uint32 i = 0; i < transforms.GetDataSize(); ++i )
+				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
+				auto lightFragments = archetype.GetFragments< forge::SpotLightFragment >();
+				for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
 				{
 					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
 					{
-						ImGui::ColorEdit3( "Color", lightsData[ i ].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
-						ImGui::SliderFloat( "Power", &lightsData[ i ].m_power, 0.0f, 10000.0f );
-						ImGui::SliderFloat( "Inner Angle", &lightsData[ i ].m_innerAngle, 0.0f, lightsData[ i ].m_outerAngle - 0.01f );
-						ImGui::SliderFloat( "Outer Angle", &lightsData[ i ].m_outerAngle, 0.0f, FORGE_PI_HALF );
+						ImGui::ColorEdit3( "Color", lightFragments[ i ].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
+						ImGui::SliderFloat( "Power", &lightFragments[ i ].m_power, 0.0f, 10000.0f );
+						ImGui::SliderFloat( "Inner Angle", &lightFragments[ i ].m_innerAngle, 0.0f, lightFragments[ i ].m_outerAngle - 0.01f );
+						ImGui::SliderFloat( "Outer Angle", &lightFragments[ i ].m_outerAngle, 0.0f, FORGE_PI_HALF );
 
 						Float size = 20.0f;
 						Float extent = 30.0f;
-						Vector3 forward = transforms[ i ].m_transform.GetForward();
+						Vector3 forward = transformFragments[ i ].m_transform.GetForward();
 						Vector3 forwardAbs = Vector3( Math::Abs( forward.X ), Math::Abs( forward.Y ), Math::Abs( forward.Z ) );
 
-						Vector3 pos = transforms[ i ].m_transform.GetPosition3() + forward * ( extent + size ) * 0.5f;
+						Vector3 pos = transformFragments[ i ].m_transform.GetPosition3() + forward * ( extent + size ) * 0.5f;
 						Vector3 extents = Vector3::ONES() * size + forwardAbs * extent;
 
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transforms[ i ].m_transform.GetPosition3(), 50.0f, lightsData[ i ].m_color, 0.0f );
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCube( pos, extents, lightsData[ i ].m_color, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transformFragments[ i ].m_transform.GetPosition3(), 50.0f, lightFragments[ i ].m_color, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCube( pos, extents, lightFragments[ i ].m_color, 0.0f );
 
 						castShadowFunc( GetSpotLights()[ i ], false );
 
@@ -255,21 +288,24 @@ void systems::LightingSystem::OnRenderDebug()
 						ImGui::TreePop();
 					}
 				}
-			}
+			} );
 			ImGui::TreePop();
 		}
 
 		if( ImGui::TreeNodeEx( "Directional Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
-			const auto& archetypes = GetEngineInstance().GetSystemsManager().GetArchetypesWithDataTypes( DirectionalLightArchetypeType() );
-			for( systems::Archetype* archetype : archetypes )
+			ecs::Query query;
+			query.AddFragmentRequirement< forge::DirectionalLightFragment >();
+
+			Uint32 lightsAmount = 0u;
+			query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
 			{
-				forge::DataPackage< forge::DirectionalLightComponentData >& lightsData = archetype->GetData< forge::DirectionalLightComponentData >();
-				for( Uint32 i = 0; i < lightsData.GetDataSize(); ++i )
+				auto lightFragments = archetype.GetFragments< forge::DirectionalLightFragment >();
+				for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
 				{
 					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
 					{
-						ImGui::ColorEdit3( "Color", lightsData[ i ].Color.AsArray(), ImGuiColorEditFlags_NoInputs );
+						ImGui::ColorEdit3( "Color", lightFragments[ i ].Color.AsArray(), ImGuiColorEditFlags_NoInputs );
 
 						castShadowFunc( GetDirectionalLights()[ i ], false );
 
@@ -281,7 +317,7 @@ void systems::LightingSystem::OnRenderDebug()
 						ImGui::TreePop();
 					}
 				}
-			}
+			} );
 			ImGui::TreePop();
 		}
 	}

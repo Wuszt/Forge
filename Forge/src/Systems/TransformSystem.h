@@ -3,10 +3,9 @@
 
 namespace systems
 {
-	class TransformSystem : public ECSSystem< systems::ArchetypeDataTypes< forge::TransformComponentData > >
+	class TransformSystem : public ISystem
 	{
-		DECLARE_POLYMORPHIC_CLASS( TransformSystem, systems::IECSSystem );
-		using ECSSystem::ECSSystem;
+		DECLARE_POLYMORPHIC_CLASS( TransformSystem, systems::ISystem );
 	};
 }
 
