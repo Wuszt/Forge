@@ -1,4 +1,5 @@
 #pragma once
+#include "IAssetsLoader.h"
 
 namespace forge
 {

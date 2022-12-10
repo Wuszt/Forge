@@ -1,7 +1,5 @@
 #pragma once
 
-#undef FORGE_PROFILING_ENABLED
-
 #ifdef FORGE_PROFILING_ENABLED
 
 #define TRACY_ENABLE
