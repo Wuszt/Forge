@@ -74,36 +74,6 @@ namespace ecs
 			EmplaceFragment( typedSource.GetFragments()[ index ] );
 		}
 
-		/*
-		typename std::vector< T >::iterator begin()
-		{
-			return m_data.begin();
-		}
-
-		typename std::vector< T >::iterator end()
-		{
-			return m_data.end();
-		}
-
-		typename std::vector< T >::const_iterator begin() const
-		{
-			return m_data.begin();
-		}
-
-		typename std::vector< T >::const_iterator end() const
-		{
-			return m_data.end();
-		}
-
-		virtual void MoveTo( Uint32 index, IDataPackage& destination ) override
-		{
-			FORGE_ASSERT( dynamic_cast< DataPackage< T >* >( &destination ) );
-			DataPackage< T >* realType = static_cast< DataPackage< T >* >( &destination );
-			realType->m_data.emplace_back( std::move( m_data[ index ] ) );
-			RemoveDataReorder( index );
-		}
-		*/
-
 		Uint32 GetFragmentsCount() const
 		{
 			return static_cast< Uint32 >( m_fragments.size() );
