@@ -4,7 +4,7 @@
 namespace renderer
 {
 	class IRenderer;
-	struct ShaderDefine;
+	class ShaderDefine;
 
 	class FullScreenRenderingPass : public IRenderingPass
 	{

@@ -7,7 +7,7 @@ namespace forge
 
 namespace renderer
 {
-	struct ShaderDefine;
+	class ShaderDefine;
 
 	template< class ShaderType >
 	class ShaderPack;

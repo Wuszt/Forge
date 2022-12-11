@@ -10,7 +10,7 @@ namespace d3d11
 		std::vector< D3D_SHADER_MACRO > macros;
 		for( const auto& define : defines )
 		{
-			macros.push_back( D3D_SHADER_MACRO{ define.m_name.c_str(), define.m_define.c_str() } );
+			macros.push_back( D3D_SHADER_MACRO{ define.GetName().c_str(), define.GetDefine().c_str()});
 		}
 
 		macros.push_back( { nullptr, nullptr } );
@@ -26,7 +26,7 @@ namespace d3d11
 
 			for( const auto& define : defines )
 			{
-				definesAsString += forge::String::Printf( "{ %s %s },", define.m_name.c_str(), define.m_define.c_str() );
+				definesAsString += forge::String::Printf( "{ %s %s },", define.GetName().c_str(), define.GetDefine().c_str());
 			}
 
 			if( result == S_OK )

@@ -20,7 +20,7 @@ namespace renderer
 	class IInputLayout;
 	class IIndexBuffer;
 	class IRenderTargetView;
-	struct ShaderDefine;
+	class ShaderDefine;
 }
 
 namespace forge

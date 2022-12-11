@@ -7,7 +7,7 @@ namespace renderer
 	struct PointLightData;
 	struct SpotLightData;
 	struct DirectionalLightData;
-	struct ShaderDefine;
+	class ShaderDefine;
 	class ITexture;
 	class IDepthStencilBuffer;
 	class IDepthStencilView;

@@ -6,7 +6,7 @@ namespace renderer
 	class ShadowMapRenderingPass;
 	struct LightingData;
 	class RawRenderablesPacks;
-	struct ShaderDefine;
+	class ShaderDefine;
 
 	class ShadowMapsGenerator
 	{

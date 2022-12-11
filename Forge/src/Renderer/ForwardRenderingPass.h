@@ -4,7 +4,7 @@
 namespace renderer
 {
 	class IBlendState;
-	struct ShaderDefine;
+	class ShaderDefine;
 
 	class ForwardRenderingPass : public IMeshesRenderingPass 
 	{

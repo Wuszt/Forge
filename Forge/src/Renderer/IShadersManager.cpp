@@ -31,7 +31,7 @@ namespace renderer
 		Uint64 result = Math::CalculateHash( path );
 		for( auto& define : defines )
 		{
-			result = Math::CombineHashes( result, Math::CombineHashes( Math::CalculateHash( define.m_name ), Math::CalculateHash( define.m_define ) ) );
+			result = Math::CombineHashes( result, define.GetHash() );
 		}
 
 		return static_cast<Uint32>( result );

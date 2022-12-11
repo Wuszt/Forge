@@ -30,7 +30,7 @@ namespace renderer
 	class IBlendState;
 	class IDepthStencilState;
 	class IDepthStencilView;
-	struct ShaderDefine;
+	class ShaderDefine;
 	enum class SamplerStateFilterType;
 	enum class SamplerStateComparisonType;
 	enum class DepthStencilComparisonFunc;
