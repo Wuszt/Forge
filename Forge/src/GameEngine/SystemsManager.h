@@ -14,26 +14,9 @@ namespace systems
 	{
 	public:
 		SystemsManager( forge::EngineInstance& engineInstance );
+		~SystemsManager();
 
-		class BootContext
-		{
-		public:
-			template< class T >
-			void AddSystem()
-			{
-				const ISystem::ClassType& type = T::GetTypeStatic();
-				FORGE_ASSERT( type.InheritsFrom< ISystem >() && !type.IsAbstract() );
-				m_systemsClasses.emplace_back( &type );
-			}
-
-			const std::vector< const ISystem::ClassType* >& GetSystemsClasses() const
-			{
-				return m_systemsClasses;
-			}
-
-		private:
-			std::vector< const ISystem::ClassType* > m_systemsClasses;
-		};
+		void AddSystems( forge::ArraySpan< const ISystem::ClassType* > systemsClasses );
 
 		template< class T >
 		T& GetSystem() const
@@ -55,20 +38,12 @@ namespace systems
 			return nullptr;
 		}
 
-		forge::CallbackToken RegisterToOnBootCallback( const std::function< void() >& callback )
-		{
-			return m_onBootCallback.AddListener( callback );
-		}
-
-		void Boot( const BootContext& ctx );
-
 		void Shutdown();
 
 	private:
-		std::unordered_map< const rtti::IType*, ISystem* > m_systemsLUT;
-		std::vector< std::unique_ptr< ISystem > > m_allSystems;
+		std::unordered_map< const ISystem::ClassType*, ISystem* > m_systemsLUT;
+		std::vector< std::unique_ptr< ISystem > > m_systems;
 
-		forge::Callback<> m_onBootCallback;
 		forge::EngineInstance& m_engineInstance;
 	};
 }

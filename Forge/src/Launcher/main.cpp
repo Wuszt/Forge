@@ -32,6 +32,8 @@
 #ifdef FORGE_IMGUI_ENABLED
 #include "../Systems/IMGUISystem.h"
 #endif
+#include "../GameEngine/ISystem.h"
+#include "../Core/ArraySpan.h"
 
 std::string animName = "Animations\\Thriller.fbx";
 
@@ -235,22 +237,22 @@ Int32 main()
 
 		virtual void Initialize( forge::EngineInstance& engineInstance )
 		{
-			systems::SystemsManager::BootContext ctx;
-			ctx.AddSystem< systems::CamerasSystem >();
-			ctx.AddSystem< systems::PlayerSystem >();
-			ctx.AddSystem< systems::RenderingSystem >();
-			ctx.AddSystem< systems::LightingSystem >();
-			ctx.AddSystem< systems::TimeSystem >();
-
+			const systems::ISystem::ClassType* systems[]
+			{
+				&systems::CamerasSystem::GetTypeStatic(),
+				&systems::PlayerSystem::GetTypeStatic(),
+				&systems::RenderingSystem::GetTypeStatic(),
+				&systems::LightingSystem::GetTypeStatic(),
+				&systems::TimeSystem::GetTypeStatic(),
 #ifdef FORGE_DEBUGGING
-			ctx.AddSystem< systems::DebugSystem >();
+				&systems::DebugSystem::GetTypeStatic(),
 #endif
 
 #ifdef FORGE_IMGUI_ENABLED
-			ctx.AddSystem< systems::IMGUISystem >();
+				&systems::IMGUISystem::GetTypeStatic()
 #endif
-
-			engineInstance.GetSystemsManager().Boot( ctx );
+			};
+			engineInstance.GetSystemsManager().AddSystems( systems );
 
 			engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor( { 0.55f, 0.55f, 0.55f } );
 

@@ -6,35 +6,25 @@ systems::SystemsManager::SystemsManager( forge::EngineInstance& engineInstance )
 	: m_engineInstance( engineInstance )
 {}
 
-void systems::SystemsManager::Boot( const BootContext& ctx )
+systems::SystemsManager::~SystemsManager()
 {
-	FORGE_ASSERT( m_allSystems.empty() == true, "SystemsManager is already booted" );
-
-	const auto& systemsClasses = ctx.GetSystemsClasses();
-	for( const systems::ISystem::ClassType* systemClass : systemsClasses )
-	{
-		std::unique_ptr< ISystem > sys = systemClass->CreateDefault();
-
-		ISystem* rawSys = nullptr;
-
-		m_allSystems.emplace_back( std::move( sys ) );
-		rawSys = m_allSystems.back().get();
-
-		m_systemsLUT.emplace( &rawSys->GetType(), rawSys );
-	}
-
-	for( auto& sys : m_allSystems )
-	{
-		sys->Initialize( m_engineInstance );
-	}
-
-	m_onBootCallback.Invoke();
-}
-
-void systems::SystemsManager::Shutdown()
-{
-	for( auto& sys : m_allSystems )
+	for ( auto& sys : m_systems )
 	{
 		sys->Deinitialize();
+	}
+}
+
+void systems::SystemsManager::AddSystems( forge::ArraySpan< const ISystem::ClassType* > systemsClasses )
+{
+	Uint32 prevCount = static_cast< Uint32 >( m_systems.size() );
+	for ( const auto* type : systemsClasses )
+	{
+		auto* system = m_systems.emplace_back( type->CreateDefault() ).get();
+		m_systemsLUT.emplace( type, system );
+	}
+
+	for ( Uint32 i = prevCount; i < static_cast< Uint32 >( m_systems.size() ); ++i )
+	{
+		m_systems[ i ]->Initialize( m_engineInstance );
 	}
 }
