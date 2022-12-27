@@ -98,6 +98,7 @@
     <ClCompile Include="OrthographicCamera.cpp" />
     <ClCompile Include="ShaderPack.cpp" />
     <ClCompile Include="ShadowMapsGenerator.cpp" />
+    <ClCompile Include="ShadowsRenderingPass.cpp" />
     <ClCompile Include="SkeletonAsset.cpp" />
     <ClCompile Include="TextureAsset.cpp" />
     <ClCompile Include="TinyObjModelsLoader.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="OrthographicCamera.h" />
     <ClInclude Include="ShaderPack.h" />
     <ClInclude Include="ShadowMapsGenerator.h" />
+    <ClInclude Include="ShadowsRenderingPass.h" />
     <ClInclude Include="SkeletonAsset.h" />
     <ClInclude Include="TextureAsset.h" />
     <ClInclude Include="TinyObjModelsLoader.h" />

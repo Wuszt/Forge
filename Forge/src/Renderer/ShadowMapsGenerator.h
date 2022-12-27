@@ -3,7 +3,6 @@
 namespace renderer
 {
 	class IRenderer;
-	class ShadowMapRenderingPass;
 	struct LightingData;
 	class RawRenderablesPacks;
 	class ShaderDefine;

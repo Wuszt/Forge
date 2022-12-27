@@ -11,6 +11,7 @@
 #include "../Renderer/IDepthStencilState.h"
 #include "../Core/IWindow.h"
 #include "../Renderer/FullScreenRenderingPass.h"
+#include "../Renderer/ShadowsRenderingPass.h"
 #include "../Renderer/IBlendState.h"
 #include "../Renderer/ShadowMapsGenerator.h"
 
@@ -77,6 +78,7 @@ void systems::RenderingSystem::OnInitialize()
 	std::vector< renderer::ShaderDefine > baseShaderDefines;
 	baseShaderDefines.insert( baseShaderDefines.end(), renderer::DeferredRenderingPass::GetRequiredShaderDefines().begin(), renderer::DeferredRenderingPass::GetRequiredShaderDefines().end() );
 	baseShaderDefines.insert( baseShaderDefines.end(), renderer::ForwardRenderingPass::GetRequiredShaderDefines().begin(), renderer::ForwardRenderingPass::GetRequiredShaderDefines().end() );
+	baseShaderDefines.insert( baseShaderDefines.end(), renderer::ShadowsRenderingPass::GetRequiredShaderDefines().begin(), renderer::ShadowsRenderingPass::GetRequiredShaderDefines().end() );
 	m_renderer->GetShadersManager()->SetBaseShaderDefines( std::move( baseShaderDefines ) );
 
 	m_depthStencilState = m_renderer->CreateDepthStencilState( renderer::DepthStencilComparisonFunc::COMPARISON_LESS_EQUAL );

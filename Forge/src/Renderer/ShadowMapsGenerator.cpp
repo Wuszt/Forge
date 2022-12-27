@@ -1,9 +1,9 @@
 #include "Fpch.h"
 #include "ShadowMapsGenerator.h"
 #include "LightData.h"
-#include "ForwardRenderingPass.h"
 #include "CustomCamera.h"
 #include "OrthographicCamera.h"
+#include "ShadowsRenderingPass.h"
 
 renderer::ShadowMapsGenerator::ShadowMapsGenerator( IRenderer& renderer )
 	: m_renderer( renderer )
@@ -25,7 +25,7 @@ void renderer::ShadowMapsGenerator::GenerateShadowMaps( const renderer::RawRende
 		if( lightData.m_shadowMap )
 		{
 
-			renderer::ForwardRenderingPass shadowsRenderingPass( m_renderer );
+			renderer::ShadowsRenderingPass shadowsRenderingPass( m_renderer );
 			shadowsRenderingPass.ClearTargetTexture();
 
 			renderer::PerspectiveCamera camera( 1.0f, FORGE_PI_HALF, 1.0f, 1000.0f );
@@ -59,7 +59,7 @@ void renderer::ShadowMapsGenerator::GenerateShadowMaps( const renderer::RawRende
 		{
 			lightData.m_shadowMap->GetView().Clear();
 
-			renderer::ForwardRenderingPass shadowsRenderingPass( m_renderer );
+			renderer::ShadowsRenderingPass shadowsRenderingPass( m_renderer );
 			shadowsRenderingPass.SetDepthStencilBuffer( lightData.m_shadowMap.get() );
 			shadowsRenderingPass.ClearTargetTexture();
 
@@ -74,7 +74,7 @@ void renderer::ShadowMapsGenerator::GenerateShadowMaps( const renderer::RawRende
 		{
 			lightData.m_shadowMap->GetView().Clear();
 
-			renderer::ForwardRenderingPass shadowsRenderingPass( m_renderer );
+			renderer::ShadowsRenderingPass shadowsRenderingPass( m_renderer );
 			shadowsRenderingPass.SetDepthStencilBuffer( lightData.m_shadowMap.get() );
 			shadowsRenderingPass.ClearTargetTexture();
 

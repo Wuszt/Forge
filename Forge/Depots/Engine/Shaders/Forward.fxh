@@ -24,6 +24,9 @@ TextureCube ShadowMap : register(t31);
 
 float4 CalculateColor(Custom_VS_Output input);
 
+#ifdef __SHADOW_PASS__
+void PS(Custom_VS_Output input) {}
+#else
 float4 PS(Custom_VS_Output input) : SV_Target
 {    
     float4 color = CalculateColor(input);
@@ -49,4 +52,5 @@ float4 PS(Custom_VS_Output input) : SV_Target
     
     return color;
 }
+#endif
 #endif // __FORWARD_HEADER__
