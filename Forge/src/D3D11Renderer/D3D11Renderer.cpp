@@ -238,7 +238,7 @@ namespace d3d11
 			};
 
 			std::vector< Shaders > m_shaders;
-			std::vector< void* > m_resourceViews;
+			std::vector< ID3D11ShaderResourceView* > m_resourceViews;
 		};
 
 		std::array< std::vector< Shape >, static_cast< Uint32 >( renderer::RenderingPass::Count ) > m_shapes;
@@ -353,8 +353,8 @@ namespace d3d11
 			context->PSSetConstantBuffers( static_cast< Uint32 >( renderer::PSConstantBufferType::Material ), 1, &materialCB );
 			context->IASetInputLayout( shape.m_inputLayout );
 
-			context->VSSetShaderResources( 0, static_cast< Uint32 >( shape.m_resourceViews.size() ), ( ID3D11ShaderResourceView** )shape.m_resourceViews.data() );
-			context->PSSetShaderResources( 0, static_cast< Uint32 >( shape.m_resourceViews.size() ), ( ID3D11ShaderResourceView** )shape.m_resourceViews.data() );
+			context->VSSetShaderResources( 0, static_cast< Uint32 >( shape.m_resourceViews.size() ), shape.m_resourceViews.data() );
+			context->PSSetShaderResources( 0, static_cast< Uint32 >( shape.m_resourceViews.size() ), shape.m_resourceViews.data() );
 
 			GetContext()->Draw( shape.m_indicesAmount, 0 );
 		}
