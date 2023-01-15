@@ -6,7 +6,7 @@ namespace renderer
 	{
 	public:
 		using IMeshesRenderingPass::IMeshesRenderingPass;
-		virtual void OnDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData );
+		virtual void OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData ) override;
 
 		static forge::ArraySpan< const ShaderDefine > GetRequiredShaderDefines();
 

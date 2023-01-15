@@ -11,6 +11,7 @@ namespace ecs
 		static int GetNextID()
 		{
 			static int id = 0;
+			FORGE_ASSERT( id < c_maxTagsAmount );
 			return id++;
 		}
 	};

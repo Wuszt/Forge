@@ -3,6 +3,8 @@
 
 namespace ecs
 {
+	class Archetype;
+
 	class Query
 	{
 	public:

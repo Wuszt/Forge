@@ -61,7 +61,7 @@ void forge::FreeCameraControllerComponent::Update()
 
 		delta = m_ownerTransform->GetData().m_transform.GetOrientation().Transform( delta );
 		pos += delta * forge::Time::GetDeltaTime();
-		m_ownerTransform->GetData().m_transform.SetPosition( pos );
+		m_ownerTransform->GetDirtyData().m_transform.SetPosition( pos );
 	}
 
 	{
@@ -76,12 +76,12 @@ void forge::FreeCameraControllerComponent::Update()
 
 		m_eulerAngles.X = Math::Clamp( -FORGE_PI_HALF, FORGE_PI_HALF, m_eulerAngles.X );
 
-		m_ownerTransform->GetData().m_transform.SetOrientation( Quaternion( 0.0f, 0.0f, m_eulerAngles.Z ) * Quaternion( m_eulerAngles.X, 0.0f, 0.0f ) );
+		m_ownerTransform->GetDirtyData().m_transform.SetOrientation( Quaternion( 0.0f, 0.0f, m_eulerAngles.Z ) * Quaternion( m_eulerAngles.X, 0.0f, 0.0f ) );
 	}
 
 	if( m_input->GetKey( forge::IInput::Key::R ) )
 	{
-		m_ownerTransform->GetData().m_transform = Transform::IDENTITY();
+		m_ownerTransform->GetDirtyData().m_transform = Transform::IDENTITY();
 		m_eulerAngles = Vector3::ZEROS();
 	}
 }

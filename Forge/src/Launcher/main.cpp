@@ -48,10 +48,8 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\vokselia\\vokselia_spawn.obj" );
 
-			auto renderable = renderingComponent->GetData().m_renderable;
-
-			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
-			transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 1000.0f };
+			transformComponent->GetDirtyData().m_transform.SetPosition( Vector3::ZEROS() );
+			transformComponent->GetDirtyData().m_scale = { 1000.0f, 1000.0f, 1000.0f };
 		} );
 	} );
 
@@ -59,7 +57,7 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -1100.0f, 200.0f } );
+			light->GetComponent< forge::TransformComponent >()->GetDirtyData().m_transform.SetPosition( { 0.0f, -1100.0f, 200.0f } );
 			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 1.0f, 0.0f, 0.0f };
 		} );
 	} );
@@ -68,7 +66,7 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 200.0f } );
+			light->GetComponent< forge::TransformComponent >()->GetDirtyData().m_transform.SetPosition( { 0.0f, 0.0f, 200.0f } );
 			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 1.0f, 0.0f };
 		} );
 	} );
@@ -77,7 +75,7 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 1100.0f, 200.0f } );
+			light->GetComponent< forge::TransformComponent >()->GetDirtyData().m_transform.SetPosition( { 0.0f, 1100.0f, 200.0f } );
 			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
 		} );
 	} );
@@ -94,11 +92,7 @@ void SkeletalMesh( forge::EngineInstance& engineInstance )
 
 			renderingComponent->LoadMeshAndMaterial( animName );
 
-			transformComponent->GetData().m_transform = Vector3{ 0.0f, 400.0f, 0.0f };
-
-			//renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 0.5f, 0.5f, 0.5f, 0.5f } );
-			//renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Transparent );
-			//renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+			transformComponent->GetDirtyData().m_transform = Vector3{ 0.0f, 400.0f, 0.0f };
 		} );
 	} );
 }
@@ -114,9 +108,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\sponza\\sponza.obj" );
 
-			auto renderable = renderingComponent->GetData().m_renderable;
-
-			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
+			transformComponent->GetDirtyData().m_transform.SetPosition( Vector3::ZEROS() );
 		} );
 	} );
 
@@ -124,7 +116,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -1100.0f, 200.0f } );
+			light->GetComponent< forge::TransformComponent >()->GetDirtyData().m_transform.SetPosition( { 0.0f, -1100.0f, 200.0f } );
 			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 1.0f, 0.0f, 0.0f };
 		} );
 	} );
@@ -133,8 +125,8 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::SpotLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 0.0f, 500.0f } );
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, 0.0f ) );
+			light->GetComponent< forge::TransformComponent >()->GetDirtyData().m_transform.SetPosition( { 0.0f, 0.0f, 500.0f } );
+			light->GetComponent< forge::TransformComponent >()->GetDirtyData().m_transform.SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, 0.0f ) );
 			light->GetComponent< forge::SpotLightComponent >()->GetData().m_color = { 0.5f, 0.5f, 0.5f };
 			light->GetComponent< forge::SpotLightComponent >()->GetData().m_power = 8000.0f;
 		} );
@@ -144,7 +136,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 	{
 		light->RequestAddingComponents< forge::TransformComponent, forge::PointLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
 		{
-			light->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, 1100.0f, 200.0f } );
+			light->GetComponent< forge::TransformComponent >()->GetDirtyData().m_transform.SetPosition( { 0.0f, 1100.0f, 200.0f } );
 			light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
 		} );
 	} );
@@ -161,11 +153,11 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\bunny.obj" );
 
-			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
-			transformComponent->GetData().m_transform.SetOrientation( Quaternion( 0.0f, 0.0f, FORGE_PI * 0.6f ) );
-			transformComponent->GetData().m_scale = { 100.0f, 100.0f, 100.0f };
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+			transformComponent->GetDirtyData().m_transform.SetPosition( Vector3::ZEROS() );
+			transformComponent->GetDirtyData().m_transform.SetOrientation( Quaternion( 0.0f, 0.0f, FORGE_PI * 0.6f ) );
+			transformComponent->GetDirtyData().m_scale = { 100.0f, 100.0f, 100.0f };
+			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 	} );
 
@@ -178,14 +170,14 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
 
-			auto renderable = renderingComponent->GetData().m_renderable;
-			for( auto& material : renderable->GetMaterials() )
+			auto& renderable = renderingComponent->GetData().m_renderable;
+			for( auto& material : renderable.GetMaterials() )
 			{
 				material->SetTexture( engineInstancePtr->GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\grass.jpg" )->GetTexture(), renderer::Material::TextureType::Diffuse );
 			}
 
-			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
-			transformComponent->GetData().m_scale = { 1000.0f, 1000.0f, 0.01f };
+			transformComponent->GetDirtyData().m_transform.SetPosition( Vector3::ZEROS() );
+			transformComponent->GetDirtyData().m_scale = { 1000.0f, 1000.0f, 0.01f };
 		} );
 	} );
 }
@@ -201,10 +193,10 @@ void CubeScene( forge::EngineInstance& engineInstance )
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
 
-			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
+			transformComponent->GetDirtyData().m_transform.SetPosition( Vector3::ZEROS() );
 
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 	} );
 }
@@ -220,10 +212,10 @@ void SphereScene( forge::EngineInstance& engineInstance )
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
 
-			transformComponent->GetData().m_transform.SetPosition( Vector3::ZEROS() );
+			transformComponent->GetDirtyData().m_transform.SetPosition( Vector3::ZEROS() );
 
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 	} );
 }
@@ -260,7 +252,7 @@ Int32 main()
 			{
 				player->RequestAddingComponents< forge::TransformComponent, forge::CameraComponent, forge::FreeCameraControllerComponent >( [ engineInstancePtr = &engineInstance, player ]()
 				{
-					player->GetComponent< forge::TransformComponent >()->GetData().m_transform.SetPosition( { 0.0f, -400.0f, 200.0f } );
+					player->GetComponent< forge::TransformComponent >()->GetDirtyData().m_transform.SetPosition( { 0.0f, -400.0f, 200.0f } );
 					auto* cameraComp = player->GetComponent< forge::CameraComponent >();
 					cameraComp->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstancePtr->GetWindow() ));
 

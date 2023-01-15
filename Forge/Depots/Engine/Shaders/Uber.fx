@@ -63,7 +63,7 @@ float4 CalculateColor(Custom_VS_Output input)
 #ifdef __VERTEX_INPUT_TEXCOORD_AMOUNT__
 
 #ifdef __DIFFUSE_TEXTURE__
-    clr = DiffuseTexture.Sample(LinearSamplerState, input.TexCoord);
+    clr.rgb = DiffuseTexture.Sample(LinearSamplerState, input.TexCoord).rgb;
 #endif
     
  #ifdef __ALPHA_TEXTURE__

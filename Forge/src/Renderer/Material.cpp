@@ -1,6 +1,7 @@
 #include "Fpch.h"
 #include "../Renderer/IRenderer.h"
 #include "../Renderer/IShader.h"
+#include "ConstantBuffer.h"
 
 std::vector< renderer::ShaderDefine > ConstructShaderDefines( const renderer::Model& model )
 {
@@ -31,6 +32,8 @@ renderer::Material::Material( renderer::IRenderer& renderer, const Model& model,
 		SetShaders( m_vertexShaderPath, m_pixelShaderPath, m_renderingPass );
 	} );
 }
+
+renderer::Material::~Material() = default;
 
 void renderer::Material::SetShaders( const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass )
 {

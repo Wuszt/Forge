@@ -1,4 +1,5 @@
 #pragma once
+#include "../Renderer/Renderable.h"
 
 namespace renderer
 {
@@ -10,35 +11,47 @@ namespace renderer
 
 namespace forge
 {
-	struct RenderingFragment : ecs::Fragment
+	struct RenderableFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( RenderingFragment, ecs::Fragment );
+		DECLARE_STRUCT( RenderableFragment, ecs::Fragment );
 		REGISTER_ECS_FRAGMENT();
 
-		renderer::Renderable* m_renderable;
+		RenderableFragment() = default;
+		RenderableFragment( RenderableFragment&) {}
+		RenderableFragment( RenderableFragment&& ) = default;
+		RenderableFragment& operator=( RenderableFragment&& ) = default;
+
+		renderer::Renderable m_renderable;
 	};
 
-	class RenderingComponent : public DataComponent< RenderingFragment >
+	struct DirtyRenderable : public ecs::Tag
+	{
+		REGISTER_ECS_TAG()
+	};
+
+	class RenderingComponent : public DataComponent< RenderableFragment >
 	{
 		DECLARE_POLYMORPHIC_CLASS( RenderingComponent, forge::IComponent );
 	public:
 		RenderingComponent();
 		~RenderingComponent();
 
+		virtual void OnAttach( EngineInstance& engineInstance ) override;
 		void LoadMeshAndMaterial( const std::string& path );
+		void SetDirty();
 
-		const renderer::Renderable* GetRenderable() const
+		const renderer::Renderable& GetRenderable() const
 		{
-			return m_renderable.get();
+			return GetData().m_renderable;
 		}
 
-		renderer::Renderable* GetRenderable()
+		renderer::Renderable& GetDirtyRenderable()
 		{
-			return m_renderable.get();
+			SetDirty();
+			return GetData_Internal().m_renderable;
 		}
-
 	private:
-		std::unique_ptr< renderer::Renderable > m_renderable; //todo: why pointer?
+		CallbackToken m_onShadersClearCache;
 	};
 }
 

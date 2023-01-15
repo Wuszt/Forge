@@ -33,6 +33,12 @@ namespace ecs
 		void AddTagToEntity( EntityID entityID )
 		{
 			Archetype* currentArchetype = m_entityToArchetype[ entityID ];
+
+			if ( currentArchetype->GetArchetypeID().ContainsTag< T >() )
+			{
+				return;
+			}
+
 			ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
 			id.AddTag< T >();
 
@@ -67,6 +73,12 @@ namespace ecs
 		void RemoveTagFromEntity( EntityID entityID )
 		{
 			Archetype* currentArchetype = m_entityToArchetype[ entityID ];
+
+			if ( !currentArchetype->GetArchetypeID().ContainsTag< T >() )
+			{
+				return;
+			}
+
 			ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
 			id.RemoveTag< T > ( );
 

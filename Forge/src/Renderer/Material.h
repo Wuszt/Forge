@@ -8,6 +8,7 @@ namespace renderer
 	class IPixelShader;
 	class IRenderer;
 	class ITexture;
+	class ConstantBuffer;
 	enum class RenderingPass;
 
 	template< class ShaderType >
@@ -26,6 +27,7 @@ namespace renderer
 		};
 
 		Material( renderer::IRenderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass );
+		~Material();
 
 		std::shared_ptr< ShaderPack< IVertexShader > > GetVertexShader() const
 		{

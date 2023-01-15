@@ -25,7 +25,7 @@ renderer::IMeshesRenderingPass::IMeshesRenderingPass( IRenderer& renderer )
 	m_cameraCB = renderer.CreateStaticConstantBuffer< CBCamera >();
 }
 
-void renderer::IMeshesRenderingPass::OnBeforeDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
+void renderer::IMeshesRenderingPass::OnBeforeDraw( const renderer::ICamera& camera, const LightingData* lightingData )
 {
 	AdjustViewportSize();
 	UpdateCameraConstantBuffer( camera );

@@ -1,9 +1,16 @@
 #pragma once
 
+namespace ecs
+{
+	class Query;
+	class ECSManager;
+}
+
 namespace renderer
 {
 	class IRenderTargetView;
 	struct IRawRenderablesPack;
+	struct IRawRenderable;
 	struct PointLightData;
 	struct SpotLightData;
 	struct DirectionalLightData;
@@ -12,6 +19,8 @@ namespace renderer
 	class IDepthStencilBuffer;
 	class IDepthStencilView;
 	class ICamera;
+
+	enum class RenderingPass;
 
 	template< class T >
 	struct LightData;
@@ -73,18 +82,18 @@ namespace renderer
 	public:
 		IMeshesRenderingPass( IRenderer& renderer );
 
-		void Draw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
+		void Draw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
 		{
 			PC_SCOPE_FUNC();
 
-			OnBeforeDraw( camera, rawRenderables, lightingData );
-			OnDraw( camera, rawRenderables, lightingData );
-			OnAfterDraw( camera, rawRenderables, lightingData );
+			OnBeforeDraw( camera, lightingData );
+			OnDraw( camera, ecsManager, query, renderingPass, lightingData );
+			OnAfterDraw( camera, lightingData );
 		}
 
-		virtual void OnBeforeDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData );
-		virtual void OnDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) = 0;
-		virtual void OnAfterDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) {}
+		virtual void OnBeforeDraw( const renderer::ICamera& camera, const LightingData* lightingData );
+		virtual void OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData ) = 0;
+		virtual void OnAfterDraw( const renderer::ICamera& camera, const LightingData* lightingData ) {}
 
 		virtual void ClearTargetTexture() override;
 

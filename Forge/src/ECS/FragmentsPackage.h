@@ -11,7 +11,7 @@ namespace ecs
 		virtual void RemoveFragmentReorder( Uint32 index ) = 0;
 		virtual const Fragment::Type& GetFragmentType() const = 0;
 		virtual std::unique_ptr< IFragmentsPackage > GetEmptyCopy() const = 0;
-		virtual void CopyFragment( Uint32 index, const IFragmentsPackage& source ) = 0;
+		virtual void MoveFragment( Uint32 index, IFragmentsPackage& source ) = 0;
 	};
 
 	template< class T >
@@ -68,10 +68,10 @@ namespace ecs
 			return std::make_unique< FragmentsPackage< T > >( 0u );
 		}
 
-		virtual void CopyFragment( Uint32 index, const IFragmentsPackage& source ) override
+		virtual void MoveFragment( Uint32 index, IFragmentsPackage& source ) override
 		{
-			const auto& typedSource = static_cast< const FragmentsPackage< T >& >( source );
-			EmplaceFragment( typedSource.GetFragments()[ index ] );
+			auto& typedSource = static_cast< FragmentsPackage< T >& >( source );
+			m_fragments.emplace_back( std::move( typedSource.GetFragments()[ index ] ) );
 		}
 
 		Uint32 GetFragmentsCount() const

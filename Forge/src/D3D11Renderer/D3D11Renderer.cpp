@@ -10,54 +10,11 @@
 #include "D3D11DepthStencilState.h"
 #include "D3D11DepthStencilView.h"
 #include "../Core/AssetsManager.h"
+#include "../ECS/ECSManager.h"
+#include "../ECS/EntityID.h"
 
 namespace d3d11
 {
-	struct RawRenderablesPack : public renderer::IRawRenderablesPack
-	{
-		struct Vertices
-		{
-			Uint16 m_VBStride; // 2
-			Uint16 m_startIndex; // 4
-			Uint16 m_endIndex; // 6
-		};
-		static_assert( sizeof( Vertices ) == 6, "Vertices struct is larger than before!" );
-
-		std::vector< Vertices > m_vertices;
-		std::vector< ID3D11Buffer* > m_vertexBuffers;
-		std::vector< ID3D11Buffer* > m_meshCBs;
-
-		struct Shape
-		{
-			Uint64 m_IBOffset : 22 ;
-			Uint64 m_indicesAmount : 22;
-
-			Uint64 m_resourcesStartIndex : 15;
-			Uint64 m_resourcesAmount : 5;
-		};
-		static_assert( sizeof( Shape ) == 8, "Shape struct is larger than before!" );
-
-		struct Shaders
-		{
-			std::vector< ID3D11VertexShader* > m_vertexShaders;
-			std::vector< ID3D11PixelShader* > m_pixelShaders;
-		};
-
-		std::vector< Shape > m_shapes;
-		std::vector< ID3D11Buffer* > m_indexBuffers;
-		Shaders m_mainShaders;
-		std::unordered_map< renderer::ShaderDefine, Shaders > m_subShaders;
-		std::vector< ID3D11Buffer* > m_materialCBs;
-		std::vector< ID3D11InputLayout* > m_inputLayouts;
-
-		std::vector< ID3D11ShaderResourceView* > m_resourceViews;
-
-		virtual Bool IsEmpty() const override
-		{
-			return m_shapes.empty();
-		}
-	};
-
 	D3D11_RASTERIZER_DESC GetDefaultRasterizerDesc()
 	{
 		D3D11_RASTERIZER_DESC rasterizerDesc;
@@ -259,145 +216,147 @@ namespace d3d11
 		m_context->GetDeviceContext()->RSSetViewports( 1, &viewport );
 	}
 
-	std::unique_ptr< renderer::RawRenderablesPacks > D3D11Renderer::CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* >& renderables ) const
+	struct RawRenderableFragment : public renderer::IRawRenderableFragment
 	{
-		PC_SCOPE_FUNC();
+		ID3D11Buffer* m_vertexBuffer = nullptr;
+		ID3D11Buffer* m_meshCB = nullptr;
+		Uint32 m_vbStride = 0u;
 
-		constexpr Uint32 packsAmount = static_cast< Uint16 >( renderer::RenderingPass::Count );
-		std::array< std::unique_ptr< RawRenderablesPack >, packsAmount > packs;
-
-		for( auto& pack : packs )
+		struct Shape
 		{
-			pack = std::make_unique< RawRenderablesPack >();
-		}
+			ID3D11Buffer* m_indexBuffer = nullptr;
+			Uint32 m_IBOffset = 0u;
+			Uint32 m_indicesAmount = 0u;
 
-		for( auto& renderable : renderables )
+			ID3D11Buffer* m_materialCB;
+			ID3D11InputLayout* m_inputLayout = nullptr;
+
+			struct Shaders
+			{
+				ID3D11VertexShader* m_vertexShader;
+				ID3D11PixelShader* m_pixelShader;
+			};
+
+			std::vector< Shaders > m_shaders;
+			std::vector< void* > m_resourceViews;
+		};
+
+		std::array< std::vector< Shape >, static_cast< Uint32 >( renderer::RenderingPass::Count ) > m_shapes;
+	};
+
+	void D3D11Renderer::Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine /*= nullptr*/, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs /*= {} */ )
+	{
+		auto fragments = archetype.GetFragments< RawRenderableFragment >();
+		for ( const auto& fragment : fragments )
 		{
-			const auto& shapes = renderable->GetModel().GetShapes();
-
-			std::array< Uint16, packsAmount > startIndices;
-			for( Uint32 i = 0; i < packsAmount; ++i )
-			{
-				startIndices[ i ] = static_cast<Uint16>( packs[i]->m_shapes.size() );
-			}
-
-			for( const auto& shape : shapes )
-			{
-				const renderer::Material& material = *renderable->GetMaterials()[ shape.m_materialIndex ].get();
-
-				Uint32 packIndex = static_cast<Uint32>( material.GetRenderingPass() );
-				auto& pack = packs[ packIndex ];
-
-				const D3D11IndexBuffer* ib = static_cast<const D3D11IndexBuffer*>( shape.m_indexBuffer.get() );
-				const D3D11ConstantBufferImpl* materialCBImpl = static_cast<const D3D11ConstantBufferImpl*>( material.GetConstantBuffer()->GetImpl() );
-				const D3D11InputLayout* il = static_cast<const D3D11InputLayout*>( material.GetInputLayout() );
-
-				pack->m_indexBuffers.emplace_back( ib->GetBuffer() );
-				pack->m_materialCBs.emplace_back( materialCBImpl->GetBuffer() );
-				pack->m_inputLayouts.emplace_back( il->GetLayout() );
-
-				{
-					auto vertexShaderPack = material.GetVertexShader();
-					auto pixelShaderPack = material.GetPixelShader();
-
-					const D3D11VertexShader* mainVs = static_cast<const D3D11VertexShader* >( vertexShaderPack->GetMainShader().get() );
-					const D3D11PixelShader* mainPs = static_cast<const D3D11PixelShader* >( pixelShaderPack->GetMainShader().get() );
-
-					pack->m_mainShaders.m_vertexShaders.emplace_back( mainVs->GetShader() );
-					pack->m_mainShaders.m_pixelShaders.emplace_back( mainPs->GetShader() );
-
-					for( const auto& define : GetShadersManager()->GetBaseShaderDefines() )
-					{
-						const D3D11VertexShader* vs = static_cast<const D3D11VertexShader*>( vertexShaderPack->GetSubShaders().at( define ).get() );
-						const D3D11PixelShader* ps = static_cast<const D3D11PixelShader*>( pixelShaderPack->GetSubShaders().at( define ).get() );
-
-						pack->m_subShaders[ define ].m_vertexShaders.emplace_back( vs->GetShader() );
-						pack->m_subShaders[ define ].m_pixelShaders.emplace_back( ps->GetShader() );
-					}
-				}
-
-				auto materialResources = material.GetTextures();
-				Uint32 resourcesAmount = materialResources.GetSize();
-				Uint32 startIndex = static_cast< Uint32 >( pack->m_resourceViews.size() );
-				FORGE_ASSERT( startIndex < ( 1 << 15 ) );
-				FORGE_ASSERT( resourcesAmount < ( 1 << 5 ) );
-				for( Uint32 resourcesIndex = 0u; resourcesIndex < resourcesAmount; ++resourcesIndex )
-				{
-					const D3D11Texture* texture = static_cast< const D3D11Texture* >( materialResources[ resourcesIndex ].get() );
-					pack->m_resourceViews.emplace_back( texture ? texture->GetShaderResourceView()->GetTypedSRV() : nullptr );
-				}
-
-				pack->m_resourceViews.resize( Math::Max( 1u, static_cast< Uint32 >( pack->m_resourceViews.size() ) ) );
-
-				FORGE_ASSERT( ib->GetIndicesAmount() < 1 << 22 );
-				pack->m_shapes.emplace_back( RawRenderablesPack::Shape{ 0u, ib->GetIndicesAmount(), Math::Min( startIndex, static_cast< Uint32 >( pack->m_resourceViews.size() ) - 1u ), resourcesAmount } );
-			}
-
-			for( Uint32 i = 0; i < packsAmount; ++i )
-			{
-				Uint16 endIndex = static_cast<Uint16>( packs[ i ]->m_shapes.size() );
-				if( endIndex > startIndices[ i ] )
-				{
-					const D3D11VertexBuffer* vb = static_cast<const D3D11VertexBuffer*>( renderable->GetModel().GetVertexBuffer() );
-					const D3D11ConstantBufferImpl* meshCBImpl = static_cast<const D3D11ConstantBufferImpl*>( renderable->GetCBMesh().GetImpl() );
-
-					packs[ i ]->m_vertexBuffers.emplace_back( vb->GetBuffer() );
-					packs[ i ]->m_meshCBs.emplace_back( meshCBImpl->GetBuffer() );
-					packs[ i ]->m_vertices.emplace_back( RawRenderablesPack::Vertices{ static_cast<Uint16>( vb->GetStride() ), startIndices[ i ], endIndex } );
-				}
-			}
+			Draw( fragment, renderingPass, shaderDefine, additionalSRVs );
 		}
-
-		return std::make_unique< renderer::RawRenderablesPacks >( std::move( packs ) );
 	}
 
-	void D3D11Renderer::Draw( const renderer::IRawRenderablesPack& rawRenderables, const renderer::ShaderDefine* shaderDefine, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs )
+	void D3D11Renderer::AddRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID ) const
 	{
-		if( rawRenderables.IsEmpty() )
+		ecsManager.AddFragmentToEntity< RawRenderableFragment >( entityID );
+	}
+
+	void D3D11Renderer::UpdateRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID, const renderer::Renderable& renderable ) const
+	{
+		const auto& shapes = renderable.GetModel().GetShapes();
+
+		RawRenderableFragment* rawRenderable = ecsManager.GetEntityArchetype( entityID )->GetFragment< RawRenderableFragment >( entityID );
+		
+		*rawRenderable = RawRenderableFragment();
+
+		for ( const auto& shape : shapes )
 		{
-			return;
+			const renderer::Material& material = *renderable.GetMaterials()[ shape.m_materialIndex ].get();
+			auto& rawShape = rawRenderable->m_shapes[ static_cast< Uint32 >( material.GetRenderingPass() ) ].emplace_back();
+
+			const D3D11IndexBuffer* ib = static_cast< const D3D11IndexBuffer* >( shape.m_indexBuffer.get() );
+			rawShape.m_indexBuffer = ib->GetBuffer();
+			rawShape.m_indicesAmount = ib->GetIndicesAmount();
+
+			const D3D11ConstantBufferImpl* materialCBImpl = static_cast< const D3D11ConstantBufferImpl* >( material.GetConstantBuffer()->GetImpl() );
+			rawShape.m_materialCB = materialCBImpl->GetBuffer();
+
+			const D3D11InputLayout* il = static_cast< const D3D11InputLayout* >( material.GetInputLayout() );
+			rawShape.m_inputLayout = il->GetLayout();
+
+			{
+				auto vertexShaderPack = material.GetVertexShader();
+				auto pixelShaderPack = material.GetPixelShader();
+
+				const D3D11VertexShader* mainVs = static_cast< const D3D11VertexShader* >( vertexShaderPack->GetMainShader().get() );
+				const D3D11PixelShader* mainPs = static_cast< const D3D11PixelShader* >( pixelShaderPack->GetMainShader().get() );
+
+				rawShape.m_shaders.push_back( { mainVs->GetShader(), mainPs->GetShader() } );
+
+				for ( const auto& define : GetShadersManager()->GetBaseShaderDefines() )
+				{
+					const D3D11VertexShader* vs = static_cast< const D3D11VertexShader* >( vertexShaderPack->GetSubShaders().at( define ).get() );
+					const D3D11PixelShader* ps = static_cast< const D3D11PixelShader* >( pixelShaderPack->GetSubShaders().at( define ).get() );
+
+					rawShape.m_shaders.push_back( { vs->GetShader(), ps->GetShader() } );
+				}
+			}
+
+			auto materialResources = material.GetTextures();
+			Uint32 resourcesAmount = materialResources.GetSize();
+			for ( Uint32 i = 0u; i < resourcesAmount; ++i )
+			{
+				const D3D11Texture* texture = static_cast< const D3D11Texture* >( materialResources[ i ].get() );
+				rawShape.m_resourceViews.emplace_back( texture ? texture->GetShaderResourceView()->GetTypedSRV() : nullptr );
+			}
 		}
 
+		const D3D11VertexBuffer* vb = static_cast< const D3D11VertexBuffer* >( renderable.GetModel().GetVertexBuffer() );
+		const D3D11ConstantBufferImpl* meshCBImpl = static_cast< const D3D11ConstantBufferImpl* >( renderable.GetCBMesh().GetImpl() );
+
+		rawRenderable->m_meshCB = meshCBImpl->GetBuffer();
+		rawRenderable->m_vertexBuffer = vb->GetBuffer();
+		rawRenderable->m_vbStride = vb->GetStride();
+	}
+
+	void D3D11Renderer::Draw( const renderer::IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs )
+	{
 		auto* context = GetContext()->GetDeviceContext();
 		context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-		if( !additionalSRVs.IsEmpty() )
+		const RawRenderableFragment& renderableFragment = static_cast< const RawRenderableFragment& >( fragment );
+
+		if ( !additionalSRVs.IsEmpty() )
 		{
 			SetShaderResourceViews( additionalSRVs, D3D11_STANDARD_VERTEX_ELEMENT_COUNT - additionalSRVs.GetSize() ); //todo: this is shit, srvs should be next to each other
 		}
 
-		const RawRenderablesPack& renderables = static_cast< const RawRenderablesPack& >( rawRenderables );
+		Uint32 shadersIndex = 0u;
 
-		const RawRenderablesPack::Shaders* shaders = &renderables.m_mainShaders;
-
-		if( shaderDefine )
+		if ( shaderDefine )
 		{
-			shaders = &renderables.m_subShaders.at( *shaderDefine );
+			auto it = std::find_if( GetShadersManager()->GetBaseShaderDefines().begin(), GetShadersManager()->GetBaseShaderDefines().end(), [ &shaderDefine ]( const renderer::ShaderDefine& sd ) { return sd.GetHash() == shaderDefine->GetHash(); } );
+			shadersIndex = static_cast< Uint32 >( it - GetShadersManager()->GetBaseShaderDefines().begin() + 1u );
 		}
 
-		for( Uint32 verticesIndex = 0u; verticesIndex < renderables.m_vertices.size(); ++verticesIndex )
+		constexpr Uint32 offset = 0u;
+		context->IASetVertexBuffers( 0, 1, &renderableFragment.m_vertexBuffer, &renderableFragment.m_vbStride, &offset );
+
+		context->VSSetConstantBuffers( static_cast< Uint32 >( renderer::VSConstantBufferType::Mesh ), 1, &renderableFragment.m_meshCB );
+		context->PSSetConstantBuffers( static_cast< Uint32 >( renderer::PSConstantBufferType::Mesh ), 1, &renderableFragment.m_meshCB );
+
+		for ( const RawRenderableFragment::Shape& shape : renderableFragment.m_shapes[ static_cast< Uint32 >( renderingPass ) ] )
 		{
-			Uint32 offset = 0u;
-			Uint32 stride = renderables.m_vertices[ verticesIndex ].m_VBStride;
-			context->IASetVertexBuffers( 0, 1, &renderables.m_vertexBuffers[ verticesIndex ], &stride, &offset );
+			context->IASetIndexBuffer( shape.m_indexBuffer, DXGI_FORMAT_R32_UINT, shape.m_IBOffset );
+			context->VSSetShader( shape.m_shaders[ shadersIndex ].m_vertexShader, 0, 0 );
+			context->PSSetShader( shape.m_shaders[ shadersIndex ].m_pixelShader, 0, 0 );
 
-			context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Mesh ), 1, &renderables.m_meshCBs[ verticesIndex ] );
-			context->PSSetConstantBuffers( static_cast<Uint32>( renderer::PSConstantBufferType::Mesh ), 1, &renderables.m_meshCBs[ verticesIndex ] );
+			ID3D11Buffer* materialCB = shape.m_materialCB;
+			context->VSSetConstantBuffers( static_cast< Uint32 >( renderer::VSConstantBufferType::Material ), 1, &materialCB );
+			context->PSSetConstantBuffers( static_cast< Uint32 >( renderer::PSConstantBufferType::Material ), 1, &materialCB );
+			context->IASetInputLayout( shape.m_inputLayout );
 
-			for( Uint16 shapesIndex = renderables.m_vertices[ verticesIndex ].m_startIndex; shapesIndex < renderables.m_vertices[ verticesIndex ].m_endIndex; ++shapesIndex )
-			{
-				const RawRenderablesPack::Shape& shape = renderables.m_shapes[ shapesIndex ];
-				context->IASetIndexBuffer( renderables.m_indexBuffers[ shapesIndex ], DXGI_FORMAT_R32_UINT, renderables.m_shapes[ shapesIndex ].m_IBOffset );
-				context->VSSetShader( shaders->m_vertexShaders[ shapesIndex ], 0, 0 );
-				context->PSSetShader( shaders->m_pixelShaders[ shapesIndex ], 0, 0 );
-				context->VSSetConstantBuffers( static_cast<Uint32>( renderer::VSConstantBufferType::Material ), 1, &renderables.m_materialCBs[ shapesIndex ] );
-				context->PSSetConstantBuffers( static_cast<Uint32>( renderer::PSConstantBufferType::Material ), 1, &renderables.m_materialCBs[ shapesIndex ] );
-				context->IASetInputLayout( renderables.m_inputLayouts[ shapesIndex ] );
-				context->VSSetShaderResources( 0, shape.m_resourcesAmount, &renderables.m_resourceViews[ shape.m_resourcesStartIndex ] );
-				context->PSSetShaderResources( 0, shape.m_resourcesAmount, &renderables.m_resourceViews[ shape.m_resourcesStartIndex ] );
+			context->VSSetShaderResources( 0, static_cast< Uint32 >( shape.m_resourceViews.size() ), ( ID3D11ShaderResourceView** )shape.m_resourceViews.data() );
+			context->PSSetShaderResources( 0, static_cast< Uint32 >( shape.m_resourceViews.size() ), ( ID3D11ShaderResourceView** )shape.m_resourceViews.data() );
 
-				GetContext()->Draw( renderables.m_shapes[ shapesIndex ].m_indicesAmount, 0 );
-			}
+			GetContext()->Draw( shape.m_indicesAmount, 0 );
 		}
 	}
 

@@ -56,7 +56,6 @@ void systems::RenderingSystem::OnInitialize()
 	m_beforeDrawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::RenderingSystem::OnBeforeDraw, this ) );
 	m_drawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::RenderingSystem::OnDraw, this ) );
 	m_presentToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Present, std::bind( &systems::RenderingSystem::OnPresent, this ) );
-	m_rawRenderablesPacks = m_renderer->CreateRawRenderablesPackage( {} );
 
 	m_targetTexture = m_renderer->CreateTexture( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight(), 
 		renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
@@ -259,6 +258,21 @@ void systems::RenderingSystem::OnBeforeDraw()
 	m_opaqueRenderingPass->ClearTargetTexture(); // this is fucked up, what about other rendering passes?
 }
 
+struct ContainsOpaqueShapes : public ecs::Tag
+{
+	REGISTER_ECS_TAG();
+};
+
+struct ContainsTransparentShapes : public ecs::Tag
+{
+	REGISTER_ECS_TAG();
+};
+
+struct ContainsOverlayShapes : public ecs::Tag
+{
+	REGISTER_ECS_TAG();
+};
+
 void systems::RenderingSystem::OnDraw()
 {
 	PC_SCOPE_FUNC();
@@ -269,63 +283,133 @@ void systems::RenderingSystem::OnDraw()
 		return;
 	}
 
-	std::vector< const renderer::Renderable* > renderables;
+	{
+		PC_SCOPE( "RenderingSystem::UpdatingRawRenderables" );
+		ecs::Query renderablesToUpdate;
+		renderablesToUpdate.AddTagRequirement< forge::DirtyRenderable >();
+		renderablesToUpdate.AddFragmentRequirement< forge::RenderableFragment >();
+		renderablesToUpdate.AddFragmentRequirement< renderer::IRawRenderableFragment >();
+
+		std::vector< ecs::EntityID > updatedEntities;
+
+		renderablesToUpdate.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+			{
+				auto renderables = archetype.GetFragments< forge::RenderableFragment >();
+		        auto rawRenderables = archetype.GetFragments< renderer::IRawRenderableFragment >();
+
+				for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
+				{
+					updatedEntities.emplace_back( archetype.GetEntityIDWithIndex( i ) );
+
+					m_renderer->UpdateRenderableECSFragment( GetEngineInstance().GetECSManager(), archetype.GetEntityIDWithIndex( i ), renderables[ i ].m_renderable );
+				}
+
+			} );
+
+		for ( const auto& entityID : updatedEntities )
+		{
+			forge::RenderableFragment* renderableFragment = GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetFragment< forge::RenderableFragment >( entityID );
+			
+			std::array< Bool, static_cast< Uint32 >( renderer::RenderingPass::Count ) > containedRenderingPasses{ false };
+			for ( auto& material : renderableFragment->m_renderable.GetMaterials() )
+			{
+				containedRenderingPasses[ static_cast< Uint32 >( material->GetRenderingPass() ) ] = true;
+			}
+
+			for ( Uint32 i = 0u; i < containedRenderingPasses.size(); ++i )
+			{
+				switch ( static_cast< renderer::RenderingPass >( i ) )
+				{
+				    case renderer::RenderingPass::Opaque:
+						if( containedRenderingPasses[ i ] )
+						{
+							GetEngineInstance().GetECSManager().AddTagToEntity< ContainsOpaqueShapes >( entityID );
+						}
+						else
+						{
+							GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsOpaqueShapes >( entityID );
+						}
+						break;
+					case renderer::RenderingPass::Transparent:
+						if ( containedRenderingPasses[ i ] )
+						{
+							GetEngineInstance().GetECSManager().AddTagToEntity< ContainsTransparentShapes >( entityID );
+						}
+						else
+						{
+							GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsTransparentShapes >( entityID );
+						}
+						break;
+					case renderer::RenderingPass::Overlay:
+						if ( containedRenderingPasses[ i ] )
+						{
+							GetEngineInstance().GetECSManager().AddTagToEntity< ContainsOverlayShapes >( entityID );
+						}
+						else
+						{
+							GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsOverlayShapes >( entityID );
+						}
+						break;
+				}
+			}
+
+			GetEngineInstance().GetECSManager().RemoveTagFromEntity< forge::DirtyRenderable >( entityID );			
+		}
+	}
 
 	ecs::Query query;
 	query.AddFragmentRequirement< forge::TransformFragment >();
-	query.AddFragmentRequirement< forge::RenderingFragment >();
-
-	{
-		PC_SCOPE( "RenderingSystem::OnDraw::CollectingRenderables" );
-		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [&]( ecs::Archetype& archetype )
-		{
-			auto renderingFragments = archetype.GetFragments< forge::RenderingFragment >();
-
-			for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
-			{
-				renderables.emplace_back( renderingFragments[ i ].m_renderable );
-			}
-		} );
-	}
-
-	m_rawRenderablesPacks = m_renderer->CreateRawRenderablesPackage( renderables );
+	query.AddFragmentRequirement< renderer::IRawRenderableFragment >();
+	query.AddTagRequirement< forge::TransformModifiedThisFrame >();
 
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::UpdatingBuffers" );
 		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-			auto renderingFragments = archetype.GetFragments< forge::RenderingFragment >();
+			auto renderableFragments = archetype.GetFragments< forge::RenderableFragment >();
 
 			for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
 			{
-				auto& cb = renderingFragments[ i ].m_renderable->GetCBMesh();
-				auto prev = cb.GetData().W;
+				auto& cb = renderableFragments[ i ].m_renderable.GetCBMesh();
 				cb.GetData().W = transformFragments[ i ].ToMatrix();
-
-				// It's stupid, but UpdateBuffer takes so much time that it makes sense for now
-				// I should probably separate static and dynamic objects in the future or/and keep an information which object changed
-				// it's transform somehow
-				if( prev != cb.GetData().W )
-				{
-					cb.UpdateBuffer();
-				}
+				cb.UpdateBuffer();
 			}
 		} );
 	}
 
-	auto& lightingSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::LightingSystem >();
-	renderer::LightingData lightingData = lightingSystem.GetLightingData();
-	m_shadowMapsGenerator->GenerateShadowMaps( *m_rawRenderablesPacks, lightingData );
+	{
+		PC_SCOPE( "RenderingSystem::OnDraw::Opaque" );
+		ecs::Query opaqueQuery;
+		opaqueQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >();
+		opaqueQuery.AddTagRequirement< ContainsOpaqueShapes >();
 
-	m_opaqueRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Opaque ), &lightingData );
-	m_overlayRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Overlay ), nullptr );
+		auto& lightingSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::LightingSystem >();
+		renderer::LightingData lightingData = lightingSystem.GetLightingData();
+		m_shadowMapsGenerator->GenerateShadowMaps( GetEngineInstance().GetECSManager(), opaqueQuery, renderer::RenderingPass::Opaque, lightingData );
+		m_opaqueRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), opaqueQuery, renderer::RenderingPass::Opaque, &lightingData );
+	}
 
-	m_transparencyBlendState->Set();
-	m_depthStencilState->EnableWrite( false );
-	m_transparentRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), m_rawRenderablesPacks->GetRendenderablesPack( renderer::RenderingPass::Transparent ), nullptr );
-	m_depthStencilState->EnableWrite( true );
-	m_transparencyBlendState->Clear();
+	{
+		PC_SCOPE( "RenderingSystem::OnDraw::Transparent" );
+		ecs::Query transparentQuery;
+		transparentQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >();
+		transparentQuery.AddTagRequirement< ContainsTransparentShapes >();
+
+		m_transparencyBlendState->Set();
+		m_depthStencilState->EnableWrite( false );
+		m_transparentRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), transparentQuery, renderer::RenderingPass::Transparent, nullptr );
+		m_depthStencilState->EnableWrite( true );
+		m_transparencyBlendState->Clear();
+	}
+
+	{
+		PC_SCOPE( "RenderingSystem::OnDraw::Overlay" );
+		ecs::Query overlayQuery;
+		overlayQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >();
+		overlayQuery.AddTagRequirement< ContainsOverlayShapes >();
+		m_overlayRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), overlayQuery, renderer::RenderingPass::Overlay, nullptr );
+	}
 
 	m_renderer->SetViewportSize( Vector2( static_cast< Float >( GetEngineInstance().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetWindow().GetHeight() ) ) );
 	renderer::FullScreenRenderingPass copyResourcePass( *m_renderer, "CopyTexture.fx", {} );

@@ -45,8 +45,7 @@ ecs::Archetype& ecs::ECSManager::UpdateEntityArchetype( EntityID entityID, const
 
 	if( currentArchetype )
 	{
-		targetArchetype->AddEntityCopy( entityID, *currentArchetype );
-		currentArchetype->RemoveEntity( entityID );
+		targetArchetype->StealEntityFrom( entityID, *currentArchetype );
 	}
 	else
 	{

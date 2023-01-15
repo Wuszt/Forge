@@ -19,5 +19,10 @@ namespace forge
 		DECLARE_POLYMORPHIC_CLASS( SpotLightComponent, forge::IComponent );
 	public:
 		using DataComponent::DataComponent;
+
+		SpotLightFragment& GetData()
+		{
+			return GetData_Internal();
+		}
 	};
 }

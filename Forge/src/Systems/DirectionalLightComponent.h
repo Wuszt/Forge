@@ -20,5 +20,10 @@ namespace forge
 		DECLARE_POLYMORPHIC_CLASS( DirectionalLightComponent, forge::IComponent );
 	public:
 		using DataComponent::DataComponent;
+
+		DirectionalLightFragment& GetData()
+		{
+			return GetData_Internal();
+		}
 	};
 }

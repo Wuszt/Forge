@@ -55,7 +55,13 @@ namespace forge
 			ecsManager.RemoveFragmentFromEntity< TData >( id );
 		}
 
-		TData& GetData()
+		const TData& GetData() const
+		{
+			return const_cast< DataComponent< TData >* >( this )->GetData_Internal();
+		}
+
+	protected:
+		TData& GetData_Internal()
 		{
 			auto& objectsManager = GetOwner().GetEngineInstance().GetObjectsManager();
 			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();

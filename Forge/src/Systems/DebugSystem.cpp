@@ -65,11 +65,11 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
 
-			transformComponent->GetData().m_transform.SetPosition( position );
-			transformComponent->GetData().m_scale = { radius, radius, radius };
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Overlay );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+			transformComponent->GetDirtyData().m_transform.SetPosition( position );
+			transformComponent->GetDirtyData().m_scale = { radius, radius, radius };
+			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Overlay );
+			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 
 		m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + lifetime } );
@@ -87,11 +87,11 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
 
-			transformComponent->GetData().m_transform.SetPosition( position );
-			transformComponent->GetData().m_scale = extension;
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Overlay );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
-			renderingComponent->GetRenderable()->GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+			transformComponent->GetDirtyData().m_transform.SetPosition( position );
+			transformComponent->GetDirtyData().m_scale = extension;
+			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Overlay );
+			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
 
 		m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + lifetime } );

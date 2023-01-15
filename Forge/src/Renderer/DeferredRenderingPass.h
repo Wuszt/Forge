@@ -16,7 +16,7 @@ namespace renderer
 	public:
 		DeferredRenderingPass( IRenderer& renderer );
 
-		virtual void OnDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData ) override;
+		virtual void OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData ) override;
 		virtual void ClearTargetTexture() override;
 		virtual void SetTargetTexture( ITexture& targetTexture ) override;
 		virtual void OnTargetTextureResized( const Vector2& size ) override;

@@ -74,7 +74,6 @@ namespace systems
 		forge::CallbackToken m_presentToken;
 		renderer::IRenderer* m_renderer;
 
-		std::unique_ptr< renderer::RawRenderablesPacks > m_rawRenderablesPacks;
 		std::vector< std::unique_ptr< renderer::ISamplerState > > m_samplerStates;
 
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_opaqueRenderingPass;

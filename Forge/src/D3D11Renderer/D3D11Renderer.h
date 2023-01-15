@@ -23,6 +23,12 @@ namespace renderer
 	class ShaderDefine;
 }
 
+namespace ecs
+{
+	class EntityID;
+	class ECSManager;
+}
+
 namespace forge
 {
 	class IWindow;
@@ -79,9 +85,11 @@ namespace d3d11
 
 		virtual void SetViewportSize( const Vector2& size ) override;
 
-		virtual std::unique_ptr< renderer::RawRenderablesPacks > CreateRawRenderablesPackage( const forge::ArraySpan< const renderer::Renderable* >& renderables ) const override;
+		virtual void AddRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID ) const override;
+		virtual void UpdateRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID, const renderer::Renderable& renderable ) const override;
 
-		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) override;
+		virtual void Draw( const renderer::IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) override;
+		virtual void Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) override;
 		virtual void DrawRawVertices( Uint32 amount ) override;
 
 		virtual renderer::RendererType GetType() const override

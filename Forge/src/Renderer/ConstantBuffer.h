@@ -37,6 +37,9 @@ namespace renderer
 	class IConstantBuffer
 	{
 	public:
+		IConstantBuffer() = default;
+		IConstantBuffer( IConstantBuffer&& ) = default;
+		IConstantBuffer& operator=( IConstantBuffer&& ) = default;
 		virtual ~IConstantBuffer() = default;
 
 		virtual void SetImpl( std::unique_ptr< IConstantBufferImpl > impl )
@@ -117,7 +120,7 @@ namespace renderer
 			m_dataSize = toCopy.m_dataSize;
 			m_elementsAmount = toCopy.m_elementsAmount;
 			m_rawData = std::move( forge::RawSmartPtr( m_dataSize ) );
-			memcpy( m_rawData.GetData(), toCopy.m_rawData.GetData(), m_dataSize);
+			memcpy( m_rawData.GetData(), toCopy.m_rawData.GetData(), m_dataSize );
 
 			CreateBuffer();
 			UpdateBuffer();
@@ -125,7 +128,7 @@ namespace renderer
 
 		template< class T >
 		void AddData( const std::string& name, const T& data )
-		{	
+		{
 			Uint32 offset = sizeof( T );
 			Uint32 prevSize = m_dataSize;
 			m_dataSize += offset;
@@ -136,7 +139,7 @@ namespace renderer
 			forge::RawSmartPtr prevData = std::move( m_rawData );
 
 			m_rawData = std::move( forge::RawSmartPtr( m_dataSize ) );
-			memcpy( m_rawData.GetData(), prevData.GetData(), prevSize);
+			memcpy( m_rawData.GetData(), prevData.GetData(), prevSize );
 			memcpy( m_rawData.GetData() + prevSize, &data, offset );
 
 			CreateBuffer();
@@ -146,11 +149,11 @@ namespace renderer
 		Bool SetData( const std::string& name, const T& data )
 		{
 			auto it = m_dataLUT.find( name );
-			if( it != m_dataLUT.end() )
+			if ( it != m_dataLUT.end() )
 			{
 				Uint32 offset = m_offsets[ it->second ];
-				
-				memcpy( m_rawData.GetData() + offset, &data, sizeof(T));
+
+				memcpy( m_rawData.GetData() + offset, &data, sizeof( T ) );
 				return true;
 			}
 
@@ -161,11 +164,11 @@ namespace renderer
 		Bool TryToGetData( const std::string& name, T& output ) const
 		{
 			auto it = m_dataLUT.find( name );
-			if( it != m_dataLUT.end() )
+			if ( it != m_dataLUT.end() )
 			{
 				Uint32 offset = m_offsets[ it->second ];
 
-				memcpy( &output, m_rawData.GetData() + offset, sizeof(T));
+				memcpy( &output, m_rawData.GetData() + offset, sizeof( T ) );
 				return true;
 			}
 

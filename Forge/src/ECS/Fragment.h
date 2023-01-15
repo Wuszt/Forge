@@ -13,6 +13,7 @@ namespace ecs
 		static int GetNextID()
 		{
 			static int id = 0;
+			FORGE_ASSERT( id < c_maxFragmentsAmount );
 			return id++;
 		}
 	};

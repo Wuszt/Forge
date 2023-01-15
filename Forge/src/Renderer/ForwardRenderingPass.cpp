@@ -2,6 +2,9 @@
 #include "ForwardRenderingPass.h"
 #include "LightData.h"
 #include "IBlendState.h"
+#include "../ECS/Query.h"
+#include "../ECS/Archetype.h"
+#include "IRenderer.h"
 
 struct CBForwardRendering
 {
@@ -43,14 +46,14 @@ renderer::ForwardRenderingPass::ForwardRenderingPass( IRenderer& renderer )
 
 renderer::ForwardRenderingPass::~ForwardRenderingPass() = default;
 
-void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
+void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
 {
 	std::vector< renderer::IRenderTargetView* > views{ GetTargetTexture() ? GetTargetTexture()->GetRenderTargetView() : nullptr };
 	GetRenderer().SetRenderTargets( views, &GetDepthStencilView() );
 
-	StaticConstantBuffer< CBForwardRendering >* cbRendering = static_cast<StaticConstantBuffer< CBForwardRendering >*>( m_cbForwardRendering.get() );
+	StaticConstantBuffer< CBForwardRendering >* cbRendering = static_cast< StaticConstantBuffer< CBForwardRendering >* >( m_cbForwardRendering.get() );
 	const ShaderDefine* shaderDefine = nullptr;
-	if( lightingData )
+	if ( lightingData )
 	{
 		cbRendering->GetData().AmbientLighting = lightingData->m_ambientLight;
 		shaderDefine = &c_ambientLightDefine;
@@ -60,25 +63,32 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, co
 	cbRendering->SetVS( renderer::VSConstantBufferType::RenderingPass );
 	cbRendering->SetPS( renderer::PSConstantBufferType::RenderingPass );
 
-	GetRenderer().Draw( rawRenderables, shaderDefine );
+	query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+		{
+			GetRenderer().Draw( archetype, renderingPass, shaderDefine );
+		} );
 
-	if( lightingData )
+	if ( lightingData )
 	{
 		m_blendState->Set();
 
 		{
-			StaticConstantBuffer< CBPointLight >* cbLighting = static_cast<StaticConstantBuffer< CBPointLight >*>( m_cbPointLight.get() );
+			StaticConstantBuffer< CBPointLight >* cbLighting = static_cast< StaticConstantBuffer< CBPointLight >* >( m_cbPointLight.get() );
 			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
 			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
 
-			for( const auto& light : lightingData->m_pointLights )
+			for ( const auto& light : lightingData->m_pointLights )
 			{
 				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
 				IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
 
-				GetRenderer().Draw( rawRenderables, &c_pointLightDefine, { &shadowMapSrv, shadowMapSrv ? 1u : 0u } );
+				forge::ArraySpan< renderer::IShaderResourceView* > srvs = { &shadowMapSrv, shadowMapSrv ? 1u : 0u };
+				query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+					{
+						GetRenderer().Draw( archetype, renderingPass, &c_pointLightDefine, srvs );
+					} );
 			}
 		}
 
@@ -87,30 +97,38 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, co
 			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
 			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
 
-			for( const auto& light : lightingData->m_spotLights )
+			for ( const auto& light : lightingData->m_spotLights )
 			{
 				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
 				IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
 
-				GetRenderer().Draw( rawRenderables, &c_spotLightDefine, { &shadowMapSrv, shadowMapSrv ? 1u : 0u } );
+				forge::ArraySpan< renderer::IShaderResourceView* > srvs = { &shadowMapSrv, shadowMapSrv ? 1u : 0u };
+				query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+					{
+						GetRenderer().Draw( archetype, renderingPass, &c_spotLightDefine, srvs );
+					} );
 			}
 		}
 
 		{
-			StaticConstantBuffer< CBDirectionalLight >* cbLighting = static_cast<StaticConstantBuffer < CBDirectionalLight >*>( m_cbDirectionalLight.get() );
+			StaticConstantBuffer< CBDirectionalLight >* cbLighting = static_cast< StaticConstantBuffer < CBDirectionalLight >* >( m_cbDirectionalLight.get() );
 			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
 			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
 
-			for( const auto& light : lightingData->m_directionalLights )
+			for ( const auto& light : lightingData->m_directionalLights )
 			{
 				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
 				IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
 
-				GetRenderer().Draw( rawRenderables, &c_directionalLightDefine, { &shadowMapSrv, shadowMapSrv ? 1u : 0u } );
+				forge::ArraySpan< renderer::IShaderResourceView* > srvs = { &shadowMapSrv, shadowMapSrv ? 1u : 0u };
+				query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+					{
+						GetRenderer().Draw( archetype, renderingPass, &c_directionalLightDefine, srvs );
+					} );
 			}
 		}
 

@@ -4,15 +4,31 @@
 #include "../Renderer/IRenderer.h"
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
+#include "../Renderer/IShadersManager.h"
 
-IMPLEMENT_TYPE( forge::RenderingFragment )
+IMPLEMENT_TYPE( forge::RenderableFragment )
 IMPLEMENT_TYPE( forge::RenderingComponent )
 
 forge::RenderingComponent::RenderingComponent() = default;
 forge::RenderingComponent::~RenderingComponent() = default;
 
+void forge::RenderingComponent::OnAttach( EngineInstance& engineInstance )
+{
+	DataComponent< forge::RenderableFragment >::OnAttach( engineInstance );
+	engineInstance.GetRenderer().AddRenderableECSFragment( engineInstance.GetECSManager(), engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ) );
+	m_onShadersClearCache = engineInstance.GetRenderer().GetShadersManager()->RegisterCacheClearingListener(
+		[ this ]()
+		{
+			SetDirty();
+		} );
+}
+
 void forge::RenderingComponent::LoadMeshAndMaterial( const std::string& path )
 {
-	m_renderable = std::make_unique < renderer::Renderable >( GetOwner().GetEngineInstance().GetRenderer(), GetOwner().GetEngineInstance().GetAssetsManager(), path );
-	GetData().m_renderable = m_renderable.get();
+	GetDirtyRenderable() = std::move( renderer::Renderable( GetOwner().GetEngineInstance().GetRenderer(), GetOwner().GetEngineInstance().GetAssetsManager(), path ) );
+}
+
+void forge::RenderingComponent::SetDirty()
+{
+	GetOwner().GetEngineInstance().GetECSManager().AddTagToEntity< DirtyRenderable >( GetOwner().GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ) );
 }

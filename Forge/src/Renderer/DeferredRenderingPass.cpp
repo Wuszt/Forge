@@ -8,6 +8,9 @@
 #include "ForwardRenderingPass.h"
 #include "CustomCamera.h"
 #include "ShadowMapsGenerator.h"
+#include "../ECS/Query.h"
+#include "../ECS/Archetype.h"
+#include "IRenderer.h"
 
 struct CBDeferredRendering
 {
@@ -57,13 +60,13 @@ renderer::DeferredRenderingPass::DeferredRenderingPass( IRenderer& renderer )
 		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ONE } );
 }
 
-void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, const renderer::IRawRenderablesPack& rawRenderables, const LightingData* lightingData )
+void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
 {
 	std::vector< renderer::IRenderTargetView* > views{ GetTargetTexture()->GetRenderTargetView(), m_diffuseTexture->GetRenderTargetView(), m_normalsTexture->GetRenderTargetView() };
 	GetRenderer().SetRenderTargets( views, &GetDepthStencilView() );
 
-	StaticConstantBuffer< CBDeferredRendering >* cbRendering = static_cast<StaticConstantBuffer< CBDeferredRendering >*>( m_cbDeferredRendering.get() );
-	if( lightingData )
+	StaticConstantBuffer< CBDeferredRendering >* cbRendering = static_cast< StaticConstantBuffer< CBDeferredRendering >* >( m_cbDeferredRendering.get() );
+	if ( lightingData )
 	{
 		cbRendering->GetData().AmbientLighting = lightingData->m_ambientLight;
 	}
@@ -74,9 +77,12 @@ void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, c
 	cbRendering->SetVS( renderer::VSConstantBufferType::RenderingPass );
 	cbRendering->SetPS( renderer::PSConstantBufferType::RenderingPass );
 
-	GetRenderer().Draw( rawRenderables, &c_deferredDefine );
+	query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+		{
+			GetRenderer().Draw( archetype, renderingPass, &c_deferredDefine );
+		} );
 
-	if( lightingData )
+	if ( lightingData )
 	{
 		renderer::IShaderResourceView* srvs[] =
 		{
@@ -86,19 +92,19 @@ void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, c
 			nullptr
 		};
 
-		renderer::IShaderResourceView*& shadowMapSRV = srvs[3];
+		renderer::IShaderResourceView*& shadowMapSRV = srvs[ 3 ];
 
 		m_blendState->Set();
 
 		std::vector< renderer::ShaderDefine > shaderDefines = { renderer::ShaderDefine() };
-		if( camera.HasNonLinearDepth() )
+		if ( camera.HasNonLinearDepth() )
 		{
 			shaderDefines.emplace_back( c_perspectiveCameraDefine );
 		}
 
 		shaderDefines.emplace_back( c_shadowMapDefine );
 
-		auto setShaderDefinesFunc = [&]( Bool hasShadowMap )
+		auto setShaderDefinesFunc = [ & ]( Bool hasShadowMap )
 		{
 			m_lightingPass->SetShaderDefines( { shaderDefines, static_cast< Uint32 >( shaderDefines.size() ) - ( hasShadowMap ? 0u : 1u ) } );
 		};
@@ -107,17 +113,17 @@ void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, c
 
 		{
 			lightDefine = c_pointLightDefine;
-			StaticConstantBuffer< CBPointLight >* cbLighting = static_cast<StaticConstantBuffer< CBPointLight >*>( m_cbPointLight.get() );
+			StaticConstantBuffer< CBPointLight >* cbLighting = static_cast< StaticConstantBuffer< CBPointLight >* >( m_cbPointLight.get() );
 			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
 			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
 
-			for( const auto& light : lightingData->m_pointLights )
+			for ( const auto& light : lightingData->m_pointLights )
 			{
 				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
 				Uint32 srvsAmount = 3u;
-				if( light.m_shadowMap )
+				if ( light.m_shadowMap )
 				{
 					shadowMapSRV = light.m_shadowMap->GetTexture()->GetShaderResourceView();
 					++srvsAmount;
@@ -130,14 +136,14 @@ void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, c
 
 		{
 			lightDefine = c_spotLightDefine;
-			StaticConstantBuffer< CBSpotLight >* cbLighting = static_cast<StaticConstantBuffer < CBSpotLight >*>( m_cbSpotLight.get() );
+			StaticConstantBuffer< CBSpotLight >* cbLighting = static_cast< StaticConstantBuffer < CBSpotLight >* >( m_cbSpotLight.get() );
 			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
 			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
 
-			for( const auto& light : lightingData->m_spotLights )
+			for ( const auto& light : lightingData->m_spotLights )
 			{
 				Uint32 srvsAmount = 3u;
-				if( light.m_shadowMap )
+				if ( light.m_shadowMap )
 				{
 					shadowMapSRV = light.m_shadowMap->GetTexture()->GetShaderResourceView();
 					++srvsAmount;
@@ -158,14 +164,14 @@ void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, c
 
 		{
 			lightDefine = c_directionalLightDefine;
-			StaticConstantBuffer< CBDirectionalLight >* cbLighting = static_cast<StaticConstantBuffer < CBDirectionalLight >*>( m_cbDirectionalLight.get() );
+			StaticConstantBuffer< CBDirectionalLight >* cbLighting = static_cast< StaticConstantBuffer < CBDirectionalLight >* >( m_cbDirectionalLight.get() );
 			cbLighting->SetVS( renderer::VSConstantBufferType::Light );
 			cbLighting->SetPS( renderer::PSConstantBufferType::Light );
 
-			for( const auto& light : lightingData->m_directionalLights )
+			for ( const auto& light : lightingData->m_directionalLights )
 			{
 				Uint32 srvsAmount = 3u;
-				if( light.m_shadowMap )
+				if ( light.m_shadowMap )
 				{
 					shadowMapSRV = light.m_shadowMap->GetTexture()->GetShaderResourceView();
 					++srvsAmount;
@@ -198,7 +204,7 @@ void renderer::DeferredRenderingPass::SetTargetTexture( ITexture& targetTexture 
 
 	ITexture::Flags flags = ITexture::Flags::BIND_RENDER_TARGET | ITexture::Flags::BIND_SHADER_RESOURCE;
 
-	m_normalsTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetTextureSize().X ), static_cast<Uint32>( targetTexture.GetTextureSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, ITexture::Format::R8G8B8A8_UNORM );
+	m_normalsTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetTextureSize().X ), static_cast< Uint32 >( targetTexture.GetTextureSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, ITexture::Format::R8G8B8A8_UNORM );
 	m_diffuseTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetTextureSize().X ), static_cast< Uint32 >( targetTexture.GetTextureSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, ITexture::Format::R8G8B8A8_UNORM );
 }
 

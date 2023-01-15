@@ -17,7 +17,11 @@ namespace renderer
 	{
 	public:
 		Renderable( IRenderer& renderer, forge::AssetsManager& assetsManager, const std::string& path );
+		Renderable();
 		~Renderable();
+
+		Renderable( Renderable&& );
+		Renderable& operator=(Renderable&&);
 
 		void SetModel( forge::AssetsManager& assetsManager, const std::string& path );
 		const Model& GetModel() const
@@ -46,7 +50,7 @@ namespace renderer
 		}
 
 	private:
-		IRenderer& m_renderer;
+		IRenderer* m_renderer;
 		std::shared_ptr< Model > m_model;
 		std::vector< std::unique_ptr< Material > > m_materials;
 		StaticConstantBuffer< cbMesh > m_cbMesh;

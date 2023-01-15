@@ -1,12 +1,20 @@
 #pragma once
 #include "ConstantBuffer.h"
 #include "ITexture.h"
+#include "../ECS/Fragment.h"
 
 namespace forge
 {
 	class IWindow;
 	class DepotsContainer;
 	class AssetsManager;
+}
+
+namespace ecs
+{
+	class ECSManager;
+	class EntityID;
+	class Archetype;
 }
 
 namespace renderer
@@ -50,31 +58,10 @@ namespace renderer
 		Count
 	};
 
-	struct IRawRenderablesPack
+	struct IRawRenderableFragment : ecs::Fragment
 	{
-		virtual Bool IsEmpty() const = 0;
-		virtual ~IRawRenderablesPack() = default;
-	};
-
-	class RawRenderablesPacks
-	{
-	public:
-		template< class T >
-		RawRenderablesPacks( std::array< std::unique_ptr< T >, static_cast< Uint32 >( RenderingPass::Count ) >&& data )
-		{
-			for( Uint32 i = 0; i < static_cast<Uint32>( RenderingPass::Count ); ++i )
-			{
-				m_packs[ i ] = std::move( data[ i ] );
-			}
-		}
-
-		const IRawRenderablesPack& GetRendenderablesPack( RenderingPass renderPass ) const
-		{
-			return *m_packs[ static_cast< Uint32 >( renderPass ) ];
-		}
-
-	private:
-		std::unique_ptr< IRawRenderablesPack > m_packs[ static_cast<Uint32>( RenderingPass::Count ) ];
+		DECLARE_STRUCT( IRawRenderableFragment, ecs::Fragment );
+		REGISTER_ECS_FRAGMENT();
 	};
 
 	class IRenderer
@@ -108,10 +95,11 @@ namespace renderer
 		virtual RendererType GetType() const = 0;
 
 		virtual void DrawRawVertices( Uint32 amount ) = 0;
+		virtual void Draw( const IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) = 0;
 		void Draw( const renderer::Renderable& renderable );
-		virtual void Draw( const renderer::IRawRenderablesPack& rawRenderables, const ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) = 0;
-
-		virtual std::unique_ptr< renderer::RawRenderablesPacks > CreateRawRenderablesPackage( const forge::ArraySpan< const Renderable* >& renderables ) const = 0;
+		virtual void Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) = 0;
+		virtual void AddRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID ) const = 0;
+		virtual void UpdateRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID, const renderer::Renderable& renderable ) const = 0;
 
 		template< class T >
 		std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const

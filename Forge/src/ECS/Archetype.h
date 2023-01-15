@@ -69,14 +69,12 @@ namespace ecs
 		template< class T >
 		forge::ArraySpan< const T > GetFragments() const
 		{
-			FORGE_ASSERT( dynamic_cast< FragmentsPackage< T >* >( m_fragments.at( &T::GetTypeStatic() ).get() ) );
 			return static_cast< FragmentsPackage< T >* >( m_fragments.at( &T::GetTypeStatic() ).get() )->GetFragments();
 		}
 
 		template< class T >
 		forge::ArraySpan< T > GetFragments()
 		{
-			FORGE_ASSERT( dynamic_cast< FragmentsPackage< T >* >( m_fragments.at( &T::GetTypeStatic() ).get() ) );
 			return static_cast< FragmentsPackage< T >* >( m_fragments.at( &T::GetTypeStatic() ).get() )->GetFragments();
 		}
 
@@ -154,13 +152,13 @@ namespace ecs
 			return m_entitiesAmount == 0u;
 		}
 
-		void AddEntityCopy( EntityID id, const Archetype& source )
+		void StealEntityFrom( EntityID id, Archetype& source )
 		{
 			for( auto& fragmentsPackage : m_fragments )
 			{
 				if( source.ContainsFragment( *fragmentsPackage.first ) )
 				{
-					fragmentsPackage.second->CopyFragment( source.GetFragmentIndex( id ), source.GetFragmentsPackage( *fragmentsPackage.first ) );
+					fragmentsPackage.second->MoveFragment( source.GetFragmentIndex( id ), source.GetFragmentsPackage( *fragmentsPackage.first ) );
 				}
 				else
 				{
@@ -168,7 +166,9 @@ namespace ecs
 				}
 			}
 
-			m_sparseSet[ static_cast< Uint32 >( id ) ] = m_entitiesAmount++;
+			m_indexToEntity.emplace( m_entitiesAmount, id );
+			m_sparseSet[ static_cast< Uint32 >( id ) ] = m_entitiesAmount++;		
+			source.RemoveEntity( id );
 		}
 
 		void AddEntity( EntityID id )
@@ -178,6 +178,7 @@ namespace ecs
 				fragmentsPackage.second->AddEmptyFragment();
 			}
 
+			m_indexToEntity.emplace( m_entitiesAmount, id );
 			m_sparseSet[ static_cast< Uint32 >( id ) ] = m_entitiesAmount++;
 		}
 
@@ -190,6 +191,7 @@ namespace ecs
 				fragmentsPackage.second->RemoveFragmentReorder( m_sparseSet[ static_cast< Uint32 >( id ) ] );
 			}
 
+			m_indexToEntity.erase( m_sparseSet[ static_cast< Uint32 >( id ) ] );
 			m_sparseSet[ static_cast< Uint32 >( id ) ] = c_invalidIndex;
 			--m_entitiesAmount;
 		}
@@ -197,6 +199,11 @@ namespace ecs
 		bool ContainsFragment( const Fragment::Type& type ) const
 		{
 			return m_fragments.find( &type ) != m_fragments.end();
+		}
+
+		EntityID GetEntityIDWithIndex( Uint32 index ) const
+		{
+			return m_indexToEntity.at( index );
 		}
 
 		Archetype GetEmptyCopy() const;
@@ -217,7 +224,13 @@ namespace ecs
 			return *m_fragments.at( &type );
 		}
 
+		IFragmentsPackage& GetFragmentsPackage( const Fragment::Type& type )
+		{
+			return *m_fragments.at( &type );
+		}
+
 		static const Uint32 c_invalidIndex = std::numeric_limits< Uint32 >::max();
+		std::unordered_map< Uint32, EntityID > m_indexToEntity;
 		std::unordered_map< const Fragment::Type*, std::unique_ptr< IFragmentsPackage > > m_fragments;
 		std::vector< Uint32 > m_sparseSet;
 		Uint32 m_entitiesAmount = 0u;

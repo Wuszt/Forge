@@ -17,6 +17,11 @@ namespace forge
 		DECLARE_POLYMORPHIC_CLASS( PointLightComponent, forge::IComponent );
 	public:
 		using DataComponent::DataComponent;
+
+		PointLightFragment& GetData()
+		{
+			return GetData_Internal();
+		}
 	};
 }
 

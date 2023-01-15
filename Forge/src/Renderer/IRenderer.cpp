@@ -5,6 +5,8 @@
 #include "../Core/AssetsManager.h"
 #include "FBXLoader.h"
 
+IMPLEMENT_TYPE( renderer::IRawRenderableFragment );
+
 namespace renderer
 {
 	std::unique_ptr< IRenderer > IRenderer::CreateRenderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window, RendererType type )
