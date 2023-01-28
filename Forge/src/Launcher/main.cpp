@@ -34,8 +34,8 @@
 #endif
 #include "../GameEngine/ISystem.h"
 #include "../Core/ArraySpan.h"
-
-std::string animName = "Animations\\Thriller.fbx";
+#include "../Systems/AnimationSystem.h"
+#include "../Systems/AnimationComponent.h"
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -81,18 +81,27 @@ void MinecraftScene( forge::EngineInstance& engineInstance )
 	} );
 }
 
-void SkeletalMesh( forge::EngineInstance& engineInstance )
+void SkeletalMesh( forge::EngineInstance& engineInstance, const Vector3& pos )
 {
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ &engineInstance, pos ]( forge::Object* obj )
 	{
-		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent, forge::AnimationComponent >( [ &engineInstance, obj, pos ]()
 		{
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+			auto* animComponent = obj->GetComponent< forge::AnimationComponent >();
+
+			std::string animName = "Animations\\Thriller.fbx";
+
+			auto animation = engineInstance.GetAssetsManager().GetAsset< renderer::AnimationSetAsset >( animName );
+			auto skeleton = engineInstance.GetAssetsManager().GetAsset< renderer::SkeletonAsset >( animName );
 
 			renderingComponent->LoadMeshAndMaterial( animName );
 
-			transformComponent->GetDirtyData().m_transform = Vector3{ 0.0f, 400.0f, 0.0f };
+			animComponent->SetSkeleton( *skeleton );
+			animComponent->SetAnimation( animation->GetAnimations()[ 0 ] );
+
+			transformComponent->GetDirtyData().m_transform = pos;
 		} );
 	} );
 }
@@ -236,6 +245,7 @@ Int32 main()
 				&systems::RenderingSystem::GetTypeStatic(),
 				&systems::LightingSystem::GetTypeStatic(),
 				&systems::TimeSystem::GetTypeStatic(),
+				&systems::AnimationSystem::GetTypeStatic(),
 #ifdef FORGE_DEBUGGING
 				&systems::DebugSystem::GetTypeStatic(),
 #endif
@@ -266,8 +276,17 @@ Int32 main()
 
 			//MinecraftScene( engineInstance );
 			SponzaScene( engineInstance );
-			//BunnyScene( engineInstance );	
-			SkeletalMesh( engineInstance );
+			//BunnyScene( engineInstance );
+
+			//for ( Uint32 i = 0u; i < 15u; ++i )
+			//{
+			//	for ( Uint32 j = 0u; j < 15u; ++j )
+			//	{
+			//		SkeletalMesh( engineInstance, { -400.0f + j * 100.0f, -400.0f + i * 200.0f, 0.0f } );
+			//	}
+			//}
+
+			SkeletalMesh( engineInstance, { 0.0f, 400.0f, 0.0f } );
 
 			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
 			{
@@ -306,36 +325,6 @@ Int32 main()
 				//Float currentAngle = DEG2RAD * 10.0f * engineInstance.GetSystemsManager().GetSystem< systems::TimeSystem >().GetCurrentTime();
 				//m_sun->GetData().Direction = Quaternion( -FORGE_PI_HALF, 0.0f, currentAngle ) * Vector3::EY();
 				m_sun->GetData().Color = Vector3{ 1.0f, 1.0f, 1.0f } * 0.3f;
-			}
-
-			{
-				auto animation = engineInstance.GetAssetsManager().GetAsset< renderer::AnimationSetAsset >( animName );
-				auto skeleton = engineInstance.GetAssetsManager().GetAsset< renderer::SkeletonAsset >( animName );
-
-				if( animation->GetAnimations()[ 0 ].GetDuration() == 0.0f )
-				{
-					return;
-				}
-
-#ifdef FORGE_IMGUI_ENABLED
-				static auto token = engineInstance.GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [this]()
-				{
-					ImGui::SliderFloat( "Speed", &speed, 0.0f, 2.0f );
-				});
-#endif
-
-				bonesBuffer = engineInstance.GetRenderer().CreateStaticConstantBuffer<cbBones>();
-
-				std::vector< Matrix > transforms;
-				animation->GetAnimations()[ 0 ].Sample(accumulator, true, transforms);
-
-				for( Uint32 i = 0u; i < transforms.size(); ++i )
-				{
-					bonesBuffer->GetData().Bones[ i ] = skeleton->m_bonesOffsets[ i ] * transforms[ i ];
-				}
-
-				bonesBuffer->UpdateBuffer();
-				bonesBuffer->SetVS(renderer::VSConstantBufferType::SkeletalMesh);
 			}
 		}
 

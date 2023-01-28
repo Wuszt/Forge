@@ -48,7 +48,7 @@ namespace forge
 		renderer::Renderable& GetDirtyRenderable()
 		{
 			SetDirty();
-			return GetData_Internal().m_renderable;
+			return GetMutableData().m_renderable;
 		}
 	private:
 		CallbackToken m_onShadersClearCache;

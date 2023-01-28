@@ -15,6 +15,7 @@ namespace renderer
 
 	enum class VSConstantBufferType
 	{
+		Invalid = -1,
 		Frame = 0,
 		Material = 1,
 		Mesh = 2,
@@ -26,6 +27,7 @@ namespace renderer
 
 	enum class PSConstantBufferType
 	{
+		Invalid = -1,
 		Frame = 0,
 		Material = 1,
 		Mesh = 2,

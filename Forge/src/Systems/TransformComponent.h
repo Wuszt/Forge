@@ -35,7 +35,7 @@ namespace forge
 		TransformFragment& GetDirtyData()
 		{
 			GetOwner().GetEngineInstance().GetECSManager().AddTagToEntity< TransformModifiedThisFrame >( GetOwner().GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ) );
-			return GetData_Internal();
+			return GetMutableData();
 		}
 	};
 }

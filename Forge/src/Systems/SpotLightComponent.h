@@ -22,7 +22,7 @@ namespace forge
 
 		SpotLightFragment& GetData()
 		{
-			return GetData_Internal();
+			return GetMutableData();
 		}
 	};
 }

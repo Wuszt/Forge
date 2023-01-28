@@ -1,3 +1,4 @@
+#pragma once
 #include "../Core/IAsset.h"
 
 namespace renderer

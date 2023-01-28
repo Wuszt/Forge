@@ -1,0 +1,42 @@
+#include "Fpch.h"
+#include "AnimationSystem.h"
+#include "TimeSystem.h"
+#include "../ECS/Query.h"
+#include "RenderingComponent.h"
+#include "AnimationComponent.h"
+
+IMPLEMENT_TYPE( systems::AnimationSystem );
+
+void systems::AnimationSystem::OnInitialize()
+{
+	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, std::bind( &systems::AnimationSystem::Update, this ) );
+}
+
+void systems::AnimationSystem::Update()
+{
+	systems::TimeSystem& timeSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::TimeSystem >();
+
+	ecs::Query query;
+	query.AddFragmentRequirement< forge::RenderableFragment >();
+	query.AddFragmentRequirement< forge::AnimationFragment >();
+
+	query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+		{
+			auto animationFragments = archetype.GetFragments< forge::AnimationFragment >();
+			auto renderableFragments = archetype.GetFragments< forge::RenderableFragment >();
+
+			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
+			{
+				auto& animFragment = animationFragments[ i ];
+				animFragment.m_currentTimeProgress += timeSystem.GetDeltaTime();
+				animFragment.m_animation.Sample( animFragment.m_currentTimeProgress, true, m_temporaryTransforms );
+
+				for ( Uint32 j = 0u; j < static_cast< Uint32 >( m_temporaryTransforms.size() ); ++j )
+				{
+					animFragment.m_cb.GetData().Transforms[ j ] = animFragment.m_bonesOffsets[ j ] * m_temporaryTransforms[ j ];
+				}
+
+				animFragment.m_cb.UpdateBuffer();
+			}
+		} );
+}

@@ -15,6 +15,7 @@ forge::RenderingComponent::~RenderingComponent() = default;
 void forge::RenderingComponent::OnAttach( EngineInstance& engineInstance )
 {
 	DataComponent< forge::RenderableFragment >::OnAttach( engineInstance );
+	GetDirtyRenderable() = renderer::Renderable( engineInstance.GetRenderer() );
 	engineInstance.GetRenderer().AddRenderableECSFragment( engineInstance.GetECSManager(), engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ) );
 	m_onShadersClearCache = engineInstance.GetRenderer().GetShadersManager()->RegisterCacheClearingListener(
 		[ this ]()
@@ -25,7 +26,7 @@ void forge::RenderingComponent::OnAttach( EngineInstance& engineInstance )
 
 void forge::RenderingComponent::LoadMeshAndMaterial( const std::string& path )
 {
-	GetDirtyRenderable() = std::move( renderer::Renderable( GetOwner().GetEngineInstance().GetRenderer(), GetOwner().GetEngineInstance().GetAssetsManager(), path ) );
+	GetDirtyRenderable().SetModel( GetOwner().GetEngineInstance().GetAssetsManager(), path );
 }
 
 void forge::RenderingComponent::SetDirty()

@@ -20,7 +20,7 @@ namespace forge
 
 		PointLightFragment& GetData()
 		{
-			return GetData_Internal();
+			return GetMutableData();
 		}
 	};
 }

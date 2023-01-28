@@ -5,11 +5,10 @@
 #include "../Core/AssetsManager.h"
 #include "ConstantBuffer.h"
 
-renderer::Renderable::Renderable( IRenderer& renderer, forge::AssetsManager& assetsManager, const std::string& path )
+renderer::Renderable::Renderable( IRenderer& renderer )
 	: m_renderer( &renderer )
 {
 	m_cbMesh.SetImpl( renderer.CreateConstantBufferImpl() );
-	SetModel( assetsManager, path );
 }
 
 renderer::Renderable& renderer::Renderable::operator=( Renderable&& ) = default;

@@ -57,11 +57,11 @@ namespace forge
 
 		const TData& GetData() const
 		{
-			return const_cast< DataComponent< TData >* >( this )->GetData_Internal();
+			return const_cast< DataComponent< TData >* >( this )->GetMutableData();
 		}
 
 	protected:
-		TData& GetData_Internal()
+		TData& GetMutableData()
 		{
 			auto& objectsManager = GetOwner().GetEngineInstance().GetObjectsManager();
 			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();

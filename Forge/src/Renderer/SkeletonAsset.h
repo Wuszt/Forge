@@ -9,11 +9,14 @@ namespace renderer
 
 	public:
 		SkeletonAsset();
-		SkeletonAsset( const std::string& path, std::vector< renderer::InputBlendWeights > blendWeights, std::vector< renderer::InputBlendIndices > blendIndices, std::vector< Matrix > bonesOffsets );
+		SkeletonAsset( const std::string& path, std::vector< Matrix > bonesOffsets );
 
-	//private:
-		std::vector< renderer::InputBlendWeights > m_blendWeights;
-		std::vector< renderer::InputBlendIndices > m_blendIndices;
+		forge::ArraySpan< const Matrix > GetBonesOffsets() const
+		{
+			return m_bonesOffsets;
+		}
+
+	private:
 		std::vector< Matrix > m_bonesOffsets;
 	};
 }

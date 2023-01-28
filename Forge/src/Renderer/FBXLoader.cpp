@@ -97,10 +97,23 @@ SceneHandle LoadScene( const std::string& path )
 	return SceneHandle( ofbx::load( reinterpret_cast< ofbx::u8* >( content.GetData() ), static_cast< Int32 >( fileSize ), static_cast< ofbx::u64 >( ofbx::LoadFlags::TRIANGULATE ) ) );
 }
 
-std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path, const SceneHandle& scene, std::unordered_map< const ofbx::Object*, Uint32 >& outBonesMap )
+namespace
 {
-	std::vector< renderer::InputBlendWeights > blendWeights;
-	std::vector< renderer::InputBlendIndices > blendIndices;
+	struct SkeletonData
+	{
+		std::vector< renderer::InputBlendWeights > m_blendWeights;
+		std::vector< renderer::InputBlendIndices > m_blendIndices;
+		std::unordered_map< const ofbx::Object*, Uint32 > m_bonesMap;
+
+		bool IsValid() const
+		{
+			return !m_blendWeights.empty();
+		}
+	};
+}
+
+std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path, const SceneHandle& scene, SkeletonData& skeletonData )
+{
 	std::vector< Matrix > bonesOffsets;
 
 	for( Uint32 i = 0u; i < static_cast< Uint32 >( scene->getMesh( 0 )->getGeometry()->getSkin()->getClusterCount() ); ++i )
@@ -108,7 +121,7 @@ std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path
 		const ofbx::Cluster* mainCluster = scene->getMesh( 0 )->getGeometry()->getSkin()->getCluster( i );
 
 		Uint32 boneIndex = static_cast< Uint32> ( bonesOffsets.size() );
-		outBonesMap[ mainCluster->getLink() ] = boneIndex;
+		skeletonData.m_bonesMap[ mainCluster->getLink() ] = boneIndex;
 		bonesOffsets.emplace_back( CONVERT2FORGE( mainCluster->getTransformMatrix() ) );
 
 		Uint32 offset = 0u;
@@ -122,23 +135,23 @@ std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path
 				Uint32 vertexID = offset + cluster->getIndices()[j];
 				Float weight = static_cast< Float >( cluster->getWeights()[ j ] );
 
-				blendWeights.resize( Math::Max< Uint32 >( static_cast< Uint32 >( blendWeights.size() ), vertexID + 1u ) );
-				blendIndices.resize( Math::Max< Uint32 >( static_cast< Uint32 >( blendIndices.size() ), vertexID + 1u ) );
+				skeletonData.m_blendWeights.resize( Math::Max< Uint32 >( static_cast< Uint32 >( skeletonData.m_blendWeights.size() ), vertexID + 1u ) );
+				skeletonData.m_blendIndices.resize( Math::Max< Uint32 >( static_cast< Uint32 >( skeletonData.m_blendIndices.size() ), vertexID + 1u ) );
 
 				Bool found = false;
 				for( Uint32 x = 0u; x < 4u; ++x )
 				{
-					if( blendIndices[ vertexID ].m_indices[ x ] == boneIndex )
+					if( skeletonData.m_blendIndices[ vertexID ].m_indices[ x ] == boneIndex )
 					{
 						found = true;
 						break;
 					}
 
-					found = blendWeights[ vertexID ].m_weights[ x ] == 0.0f;
+					found = skeletonData.m_blendWeights[ vertexID ].m_weights[ x ] == 0.0f;
 					if( found )
 					{
-						blendIndices[ vertexID ].m_indices[ x ] = boneIndex;
-						blendWeights[ vertexID ].m_weights[ x ] = weight;
+						skeletonData.m_blendIndices[ vertexID ].m_indices[ x ] = boneIndex;
+						skeletonData.m_blendWeights[ vertexID ].m_weights[ x ] = weight;
 						break;
 					}
 				}
@@ -151,7 +164,7 @@ std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path
 		}
 	}
 
-	for( renderer::InputBlendWeights& weightsSet : blendWeights )
+	for( renderer::InputBlendWeights& weightsSet : skeletonData.m_blendWeights )
 	{
 		Float sum = weightsSet.m_weights[ 0 ] + weightsSet.m_weights[ 1 ] + weightsSet.m_weights[ 2 ] + weightsSet.m_weights[ 3 ];
 
@@ -168,7 +181,7 @@ std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path
 		}
 	}
 
-	return std::make_shared< renderer::SkeletonAsset >( path, std::move( blendWeights ), std::move( blendIndices ), bonesOffsets );
+	return std::make_shared< renderer::SkeletonAsset >( path, std::move( bonesOffsets ) );
 }
 
 Matrix GetNodeLocalTransform( const ofbx::AnimationLayer& animLayer, renderer::Animation& targetAnimation, const ofbx::Object& obj, Uint32 frame, Uint32 framesAmount, const std::unordered_map< const ofbx::Object*, Uint32 >& bonesMap )
@@ -268,7 +281,7 @@ Matrix GetNodeLocalTransform( const ofbx::AnimationLayer& animLayer, renderer::A
 	return Matrix();
 }
 
-std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHandle& scene, const std::string& path, const std::unordered_map< const ofbx::Object*, Uint32 >& bonesMap, renderer::SkeletonAsset& skeleton )
+std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHandle& scene, const std::string& path, const SkeletonData& skeletonData, renderer::SkeletonAsset& skeleton )
 {
 	std::vector< renderer::Animation > animations;
 
@@ -293,7 +306,7 @@ std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHand
 			continue;
 		}
 
-		renderer::Animation& animation = animations.emplace_back( scene->getSceneFrameRate(), static_cast< Uint32 >( skeleton.m_bonesOffsets.size() ) );
+		renderer::Animation& animation = animations.emplace_back( scene->getSceneFrameRate(), static_cast< Uint32 >( skeleton.GetBonesOffsets().GetSize() ) );
 
 		Uint32 framesAmount = static_cast< Uint32 >( ofbx::fbxTimeToSeconds( curve->getKeyTime()[ curve->getKeyCount() - 1 ] ) * animation.GetFrameRate() );
 
@@ -301,14 +314,14 @@ std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHand
 		{
 			const ofbx::Object* link = scene->getGeometry( 0 )->getSkin()->getCluster( j )->getLink();
 
-			GetNodeLocalTransform( *animLayer, animation, *link, 0u, framesAmount, bonesMap );
+			GetNodeLocalTransform( *animLayer, animation, *link, 0u, framesAmount, skeletonData.m_bonesMap );
 		}
 	}
 
 	return std::make_shared< renderer::AnimationSetAsset >( path, animations );
 }
 
-std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, renderer::IRenderer& renderer, const SceneHandle& scene, renderer::SkeletonAsset* skeleton )
+std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, renderer::IRenderer& renderer, const SceneHandle& scene, const SkeletonData& skeletonData )
 {
 	if( scene->getMeshCount() == 0u )
 	{
@@ -470,8 +483,12 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 		builder.AddData( std::move( colors ) );
 	}
 
-	builder.AddData( skeleton->m_blendWeights );
-	builder.AddData( skeleton->m_blendIndices );
+	if ( skeletonData.IsValid() )
+	{
+		builder.AddData( skeletonData.m_blendWeights );
+		builder.AddData( skeletonData.m_blendIndices );
+	}
+
 	renderer::Vertices vertices = builder.Build();
 
 	std::unique_ptr< renderer::Model > model = std::make_unique< renderer::Model >( renderer, vertices, shapes);
@@ -519,16 +536,19 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::FBXLoader::LoadAssets(
 
 	CreateExternalAssets( scene );
 
-	std::unordered_map< const ofbx::Object*, Uint32 > bonesMap;
-	auto skeleton = LoadSkeleton( path, scene, bonesMap );
-	loadedAssets.emplace_back( skeleton );
-
-	if( auto animation = LoadAnimationSet( scene, path, bonesMap, *skeleton ) )
+	SkeletonData skeletonData;
+	if ( auto skeleton = LoadSkeleton( path, scene, skeletonData ) )
 	{
-		loadedAssets.emplace_back( animation );
+		loadedAssets.emplace_back( skeleton );
+
+		if ( auto animation = LoadAnimationSet( scene, path, skeletonData, *skeleton ) )
+		{
+			loadedAssets.emplace_back( animation );
+		}
 	}
 
-	if( auto model = LoadModel( path, m_renderer, scene, skeleton.get() ) )
+
+	if( auto model = LoadModel( path, m_renderer, scene, skeletonData ) )
 	{
 		loadedAssets.emplace_back( model );
 	}

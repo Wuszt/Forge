@@ -42,9 +42,9 @@ namespace d3d11
 	D3D11Renderer::D3D11Renderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window )
 		: IRenderer( assetsManager )
 	{
-		FORGE_ASSERT( dynamic_cast<windows::WindowsWindow*>( &window ) );
+		FORGE_ASSERT( dynamic_cast< windows::WindowsWindow* >( &window ) );
 
-		InitializeSwapChainAndContext( static_cast<windows::WindowsWindow&>( window ), window.GetWidth(), window.GetHeight() );
+		InitializeSwapChainAndContext( static_cast< windows::WindowsWindow& >( window ), window.GetWidth(), window.GetHeight() );
 		m_shadersManager = std::make_unique< D3D11ShadersManager >( depotsContainer, *GetDevice(), *GetContext() );
 
 		SetViewportSize( Vector2( static_cast< Float >( window.GetWidth() ), static_cast< Float >( window.GetHeight() ) ) );
@@ -53,18 +53,18 @@ namespace d3d11
 
 		m_windowCallbackToken = window.RegisterEventListener(
 			[ & ]( const forge::IWindow::IEvent& event )
-		{
-			switch( event.GetEventType() )
 			{
-			case forge::IWindow::EventType::OnResized:
-				FORGE_ASSERT( dynamic_cast<const forge::IWindow::OnResizedEvent*>( &event ) );
-				const forge::IWindow::OnResizedEvent& resizedEvent = static_cast<const forge::IWindow::OnResizedEvent&>( event );
+				switch ( event.GetEventType() )
+				{
+				case forge::IWindow::EventType::OnResized:
+					FORGE_ASSERT( dynamic_cast< const forge::IWindow::OnResizedEvent* >( &event ) );
+					const forge::IWindow::OnResizedEvent& resizedEvent = static_cast< const forge::IWindow::OnResizedEvent& >( event );
 
-				GetSwapchain()->Resize( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
-				SetViewportSize( Vector2( static_cast<Float>( window.GetWidth() ), static_cast<Float>( window.GetHeight() ) ) );
-				break;
-			}
-		} );
+					GetSwapchain()->Resize( resizedEvent.GetWidth(), resizedEvent.GetHeight() );
+					SetViewportSize( Vector2( static_cast< Float >( window.GetWidth() ), static_cast< Float >( window.GetHeight() ) ) );
+					break;
+				}
+			} );
 
 		assetsManager.AddAssetsLoader< D3D11TexturesLoader >( *GetDevice(), *GetContext() );
 	}
@@ -76,8 +76,8 @@ namespace d3d11
 
 	std::unique_ptr< renderer::IInputLayout > D3D11Renderer::CreateInputLayout( const renderer::IVertexShader& vertexShader, const renderer::IVertexBuffer& vertexBuffer ) const
 	{
-		FORGE_ASSERT( dynamic_cast<const D3D11VertexShader*>( &vertexShader ) );
-		return std::make_unique< D3D11InputLayout >( GetContext(), *GetDevice(), static_cast<const D3D11VertexShader&>( vertexShader ), static_cast<const D3D11VertexBuffer&>( vertexBuffer ) );
+		FORGE_ASSERT( dynamic_cast< const D3D11VertexShader* >( &vertexShader ) );
+		return std::make_unique< D3D11InputLayout >( GetContext(), *GetDevice(), static_cast< const D3D11VertexShader& >( vertexShader ), static_cast< const D3D11VertexBuffer& >( vertexBuffer ) );
 	}
 
 	std::unique_ptr< renderer::IVertexBuffer > D3D11Renderer::CreateVertexBuffer( const renderer::Vertices& vertices ) const
@@ -112,8 +112,8 @@ namespace d3d11
 
 	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilView* depthStencilView )
 	{
-		FORGE_ASSERT( depthStencilView == nullptr || dynamic_cast<D3D11DepthStencilView*>( depthStencilView ) );
-		SetRenderTargets( rendererTargetViews, static_cast<D3D11DepthStencilView*>( depthStencilView ) );
+		FORGE_ASSERT( depthStencilView == nullptr || dynamic_cast< D3D11DepthStencilView* >( depthStencilView ) );
+		SetRenderTargets( rendererTargetViews, static_cast< D3D11DepthStencilView* >( depthStencilView ) );
 	}
 
 	void D3D11Renderer::SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilView* depthStencilView )
@@ -121,15 +121,15 @@ namespace d3d11
 		std::vector< ID3D11RenderTargetView* > views;
 		views.reserve( rendererTargetViews.GetSize() );
 
-		for( const renderer::IRenderTargetView* target : rendererTargetViews )
+		for ( const renderer::IRenderTargetView* target : rendererTargetViews )
 		{
-			FORGE_ASSERT( target == nullptr || dynamic_cast<const D3D11RenderTargetView*>( target ) );
+			FORGE_ASSERT( target == nullptr || dynamic_cast< const D3D11RenderTargetView* >( target ) );
 			views.emplace_back( target ? static_cast< const D3D11RenderTargetView* >( target )->GetRenderTargetView() : nullptr );
 		}
 
 		D3D11DepthStencilView* dsv = static_cast< D3D11DepthStencilView* >( depthStencilView );
 
-		m_context->GetDeviceContext()->OMSetRenderTargets( static_cast<Uint32>( views.size() ), views.data(), dsv ? &dsv->GetView() : nullptr );
+		m_context->GetDeviceContext()->OMSetRenderTargets( static_cast< Uint32 >( views.size() ), views.data(), dsv ? &dsv->GetView() : nullptr );
 	}
 
 	std::unique_ptr< renderer::ISamplerState > D3D11Renderer::CreateSamplerState( renderer::SamplerStateFilterType filterType, renderer::SamplerStateComparisonType comparisonType )
@@ -151,13 +151,13 @@ namespace d3d11
 	{
 		std::vector< ID3D11SamplerState* > rawStates;
 		rawStates.reserve( samplerStates.GetSize() );
-		for( const renderer::ISamplerState* samplerState : samplerStates )
+		for ( const renderer::ISamplerState* samplerState : samplerStates )
 		{
 			FORGE_ASSERT( dynamic_cast< const D3D11SamplerState* >( samplerState ) );
 			rawStates.emplace_back( static_cast< const d3d11::D3D11SamplerState* >( samplerState )->GetSamplerState() );
 		}
 
-		GetContext()->GetDeviceContext()->VSSetSamplers( 0u, static_cast<Uint32>( rawStates.size() ), rawStates.data() );
+		GetContext()->GetDeviceContext()->VSSetSamplers( 0u, static_cast< Uint32 >( rawStates.size() ), rawStates.data() );
 		GetContext()->GetDeviceContext()->PSSetSamplers( 0u, static_cast< Uint32 >( rawStates.size() ), rawStates.data() );
 	}
 
@@ -166,21 +166,21 @@ namespace d3d11
 		std::vector< ID3D11ShaderResourceView* > srvs;
 		srvs.reserve( input.GetSize() );
 
-		for( const auto srv : input )
+		for ( const auto srv : input )
 		{
-			FORGE_ASSERT( dynamic_cast<const D3D11ShaderResourceView *>( srv ) );
+			FORGE_ASSERT( dynamic_cast< const D3D11ShaderResourceView* >( srv ) );
 			srvs.emplace_back( static_cast< const D3D11ShaderResourceView* >( srv )->GetTypedSRV() );
 		}
 
-		GetContext()->GetDeviceContext()->VSSetShaderResources( startIndex, static_cast<Uint32>( srvs.size() ), srvs.data() );
+		GetContext()->GetDeviceContext()->VSSetShaderResources( startIndex, static_cast< Uint32 >( srvs.size() ), srvs.data() );
 		GetContext()->GetDeviceContext()->PSSetShaderResources( startIndex, static_cast< Uint32 >( srvs.size() ), srvs.data() );
 	}
 
 	void D3D11Renderer::ClearShaderResourceViews()
 	{
-		ID3D11ShaderResourceView* srvs[ D3D11_STANDARD_VERTEX_ELEMENT_COUNT ] { nullptr };
-		GetContext()->GetDeviceContext()->VSSetShaderResources( 0, static_cast<Uint32>( D3D11_STANDARD_VERTEX_ELEMENT_COUNT ), srvs );
-		GetContext()->GetDeviceContext()->PSSetShaderResources( 0, static_cast<Uint32>( D3D11_STANDARD_VERTEX_ELEMENT_COUNT ), srvs );
+		ID3D11ShaderResourceView* srvs[ D3D11_STANDARD_VERTEX_ELEMENT_COUNT ]{ nullptr };
+		GetContext()->GetDeviceContext()->VSSetShaderResources( 0, static_cast< Uint32 >( D3D11_STANDARD_VERTEX_ELEMENT_COUNT ), srvs );
+		GetContext()->GetDeviceContext()->PSSetShaderResources( 0, static_cast< Uint32 >( D3D11_STANDARD_VERTEX_ELEMENT_COUNT ), srvs );
 	}
 
 	void D3D11Renderer::OnBeforeDraw()
@@ -241,6 +241,17 @@ namespace d3d11
 			std::vector< ID3D11ShaderResourceView* > m_resourceViews;
 		};
 
+
+		template< class T >
+		struct AdditionalCB
+		{
+			T m_type;
+			ID3D11Buffer* m_cb;
+		};
+
+		static constexpr Uint32 c_maxAdditionalCBsAmount = 4u;
+		AdditionalCB< renderer::VSConstantBufferType > m_additionalVSCBs[ c_maxAdditionalCBsAmount ];
+		AdditionalCB< renderer::PSConstantBufferType > m_additionalPSCBs[ c_maxAdditionalCBsAmount ];
 		std::array< std::vector< Shape >, static_cast< Uint32 >( renderer::RenderingPass::Count ) > m_shapes;
 	};
 
@@ -263,7 +274,7 @@ namespace d3d11
 		const auto& shapes = renderable.GetModel().GetShapes();
 
 		RawRenderableFragment* rawRenderable = ecsManager.GetEntityArchetype( entityID )->GetFragment< RawRenderableFragment >( entityID );
-		
+
 		*rawRenderable = RawRenderableFragment();
 
 		for ( const auto& shape : shapes )
@@ -314,6 +325,25 @@ namespace d3d11
 		rawRenderable->m_meshCB = meshCBImpl->GetBuffer();
 		rawRenderable->m_vertexBuffer = vb->GetBuffer();
 		rawRenderable->m_vbStride = vb->GetStride();
+
+		Uint32 psCBsAmount = 0u;
+		Uint32 vsCBsAmount = 0u;
+		for ( auto cb : renderable.GetAdditionalCBs() )
+		{
+			const D3D11ConstantBufferImpl* cbImpl = static_cast< const D3D11ConstantBufferImpl* >( cb.m_cbImpl );
+
+			if ( cb.m_psBufferType != renderer::PSConstantBufferType::Invalid )
+			{
+				FORGE_ASSERT( psCBsAmount < RawRenderableFragment::c_maxAdditionalCBsAmount );
+				rawRenderable->m_additionalPSCBs[ psCBsAmount++ ] = { cb.m_psBufferType, cbImpl->GetBuffer() };
+			}
+
+			if ( cb.m_vsBufferType != renderer::VSConstantBufferType::Invalid )
+			{
+				FORGE_ASSERT( vsCBsAmount < RawRenderableFragment::c_maxAdditionalCBsAmount );
+				rawRenderable->m_additionalVSCBs[ vsCBsAmount++ ] = { cb.m_vsBufferType, cbImpl->GetBuffer() };
+			}
+		}
 	}
 
 	void D3D11Renderer::Draw( const renderer::IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs )
@@ -341,6 +371,16 @@ namespace d3d11
 
 		context->VSSetConstantBuffers( static_cast< Uint32 >( renderer::VSConstantBufferType::Mesh ), 1, &renderableFragment.m_meshCB );
 		context->PSSetConstantBuffers( static_cast< Uint32 >( renderer::PSConstantBufferType::Mesh ), 1, &renderableFragment.m_meshCB );
+
+		for ( const auto& cb : renderableFragment.m_additionalVSCBs )
+		{
+			context->VSSetConstantBuffers( static_cast< Uint32 >( cb.m_type ), 1, &cb.m_cb );
+		}
+
+		for ( const auto& cb : renderableFragment.m_additionalPSCBs )
+		{
+			context->PSSetConstantBuffers( static_cast< Uint32 >( cb.m_type ), 1, &cb.m_cb );
+		}
 
 		for ( const RawRenderableFragment::Shape& shape : renderableFragment.m_shapes[ static_cast< Uint32 >( renderingPass ) ] )
 		{
@@ -381,7 +421,7 @@ namespace d3d11
 		ID3D11DeviceContext* d3d11DevCon;
 
 		Uint32 flags = 0u;
-		
+
 #ifdef FORGE_GPU_DEBUGGING
 		flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif

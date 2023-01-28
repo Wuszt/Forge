@@ -23,7 +23,7 @@ namespace forge
 
 		DirectionalLightFragment& GetData()
 		{
-			return GetData_Internal();
+			return GetMutableData();
 		}
 	};
 }

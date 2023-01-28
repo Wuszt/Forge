@@ -305,6 +305,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationComponent.cpp" />
+    <ClCompile Include="AnimationSystem.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="CamerasSystem.cpp" />
     <ClCompile Include="DebugSystem.cpp" />
@@ -333,6 +335,8 @@
     <ClCompile Include="TransformSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationComponent.h" />
+    <ClInclude Include="AnimationSystem.h" />
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="CamerasSystem.h" />
     <ClInclude Include="DebugSystem.h" />
