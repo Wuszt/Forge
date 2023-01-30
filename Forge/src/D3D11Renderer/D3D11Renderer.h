@@ -75,10 +75,12 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::IDepthStencilState > CreateDepthStencilState( renderer::DepthStencilComparisonFunc comparisonFunc ) const override;
 		virtual std::unique_ptr< renderer::ISamplerState > CreateSamplerState( renderer::SamplerStateFilterType filterType, renderer::SamplerStateComparisonType comparisonType ) override;
 
+		virtual void SetCullingMode( renderer::CullingMode mode );
+		virtual renderer::CullingMode GetCullingMode() const override;
 		virtual void SetDepthBias( Int32 bias, Float slopeScaledBias, Float clamp ) override;
 		virtual void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilView* depthStencilView ) override;
 		virtual void SetSamplerStates( const forge::ArraySpan< renderer::ISamplerState* > samplerStates ) override;
-		virtual void SetShaderResourceViews( const forge::ArraySpan< renderer::IShaderResourceView* >& input, Uint32 startIndex = 0u ) override;
+		virtual void SetShaderResourceViews( const forge::ArraySpan< const renderer::IShaderResourceView* >& input, Uint32 startIndex = 0u ) override;
 		virtual void ClearShaderResourceViews() override;
 
 		virtual void OnBeforeDraw() override;
@@ -88,8 +90,8 @@ namespace d3d11
 		virtual void AddRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID ) const override;
 		virtual void UpdateRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID, const renderer::Renderable& renderable ) const override;
 
-		virtual void Draw( const renderer::IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) override;
-		virtual void Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) override;
+		virtual void Draw( const renderer::IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs = {} ) override;
+		virtual void Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs = {} ) override;
 		virtual void DrawRawVertices( Uint32 amount ) override;
 
 		virtual renderer::RendererType GetType() const override

@@ -149,6 +149,9 @@
     <ClCompile Include="ShadowsRenderingPass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SkyboxRenderingPass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IRenderer.h">
@@ -289,6 +292,9 @@
     <ClInclude Include="ShadowsRenderingPass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SkyboxRenderingPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\Depots\Engine\Shaders\CopyTexture.fx">
@@ -326,6 +332,9 @@
     </FxCompile>
     <FxCompile Include="..\..\Depots\Engine\Shaders\RenderingPassCommon.fxh">
       <Filter>Shaders\Headers</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\Skybox.fx">
+      <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

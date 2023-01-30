@@ -68,10 +68,10 @@ void systems::PlayerSystem::OnRenderDebug()
 				ImGui::SameLine(); ImGui::RadioButton( "Perspective", &currentType, 0 );
 				ImGui::SameLine(); ImGui::RadioButton( "Orthographic", &currentType, 1 );
 
-				auto type = static_cast< renderer::ICamera::Type >( currentType );
+				auto type = static_cast< renderer::ICamera::CameraType >( currentType );
 				if( type != cameraComponent->GetCameraType() )
 				{
-					if( type == renderer::ICamera::Type::Perspective )
+					if( type == renderer::ICamera::CameraType::Perspective )
 					{
 						cameraComponent->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( GetEngineInstance().GetWindow() ) );
 					}
@@ -82,7 +82,7 @@ void systems::PlayerSystem::OnRenderDebug()
 				}
 
 				constexpr Float eps = 0.001f;
-				if( cameraComponent->GetCameraType() == renderer::ICamera::Type::Perspective )
+				if( cameraComponent->GetCameraType() == renderer::ICamera::CameraType::Perspective )
 				{
 					renderer::PerspectiveCamera& camera = static_cast< renderer::PerspectiveCamera& >( cameraComponent->GetCamera() );
 					{

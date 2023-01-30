@@ -1,6 +1,8 @@
 #include "Fpch.h"
 #include "PerspectiveCamera.h"
 
+IMPLEMENT_TYPE( renderer::PerspectiveCamera );
+
 namespace renderer
 {
 	PerspectiveCamera::PerspectiveCamera( Float aspectRatio, Float fov, Float nearPlane, Float farPlane )
@@ -9,6 +11,8 @@ namespace renderer
 		, m_nearPlane( nearPlane )
 		, m_farPlane( farPlane )
 	{}
+
+	PerspectiveCamera::PerspectiveCamera() = default;
 
 	PerspectiveCamera::~PerspectiveCamera() = default;
 

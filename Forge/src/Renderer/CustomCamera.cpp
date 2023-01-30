@@ -1,8 +1,13 @@
 #include "Fpch.h"
 #include "CustomCamera.h"
 
+IMPLEMENT_TYPE( renderer::CustomCamera );
+
 namespace renderer
 {
+
+	CustomCamera::CustomCamera() = default;
+
 	Matrix CustomCamera::GetInvViewMatrix() const
 	{
 		return m_transform.ToMatrix();

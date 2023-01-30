@@ -21,9 +21,9 @@ namespace forge
 
 		virtual void OnAttach( EngineInstance& engineInstance ) override;
 
-		renderer::ICamera::Type GetCameraType() const
+		renderer::ICamera::CameraType GetCameraType() const
 		{
-			return m_implementation->GetType();
+			return m_implementation->GetCameraType();
 		}
 
 		const renderer::ICamera& GetCamera() const

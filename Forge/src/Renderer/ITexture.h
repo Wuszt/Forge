@@ -1,4 +1,5 @@
 #pragma once
+#include "IShaderResourceView.h"
 
 namespace renderer
 {
@@ -31,7 +32,7 @@ namespace renderer
 		};
 
 		virtual void Resize( const Vector2& size ) = 0;
-		virtual IShaderResourceView* GetShaderResourceView() const = 0;
+		virtual const IShaderResourceView* GetShaderResourceView() const = 0;
 		virtual IRenderTargetView* GetRenderTargetView() const = 0;
 		virtual forge::Callback< const Vector2& >& GetOnResizedCallback() = 0;
 		virtual Vector2 GetTextureSize() const = 0;

@@ -1,11 +1,15 @@
 #include "Fpch.h"
 #include "OrthographicCamera.h"
 
+IMPLEMENT_TYPE( renderer::OrthographicCamera );
+
 renderer::OrthographicCamera::OrthographicCamera( Float width, Float aspectRatio, Float nearPlane, Float farPlane )
 	: m_volumeSize{ width, width / aspectRatio }
 	, m_nearPlane( nearPlane )
 	, m_farPlane( farPlane )
 {}
+
+renderer::OrthographicCamera::OrthographicCamera() = default;
 
 renderer::OrthographicCamera::~OrthographicCamera() = default;
 

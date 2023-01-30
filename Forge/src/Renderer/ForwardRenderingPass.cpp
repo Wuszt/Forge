@@ -82,9 +82,9 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
-				IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
+				const IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
 
-				forge::ArraySpan< renderer::IShaderResourceView* > srvs = { &shadowMapSrv, shadowMapSrv ? 1u : 0u };
+				forge::ArraySpan< const renderer::IShaderResourceView* > srvs = { &shadowMapSrv, shadowMapSrv ? 1u : 0u };
 				query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
 					{
 						GetRenderer().Draw( archetype, renderingPass, &c_pointLightDefine, srvs );
@@ -102,9 +102,9 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
-				IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
+				const IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
 
-				forge::ArraySpan< renderer::IShaderResourceView* > srvs = { &shadowMapSrv, shadowMapSrv ? 1u : 0u };
+				forge::ArraySpan< const renderer::IShaderResourceView* > srvs = { &shadowMapSrv, shadowMapSrv ? 1u : 0u };
 				query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
 					{
 						GetRenderer().Draw( archetype, renderingPass, &c_spotLightDefine, srvs );
@@ -122,9 +122,9 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 				cbLighting->GetData().LightingData = light.m_shaderData;
 				cbLighting->UpdateBuffer();
 
-				IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
+				const IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
 
-				forge::ArraySpan< renderer::IShaderResourceView* > srvs = { &shadowMapSrv, shadowMapSrv ? 1u : 0u };
+				forge::ArraySpan< const renderer::IShaderResourceView* > srvs = { &shadowMapSrv, shadowMapSrv ? 1u : 0u };
 				query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
 					{
 						GetRenderer().Draw( archetype, renderingPass, &c_directionalLightDefine, srvs );

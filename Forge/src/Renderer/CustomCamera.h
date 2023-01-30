@@ -5,12 +5,16 @@ namespace renderer
 {
 	class CustomCamera : public ICamera
 	{
+		DECLARE_POLYMORPHIC_CLASS( CustomCamera, renderer::ICamera );
+
 	public:
 		CustomCamera( Matrix projectionMatrix, Float nearPlane, Float farPlane )
 			: m_projectionMatrix( projectionMatrix )
 			, m_nearPlane( nearPlane )
 			, m_farPlane( farPlane )
 		{}
+
+		CustomCamera();
 
 		virtual Matrix GetInvViewMatrix() const override;
 		virtual Matrix GetViewMatrix() const override;
@@ -30,9 +34,9 @@ namespace renderer
 			return m_transform;
 		}
 
-		virtual ICamera::Type GetType() const override
+		virtual ICamera::CameraType GetCameraType() const override
 		{
-			return ICamera::Type::Custom;
+			return ICamera::CameraType::Custom;
 		}
 
 		virtual Matrix GetProjectionMatrix() const override

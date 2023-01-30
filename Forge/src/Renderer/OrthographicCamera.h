@@ -5,7 +5,10 @@ namespace renderer
 {
 	class OrthographicCamera : public ICamera
 	{
+		DECLARE_POLYMORPHIC_CLASS( OrthographicCamera, renderer::ICamera );
+
 	public:
+		OrthographicCamera();
 		OrthographicCamera( Float width, Float aspectRatio, Float nearPlane, Float farPlane );
 		~OrthographicCamera();
 
@@ -93,10 +96,14 @@ namespace renderer
 			return m_farPlane;
 		}
 
-
-		virtual Type GetType() const override
+		Float GetAspectRatio() const
 		{
-			return Type::Orthographic;
+			return m_volumeSize.X / m_volumeSize.Y;
+		}
+
+		virtual ICamera::CameraType GetCameraType() const override
+		{
+			return ICamera::CameraType::Orthographic;
 		}
 
 		void SetAspectRatio( Float aspectRatio )
@@ -106,8 +113,7 @@ namespace renderer
 
 		void SetWidth( Float width )
 		{
-			Float aspectRatio = m_volumeSize.X / m_volumeSize.Y;
-			m_volumeSize = { width, width / aspectRatio };
+			m_volumeSize = { width, width / GetAspectRatio() };
 		}
 
 		const Vector2& GetVolumeSize() const

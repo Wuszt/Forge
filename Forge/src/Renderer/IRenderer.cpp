@@ -37,15 +37,28 @@ namespace renderer
 	void IRenderer::Draw( const renderer::Renderable& renderable )
 	{
 		renderable.GetModel().GetVertexBuffer()->Set();
+		renderable.GetCBMesh().SetVS( VSConstantBufferType::Mesh );
+		renderable.GetCBMesh().SetPS( PSConstantBufferType::Mesh );
 
-		for( Uint32 i = 0; renderable.GetModel().GetShapes().size(); ++i )
+		for( Uint32 i = 0; i < renderable.GetModel().GetShapes().size(); ++i )
 		{
 			renderable.GetModel().GetShapes()[ i ].m_indexBuffer->Set( 0 );
 
-			renderable.GetMaterials()[ i ]->GetVertexShader()->GetMainShader()->Set();
-			renderable.GetMaterials()[ i ]->GetPixelShader()->GetMainShader()->Set();
+			auto& material = renderable.GetMaterials()[ i ];
 
-			renderable.GetMaterials()[ i ]->GetInputLayout()->Set();
+			material->GetVertexShader()->GetMainShader()->Set();
+			material->GetPixelShader()->GetMainShader()->Set();
+			material->GetInputLayout()->Set();
+
+			std::vector< const IShaderResourceView* > srvs;
+			srvs.reserve( material->GetTextures().GetSize() );
+
+			for ( auto texture : material->GetTextures() )
+			{
+				srvs.emplace_back( texture ? texture->GetShaderResourceView() : nullptr );
+			}
+
+			SetShaderResourceViews( srvs );
 
 			renderable.GetMaterials()[ i ]->GetConstantBuffer()->SetVS( renderer::VSConstantBufferType::Material );
 

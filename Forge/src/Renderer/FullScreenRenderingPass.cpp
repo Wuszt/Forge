@@ -13,13 +13,14 @@ renderer::FullScreenRenderingPass::FullScreenRenderingPass( IRenderer& renderer,
 	, m_shaderDefines( shaderDefines.begin(), shaderDefines.end() )
 {}
 
-void renderer::FullScreenRenderingPass::Draw( forge::ArraySpan< IShaderResourceView* > input )
+void renderer::FullScreenRenderingPass::Draw( forge::ArraySpan< const IShaderResourceView* > input )
 {
 	AdjustViewportSize();
 
 	GetRenderer().GetShadersManager()->GetVertexShader( m_vertexShaderName, m_shaderDefines, false )->GetMainShader()->Set();
 	GetRenderer().GetShadersManager()->GetPixelShader( m_pixelShaderName, m_shaderDefines, false )->GetMainShader()->Set();
 	GetRenderer().SetRenderTargets( { GetTargetTexture()->GetRenderTargetView() }, nullptr );
+
 	GetRenderer().SetShaderResourceViews( input );
 	GetRenderer().DrawRawVertices( 4 );
 	GetRenderer().ClearShaderResourceViews();

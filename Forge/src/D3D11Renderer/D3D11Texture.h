@@ -28,7 +28,7 @@ namespace d3d11
 			return m_texture;
 		}
 
-		virtual D3D11ShaderResourceView* GetShaderResourceView() const override
+		virtual const D3D11ShaderResourceView* GetShaderResourceView() const override
 		{
 			return m_srv.get();
 		}

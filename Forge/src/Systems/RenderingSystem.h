@@ -50,8 +50,6 @@ namespace systems
 
 		void OnPresent();
 
-		void SetSamplers( const forge::ArraySpan< const renderer::SamplerStateFilterType >& filterTypes );
-
 		Vector2 GetRenderingResolution();
 
 #ifdef FORGE_IMGUI_ENABLED

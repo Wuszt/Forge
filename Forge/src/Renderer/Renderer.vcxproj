@@ -100,6 +100,7 @@
     <ClCompile Include="ShadowMapsGenerator.cpp" />
     <ClCompile Include="ShadowsRenderingPass.cpp" />
     <ClCompile Include="SkeletonAsset.cpp" />
+    <ClCompile Include="SkyboxRenderingPass.cpp" />
     <ClCompile Include="TextureAsset.cpp" />
     <ClCompile Include="TinyObjModelsLoader.cpp" />
     <ClCompile Include="PerspectiveCamera.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="ShadowMapsGenerator.h" />
     <ClInclude Include="ShadowsRenderingPass.h" />
     <ClInclude Include="SkeletonAsset.h" />
+    <ClInclude Include="SkyboxRenderingPass.h" />
     <ClInclude Include="TextureAsset.h" />
     <ClInclude Include="TinyObjModelsLoader.h" />
     <ClInclude Include="PerspectiveCamera.h" />
@@ -259,6 +261,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profiling|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\..\Depots\Engine\Shaders\Skybox.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Final|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">true</ExcludedFromBuild>

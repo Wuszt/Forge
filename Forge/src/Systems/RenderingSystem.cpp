@@ -22,6 +22,7 @@
 #include "../Renderer/TextureAsset.h"
 #include "../Core/AssetsManager.h"
 #include "../ECS/Query.h"
+#include "../Renderer/SkyboxRenderingPass.h"
 
 IMPLEMENT_TYPE( systems::RenderingSystem );
 
@@ -167,7 +168,7 @@ void systems::RenderingSystem::OnRenderDebug()
 					}
 
 					const renderer::ICamera& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
-					Float maxValue = currentCamera.GetType() == renderer::ICamera::Type::Perspective ? currentCamera.GetFarPlane() - currentCamera.GetNearPlane() : 1.0f;
+					Float maxValue = currentCamera.GetCameraType() == renderer::ICamera::CameraType::Perspective ? currentCamera.GetFarPlane() - currentCamera.GetNearPlane() : 1.0f;
 					m_depthBufferDenominator = Math::Min( m_depthBufferDenominator, maxValue );
 					ImGui::SliderFloat( "Denominator", &m_depthBufferDenominator, maxValue * 0.001f, maxValue );
 
@@ -409,6 +410,13 @@ void systems::RenderingSystem::OnDraw()
 		overlayQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >();
 		overlayQuery.AddTagRequirement< ContainsOverlayShapes >();
 		m_overlayRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), overlayQuery, renderer::RenderingPass::Overlay, nullptr );
+	}
+
+	{
+		PC_SCOPE( "RenderingSystem::OnDraw::Skybox" );
+		renderer::SkyboxRenderingPass skyboxRenderingPass( GetEngineInstance().GetAssetsManager(), *m_renderer, "Textures\\skymap.dds" );
+		skyboxRenderingPass.SetTargetTexture( *m_targetTexture );
+		skyboxRenderingPass.Draw( m_camerasSystem->GetActiveCamera()->GetCamera() );
 	}
 
 	m_renderer->SetViewportSize( Vector2( static_cast< Float >( GetEngineInstance().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetWindow().GetHeight() ) ) );

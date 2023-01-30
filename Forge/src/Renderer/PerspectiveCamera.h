@@ -5,7 +5,10 @@ namespace renderer
 {
 	class PerspectiveCamera : public ICamera
 	{
+		DECLARE_POLYMORPHIC_CLASS( PerspectiveCamera, renderer::ICamera );
+
 	public:
+		PerspectiveCamera();
 		PerspectiveCamera( Float aspectRatio, Float fov, Float nearPlane, Float farPlane );
 		~PerspectiveCamera();
 
@@ -66,9 +69,9 @@ namespace renderer
 			return m_transform;
 		}
 
-		virtual ICamera::Type GetType() const override
+		virtual ICamera::CameraType GetCameraType() const override
 		{
-			return ICamera::Type::Perspective;
+			return ICamera::CameraType::Perspective;
 		}
 
 		virtual void SetNearPlane( Float nearPlane ) override

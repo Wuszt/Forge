@@ -84,7 +84,7 @@ void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, e
 
 	if ( lightingData )
 	{
-		renderer::IShaderResourceView* srvs[] =
+		const renderer::IShaderResourceView* srvs[] =
 		{
 			m_diffuseTexture->GetShaderResourceView(),
 			GetDepthStencilBuffer()->GetTexture()->GetShaderResourceView(),
@@ -92,7 +92,7 @@ void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, e
 			nullptr
 		};
 
-		renderer::IShaderResourceView*& shadowMapSRV = srvs[ 3 ];
+		const renderer::IShaderResourceView*& shadowMapSRV = srvs[ 3 ];
 
 		m_blendState->Set();
 

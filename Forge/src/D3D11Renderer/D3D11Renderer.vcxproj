@@ -272,6 +272,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\External\DDSTextureLoader\DDSTextureLoader11.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\External\WICTextureLoader\WICTextureLoader11.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -301,6 +307,7 @@
     <ClCompile Include="D3D11VertexShader.cpp" />
     <ClCompile Include="D3D11Swapchain.cpp" />
     <ClCompile Include="D3D11Texture.cpp" />
+    <ClCompile Include="DDSTexturesLoader.cpp" />
     <ClCompile Include="Fpch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -314,6 +321,7 @@
     <ClCompile Include="D3D11VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\External\DDSTextureLoader\DDSTextureLoader11.h" />
     <ClInclude Include="..\..\External\WICTextureLoader\WICTextureLoader11.h" />
     <ClInclude Include="D3D11BlendState.h" />
     <ClInclude Include="D3D11ConstantBufferImpl.h" />
@@ -334,6 +342,7 @@
     <ClInclude Include="D3D11VertexShader.h" />
     <ClInclude Include="D3D11Swapchain.h" />
     <ClInclude Include="D3D11Texture.h" />
+    <ClInclude Include="DDSTexturesLoader.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="PublicDefaults.h" />

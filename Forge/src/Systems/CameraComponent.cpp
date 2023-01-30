@@ -17,13 +17,13 @@ void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
 		{
 			switch( GetCameraType() )
 			{
-			case renderer::ICamera::Type::Perspective:
+			case renderer::ICamera::CameraType::Perspective:
 			{
 				auto& camera = static_cast<renderer::PerspectiveCamera&>( *m_implementation );
 				m_implementation = std::make_unique< renderer::PerspectiveCamera >( window->GetAspectRatio(), camera.GetFOV(), camera.GetNearPlane(), camera.GetFarPlane() );
 				break;
 			}
-			case renderer::ICamera::Type::Orthographic:
+			case renderer::ICamera::CameraType::Orthographic:
 			{
 				auto& camera = static_cast<renderer::OrthographicCamera&>( *m_implementation );
 				m_implementation = std::make_unique< renderer::OrthographicCamera >( camera.GetVolumeSize().X, window->GetAspectRatio(), camera.GetNearPlane(), camera.GetFarPlane() );

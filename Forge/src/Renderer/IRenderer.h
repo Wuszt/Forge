@@ -58,6 +58,13 @@ namespace renderer
 		Count
 	};
 
+	enum class CullingMode
+	{
+		None,
+		CullingBack,
+		CullingFront
+	};
+
 	struct IRawRenderableFragment : ecs::Fragment
 	{
 		DECLARE_STRUCT( IRawRenderableFragment, ecs::Fragment );
@@ -83,21 +90,23 @@ namespace renderer
 		virtual std::unique_ptr< renderer::IDepthStencilBuffer > CreateDepthStencilBuffer( Uint32 width, Uint32 height, Bool cubeTexture = false ) const = 0;
 		virtual std::unique_ptr< IDepthStencilState > CreateDepthStencilState( DepthStencilComparisonFunc comparisonFunc ) const = 0;
 		virtual std::unique_ptr< ISamplerState > CreateSamplerState( SamplerStateFilterType filterType, SamplerStateComparisonType comparisonType ) = 0;
-
+		
+		virtual void SetCullingMode( CullingMode mode ) = 0;
+		virtual renderer::CullingMode GetCullingMode() const = 0;
 		virtual void SetDepthBias( Int32 bias, Float slopeScaledBias, Float clamp ) = 0;
 		virtual void SetViewportSize( const Vector2& size ) = 0;
 		virtual void SetRenderTargets( const forge::ArraySpan< IRenderTargetView* >& rendererTargetViews, IDepthStencilView* depthStencilView ) = 0;
 		virtual void SetSamplerStates( const forge::ArraySpan< ISamplerState* > samplerStates ) = 0;
-		virtual void SetShaderResourceViews( const forge::ArraySpan< IShaderResourceView* >& input, Uint32 startIndex = 0u ) = 0;
+		virtual void SetShaderResourceViews( const forge::ArraySpan< const IShaderResourceView* >& input, Uint32 startIndex = 0u ) = 0;
 		virtual void ClearShaderResourceViews() = 0;
 
 		virtual void OnBeforeDraw() = 0;
 		virtual RendererType GetType() const = 0;
 
 		virtual void DrawRawVertices( Uint32 amount ) = 0;
-		virtual void Draw( const IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) = 0;
+		virtual void Draw( const IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs = {} ) = 0;
 		void Draw( const renderer::Renderable& renderable );
-		virtual void Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs = {} ) = 0;
+		virtual void Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs = {} ) = 0;
 		virtual void AddRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID ) const = 0;
 		virtual void UpdateRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID, const renderer::Renderable& renderable ) const = 0;
 

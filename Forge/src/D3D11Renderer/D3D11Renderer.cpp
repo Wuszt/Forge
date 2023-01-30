@@ -12,6 +12,7 @@
 #include "../Core/AssetsManager.h"
 #include "../ECS/ECSManager.h"
 #include "../ECS/EntityID.h"
+#include "DDSTexturesLoader.h"
 
 namespace d3d11
 {
@@ -67,6 +68,7 @@ namespace d3d11
 			} );
 
 		assetsManager.AddAssetsLoader< D3D11TexturesLoader >( *GetDevice(), *GetContext() );
+		assetsManager.AddAssetsLoader< DDSTexturesLoader >( *GetDevice(), *GetContext() );
 	}
 
 	D3D11Renderer::~D3D11Renderer()
@@ -137,6 +139,50 @@ namespace d3d11
 		return std::make_unique< d3d11::D3D11SamplerState >( *GetDevice(), filterType, comparisonType );
 	}
 
+	void D3D11Renderer::SetCullingMode( renderer::CullingMode mode )
+	{
+		D3D11_RASTERIZER_DESC desc;
+		m_rasterizerState->GetDesc( &desc );
+
+		switch ( mode )
+		{
+		case renderer::CullingMode::None:
+			desc.CullMode = D3D11_CULL_NONE;
+			break;
+		case renderer::CullingMode::CullingBack:
+			desc.CullMode = D3D11_CULL_BACK;
+			break;
+		case renderer::CullingMode::CullingFront:
+			desc.CullMode = D3D11_CULL_FRONT;
+			break;
+		default:
+			FORGE_FATAL( "Unknown mode" );
+			break;
+		}
+
+		InitializeRasterizer( *m_device, *m_context, desc, &m_rasterizerState );
+	}
+
+	renderer::CullingMode D3D11Renderer::GetCullingMode() const
+	{
+		D3D11_RASTERIZER_DESC desc;
+		m_rasterizerState->GetDesc( &desc );
+
+		switch ( desc.CullMode )
+		{
+		case D3D11_CULL_NONE:
+			return renderer::CullingMode::None;
+		case D3D11_CULL_BACK:
+			return renderer::CullingMode::CullingBack;
+		case D3D11_CULL_FRONT:
+			return renderer::CullingMode::CullingFront;
+		default:
+			FORGE_FATAL( "Unknown mode" );
+		}
+
+		return renderer::CullingMode::None;
+	}
+
 	void D3D11Renderer::SetDepthBias( Int32 bias, Float slopeScaledBias, Float clamp )
 	{
 		D3D11_RASTERIZER_DESC desc;
@@ -161,15 +207,15 @@ namespace d3d11
 		GetContext()->GetDeviceContext()->PSSetSamplers( 0u, static_cast< Uint32 >( rawStates.size() ), rawStates.data() );
 	}
 
-	void D3D11Renderer::SetShaderResourceViews( const forge::ArraySpan< renderer::IShaderResourceView* >& input, Uint32 startIndex )
+	void D3D11Renderer::SetShaderResourceViews( const forge::ArraySpan< const renderer::IShaderResourceView* >& input, Uint32 startIndex )
 	{
 		std::vector< ID3D11ShaderResourceView* > srvs;
 		srvs.reserve( input.GetSize() );
 
 		for ( const auto srv : input )
 		{
-			FORGE_ASSERT( dynamic_cast< const D3D11ShaderResourceView* >( srv ) );
-			srvs.emplace_back( static_cast< const D3D11ShaderResourceView* >( srv )->GetTypedSRV() );
+			FORGE_ASSERT( srv == nullptr || dynamic_cast< const D3D11ShaderResourceView* >( srv ) );
+			srvs.emplace_back( srv ? static_cast< const D3D11ShaderResourceView* >( srv )->GetTypedSRV() : nullptr );
 		}
 
 		GetContext()->GetDeviceContext()->VSSetShaderResources( startIndex, static_cast< Uint32 >( srvs.size() ), srvs.data() );
@@ -255,7 +301,7 @@ namespace d3d11
 		std::array< std::vector< Shape >, static_cast< Uint32 >( renderer::RenderingPass::Count ) > m_shapes;
 	};
 
-	void D3D11Renderer::Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine /*= nullptr*/, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs /*= {} */ )
+	void D3D11Renderer::Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine /*= nullptr*/, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs /*= {} */ )
 	{
 		auto fragments = archetype.GetFragments< RawRenderableFragment >();
 		for ( const auto& fragment : fragments )
@@ -346,7 +392,7 @@ namespace d3d11
 		}
 	}
 
-	void D3D11Renderer::Draw( const renderer::IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine, forge::ArraySpan< renderer::IShaderResourceView* > additionalSRVs )
+	void D3D11Renderer::Draw( const renderer::IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs )
 	{
 		auto* context = GetContext()->GetDeviceContext();
 		context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );

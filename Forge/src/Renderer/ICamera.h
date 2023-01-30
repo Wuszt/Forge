@@ -4,8 +4,9 @@ namespace renderer
 {
 	class ICamera
 	{
+		DECLARE_ABSTRACT_CLASS( ICamera );
 	public:
-		enum class Type
+		enum class CameraType
 		{
 			Perspective,
 			Orthographic,
@@ -35,15 +36,15 @@ namespace renderer
 		virtual Float GetNearPlane() const = 0;
 		virtual Float GetFarPlane() const = 0;
 
-		virtual Type GetType() const = 0;
+		virtual CameraType GetCameraType() const = 0;
 
 		Bool HasNonLinearDepth() const
 		{
-			switch( GetType() )
+			switch( GetCameraType() )
 			{
-			case Type::Perspective:
+			case CameraType::Perspective:
 				return true;
-			case Type::Orthographic:
+			case CameraType::Orthographic:
 				return false;
 			default:
 				FORGE_FATAL( "Improper type" );
