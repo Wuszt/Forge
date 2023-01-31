@@ -26,6 +26,9 @@
     <ClCompile Include="Archetype.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FragmentsPackage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fpch.h">

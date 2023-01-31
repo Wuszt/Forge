@@ -13,6 +13,9 @@ namespace forge
 	{
 #ifdef FORGE_IMGUI_ENABLED
 	public:
+		IDebuggable();
+		virtual ~IDebuggable() = 0;
+
 		template< class T >
 		void InitializeDebuggable( EngineInstance& engineInstance )
 		{

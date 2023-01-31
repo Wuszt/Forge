@@ -12,4 +12,10 @@ namespace forge
 
 		FORGE_FATAL( "Creating windows for this platform is not implemented" );
 	}
+
+	IWindow::IEvent::IEvent( IWindow& window )
+		: m_window( window )
+	{}
+
+	IWindow::IEvent::~IEvent() = default;
 }

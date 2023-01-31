@@ -128,11 +128,8 @@ namespace renderer
 		class IElementDesc
 		{
 		public:
-			IElementDesc( InputElementDescription desc )
-				: m_description( std::move( desc ) )
-			{}
-
-			virtual ~IElementDesc() = default;
+			IElementDesc( InputElementDescription desc );
+			virtual ~IElementDesc() = 0;
 
 			const InputElementDescription& GetDesc() const
 			{

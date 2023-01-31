@@ -51,7 +51,8 @@ namespace renderer
 	class IShader
 	{
 	public:
-		virtual ~IShader() = default;
+		IShader();
+		virtual ~IShader() = 0;
 	};
 }
 

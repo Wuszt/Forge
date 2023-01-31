@@ -6,7 +6,8 @@ namespace ecs
 	class IFragmentsPackage
 	{
 	public:
-		virtual ~IFragmentsPackage() = default;
+		IFragmentsPackage();
+		virtual ~IFragmentsPackage() = 0;
 		virtual void AddEmptyFragment() = 0;
 		virtual void RemoveFragmentReorder( Uint32 index ) = 0;
 		virtual const Fragment::Type& GetFragmentType() const = 0;

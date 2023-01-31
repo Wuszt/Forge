@@ -44,7 +44,7 @@ namespace renderer
 	{
 	public:
 		IRenderingPass( IRenderer& renderer );
-		virtual ~IRenderingPass() = default;
+		virtual ~IRenderingPass() = 0;
 
 		virtual void ClearTargetTexture();
 
@@ -81,6 +81,7 @@ namespace renderer
 	{
 	public:
 		IMeshesRenderingPass( IRenderer& renderer );
+		virtual ~IMeshesRenderingPass();
 
 		void Draw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
 		{

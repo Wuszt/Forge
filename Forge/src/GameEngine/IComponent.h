@@ -13,7 +13,7 @@ namespace forge
 		friend void Object::OnDetach();
 
 		IComponent();
-		virtual ~IComponent();
+		virtual ~IComponent() = 0;
 
 		Object& GetOwner() const
 		{

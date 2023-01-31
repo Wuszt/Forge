@@ -3,6 +3,9 @@
 
 IMPLEMENT_TYPE( systems::ISystem )
 
+systems::ISystem::ISystem() = default;
+systems::ISystem::~ISystem() = default;
+
 void systems::ISystem::Initialize( forge::EngineInstance& engineInstance )
 {
 	m_engineInstance = &engineInstance;

@@ -39,10 +39,10 @@ namespace renderer
 	class IConstantBuffer
 	{
 	public:
-		IConstantBuffer() = default;
-		IConstantBuffer( IConstantBuffer&& ) = default;
+		IConstantBuffer();
+		IConstantBuffer( IConstantBuffer&& );
 		IConstantBuffer& operator=( IConstantBuffer&& ) = default;
-		virtual ~IConstantBuffer() = default;
+		virtual ~IConstantBuffer() = 0;
 
 		virtual void SetImpl( std::unique_ptr< IConstantBufferImpl > impl )
 		{

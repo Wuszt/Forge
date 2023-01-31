@@ -5,6 +5,8 @@ renderer::IRenderingPass::IRenderingPass( IRenderer& renderer )
 	: m_renderer( renderer )
 {}
 
+renderer::IRenderingPass::~IRenderingPass() = default;
+
 void renderer::IRenderingPass::ClearTargetTexture()
 {
 	if( m_targetTexture )
@@ -24,6 +26,8 @@ renderer::IMeshesRenderingPass::IMeshesRenderingPass( IRenderer& renderer )
 {
 	m_cameraCB = renderer.CreateStaticConstantBuffer< CBCamera >();
 }
+
+renderer::IMeshesRenderingPass::~IMeshesRenderingPass() = default;
 
 void renderer::IMeshesRenderingPass::OnBeforeDraw( const renderer::ICamera& camera, const LightingData* lightingData )
 {

@@ -16,11 +16,8 @@ namespace forge
 		class IEvent
 		{
 		public:
-			IEvent( IWindow& window )
-				: m_window( window )
-			{}
-
-			virtual ~IEvent() = default;
+			IEvent( IWindow& window );
+			virtual ~IEvent() = 0;
 
 			virtual EventType GetEventType() const = 0;
 

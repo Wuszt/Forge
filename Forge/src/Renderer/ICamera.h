@@ -13,7 +13,8 @@ namespace renderer
 			Custom
 		};
 
-		virtual ~ICamera() {}
+		ICamera();
+		virtual ~ICamera() = 0;
 
 		virtual Matrix GetInvViewMatrix() const = 0;
 		virtual Matrix GetViewMatrix() const = 0;
