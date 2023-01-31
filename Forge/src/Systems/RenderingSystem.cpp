@@ -98,13 +98,14 @@ void systems::RenderingSystem::OnInitialize()
 	} );
 
 #ifdef FORGE_IMGUI_ENABLED
-	m_overlayDebugToken = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [ this ]()
-	{
-		if( ImGui::Button( "Reload shaders" ) )
+	m_topBarButton = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().GetTopBar().AddButton( { "Reload shaders" }, false );
+	m_topBarButtonToken = m_topBarButton->GetCallback().AddListener( [ this ]()
 		{
 			GetEngineInstance().GetRenderer().GetShadersManager()->ClearCache();
-		}
+		} );
 
+	m_overlayDebugToken = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [ this ]()
+	{
 		ImGui::Text( "Window res: %u x %u", GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight() );
 
 		const Vector2 renderingRes = GetRenderingResolution();
