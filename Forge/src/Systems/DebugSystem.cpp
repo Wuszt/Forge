@@ -12,9 +12,13 @@
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/IRenderer.h"
+#include "ECSDebug.h"
 #endif
 
 IMPLEMENT_TYPE( systems::DebugSystem);
+
+systems::DebugSystem::DebugSystem() = default;
+systems::DebugSystem::~DebugSystem() = default;
 
 void systems::DebugSystem::OnInitialize()
 {
@@ -49,6 +53,8 @@ void systems::DebugSystem::OnInitialize()
 		ImGui::PopStyleColor();
 		ImGui::SetWindowFontScale( 1.0f );
 	} );
+
+	m_ecsDebug = std::make_unique< ecs::ECSDebug >( GetEngineInstance() );
 #endif
 
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [this]() { Update(); } );

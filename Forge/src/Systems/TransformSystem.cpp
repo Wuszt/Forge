@@ -6,7 +6,7 @@ IMPLEMENT_TYPE( systems::TransformSystem );
 
 void systems::TransformSystem::OnInitialize()
 {
-	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreUpdate, std::bind( &systems::TransformSystem::Update, this ) );
+	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::FrameEnd, std::bind( &systems::TransformSystem::Update, this ) );
 }
 
 void systems::TransformSystem::Update()

@@ -14,7 +14,7 @@ systems::IMGUISystem::~IMGUISystem() = default;
 void systems::IMGUISystem::OnInitialize()
 {
 	m_imguiInstance = std::make_unique< forge::IMGUIInstance >( GetEngineInstance().GetWindow(), GetEngineInstance().GetRenderer() );
-	m_preUpdateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreUpdate, [ & ]()
+	m_preUpdateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::FrameStart, [ & ]()
 	{
 		m_imguiInstance->OnNewFrame();
 	} );

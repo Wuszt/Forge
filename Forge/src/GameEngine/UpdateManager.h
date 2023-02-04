@@ -8,6 +8,7 @@ namespace forge
 	public:
 		enum class BucketType : Uint32
 		{
+			FrameStart,
 			PreUpdate,
 			Update,
 			PostUpdate,
@@ -15,6 +16,7 @@ namespace forge
 			Rendering,
 			PostRendering,
 			Present,
+			FrameEnd,
 			Count
 		};
 

@@ -80,7 +80,7 @@ namespace windows
 		outHWND = CreateWindowEx(
 			NULL,
 			c_windowClassName,
-			L"Window",
+			L"Forge",
 			WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			wr.right - wr.left, wr.bottom - wr.top,

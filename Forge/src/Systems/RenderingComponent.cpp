@@ -8,6 +8,7 @@
 
 IMPLEMENT_TYPE( forge::RenderableFragment )
 IMPLEMENT_TYPE( forge::RenderingComponent )
+IMPLEMENT_TYPE( forge::DirtyRenderable );
 
 forge::RenderingComponent::RenderingComponent() = default;
 forge::RenderingComponent::~RenderingComponent() = default;

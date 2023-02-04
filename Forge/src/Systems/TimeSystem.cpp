@@ -11,7 +11,7 @@ IMPLEMENT_TYPE( systems::TimeSystem );
 
 void systems::TimeSystem::OnInitialize()
 {
-	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreUpdate, [ this ]() { Update(); } );
+	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::FrameStart, [ this ]() { Update(); } );
 	
 #ifdef FORGE_IMGUI_ENABLED
 	m_overlayHandle = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [ this ]()

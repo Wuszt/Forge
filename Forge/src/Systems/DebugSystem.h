@@ -1,6 +1,13 @@
 #pragma once
 #ifdef FORGE_DEBUGGING
 
+#ifdef FORGE_IMGUI_ENABLED
+namespace ecs
+{
+	class ECSDebug;
+}
+#endif
+
 namespace systems
 {
 	class DebugSystem : public ISystem
@@ -8,7 +15,8 @@ namespace systems
 		DECLARE_POLYMORPHIC_CLASS( DebugSystem, systems::ISystem );
 
 	public:
-		using ISystem::ISystem;
+		DebugSystem();
+		virtual ~DebugSystem();
 
 		virtual void OnInitialize() override;
 
@@ -32,8 +40,8 @@ namespace systems
 
 #ifdef FORGE_IMGUI_ENABLED
 		forge::CallbackToken m_fpsCounterDrawingToken;
+		std::unique_ptr< ecs::ECSDebug > m_ecsDebug;
 #endif
 	};
 }
-
 #endif

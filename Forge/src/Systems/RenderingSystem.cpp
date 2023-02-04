@@ -260,20 +260,32 @@ void systems::RenderingSystem::OnBeforeDraw()
 	m_opaqueRenderingPass->ClearTargetTexture(); // this is fucked up, what about other rendering passes?
 }
 
-struct ContainsOpaqueShapes : public ecs::Tag
+namespace
 {
-	REGISTER_ECS_TAG();
-};
+	struct ContainsOpaqueShapes : public ecs::Tag
+	{
+		DECLARE_STRUCT( ContainsOpaqueShapes, ecs::Tag );
+		REGISTER_ECS_TAG();
+	};
 
-struct ContainsTransparentShapes : public ecs::Tag
-{
-	REGISTER_ECS_TAG();
-};
+	IMPLEMENT_TYPE( ContainsOpaqueShapes );
 
-struct ContainsOverlayShapes : public ecs::Tag
-{
-	REGISTER_ECS_TAG();
-};
+	struct ContainsTransparentShapes : public ecs::Tag
+	{
+		DECLARE_STRUCT( ContainsTransparentShapes, ecs::Tag );
+		REGISTER_ECS_TAG();
+	};
+
+	IMPLEMENT_TYPE( ContainsTransparentShapes );
+
+	struct ContainsOverlayShapes : public ecs::Tag
+	{
+		DECLARE_STRUCT( ContainsOverlayShapes, ecs::Tag );
+		REGISTER_ECS_TAG();
+	};
+
+	IMPLEMENT_TYPE( ContainsOverlayShapes );
+}
 
 void systems::RenderingSystem::OnDraw()
 {

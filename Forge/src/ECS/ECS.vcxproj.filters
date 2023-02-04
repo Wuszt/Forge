@@ -29,6 +29,9 @@
     <ClCompile Include="FragmentsPackage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Tag.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fpch.h">

@@ -3,6 +3,7 @@
 
 IMPLEMENT_TYPE( forge::TransformFragment );
 IMPLEMENT_TYPE( forge::TransformComponent );
+IMPLEMENT_TYPE( forge::TransformModifiedThisFrame );
 
 void forge::TransformComponent::OnAttach( EngineInstance& engineInstance )
 {

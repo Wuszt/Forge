@@ -324,6 +324,7 @@
     <ClCompile Include="Fragment.cpp" />
     <ClCompile Include="FragmentsPackage.cpp" />
     <ClCompile Include="Query.cpp" />
+    <ClCompile Include="Tag.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Archetype.h" />

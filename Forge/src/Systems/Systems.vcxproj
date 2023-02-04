@@ -311,6 +311,7 @@
     <ClCompile Include="CamerasSystem.cpp" />
     <ClCompile Include="DebugSystem.cpp" />
     <ClCompile Include="DirectionalLightComponent.cpp" />
+    <ClCompile Include="ECSDebug.cpp" />
     <ClCompile Include="Fpch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -341,6 +342,7 @@
     <ClInclude Include="CamerasSystem.h" />
     <ClInclude Include="DebugSystem.h" />
     <ClInclude Include="DirectionalLightComponent.h" />
+    <ClInclude Include="ECSDebug.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="IDebuggable.h" />
     <ClInclude Include="IMGUISystem.h" />

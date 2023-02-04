@@ -36,6 +36,7 @@
 #include "../Core/ArraySpan.h"
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/AnimationComponent.h"
+#include "../Systems/TransformSystem.h"
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -246,6 +247,7 @@ Int32 main()
 				&systems::LightingSystem::GetTypeStatic(),
 				&systems::TimeSystem::GetTypeStatic(),
 				&systems::AnimationSystem::GetTypeStatic(),
+				&systems::TransformSystem::GetTypeStatic(),
 #ifdef FORGE_DEBUGGING
 				&systems::DebugSystem::GetTypeStatic(),
 #endif

@@ -11,7 +11,7 @@ forge::ObjectsManager::ObjectsManager( EngineInstance& engineInstance, UpdateMan
 	: m_engineInstance( engineInstance )
 	, m_ecsManager( ecsManager )
 {
-	m_tickToken = updateManager.RegisterUpdateFunction( UpdateManager::BucketType::Present, std::bind( &forge::ObjectsManager::HandleRequests, this ) );
+	m_tickToken = updateManager.RegisterUpdateFunction( UpdateManager::BucketType::PreUpdate, std::bind( &forge::ObjectsManager::HandleRequests, this ) );
 }
 
 ecs::EntityID forge::ObjectsManager::GetOrCreateEntityId( ObjectID id )

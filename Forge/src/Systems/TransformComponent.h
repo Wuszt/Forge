@@ -21,6 +21,7 @@ namespace forge
 
 	struct TransformModifiedThisFrame : public ecs::Tag
 	{
+		DECLARE_STRUCT( TransformModifiedThisFrame, ecs::Tag );
 		REGISTER_ECS_TAG();
 	};
 

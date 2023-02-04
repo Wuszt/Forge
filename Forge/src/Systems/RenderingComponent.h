@@ -26,6 +26,7 @@ namespace forge
 
 	struct DirtyRenderable : public ecs::Tag
 	{
+		DECLARE_STRUCT( DirtyRenderable, ecs::Tag );
 		REGISTER_ECS_TAG()
 	};
 
