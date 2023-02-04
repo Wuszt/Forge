@@ -4,6 +4,13 @@ void forge::ObjectsManager::RemoveObject( const ObjectID& id )
 {
 	m_objects[ id ]->OnDetach();
 	m_objects.erase( id );
+
+	auto foundEntityId = m_objectsToEntities.find( id );
+	if ( foundEntityId != m_objectsToEntities.end() )
+	{
+		m_ecsManager.RemoveEntity( foundEntityId->second );
+	}
+
 	m_onObjectDestructed.Invoke( id );
 }
 
