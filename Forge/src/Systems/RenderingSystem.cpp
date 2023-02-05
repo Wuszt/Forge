@@ -249,6 +249,15 @@ Vector2 systems::RenderingSystem::GetRenderingResolution()
 	return result;
 }
 
+void systems::RenderingSystem::SetSkyboxTexture( std::shared_ptr< const renderer::ITexture > texture )
+{
+	m_skyboxRenderingPass = nullptr;
+	if ( texture )
+	{
+		m_skyboxRenderingPass = std::make_unique<renderer::SkyboxRenderingPass>( GetEngineInstance().GetAssetsManager(), GetEngineInstance().GetRenderer(), texture );
+	}
+}
+
 void systems::RenderingSystem::OnBeforeDraw()
 {
 #ifdef FORGE_IMGUI_ENABLED
@@ -425,11 +434,11 @@ void systems::RenderingSystem::OnDraw()
 		m_overlayRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), overlayQuery, renderer::RenderingPass::Overlay, nullptr );
 	}
 
+	if ( m_skyboxRenderingPass )
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::Skybox" );
-		renderer::SkyboxRenderingPass skyboxRenderingPass( GetEngineInstance().GetAssetsManager(), *m_renderer, "Textures\\skymap.dds" );
-		skyboxRenderingPass.SetTargetTexture( *m_targetTexture );
-		skyboxRenderingPass.Draw( m_camerasSystem->GetActiveCamera()->GetCamera() );
+		m_skyboxRenderingPass->SetTargetTexture( *m_targetTexture );
+		m_skyboxRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera() );
 	}
 
 	m_renderer->SetViewportSize( Vector2( static_cast< Float >( GetEngineInstance().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetWindow().GetHeight() ) ) );

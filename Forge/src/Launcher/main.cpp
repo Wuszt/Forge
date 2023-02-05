@@ -276,8 +276,10 @@ Int32 main()
 				} );
 			} );
 
+			engineInstance.GetSystemsManager().GetSystem< systems::RenderingSystem >().SetSkyboxTexture( engineInstance.GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\skymap.dds" )->GetTexture() );
+
 			//MinecraftScene( engineInstance );
-			SponzaScene( engineInstance );
+			//SponzaScene( engineInstance );
 			//BunnyScene( engineInstance );
 
 			//for ( Uint32 i = 0u; i < 15u; ++i )
@@ -288,7 +290,25 @@ Int32 main()
 			//	}
 			//}
 
-			SkeletalMesh( engineInstance, { 0.0f, 400.0f, 0.0f } );
+			//CubeScene(engineInstance);
+			//SkeletalMesh( engineInstance, { 0.0f, 400.0f, 0.0f } );
+
+			const Vector3 start = Vector3();
+			const Vector3 end = { 5.0f, 5.0f, 5.0f };
+
+			engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( start, 0.1f, Vector4( 1.0f, 0.0f, 0.0f, 1.0f ), 100.0f );
+			engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawLine( start, end, 0.01f, Vector4( 0.0f, 1.0f, 1.0f, 1.0f ), 100.0f );
+			engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( end, 0.1f, Vector4( 0.0f, 0.0f, 1.0f, 1.0f ), 100.0f );
+
+			for ( Int32 x = -100; x <= 100; ++x )
+			{
+				engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawLine( { static_cast< Float >( x ), -100.0f, 0.0f }, { static_cast< Float >( x ), 100.0f, 0.0f }, 0.01f, Vector4(0.0f, 1.0f, 0.0f, 1.0f), 100.0f);
+			}
+
+			for ( Int32 y = -100; y <= 100; ++y )
+			{
+				engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawLine( { -100.0f, static_cast< Float >( y ), 0.0f }, { 100.0f, static_cast< Float >( y ), 0.0f }, 0.01f, Vector4( 0.0f, 1.0f, 0.0f, 1.0f ), 100.0f );
+			}
 
 			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
 			{

@@ -104,6 +104,29 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 	} );
 }
 
+void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, Float thickness, const Vector4& color, Float lifetime )
+{
+	GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ = ]( forge::Object* obj )
+		{
+			obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ = ]()
+				{
+					auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+	                auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+					renderingComponent->LoadMeshAndMaterial( "Models\\cylinder.obj" );
+
+					transformComponent->GetDirtyData().m_transform.SetPosition( start + ( end - start ) * 0.5f );
+					transformComponent->GetDirtyData().m_scale = { thickness, thickness, ( end - start ).Mag() };
+					transformComponent->GetDirtyData().m_transform.SetOrientation( Quaternion::GetRotationBetweenVectors( Vector3::EZ(), end - start ) );
+					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Overlay );
+					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+				} );
+
+	        m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + lifetime } );
+		} );
+}
+
 void systems::DebugSystem::Update()
 {
 	Float currentTime = forge::Time::GetTime();

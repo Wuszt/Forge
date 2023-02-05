@@ -9,6 +9,6 @@ namespace forge
 {
 	namespace imgui
 	{
-		void DrawTexture( const std::string& name, renderer::ITexture& texture, Bool open = true, std::function<void()> preTextureDrawing = nullptr );
+		void DrawTexture( const std::string& name, const renderer::ITexture& texture, Bool open = true, std::function<void()> preTextureDrawing = nullptr );
 	}
 }

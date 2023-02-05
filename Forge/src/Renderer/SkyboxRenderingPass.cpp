@@ -4,15 +4,17 @@
 #include "../Core/AssetsManager.h"
 #include "OrthographicCamera.h"
 
-renderer::SkyboxRenderingPass::SkyboxRenderingPass( forge::AssetsManager& assetsManager, renderer::IRenderer& renderer, const std::string& skymapPath )
+renderer::SkyboxRenderingPass::SkyboxRenderingPass( forge::AssetsManager& assetsManager, renderer::IRenderer& renderer, std::shared_ptr< const renderer::ITexture > texture )
 	: IRenderingPass( renderer )
 {
+	FORGE_ASSERT( texture->GetType() == renderer::ITexture::Type::TextureCube );
+
 	m_renderable = Renderable( renderer );
 	m_renderable.SetModel( assetsManager, "Models\\sphere.obj");
 
 	renderer::PerspectiveCamera( 1.0, FORGE_PI / 3.0f, 1.0f, 10000.0f );
 	m_renderable.GetMaterials()[ 0 ]->SetShaders( "Skybox.fx", "Skybox.fx", renderer::RenderingPass::Opaque );
-	m_renderable.GetMaterials()[ 0 ]->SetTexture( assetsManager.GetAsset< renderer::TextureAsset >( skymapPath )->GetTexture(), renderer::Material::TextureType::Diffuse );
+	m_renderable.GetMaterials()[ 0 ]->SetTexture( texture, renderer::Material::TextureType::Diffuse );
 
 	m_cameraCB = renderer.CreateStaticConstantBuffer< CBCamera >();
 }

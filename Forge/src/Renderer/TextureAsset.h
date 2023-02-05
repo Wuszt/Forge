@@ -10,7 +10,7 @@ namespace renderer
 	public:
 		TextureAsset( const std::string& path, std::unique_ptr< renderer::ITexture >&& texture );
 
-		std::shared_ptr< renderer::ITexture > GetTexture() const
+		std::shared_ptr< const renderer::ITexture > GetTexture() const
 		{
 			return m_texture;
 		}

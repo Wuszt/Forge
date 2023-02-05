@@ -17,6 +17,7 @@ namespace renderer
 	class IMeshesRenderingPass;
 	class FullScreenRenderingPass;
 	class ShadowMapsGenerator;
+	class SkyboxRenderingPass;
 
 	class IVertexShader;
 	class IPixelShader;
@@ -60,6 +61,8 @@ namespace systems
 
 		Vector2 GetRenderingResolution();
 
+		void SetSkyboxTexture( std::shared_ptr< const renderer::ITexture > texture );
+
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;
 #endif
@@ -85,6 +88,7 @@ namespace systems
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_opaqueRenderingPass;
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_overlayRenderingPass;
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_transparentRenderingPass;
+		std::unique_ptr< renderer::SkyboxRenderingPass > m_skyboxRenderingPass;
 
 		std::unique_ptr< renderer::IDepthStencilBuffer > m_depthStencilBuffer;
 		std::unique_ptr< renderer::IDepthStencilState > m_depthStencilState;

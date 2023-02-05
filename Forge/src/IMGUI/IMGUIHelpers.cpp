@@ -4,7 +4,7 @@
 #include "../Renderer/ITexture.h"
 #include "../Renderer/IShaderResourceView.h"
 
-void forge::imgui::DrawTexture( const std::string& name, renderer::ITexture& texture, Bool open /*= true*/, std::function<void()> preTextureDrawing /*= nullptr */ )
+void forge::imgui::DrawTexture( const std::string& name, const renderer::ITexture& texture, Bool open /*= true*/, std::function<void()> preTextureDrawing /*= nullptr */ )
 {
 	if( ImGui::TreeNodeEx( name.c_str(), open ? ImGuiTreeNodeFlags_DefaultOpen : 0 ) )
 	{

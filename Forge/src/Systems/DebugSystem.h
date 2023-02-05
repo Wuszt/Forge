@@ -22,6 +22,7 @@ namespace systems
 
 		void DrawSphere( const Vector3& position, Float radius, const Vector4& color, Float lifetime );
 		void DrawCube( const Vector3& position, const Vector3& extension, const Vector4& color, Float lifetime );
+		void DrawLine( const Vector3& start, const Vector3& end, Float thickness, const Vector4& color, Float lifetime );
 		Bool IsSystemDebugEnabled( const ISystem& system );
 
 	private:
