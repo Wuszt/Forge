@@ -127,6 +127,39 @@ void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, F
 		} );
 }
 
+void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Float angle, const Vector4& color, Float lifetime )
+{
+	GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ = ]( forge::Object* obj )
+		{
+			obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ = ]()
+				{
+					auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+	                auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+					renderingComponent->LoadMeshAndMaterial( "Models\\cone.obj" );
+
+					Vector3 direction = base - top;
+					const Float length = direction.Normalize();
+
+					Matrix transform( Quaternion( Vector3{ DEG2RAD * 90.0f, 0.0f, 0.0f } ) );
+					transform = transform * Matrix( Vector3{ 0.0f, length * 0.5f, 0.0f } );
+					transform = transform * Quaternion::CreateFromDirection( direction );
+
+					transformComponent->GetDirtyData().m_transform.SetOrientation( transform.GetRotation() );
+					transformComponent->GetDirtyData().m_transform.SetPosition( transform.GetTranslation() );
+
+					const Float size = length * Math::Tg( angle * 0.5f ) * 2.0f;
+					transformComponent->GetDirtyData().m_scale = Vector3{ size, size, length };
+
+					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Overlay );
+					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+				} );
+
+	        m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + lifetime } );
+		} );
+}
+
 void systems::DebugSystem::Update()
 {
 	Float currentTime = forge::Time::GetTime();
