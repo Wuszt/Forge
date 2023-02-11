@@ -1,5 +1,6 @@
 #pragma once
 #include "ConstantBuffer.h"
+#include "IRenderer.h"
 
 namespace renderer
 {
@@ -27,6 +28,16 @@ namespace renderer
 		const Model& GetModel() const
 		{
 			return *m_model;
+		}
+
+		void SetFillMode( FillMode mode )
+		{
+			m_fillMode = mode;
+		}
+
+		FillMode GetFillMode() const
+		{
+			return m_fillMode;
 		}
 
 		const std::vector< std::unique_ptr< Material > >& GetMaterials() const
@@ -84,6 +95,7 @@ namespace renderer
 		std::shared_ptr< Model > m_model;
 		std::vector< std::unique_ptr< Material > > m_materials;
 		StaticConstantBuffer< cbMesh > m_cbMesh;
+		FillMode m_fillMode = FillMode::Solid;
 
 		std::vector< AdditionalConstantBuffer > m_additionalCBs;
 	};

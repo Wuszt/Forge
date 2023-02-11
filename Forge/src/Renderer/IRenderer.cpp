@@ -4,8 +4,10 @@
 #include "TinyObjModelsLoader.h"
 #include "../Core/AssetsManager.h"
 #include "FBXLoader.h"
+#include "../ECS/ECSManager.h"
 
 IMPLEMENT_TYPE( renderer::IRawRenderableFragment );
+IMPLEMENT_TYPE( renderer::WireFrameTag );
 
 namespace renderer
 {

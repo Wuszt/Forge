@@ -48,8 +48,8 @@ void systems::LightingSystem::Update()
 
 	{
 		ecs::Query query;
-		query.AddFragmentRequirement< forge::PointLightFragment >();
-		query.AddFragmentRequirement< forge::TransformFragment >();
+		query.AddFragmentRequirement< forge::PointLightFragment >( ecs::Query::RequirementType::Included );
+		query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 
 		Uint32 lightsAmount = 0u;
 		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
@@ -80,8 +80,8 @@ void systems::LightingSystem::Update()
 
 	{
 		ecs::Query query;
-		query.AddFragmentRequirement< forge::SpotLightFragment >();
-		query.AddFragmentRequirement< forge::TransformFragment >();
+		query.AddFragmentRequirement< forge::SpotLightFragment >( ecs::Query::RequirementType::Included );
+		query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 
 		Uint32 lightsAmount = 0u;
 		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
@@ -115,7 +115,7 @@ void systems::LightingSystem::Update()
 
 	{
 		ecs::Query query;
-		query.AddFragmentRequirement< forge::DirectionalLightFragment >();
+		query.AddFragmentRequirement< forge::DirectionalLightFragment >( ecs::Query::RequirementType::Included );
 
 		Uint32 lightsAmount = 0u;
 		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
@@ -215,8 +215,8 @@ void systems::LightingSystem::OnRenderDebug()
 		if( ImGui::TreeNodeEx( "Point Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
 			ecs::Query query;
-			query.AddFragmentRequirement< forge::PointLightFragment >();
-			query.AddFragmentRequirement< forge::TransformFragment >();
+			query.AddFragmentRequirement< forge::PointLightFragment >( ecs::Query::RequirementType::Included );
+			query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 
 			query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
 			{
@@ -229,7 +229,7 @@ void systems::LightingSystem::OnRenderDebug()
 						ImGui::ColorEdit3( "Color", lightFragments[i].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
 						ImGui::SliderFloat( "Power", &lightFragments[i].m_power, 0.0f, 10000.0f );
 
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transformFragments[ i ].m_transform.GetPosition3(), 50.0f, lightFragments[ i ].m_color, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transformFragments[ i ].m_transform.GetPosition3(), 50.0f, lightFragments[ i ].m_color, true, 0.0f );
 
 						castShadowFunc( GetPointLights()[ i ], true );
 
@@ -251,8 +251,8 @@ void systems::LightingSystem::OnRenderDebug()
 		if( ImGui::TreeNodeEx( "Spot Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
 			ecs::Query query;
-			query.AddFragmentRequirement< forge::SpotLightFragment >();
-			query.AddFragmentRequirement< forge::TransformFragment >();
+			query.AddFragmentRequirement< forge::SpotLightFragment >( ecs::Query::RequirementType::Included );
+			query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 
 			query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
 			{
@@ -267,16 +267,11 @@ void systems::LightingSystem::OnRenderDebug()
 						ImGui::SliderFloat( "Inner Angle", &lightFragments[ i ].m_innerAngle, 0.0f, lightFragments[ i ].m_outerAngle - 0.01f );
 						ImGui::SliderFloat( "Outer Angle", &lightFragments[ i ].m_outerAngle, 0.0f, FORGE_PI_HALF );
 
-						Float size = 20.0f;
-						Float extent = 30.0f;
+						Vector3 pos = transformFragments[ i ].m_transform.GetPosition3();
 						Vector3 forward = transformFragments[ i ].m_transform.GetForward();
-						Vector3 forwardAbs = Vector3( Math::Abs( forward.X ), Math::Abs( forward.Y ), Math::Abs( forward.Z ) );
 
-						Vector3 pos = transformFragments[ i ].m_transform.GetPosition3() + forward * ( extent + size ) * 0.5f;
-						Vector3 extents = Vector3::ONES() * size + forwardAbs * extent;
-
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transformFragments[ i ].m_transform.GetPosition3(), 50.0f, lightFragments[ i ].m_color, 0.0f );
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCube( pos, extents, lightFragments[ i ].m_color, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCone( pos, pos + forward * 1000.0f, lightFragments[ i ].m_innerAngle, lightFragments[ i ].m_color, true, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCone( pos, pos + forward * 1000.0f, lightFragments[ i ].m_outerAngle, lightFragments[ i ].m_color, true, 0.0f );
 
 						castShadowFunc( GetSpotLights()[ i ], false );
 
@@ -295,7 +290,7 @@ void systems::LightingSystem::OnRenderDebug()
 		if( ImGui::TreeNodeEx( "Directional Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
 			ecs::Query query;
-			query.AddFragmentRequirement< forge::DirectionalLightFragment >();
+			query.AddFragmentRequirement< forge::DirectionalLightFragment >( ecs::Query::RequirementType::Included );
 
 			Uint32 lightsAmount = 0u;
 			query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )

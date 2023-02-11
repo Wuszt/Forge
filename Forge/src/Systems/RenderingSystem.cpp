@@ -138,6 +138,32 @@ void systems::RenderingSystem::OnRenderDebug()
 					UpdateRenderingResolution( static_cast<Float>( scale ) * 0.01f );
 				}
 
+				if ( ImGui::Checkbox( "Wire Frame", &m_debugForceWireFrame ) )
+				{
+					ecs::Query renderablesQuery;
+					renderablesQuery.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
+					renderablesQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ this ]( ecs::Archetype& archetype, ecs::Query::DelayedCommands& cmds )
+						{
+							for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
+							{
+								cmds.AddCommand( [ this, entityID = archetype.GetEntityIDWithIndex( i ) ]()
+									{
+										if ( m_debugForceWireFrame )
+										{
+											if ( !GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetArchetypeID().ContainsTag< renderer::WireFrameTag >() )
+											{
+												GetEngineInstance().GetECSManager().AddTagToEntity< renderer::WireFrameTag >( entityID );
+											}								
+										}
+										else
+										{
+											GetEngineInstance().GetECSManager().AddTagToEntity< forge::DirtyRenderable >( entityID );
+										}
+									} );
+							}
+						} );
+				}
+
 				ImGui::EndTabItem();
 			}
 
@@ -309,81 +335,99 @@ void systems::RenderingSystem::OnDraw()
 	{
 		PC_SCOPE( "RenderingSystem::UpdatingRawRenderables" );
 		ecs::Query renderablesToUpdate;
-		renderablesToUpdate.AddTagRequirement< forge::DirtyRenderable >();
-		renderablesToUpdate.AddFragmentRequirement< forge::RenderableFragment >();
-		renderablesToUpdate.AddFragmentRequirement< renderer::IRawRenderableFragment >();
+		renderablesToUpdate.AddTagRequirement< forge::DirtyRenderable >( ecs::Query::RequirementType::Included );
+		renderablesToUpdate.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
+		renderablesToUpdate.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
 
-		std::vector< ecs::EntityID > updatedEntities;
-
-		renderablesToUpdate.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+		renderablesToUpdate.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype, ecs::Query::DelayedCommands& cmds )
 			{
 				auto renderables = archetype.GetFragments< forge::RenderableFragment >();
 		        auto rawRenderables = archetype.GetFragments< renderer::IRawRenderableFragment >();
 
 				for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
 				{
-					updatedEntities.emplace_back( archetype.GetEntityIDWithIndex( i ) );
-
 					m_renderer->UpdateRenderableECSFragment( GetEngineInstance().GetECSManager(), archetype.GetEntityIDWithIndex( i ), renderables[ i ].m_renderable );
-				}
 
-			} );
+					Bool forcedWireFrame = false;
 
-		for ( const auto& entityID : updatedEntities )
-		{
-			forge::RenderableFragment* renderableFragment = GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetFragment< forge::RenderableFragment >( entityID );
-			
-			std::array< Bool, static_cast< Uint32 >( renderer::RenderingPass::Count ) > containedRenderingPasses{ false };
-			for ( auto& material : renderableFragment->m_renderable.GetMaterials() )
-			{
-				containedRenderingPasses[ static_cast< Uint32 >( material->GetRenderingPass() ) ] = true;
+#ifdef FORGE_IMGUI_ENABLED
+					forcedWireFrame = m_debugForceWireFrame;
+#endif
+
+					auto entityID = archetype.GetEntityIDWithIndex( i );
+
+					if ( renderables[ i ].m_renderable.GetFillMode() == renderer::FillMode::WireFrame || forcedWireFrame )
+					{
+						cmds.AddCommand( [ this, entityID ]()
+							{
+								GetEngineInstance().GetECSManager().AddTagToEntity< renderer::WireFrameTag >( entityID );
+							} );
+					}
+					else if (GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetArchetypeID().ContainsTag< renderer::WireFrameTag >())
+					{
+						cmds.AddCommand( [ this, entityID ]()
+							{
+								GetEngineInstance().GetECSManager().RemoveTagFromEntity< renderer::WireFrameTag >( entityID );
+							} );
+					}
+
+					cmds.AddCommand( [ this, entityID ]()
+					{
+						forge::RenderableFragment* renderableFragment = GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetFragment< forge::RenderableFragment >( entityID );
+
+						std::array< Bool, static_cast< Uint32 >( renderer::RenderingPass::Count ) > containedRenderingPasses{ false };
+						for ( auto& material : renderableFragment->m_renderable.GetMaterials() )
+						{
+							containedRenderingPasses[ static_cast< Uint32 >( material->GetRenderingPass() ) ] = true;
+						}
+
+						for ( Uint32 i = 0u; i < containedRenderingPasses.size(); ++i )
+						{
+							switch ( static_cast< renderer::RenderingPass >( i ) )
+							{
+							case renderer::RenderingPass::Opaque:
+								if ( containedRenderingPasses[ i ] )
+								{
+									GetEngineInstance().GetECSManager().AddTagToEntity< ContainsOpaqueShapes >( entityID );
+								}
+								else
+								{
+									GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsOpaqueShapes >( entityID );
+								}
+								break;
+							case renderer::RenderingPass::Transparent:
+								if ( containedRenderingPasses[ i ] )
+								{
+									GetEngineInstance().GetECSManager().AddTagToEntity< ContainsTransparentShapes >( entityID );
+								}
+								else
+								{
+									GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsTransparentShapes >( entityID );
+								}
+								break;
+							case renderer::RenderingPass::Overlay:
+								if ( containedRenderingPasses[ i ] )
+								{
+									GetEngineInstance().GetECSManager().AddTagToEntity< ContainsOverlayShapes >( entityID );
+								}
+								else
+								{
+									GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsOverlayShapes >( entityID );
+								}
+								break;
+							}
+						}
+
+						GetEngineInstance().GetECSManager().RemoveTagFromEntity< forge::DirtyRenderable >( entityID );
+				} );
 			}
-
-			for ( Uint32 i = 0u; i < containedRenderingPasses.size(); ++i )
-			{
-				switch ( static_cast< renderer::RenderingPass >( i ) )
-				{
-				    case renderer::RenderingPass::Opaque:
-						if( containedRenderingPasses[ i ] )
-						{
-							GetEngineInstance().GetECSManager().AddTagToEntity< ContainsOpaqueShapes >( entityID );
-						}
-						else
-						{
-							GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsOpaqueShapes >( entityID );
-						}
-						break;
-					case renderer::RenderingPass::Transparent:
-						if ( containedRenderingPasses[ i ] )
-						{
-							GetEngineInstance().GetECSManager().AddTagToEntity< ContainsTransparentShapes >( entityID );
-						}
-						else
-						{
-							GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsTransparentShapes >( entityID );
-						}
-						break;
-					case renderer::RenderingPass::Overlay:
-						if ( containedRenderingPasses[ i ] )
-						{
-							GetEngineInstance().GetECSManager().AddTagToEntity< ContainsOverlayShapes >( entityID );
-						}
-						else
-						{
-							GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsOverlayShapes >( entityID );
-						}
-						break;
-				}
-			}
-
-			GetEngineInstance().GetECSManager().RemoveTagFromEntity< forge::DirtyRenderable >( entityID );			
-		}
+		} );
 	}
 
 	ecs::Query query;
-	query.AddFragmentRequirement< forge::TransformFragment >();
-	query.AddFragmentRequirement< renderer::IRawRenderableFragment >();
-	query.AddTagRequirement< forge::TransformModifiedThisFrame >();
+	query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
+	query.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+	query.AddTagRequirement< forge::TransformModifiedThisFrame >( ecs::Query::RequirementType::Included );
 
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::UpdatingBuffers" );
@@ -404,8 +448,8 @@ void systems::RenderingSystem::OnDraw()
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::Opaque" );
 		ecs::Query opaqueQuery;
-		opaqueQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >();
-		opaqueQuery.AddTagRequirement< ContainsOpaqueShapes >();
+		opaqueQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+		opaqueQuery.AddTagRequirement< ContainsOpaqueShapes >( ecs::Query::RequirementType::Included );
 
 		auto& lightingSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::LightingSystem >();
 		renderer::LightingData lightingData = lightingSystem.GetLightingData();
@@ -416,8 +460,8 @@ void systems::RenderingSystem::OnDraw()
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::Transparent" );
 		ecs::Query transparentQuery;
-		transparentQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >();
-		transparentQuery.AddTagRequirement< ContainsTransparentShapes >();
+		transparentQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+		transparentQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Included );
 
 		m_transparencyBlendState->Set();
 		m_depthStencilState->EnableWrite( false );
@@ -429,8 +473,8 @@ void systems::RenderingSystem::OnDraw()
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::Overlay" );
 		ecs::Query overlayQuery;
-		overlayQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >();
-		overlayQuery.AddTagRequirement< ContainsOverlayShapes >();
+		overlayQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+		overlayQuery.AddTagRequirement< ContainsOverlayShapes >( ecs::Query::RequirementType::Included );
 		m_overlayRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), overlayQuery, renderer::RenderingPass::Overlay, nullptr );
 	}
 

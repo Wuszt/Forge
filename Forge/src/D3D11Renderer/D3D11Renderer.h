@@ -77,6 +77,10 @@ namespace d3d11
 
 		virtual void SetCullingMode( renderer::CullingMode mode );
 		virtual renderer::CullingMode GetCullingMode() const override;
+
+		virtual void SetFillMode( renderer::FillMode mode ) override;
+		virtual renderer::FillMode GetFillMode() const override;
+
 		virtual void SetDepthBias( Int32 bias, Float slopeScaledBias, Float clamp ) override;
 		virtual void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, renderer::IDepthStencilView* depthStencilView ) override;
 		virtual void SetSamplerStates( const forge::ArraySpan< renderer::ISamplerState* > samplerStates ) override;
@@ -102,6 +106,7 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::IConstantBufferImpl > CreateConstantBufferImpl() const override;
 
 	private:
+		void Draw_Internal( const renderer::IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine );
 		void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilView* depthStencilView );
 		void InitializeSwapChainAndContext( const windows::WindowsWindow& window, Uint32 renderingResolutionWidth, Uint32 renderingResolutionHeight );
 

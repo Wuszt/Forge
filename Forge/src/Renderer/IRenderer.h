@@ -2,6 +2,7 @@
 #include "ConstantBuffer.h"
 #include "ITexture.h"
 #include "../ECS/Fragment.h"
+#include "../ECS/Tag.h"
 
 namespace forge
 {
@@ -65,10 +66,22 @@ namespace renderer
 		CullingFront
 	};
 
-	struct IRawRenderableFragment : ecs::Fragment
+	enum class FillMode
+	{
+		Solid,
+		WireFrame
+	};
+
+	struct IRawRenderableFragment : public ecs::Fragment
 	{
 		DECLARE_STRUCT( IRawRenderableFragment, ecs::Fragment );
 		REGISTER_ECS_FRAGMENT();
+	};
+
+	struct WireFrameTag : public ecs::Tag
+	{
+		DECLARE_STRUCT( WireFrameTag, ecs::Tag );
+		REGISTER_ECS_TAG();
 	};
 
 	class IRenderer
@@ -92,7 +105,11 @@ namespace renderer
 		virtual std::unique_ptr< ISamplerState > CreateSamplerState( SamplerStateFilterType filterType, SamplerStateComparisonType comparisonType ) = 0;
 		
 		virtual void SetCullingMode( CullingMode mode ) = 0;
-		virtual renderer::CullingMode GetCullingMode() const = 0;
+		virtual CullingMode GetCullingMode() const = 0;
+
+		virtual void SetFillMode( FillMode mode ) = 0;
+		virtual FillMode GetFillMode() const = 0;
+
 		virtual void SetDepthBias( Int32 bias, Float slopeScaledBias, Float clamp ) = 0;
 		virtual void SetViewportSize( const Vector2& size ) = 0;
 		virtual void SetRenderTargets( const forge::ArraySpan< IRenderTargetView* >& rendererTargetViews, IDepthStencilView* depthStencilView ) = 0;

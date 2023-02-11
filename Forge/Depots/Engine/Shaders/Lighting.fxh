@@ -86,8 +86,8 @@ float3 CalcSpotLight(float3 surfPos, float3 surfNormal, SpotLightData lightingDa
 {
     float3 lightPosition = lightingData.Position;
     float3 lightDir = lightingData.Direction;
-    float cosInnerAngle = cos(lightingData.InnerAngle);
-    float cosOuterAngle = cos(lightingData.OuterAngle);
+    float cosInnerAngle = cos(lightingData.InnerAngle * 0.5f);
+    float cosOuterAngle = cos(lightingData.OuterAngle * 0.5f);
     const float3 att = float3(0.01f, 0.01f, 0.01f);
     
     float3 toLight = lightPosition - surfPos;
@@ -98,7 +98,7 @@ float3 CalcSpotLight(float3 surfPos, float3 surfNormal, SpotLightData lightingDa
 
     float spotAttn = smoothstep(cosOuterAngle, cosInnerAngle, dot(-toLight, lightDir));
     float attn = (spotAttn * lightingData.Power / dot(att, mult));
-    
+
     return CalculateBlinnPhong(toLight, surfPos, surfNormal) * attn;
 }
 

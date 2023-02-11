@@ -1,5 +1,5 @@
 #pragma once
-#define REGISTER_ECS_TAG(...) static int GetTagIndex() { static int id = InitializeAndGetID( GetTypeStatic() ); return id; }
+#define REGISTER_ECS_TAG(...) static Uint32 GetTagIndex() { static Uint32 id = InitializeAndGetID( GetTypeStatic() ); return id; }
 
 namespace ecs
 {

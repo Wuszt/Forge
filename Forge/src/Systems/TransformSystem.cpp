@@ -12,8 +12,8 @@ void systems::TransformSystem::OnInitialize()
 void systems::TransformSystem::Update()
 {
 	ecs::Query query;
-	query.AddTagRequirement< forge::TransformModifiedThisFrame >();
-	query.AddFragmentRequirement< forge::TransformFragment >();
+	query.AddTagRequirement< forge::TransformModifiedThisFrame >( ecs::Query::RequirementType::Included );
+	query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 
 	std::vector< ecs::EntityID > entities;
 

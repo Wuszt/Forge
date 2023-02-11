@@ -111,6 +111,7 @@ namespace systems
 		forge::CallbackToken m_overlayDebugToken;
 		std::unique_ptr< renderer::ITexture > m_depthBufferDebugTexture;
 		Float m_depthBufferDenominator = std::numeric_limits< Float >::infinity();
+		Bool m_debugForceWireFrame = false;
 #endif
 	};
 }

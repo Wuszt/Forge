@@ -63,10 +63,35 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 	cbRendering->SetVS( renderer::VSConstantBufferType::RenderingPass );
 	cbRendering->SetPS( renderer::PSConstantBufferType::RenderingPass );
 
-	query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+	ecs::Query solidQuery = query;
+	solidQuery.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Excluded );
+	ecs::Query wireFrameQuery = query;
+	wireFrameQuery.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Included );
+
+	auto drawFunc = [ this, &solidQuery, &wireFrameQuery, &ecsManager, &renderingPass ]( const renderer::ShaderDefine* sd, forge::ArraySpan< const renderer::IShaderResourceView* > srvs )
+	{
+		GetRenderer().ClearShaderResourceViews();
+
 		{
-			GetRenderer().Draw( archetype, renderingPass, shaderDefine );
-		} );
+			solidQuery.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+				{
+					GetRenderer().Draw( archetype, renderingPass, sd, srvs );
+				} );
+		}
+
+		{
+			GetRenderer().SetCullingMode( renderer::CullingMode::None );
+			GetRenderer().SetFillMode( FillMode::WireFrame );
+			wireFrameQuery.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+				{
+					GetRenderer().Draw( archetype, renderingPass, sd, srvs );
+				} );
+			GetRenderer().SetFillMode( FillMode::Solid );
+			GetRenderer().SetCullingMode( renderer::CullingMode::CullingBack );
+		}
+	};
+
+	drawFunc( shaderDefine, {} );
 
 	if ( lightingData )
 	{
@@ -85,10 +110,7 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 				const IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
 
 				forge::ArraySpan< const renderer::IShaderResourceView* > srvs = { &shadowMapSrv, shadowMapSrv ? 1u : 0u };
-				query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
-					{
-						GetRenderer().Draw( archetype, renderingPass, &c_pointLightDefine, srvs );
-					} );
+				drawFunc( &c_pointLightDefine, srvs );
 			}
 		}
 
@@ -105,10 +127,7 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 				const IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
 
 				forge::ArraySpan< const renderer::IShaderResourceView* > srvs = { &shadowMapSrv, shadowMapSrv ? 1u : 0u };
-				query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
-					{
-						GetRenderer().Draw( archetype, renderingPass, &c_spotLightDefine, srvs );
-					} );
+				drawFunc( &c_spotLightDefine, srvs );
 			}
 		}
 
@@ -125,10 +144,7 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 				const IShaderResourceView* shadowMapSrv = light.m_shadowMap ? light.m_shadowMap->GetTexture()->GetShaderResourceView() : nullptr;
 
 				forge::ArraySpan< const renderer::IShaderResourceView* > srvs = { &shadowMapSrv, shadowMapSrv ? 1u : 0u };
-				query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
-					{
-						GetRenderer().Draw( archetype, renderingPass, &c_directionalLightDefine, srvs );
-					} );
+				drawFunc( &c_directionalLightDefine, srvs );
 			}
 		}
 

@@ -9,10 +9,25 @@ void renderer::ShadowsRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 	std::vector< renderer::IRenderTargetView* > views{ nullptr };
 	GetRenderer().SetRenderTargets( views, &GetDepthStencilView() );
 
-	query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+	ecs::Query queryCopy = query;
+	queryCopy.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Excluded );
+	queryCopy.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
 		{
 			GetRenderer().Draw( archetype, renderingPass, &c_shadowPassDefine );
 		} );
+
+	{
+		GetRenderer().SetFillMode( FillMode::WireFrame );
+		GetRenderer().SetCullingMode( renderer::CullingMode::None );
+		queryCopy.RemoveTagRequirement< renderer::WireFrameTag >();
+		queryCopy.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Included );
+		queryCopy.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+			{
+				GetRenderer().Draw( archetype, renderingPass, &c_shadowPassDefine );
+			} );
+		GetRenderer().SetFillMode( FillMode::Solid );
+		GetRenderer().SetCullingMode( renderer::CullingMode::CullingBack );
+	}
 }
 
 forge::ArraySpan< const renderer::ShaderDefine > renderer::ShadowsRenderingPass::GetRequiredShaderDefines()

@@ -77,10 +77,27 @@ void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, e
 	cbRendering->SetVS( renderer::VSConstantBufferType::RenderingPass );
 	cbRendering->SetPS( renderer::PSConstantBufferType::RenderingPass );
 
-	query.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
-		{
-			GetRenderer().Draw( archetype, renderingPass, &c_deferredDefine );
-		} );
+	{
+		ecs::Query noWireFrameDrawing = query;
+		noWireFrameDrawing.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Excluded );
+		noWireFrameDrawing.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+			{
+				GetRenderer().Draw( archetype, renderingPass, &c_deferredDefine );
+			} );
+	}
+
+	{
+		ecs::Query wireFrameDrawing = query;
+		GetRenderer().SetCullingMode( renderer::CullingMode::None );
+		GetRenderer().SetFillMode( FillMode::WireFrame );
+		wireFrameDrawing.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Included );
+		wireFrameDrawing.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+			{
+				GetRenderer().Draw( archetype, renderingPass, &c_deferredDefine );
+			} );
+		GetRenderer().SetFillMode( FillMode::Solid );
+		GetRenderer().SetCullingMode( renderer::CullingMode::CullingBack );
+	}
 
 	if ( lightingData )
 	{

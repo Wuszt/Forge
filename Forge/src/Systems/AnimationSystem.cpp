@@ -17,8 +17,8 @@ void systems::AnimationSystem::Update()
 	systems::TimeSystem& timeSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::TimeSystem >();
 
 	ecs::Query query;
-	query.AddFragmentRequirement< forge::RenderableFragment >();
-	query.AddFragmentRequirement< forge::AnimationFragment >();
+	query.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
+	query.AddFragmentRequirement< forge::AnimationFragment >( ecs::Query::RequirementType::Included );
 
 	query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
 		{

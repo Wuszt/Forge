@@ -1,5 +1,5 @@
 #pragma once
-#define REGISTER_ECS_FRAGMENT(...) static int GetFragmentIndex() { static Uint32 id = InitializeAndGetID(GetTypeStatic()); return id; }
+#define REGISTER_ECS_FRAGMENT(...) static Uint32 GetFragmentIndex() { static Uint32 id = InitializeAndGetID(GetTypeStatic()); return id; }
 
 namespace ecs
 {

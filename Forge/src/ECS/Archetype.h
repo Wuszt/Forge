@@ -45,9 +45,14 @@ namespace ecs
 			return m_fragmentsFlags.test( T::GetFragmentIndex() );
 		}
 
-		Bool ContainsTagsAndFragments( const TagsFlags& tags, const FragmentsFlags& fragments ) const
+		Bool ContainsAllTagsAndFragments( const TagsFlags& tags, const FragmentsFlags& fragments ) const
 		{
 			return ( ( m_tagsFlags & tags ) == tags ) && ( ( m_fragmentsFlags & fragments ) == fragments );
+		}
+
+		Bool ContainsAnyTagsAndFragments( const TagsFlags& tags, const FragmentsFlags& fragments ) const
+		{
+			return ( ( m_tagsFlags & tags ) != 0 ) || ( ( m_fragmentsFlags & fragments ) != 0 );
 		}
 
 		Bool operator==( const ArchetypeID& id ) const
@@ -166,7 +171,7 @@ namespace ecs
 				}
 			}
 
-			m_indexToEntity.emplace( m_entitiesAmount, id );
+			m_indexToEntity.emplace_back( id );
 			m_sparseSet[ static_cast< Uint32 >( id ) ] = m_entitiesAmount++;		
 			source.RemoveEntity( id );
 		}
@@ -178,7 +183,7 @@ namespace ecs
 				fragmentsPackage.second->AddEmptyFragment();
 			}
 
-			m_indexToEntity.emplace( m_entitiesAmount, id );
+			m_indexToEntity.emplace_back( id );
 			m_sparseSet[ static_cast< Uint32 >( id ) ] = m_entitiesAmount++;
 		}
 
@@ -191,7 +196,7 @@ namespace ecs
 				fragmentsPackage.second->RemoveFragmentReorder( m_sparseSet[ static_cast< Uint32 >( id ) ] );
 			}
 
-			m_indexToEntity.erase( m_sparseSet[ static_cast< Uint32 >( id ) ] );
+			forge::utils::RemoveReorder( m_indexToEntity, m_sparseSet[ static_cast< Uint32 >( id ) ] );
 			m_sparseSet[ static_cast< Uint32 >( id ) ] = c_invalidIndex;
 			--m_entitiesAmount;
 		}
@@ -203,7 +208,7 @@ namespace ecs
 
 		EntityID GetEntityIDWithIndex( Uint32 index ) const
 		{
-			return m_indexToEntity.at( index );
+			return m_indexToEntity[ index ];
 		}
 
 		Archetype GetEmptyCopy() const;
@@ -230,7 +235,7 @@ namespace ecs
 		}
 
 		static const Uint32 c_invalidIndex = std::numeric_limits< Uint32 >::max();
-		std::unordered_map< Uint32, EntityID > m_indexToEntity;
+		std::vector< EntityID > m_indexToEntity;
 		std::unordered_map< const Fragment::Type*, std::unique_ptr< IFragmentsPackage > > m_fragments;
 		std::vector< Uint32 > m_sparseSet;
 		Uint32 m_entitiesAmount = 0u;
