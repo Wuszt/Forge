@@ -284,17 +284,6 @@ void systems::RenderingSystem::SetSkyboxTexture( std::shared_ptr< const renderer
 	}
 }
 
-void systems::RenderingSystem::OnBeforeDraw()
-{
-#ifdef FORGE_IMGUI_ENABLED
-	OnBeforeDrawDebug();
-#endif
-
-	m_renderer->OnBeforeDraw();
-
-	m_opaqueRenderingPass->ClearTargetTexture(); // this is fucked up, what about other rendering passes?
-}
-
 namespace
 {
 	struct ContainsOpaqueShapes : public ecs::Tag
@@ -322,15 +311,15 @@ namespace
 	IMPLEMENT_TYPE( ContainsOverlayShapes );
 }
 
-void systems::RenderingSystem::OnDraw()
+void systems::RenderingSystem::OnBeforeDraw()
 {
-	PC_SCOPE_FUNC();
-	auto* activeCamera = m_camerasSystem->GetActiveCamera();
+#ifdef FORGE_IMGUI_ENABLED
+	OnBeforeDrawDebug();
+#endif
 
-	if( !activeCamera )
-	{
-		return;
-	}
+	m_renderer->OnBeforeDraw();
+
+	m_opaqueRenderingPass->ClearTargetTexture(); // this is fucked up, what about other rendering passes?
 
 	{
 		PC_SCOPE( "RenderingSystem::UpdatingRawRenderables" );
@@ -342,86 +331,86 @@ void systems::RenderingSystem::OnDraw()
 		renderablesToUpdate.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype, ecs::Query::DelayedCommands& cmds )
 			{
 				auto renderables = archetype.GetFragments< forge::RenderableFragment >();
-		        auto rawRenderables = archetype.GetFragments< renderer::IRawRenderableFragment >();
+		auto rawRenderables = archetype.GetFragments< renderer::IRawRenderableFragment >();
 
-				for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
-				{
-					m_renderer->UpdateRenderableECSFragment( GetEngineInstance().GetECSManager(), archetype.GetEntityIDWithIndex( i ), renderables[ i ].m_renderable );
+		for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
+		{
+			m_renderer->UpdateRenderableECSFragment( GetEngineInstance().GetECSManager(), archetype.GetEntityIDWithIndex( i ), renderables[ i ].m_renderable );
 
-					Bool forcedWireFrame = false;
+			Bool forcedWireFrame = false;
 
 #ifdef FORGE_IMGUI_ENABLED
-					forcedWireFrame = m_debugForceWireFrame;
+			forcedWireFrame = m_debugForceWireFrame;
 #endif
 
-					auto entityID = archetype.GetEntityIDWithIndex( i );
+			auto entityID = archetype.GetEntityIDWithIndex( i );
 
-					if ( renderables[ i ].m_renderable.GetFillMode() == renderer::FillMode::WireFrame || forcedWireFrame )
+			if ( renderables[ i ].m_renderable.GetFillMode() == renderer::FillMode::WireFrame || forcedWireFrame )
+			{
+				cmds.AddCommand( [ this, entityID ]()
 					{
-						cmds.AddCommand( [ this, entityID ]()
-							{
-								GetEngineInstance().GetECSManager().AddTagToEntity< renderer::WireFrameTag >( entityID );
-							} );
-					}
-					else if (GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetArchetypeID().ContainsTag< renderer::WireFrameTag >())
-					{
-						cmds.AddCommand( [ this, entityID ]()
-							{
-								GetEngineInstance().GetECSManager().RemoveTagFromEntity< renderer::WireFrameTag >( entityID );
-							} );
-					}
-
-					cmds.AddCommand( [ this, entityID ]()
-					{
-						forge::RenderableFragment* renderableFragment = GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetFragment< forge::RenderableFragment >( entityID );
-
-						std::array< Bool, static_cast< Uint32 >( renderer::RenderingPass::Count ) > containedRenderingPasses{ false };
-						for ( auto& material : renderableFragment->m_renderable.GetMaterials() )
-						{
-							containedRenderingPasses[ static_cast< Uint32 >( material->GetRenderingPass() ) ] = true;
-						}
-
-						for ( Uint32 i = 0u; i < containedRenderingPasses.size(); ++i )
-						{
-							switch ( static_cast< renderer::RenderingPass >( i ) )
-							{
-							case renderer::RenderingPass::Opaque:
-								if ( containedRenderingPasses[ i ] )
-								{
-									GetEngineInstance().GetECSManager().AddTagToEntity< ContainsOpaqueShapes >( entityID );
-								}
-								else
-								{
-									GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsOpaqueShapes >( entityID );
-								}
-								break;
-							case renderer::RenderingPass::Transparent:
-								if ( containedRenderingPasses[ i ] )
-								{
-									GetEngineInstance().GetECSManager().AddTagToEntity< ContainsTransparentShapes >( entityID );
-								}
-								else
-								{
-									GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsTransparentShapes >( entityID );
-								}
-								break;
-							case renderer::RenderingPass::Overlay:
-								if ( containedRenderingPasses[ i ] )
-								{
-									GetEngineInstance().GetECSManager().AddTagToEntity< ContainsOverlayShapes >( entityID );
-								}
-								else
-								{
-									GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsOverlayShapes >( entityID );
-								}
-								break;
-							}
-						}
-
-						GetEngineInstance().GetECSManager().RemoveTagFromEntity< forge::DirtyRenderable >( entityID );
-				} );
+						GetEngineInstance().GetECSManager().AddTagToEntity< renderer::WireFrameTag >( entityID );
+					} );
 			}
-		} );
+			else if ( GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetArchetypeID().ContainsTag< renderer::WireFrameTag >() )
+			{
+				cmds.AddCommand( [ this, entityID ]()
+					{
+						GetEngineInstance().GetECSManager().RemoveTagFromEntity< renderer::WireFrameTag >( entityID );
+					} );
+			}
+
+			cmds.AddCommand( [ this, entityID ]()
+				{
+					forge::RenderableFragment* renderableFragment = GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetFragment< forge::RenderableFragment >( entityID );
+
+			std::array< Bool, static_cast< Uint32 >( renderer::RenderingPass::Count ) > containedRenderingPasses{ false };
+			for ( auto& material : renderableFragment->m_renderable.GetMaterials() )
+			{
+				containedRenderingPasses[ static_cast< Uint32 >( material->GetRenderingPass() ) ] = true;
+			}
+
+			for ( Uint32 i = 0u; i < containedRenderingPasses.size(); ++i )
+			{
+				switch ( static_cast< renderer::RenderingPass >( i ) )
+				{
+				case renderer::RenderingPass::Opaque:
+					if ( containedRenderingPasses[ i ] )
+					{
+						GetEngineInstance().GetECSManager().AddTagToEntity< ContainsOpaqueShapes >( entityID );
+					}
+					else
+					{
+						GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsOpaqueShapes >( entityID );
+					}
+					break;
+				case renderer::RenderingPass::Transparent:
+					if ( containedRenderingPasses[ i ] )
+					{
+						GetEngineInstance().GetECSManager().AddTagToEntity< ContainsTransparentShapes >( entityID );
+					}
+					else
+					{
+						GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsTransparentShapes >( entityID );
+					}
+					break;
+				case renderer::RenderingPass::Overlay:
+					if ( containedRenderingPasses[ i ] )
+					{
+						GetEngineInstance().GetECSManager().AddTagToEntity< ContainsOverlayShapes >( entityID );
+					}
+					else
+					{
+						GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsOverlayShapes >( entityID );
+					}
+					break;
+				}
+			}
+
+			GetEngineInstance().GetECSManager().RemoveTagFromEntity< forge::DirtyRenderable >( entityID );
+				} );
+		}
+			} );
 	}
 
 	ecs::Query query;
@@ -432,17 +421,27 @@ void systems::RenderingSystem::OnDraw()
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::UpdatingBuffers" );
 		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
-		{
-			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-			auto renderableFragments = archetype.GetFragments< forge::RenderableFragment >();
-
-			for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
 			{
-				auto& cb = renderableFragments[ i ].m_renderable.GetCBMesh();
-				cb.GetData().W = transformFragments[ i ].ToMatrix();
-				cb.UpdateBuffer();
-			}
-		} );
+				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
+		auto renderableFragments = archetype.GetFragments< forge::RenderableFragment >();
+
+		for ( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
+		{
+			auto& cb = renderableFragments[ i ].m_renderable.GetCBMesh();
+			cb.GetData().W = transformFragments[ i ].ToMatrix();
+			cb.UpdateBuffer();
+		}
+			} );
+	}
+}
+
+void systems::RenderingSystem::OnDraw()
+{
+	PC_SCOPE_FUNC();
+
+	if( !m_camerasSystem->GetActiveCamera() )
+	{
+		return;
 	}
 
 	{
