@@ -86,7 +86,6 @@ namespace systems
 		std::vector< std::unique_ptr< renderer::ISamplerState > > m_samplerStates;
 
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_opaqueRenderingPass;
-		std::unique_ptr< renderer::IMeshesRenderingPass > m_overlayRenderingPass;
 		std::unique_ptr< renderer::IMeshesRenderingPass > m_transparentRenderingPass;
 		std::unique_ptr< renderer::SkyboxRenderingPass > m_skyboxRenderingPass;
 

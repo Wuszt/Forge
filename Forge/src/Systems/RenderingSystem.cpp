@@ -64,10 +64,6 @@ void systems::RenderingSystem::OnInitialize()
 
 	SetRenderingMode( RenderingMode::Deferred );
 
-	m_overlayRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
-	m_overlayRenderingPass->SetTargetTexture( *m_targetTexture );
-	m_overlayRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
-
 	m_transparentRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
 	m_transparentRenderingPass->SetTargetTexture( *m_targetTexture );
 	m_transparentRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
@@ -440,11 +436,24 @@ void systems::RenderingSystem::OnDraw()
 
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::Overlay" );
-		ecs::Query overlayQuery;
-		overlayQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
-		overlayQuery.AddTagRequirement< forge::DrawAsOverlay >( ecs::Query::RequirementType::Included );
-		m_opaqueRenderingPass->GetDepthStencilBuffer()->GetView().Clear();
-		m_opaqueRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), overlayQuery, renderer::RenderingPass::Opaque, nullptr );
+		m_depthStencilBuffer->GetView().Clear();
+
+		ecs::Query opaqueOverlayQuery;
+		opaqueOverlayQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+		opaqueOverlayQuery.AddTagRequirement< forge::DrawAsOverlay >( ecs::Query::RequirementType::Included );
+		opaqueOverlayQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Excluded );
+		m_opaqueRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), opaqueOverlayQuery, renderer::RenderingPass::Opaque, nullptr );
+
+		ecs::Query transparentOverlayQuery;
+		transparentOverlayQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+		transparentOverlayQuery.AddTagRequirement< forge::DrawAsOverlay >( ecs::Query::RequirementType::Included );
+		transparentOverlayQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Included );
+
+		m_transparencyBlendState->Set();
+		m_depthStencilState->EnableWrite( false );
+		m_transparentRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), transparentOverlayQuery, renderer::RenderingPass::Transparent, nullptr );
+		m_depthStencilState->EnableWrite( true );
+		m_transparencyBlendState->Clear();
 	}
 
 	if ( m_skyboxRenderingPass )
