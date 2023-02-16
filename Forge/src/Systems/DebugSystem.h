@@ -20,10 +20,10 @@ namespace systems
 
 		virtual void OnInitialize() override;
 
-		void DrawSphere( const Vector3& position, Float radius, const Vector4& color, Bool wireFrame, Float lifetime );
-		void DrawCube( const Vector3& position, const Vector3& extension, const Vector4& color, Bool wireFrame, Float lifetime );
-		void DrawLine( const Vector3& start, const Vector3& end, Float thickness, const Vector4& color, Float lifetime );
-		void DrawCone( const Vector3& top, const Vector3& base, Float angle, const Vector4& color, Bool wireFrame, Float lifetime );
+		void DrawSphere( const Vector3& position, Float radius, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime );
+		void DrawCube( const Vector3& position, const Vector3& extension, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime );
+		void DrawLine( const Vector3& start, const Vector3& end, Float thickness, const Vector4& color, Bool overlay, Float lifetime );
+		void DrawCone( const Vector3& top, const Vector3& base, Float angle, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime );
 		Bool IsSystemDebugEnabled( const ISystem& system );
 
 	private:

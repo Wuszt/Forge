@@ -55,7 +55,6 @@ namespace renderer
 	{
 		Opaque,
 		Transparent,
-		Overlay,
 		Count
 	};
 

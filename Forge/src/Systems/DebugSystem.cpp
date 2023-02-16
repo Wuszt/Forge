@@ -60,7 +60,7 @@ void systems::DebugSystem::OnInitialize()
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [this]() { Update(); } );
 }
 
-void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const Vector4& color, Bool wireFrame, Float lifetime )
+void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
 	GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ = ]( forge::Object* obj )
 	{
@@ -78,7 +78,9 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 
 			transformComponent->GetDirtyData().m_transform.SetPosition( position );
 			transformComponent->GetDirtyData().m_scale = { radius, radius, radius };
-			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Overlay );
+
+			renderingComponent->SetInteractingWithLight( false );
+			renderingComponent->SetDrawAsOverlayEnabled( overlay );
 			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
 			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
@@ -87,7 +89,7 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 	} );
 }
 
-void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& extension, const Vector4& color, Bool wireFrame, Float lifetime )
+void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& extension, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
 	GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ = ]( forge::Object* obj )
 	{
@@ -105,7 +107,9 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 
 			transformComponent->GetDirtyData().m_transform.SetPosition( position );
 			transformComponent->GetDirtyData().m_scale = extension;
-			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Overlay );
+
+			renderingComponent->SetInteractingWithLight( false );
+			renderingComponent->SetDrawAsOverlayEnabled( overlay );
 			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
 			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 		} );
@@ -114,7 +118,7 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 	} );
 }
 
-void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, Float thickness, const Vector4& color, Float lifetime )
+void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, Float thickness, const Vector4& color, Bool overlay, Float lifetime )
 {
 	GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ = ]( forge::Object* obj )
 		{
@@ -128,7 +132,9 @@ void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, F
 					transformComponent->GetDirtyData().m_transform.SetPosition( start + ( end - start ) * 0.5f );
 					transformComponent->GetDirtyData().m_scale = { thickness, thickness, ( end - start ).Mag() };
 					transformComponent->GetDirtyData().m_transform.SetOrientation( Quaternion::GetRotationBetweenVectors( Vector3::EZ(), end - start ) );
-					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Overlay );
+
+					renderingComponent->SetInteractingWithLight( false );
+					renderingComponent->SetDrawAsOverlayEnabled( overlay );
 					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
 					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 				} );
@@ -137,7 +143,7 @@ void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, F
 		} );
 }
 
-void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Float angle, const Vector4& color, Bool wireFrame, Float lifetime )
+void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Float angle, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
 	GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ = ]( forge::Object* obj )
 		{
@@ -167,7 +173,8 @@ void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Fl
 					const Float size = length * Math::Tg( angle );
 					transformComponent->GetDirtyData().m_scale = Vector3{ size, size, length };
 
-					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->SetRenderingPass( renderer::RenderingPass::Overlay );
+					renderingComponent->SetInteractingWithLight( false );
+					renderingComponent->SetDrawAsOverlayEnabled( overlay );
 					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
 					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 				} );

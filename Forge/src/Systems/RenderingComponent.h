@@ -30,6 +30,18 @@ namespace forge
 		REGISTER_ECS_TAG()
 	};
 
+	struct IgnoresLights : public ecs::Tag
+	{
+		DECLARE_STRUCT( IgnoresLights, ecs::Tag );
+		REGISTER_ECS_TAG()
+	};
+
+	struct DrawAsOverlay : public ecs::Tag
+	{
+		DECLARE_STRUCT( DrawAsOverlay, ecs::Tag );
+		REGISTER_ECS_TAG()
+	};
+
 	class RenderingComponent : public DataComponent< RenderableFragment >
 	{
 		DECLARE_POLYMORPHIC_CLASS( RenderingComponent, forge::IComponent );
@@ -40,6 +52,9 @@ namespace forge
 		virtual void OnAttach( EngineInstance& engineInstance ) override;
 		void LoadMeshAndMaterial( const std::string& path );
 		void SetDirty();
+
+		void SetInteractingWithLight( bool enabled );
+		void SetDrawAsOverlayEnabled( bool enabled );
 
 		const renderer::Renderable& GetRenderable() const
 		{

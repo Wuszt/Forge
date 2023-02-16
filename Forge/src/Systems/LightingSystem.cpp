@@ -229,7 +229,7 @@ void systems::LightingSystem::OnRenderDebug()
 						ImGui::ColorEdit3( "Color", lightFragments[i].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
 						ImGui::SliderFloat( "Power", &lightFragments[i].m_power, 0.0f, 10000.0f );
 
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transformFragments[ i ].m_transform.GetPosition3(), 50.0f, lightFragments[ i ].m_color, true, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transformFragments[ i ].m_transform.GetPosition3(), 50.0f, lightFragments[ i ].m_color, true, false, 0.0f );
 
 						castShadowFunc( GetPointLights()[ i ], true );
 
@@ -270,8 +270,8 @@ void systems::LightingSystem::OnRenderDebug()
 						Vector3 pos = transformFragments[ i ].m_transform.GetPosition3();
 						Vector3 forward = transformFragments[ i ].m_transform.GetForward();
 
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCone( pos, pos + forward * 1000.0f, lightFragments[ i ].m_innerAngle, lightFragments[ i ].m_color, true, 0.0f );
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCone( pos, pos + forward * 1000.0f, lightFragments[ i ].m_outerAngle, lightFragments[ i ].m_color, true, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCone( pos, pos + forward * 1000.0f, lightFragments[ i ].m_innerAngle, lightFragments[ i ].m_color, true, false, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCone( pos, pos + forward * 1000.0f, lightFragments[ i ].m_outerAngle, lightFragments[ i ].m_color, true, false, 0.0f );
 
 						castShadowFunc( GetSpotLights()[ i ], false );
 
