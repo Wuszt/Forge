@@ -94,6 +94,11 @@ namespace renderer
 			return m_data;
 		}
 
+		const T& GetData() const
+		{
+			return m_data;
+		}
+
 		virtual void* GetRawData() override
 		{
 			return &m_data;
