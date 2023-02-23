@@ -86,6 +86,9 @@
     <ClInclude Include="..\..\External\Mini-RTTI\RTTI.h">
       <Filter>External</Filter>
     </ClInclude>
+    <ClInclude Include="RawVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fpch.cpp">
@@ -134,6 +137,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AssetsManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RawVector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

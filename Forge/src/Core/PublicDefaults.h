@@ -12,3 +12,4 @@
 #include "Callback.h"
 #include "StringUtils.h"
 #include "ArraySpan.h"
+#include "RawVector.h"
