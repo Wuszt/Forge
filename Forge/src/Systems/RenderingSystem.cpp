@@ -311,7 +311,6 @@ void systems::RenderingSystem::OnBeforeDraw()
 		renderablesToUpdate.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype, ecs::Query::DelayedCommands& cmds )
 		{
 		   auto renderables = archetype.GetFragments< forge::RenderableFragment >();
-		   auto rawRenderables = archetype.GetFragments< renderer::IRawRenderableFragment >();
 
 			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
 			{

@@ -17,6 +17,8 @@ forge::RenderingComponent::~RenderingComponent() = default;
 
 void forge::RenderingComponent::OnAttach( EngineInstance& engineInstance )
 {
+	PC_SCOPE_FUNC();
+
 	DataComponent< forge::RenderableFragment >::OnAttach( engineInstance );
 	GetDirtyRenderable() = renderer::Renderable( engineInstance.GetRenderer() );
 	engineInstance.GetRenderer().AddRenderableECSFragment( engineInstance.GetECSManager(), engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ) );
@@ -29,6 +31,8 @@ void forge::RenderingComponent::OnAttach( EngineInstance& engineInstance )
 
 void forge::RenderingComponent::LoadMeshAndMaterial( const std::string& path )
 {
+	PC_SCOPE_FUNC();
+
 	GetDirtyRenderable().SetModel( GetOwner().GetEngineInstance().GetAssetsManager(), path );
 }
 

@@ -3,6 +3,8 @@
 
 ecs::EntityID ecs::ECSManager::CreateEntity()
 {
+	PC_SCOPE_FUNC();
+
 	for( auto& archetype : m_archetypes )
 	{
 		archetype->OnEntityCreated();
@@ -12,6 +14,8 @@ ecs::EntityID ecs::ECSManager::CreateEntity()
 
 void ecs::ECSManager::RemoveEntity( EntityID id )
 {
+	PC_SCOPE_FUNC();
+
 	auto it = m_entityToArchetype.find( id );
 	if( it != m_entityToArchetype.end() )
 	{
@@ -29,6 +33,8 @@ void ecs::ECSManager::RemoveEntity( EntityID id )
 
 ecs::Archetype& ecs::ECSManager::UpdateEntityArchetype( EntityID entityID, const ArchetypeID& newID )
 {
+	PC_SCOPE_FUNC();
+
 	Archetype* currentArchetype = m_entityToArchetype[ entityID ];
 	Archetype* targetArchetype = nullptr;
 	Uint32 archetypeIndex = 0u;

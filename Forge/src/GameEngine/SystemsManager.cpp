@@ -19,7 +19,7 @@ void systems::SystemsManager::AddSystems( forge::ArraySpan< const ISystem::Class
 	Uint32 prevCount = static_cast< Uint32 >( m_systems.size() );
 	for ( const auto* type : systemsClasses )
 	{
-		auto* system = m_systems.emplace_back( type->CreateDefault() ).get();
+		auto* system = m_systems.emplace_back( type->Construct() ).get();
 		m_systemsLUT.emplace( type, system );
 	}
 

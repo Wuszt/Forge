@@ -16,6 +16,8 @@ namespace ecs
 		template< class T >
 		void AddFragmentToEntity( EntityID entityID )
 		{
+			PC_SCOPE_FUNC();
+
 			Archetype* currentArchetype = m_entityToArchetype[ entityID ];
 			ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
 			id.AddFragment< T >();
@@ -32,6 +34,8 @@ namespace ecs
 		template< class T >
 		void AddTagToEntity( EntityID entityID )
 		{
+			PC_SCOPE_FUNC();
+
 			Archetype* currentArchetype = m_entityToArchetype[ entityID ];
 
 			if ( currentArchetype->GetArchetypeID().ContainsTag< T >() )
@@ -54,6 +58,8 @@ namespace ecs
 		template< class T >
 		void RemoveFragmentFromEntity( EntityID entityID )
 		{
+			PC_SCOPE_FUNC();
+
 			Archetype* currentArchetype = m_entityToArchetype[ entityID ];
 			ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
 			id.RemoveFragment< T >();
@@ -72,6 +78,8 @@ namespace ecs
 		template< class T >
 		void RemoveTagFromEntity( EntityID entityID )
 		{
+			PC_SCOPE_FUNC();
+
 			Archetype* currentArchetype = m_entityToArchetype[ entityID ];
 
 			if ( !currentArchetype->GetArchetypeID().ContainsTag< T >() )
