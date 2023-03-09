@@ -47,19 +47,19 @@ namespace forge
 
 		RawSmartPtr& operator=( RawSmartPtr&& ptr )
 		{
-			this->~RawSmartPtr();
+			Reset();
 			m_data = ptr.m_data;
 			m_size = ptr.m_size;
 
 			ptr.m_size = 0u;
-			ptr.m_data = new Byte[ ptr.m_size ];
+			ptr.m_data = new Byte[ 0u ];
 
 			return *this;
 		}
 
 		~RawSmartPtr()
 		{
-			delete[] m_data;
+			Reset();
 		}
 
 		Byte* GetData() const
@@ -70,6 +70,15 @@ namespace forge
 		Uint64 GetSize() const
 		{
 			return m_size;
+		}
+
+		void Reset()
+		{
+			if( m_size > 0u )
+			{
+				delete[] m_data;
+				m_size = 0u;
+			}
 		}
 
 	private:

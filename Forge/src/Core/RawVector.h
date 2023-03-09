@@ -20,12 +20,12 @@ namespace forge
 
 			for ( Uint32 i = GetSize(); i < newSize; ++i )
 			{
-				m_type.ConstructInPlace( m_data.GetData() + i * m_type.GetSize() );
+				m_type.ConstructInPlace( GetRawDataUnsafe( i ) );
 			}
 
 			for ( Uint32 i = newSize; i < GetSize(); ++i )
 			{
-				m_type.Destroy( m_data.GetData() + i * m_type.GetSize() );
+				m_type.Destroy( GetRawDataUnsafe( i ) );
 			}
 
 			m_size = newSize;
@@ -37,6 +37,18 @@ namespace forge
 			return Emplace< T >( std::move( value ) );
 		}
 
+		void* AddEmpty()
+		{
+			Grow( 1u );
+
+			void* placeInBuffer = GetRawDataUnsafe( GetSize() );
+			m_type.ConstructInPlace( placeInBuffer );
+
+			++m_size;
+
+			return GetRawData( GetSize() - 1u );
+		}
+
 		template< class T, class... TArgs >
 		T& Emplace( TArgs... params )
 		{
@@ -44,7 +56,7 @@ namespace forge
 
 			Grow( 1u );
 
-			T* placeInBuffer = reinterpret_cast< T* >( m_data.GetData() ) + m_size;
+			T* placeInBuffer = reinterpret_cast< T* >( GetRawDataUnsafe( GetSize() ) );
 			new ( placeInBuffer ) T( std::forward< TArgs >( params )... );
 
 			++m_size;
@@ -56,8 +68,8 @@ namespace forge
 		{
 			FORGE_ASSERT( index < GetSize() );
 
-			m_type.Destroy( m_data.GetData() + ( index * m_type.GetSize() ) );
-			std::memmove( m_data.GetData() + ( index * m_type.GetSize() ), m_data.GetData() + ( index + 1u ) * m_type.GetSize(), ( GetSize() - index - 1u ) * m_type.GetSize() );
+			m_type.Destroy( GetRawData( index ) );
+			std::memmove( GetRawData( index ), GetRawDataUnsafe( index + 1u ), ( GetSize() - index - 1u ) * m_type.GetSize() );
 
 			--m_size;
 		}
@@ -66,11 +78,11 @@ namespace forge
 		{
 			FORGE_ASSERT( index < GetSize() );
 
-			m_type.Destroy( m_data.GetData() + ( index * m_type.GetSize() ) );
+			m_type.Destroy( GetRawData( index ) );
 
 			if( index != GetSize() - 1u )
 			{
-				std::memmove( m_data.GetData() + ( index * m_type.GetSize() ), m_data.GetData() + ( GetSize() - 1u ) * m_type.GetSize(), m_type.GetSize() );
+				std::memmove( GetRawData( index ), GetRawData( GetSize() - 1u ), m_type.GetSize() );
 			}
 
 			--m_size;
@@ -80,7 +92,7 @@ namespace forge
 		forge::ArraySpan< T > AsArraySpan()
 		{
 			FORGE_ASSERT( m_type.IsA< T >() );
-			return forge::ArraySpan< T >( reinterpret_cast< T* >( m_data.GetData() ), reinterpret_cast< T* >( m_data.GetData() + GetSize() * m_type.GetSize() ) );
+			return forge::ArraySpan< T >( reinterpret_cast< T* >( m_data.GetData() ), reinterpret_cast< T* >( GetRawDataUnsafe( GetSize() ) ) );
 		}
 
 		template< class T >
@@ -88,7 +100,13 @@ namespace forge
 		{
 			FORGE_ASSERT( m_type.IsA< T >() );
 
-			return forge::ArraySpan< const T >( static_cast< const T* >( m_data.GetData() ), static_cast< T* >( m_data.GetData() + GetSize() * m_type.GetSize() ) );
+			return forge::ArraySpan< const T >( static_cast< const T* >( m_data.GetData() ), static_cast< T* >( GetRawDataUnsafe( GetSize() ) ) );
+		}
+
+		void* GetRawData( Uint32 index ) const
+		{
+			FORGE_ASSERT( index < GetSize() );
+			return GetRawDataUnsafe( index );
 		}
 
 		Uint32 GetSize() const
@@ -101,7 +119,16 @@ namespace forge
 			return static_cast< Uint32 >( m_data.GetSize() / static_cast< Uint64 >( m_type.GetSize() ) );
 		}
 
-	private:
+		const rtti::IType& GetType() const
+		{
+			return m_type;
+		}
+
+		void MoveElement( Uint32 index, void* destination )
+		{
+			m_type.MoveInPlace( destination, GetRawData( index ) );
+		}
+
 		void SetCapacity( Uint32 newCapacity )
 		{
 			if ( newCapacity == GetCapacity() )
@@ -113,8 +140,32 @@ namespace forge
 
 			RawSmartPtr m_newData( newMemorySize );
 
-			std::memcpy( m_newData.GetData(), m_data.GetData(), newMemorySize > m_data.GetSize() ? m_data.GetSize() : newMemorySize );
+			if ( GetSize() > newCapacity )
+			{
+				Resize( newCapacity );
+			}
+
+			for ( Uint32 i = 0u; i < GetSize(); ++i )
+			{
+				Uint32 offset = m_type.GetSize() * i;
+				m_type.MoveInPlace( m_newData.GetData() + offset, m_data.GetData() + offset );
+			}
+
 			m_data = std::move( m_newData );
+		}
+
+		void Reserve( Uint32 amount )
+		{
+			if ( amount > GetCapacity() )
+			{
+				SetCapacity( amount );
+			}
+		}
+
+	private:
+		void* GetRawDataUnsafe( Uint32 index ) const
+		{
+			return m_data.GetData() + ( index * m_type.GetSize() );
 		}
 
 		void Grow( Uint32 sizeDelta )
