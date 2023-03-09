@@ -12,7 +12,6 @@ namespace systems
 		friend class SystemsManager;
 		DECLARE_ABSTRACT_CLASS( ISystem );
 	public:
-		ISystem();
 		virtual ~ISystem() = 0;
 
 		forge::EngineInstance& GetEngineInstance() const

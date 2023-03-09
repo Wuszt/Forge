@@ -18,6 +18,7 @@
 IMPLEMENT_TYPE( systems::DebugSystem);
 
 systems::DebugSystem::DebugSystem() = default;
+systems::DebugSystem::DebugSystem( DebugSystem&& ) = default;
 systems::DebugSystem::~DebugSystem() = default;
 
 void systems::DebugSystem::OnInitialize()

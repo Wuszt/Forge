@@ -8,6 +8,10 @@ namespace systems
 		DECLARE_POLYMORPHIC_CLASS( AnimationSystem, systems::ISystem );
 
 	public:
+		AnimationSystem() = default;
+		AnimationSystem(AnimationSystem&&) = default;
+		~AnimationSystem() = default;
+
 		virtual void OnInitialize() override;
 
 	private:

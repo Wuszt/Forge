@@ -27,7 +27,7 @@
 IMPLEMENT_TYPE( systems::RenderingSystem );
 
 systems::RenderingSystem::RenderingSystem() = default;
-
+systems::RenderingSystem::RenderingSystem( RenderingSystem&& ) = default;
 systems::RenderingSystem::~RenderingSystem() = default;
 
 void systems::RenderingSystem::OnInitialize()

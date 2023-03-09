@@ -16,8 +16,8 @@ namespace systems
 
 	public:
 		DebugSystem();
-		virtual ~DebugSystem();
-
+		DebugSystem(DebugSystem&&);
+		~DebugSystem();
 		virtual void OnInitialize() override;
 
 		void DrawSphere( const Vector3& position, Float radius, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime );

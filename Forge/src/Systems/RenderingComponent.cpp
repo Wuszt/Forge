@@ -12,9 +12,6 @@ IMPLEMENT_TYPE( forge::DirtyRenderable );
 IMPLEMENT_TYPE( forge::IgnoresLights );
 IMPLEMENT_TYPE( forge::DrawAsOverlay );
 
-forge::RenderingComponent::RenderingComponent() = default;
-forge::RenderingComponent::~RenderingComponent() = default;
-
 void forge::RenderingComponent::OnAttach( EngineInstance& engineInstance )
 {
 	PC_SCOPE_FUNC();

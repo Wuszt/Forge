@@ -101,6 +101,7 @@ namespace systems
 		DECLARE_POLYMORPHIC_CLASS( IMGUISystem, systems::ISystem );
 	public:
 		IMGUISystem();
+		IMGUISystem(IMGUISystem&&);
 		~IMGUISystem();
 
 		virtual void OnInitialize() override;

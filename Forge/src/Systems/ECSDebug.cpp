@@ -12,6 +12,7 @@ ecs::ECSDebug::ECSDebug( forge::EngineInstance& engineInstance )
 	InitializeDebuggable< ECSDebug >( engineInstance );
 }
 
+ecs::ECSDebug::ECSDebug( ECSDebug&& ) = default;
 ecs::ECSDebug::ECSDebug() = default;
 ecs::ECSDebug::~ECSDebug() = default;
 

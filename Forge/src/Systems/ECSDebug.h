@@ -8,8 +8,9 @@ namespace ecs
 		DECLARE_CLASS( ECSDebug );
 	public:
 		ECSDebug();
-		~ECSDebug();
 		ECSDebug( forge::EngineInstance& engineInstance );
+		ECSDebug( ECSDebug&& );
+		~ECSDebug();
 
 	private:
 		void OnRenderDebug() override;

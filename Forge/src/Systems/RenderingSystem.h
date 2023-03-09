@@ -49,6 +49,7 @@ namespace systems
 
 	public:
 		RenderingSystem();
+		RenderingSystem( RenderingSystem&& );
 		~RenderingSystem();
 
 		virtual void OnInitialize() override;

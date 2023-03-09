@@ -9,6 +9,9 @@
 IMPLEMENT_TYPE( systems::IMGUISystem );
 
 systems::IMGUISystem::IMGUISystem() = default;
+
+systems::IMGUISystem::IMGUISystem( IMGUISystem&& ) = default;
+
 systems::IMGUISystem::~IMGUISystem() = default;
 
 void systems::IMGUISystem::OnInitialize()
