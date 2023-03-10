@@ -1,4 +1,5 @@
 #pragma once
+#include "TypeFlags.h"
 
 namespace ecs
 {
@@ -6,10 +7,10 @@ namespace ecs
 	{
 		DECLARE_STRUCT( Tag );
 
-		static const Uint32 c_maxTagsAmount = 32u;
+		static constexpr Uint32 c_maxTagsAmount = 32u;
 
 		using IndicesContainer = std::unordered_map< const Tag::Type*, Uint32 >;
-		static Uint32 GetTagIndex( const Tag::Type& tagType )
+		static Uint32 GetTypeIndex( const Tag::Type& tagType )
 		{
 			IndicesContainer& indicesLUT = GetIndices();
 
@@ -50,5 +51,16 @@ namespace ecs
 		}
 	};
 
-	using TagsFlags = std::bitset< Tag::c_maxTagsAmount >;
+	using TagsFlags = ecs::TypeFlags< Tag, Tag::c_maxTagsAmount >;
+}
+
+namespace std
+{
+	template<>
+	struct std::hash< ecs::TagsFlags > {
+		std::size_t operator()( const ecs::TagsFlags& tags ) const noexcept
+		{
+			return Math::CalculateHash( tags.GetRawBits() );
+		}
+	};
 }

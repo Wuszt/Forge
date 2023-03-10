@@ -1,0 +1,78 @@
+#pragma once
+
+namespace ecs
+{
+	template< class T, Uint32 Size >
+	class TypeFlags
+	{
+		using MyType = TypeFlags< T, Size >;
+	public:
+		void Set( const typename T::Type& type, bool value )
+		{
+			m_flags.set( T::GetTypeIndex( type ), value );
+		}
+
+		void Reset()
+		{
+			m_flags.reset();
+		}
+
+		Bool Test( Uint32 index ) const
+		{
+			return m_flags.test( index );
+		}
+
+		Bool Test( const typename T::Type& type ) const
+		{
+			return Test( T::GetTypeIndex( type ) );
+		}
+
+		const std::bitset< Size >& GetRawBits() const
+		{
+			return m_flags;
+		}
+
+		MyType operator&( const MyType& rTags ) const
+		{
+			MyType result;
+			result.m_flags = m_flags & rTags.m_flags;
+			return result;
+		}
+
+		MyType operator|( const MyType& rTags ) const
+		{
+			MyType result;
+			result.m_flags = m_flags | rTags.m_flags;
+			return result;
+		}
+
+		Bool operator==( const MyType& rTags ) const
+		{
+			return m_flags == rTags.m_flags;
+		}
+
+		Bool operator!=( const MyType& rTags ) const
+		{
+			return m_flags != rTags.m_flags;
+		}
+
+		Bool operator==( std::bitset< Size > rawBits ) const
+		{
+			return m_flags == rawBits;
+		}
+
+		Bool operator!=( std::bitset< Size > rawBits ) const
+		{
+			return m_flags != rawBits;
+		}
+
+		Uint32 GetSize() const
+		{
+			return Size;
+		}
+
+	private:
+		std::bitset< Size > m_flags;
+	};
+}
+

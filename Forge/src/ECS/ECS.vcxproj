@@ -325,6 +325,7 @@
     <ClCompile Include="FragmentsPackage.cpp" />
     <ClCompile Include="Query.cpp" />
     <ClCompile Include="Tag.cpp" />
+    <ClCompile Include="TypeFlags.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Archetype.h" />
@@ -337,6 +338,7 @@
     <ClInclude Include="PublicDefaults.h" />
     <ClInclude Include="Query.h" />
     <ClInclude Include="Tag.h" />
+    <ClInclude Include="TypeFlags.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

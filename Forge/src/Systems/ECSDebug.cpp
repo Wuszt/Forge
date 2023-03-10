@@ -23,12 +23,12 @@ static void DrawArchetype( const ecs::Archetype& archetype, Uint32 index )
 	{
 		const auto& fragments = archetype.GetArchetypeID().m_fragmentsFlags;
 		std::string buffer;
-		for ( Uint32 i = 0u; i < fragments.size(); ++i )
+		for ( Uint32 i = 0u; i < fragments.GetSize(); ++i )
 		{
-			if ( fragments.test( i ) )
+			if ( fragments.Test( i ) )
 			{
 				const ecs::Fragment::Type* type = ecs::Fragment::GetDebugFragmentTypeFromIndex( i );
-				if ( i + 1u != fragments.size() )
+				if ( i + 1u != fragments.GetSize() )
 				{
 					buffer += type->GetName();
 					buffer += ", ";
@@ -41,12 +41,12 @@ static void DrawArchetype( const ecs::Archetype& archetype, Uint32 index )
 	{
 		const auto& tags = archetype.GetArchetypeID().m_tagsFlags;;
 		std::string buffer;
-		for ( Uint32 i = 0u; i < tags.size(); ++i )
+		for ( Uint32 i = 0u; i < tags.GetSize(); ++i )
 		{
-			if ( tags.test( i ) )
+			if ( tags.Test( i ) )
 			{
 				const ecs::Tag::Type* type = ecs::Tag::GetDebugTagTypeFromIndex( i );
-				if ( i + 1u != tags.size() )
+				if ( i + 1u != tags.GetSize() )
 				{
 					buffer += type->GetName();
 					buffer += ", ";

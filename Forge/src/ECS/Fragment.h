@@ -1,4 +1,5 @@
 #pragma once
+#include "TypeFlags.h"
 
 namespace ecs
 {
@@ -9,7 +10,7 @@ namespace ecs
 		static const Uint32 c_maxFragmentsAmount = 32u;
 
 		using IndicesContainer = std::unordered_map< const Fragment::Type*, Uint32 >;
-		static Uint32 GetFragmentIndex( const Fragment::Type& fragmentType )
+		static Uint32 GetTypeIndex( const Fragment::Type& fragmentType )
 		{
 			IndicesContainer& indicesLUT = GetIndices();
 
@@ -50,5 +51,16 @@ namespace ecs
 		}
 	};
 
-	using FragmentsFlags = std::bitset< Fragment::c_maxFragmentsAmount >;
+	using FragmentsFlags = ecs::TypeFlags< Fragment, Fragment::c_maxFragmentsAmount >;
 };
+
+namespace std
+{
+	template<>
+	struct std::hash< ecs::FragmentsFlags > {
+		std::size_t operator()( const ecs::FragmentsFlags& fragments ) const noexcept
+		{
+			return Math::CalculateHash( fragments.GetRawBits() );
+		}
+	};
+}

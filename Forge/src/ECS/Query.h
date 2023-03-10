@@ -19,13 +19,13 @@ namespace ecs
 		{
 			if ( requirement == RequirementType::Included )
 			{
-				FORGE_ASSERT( !m_excludedTags.test( Tag::GetTagIndex( type ) ) );
-				m_includedTags.set( Tag::GetTagIndex( type ) );
+				FORGE_ASSERT( !m_excludedTags.Test( type ) );
+				m_includedTags.Set( type, true );
 			}
 			else
 			{
-				FORGE_ASSERT( !m_includedTags.test( Tag::GetTagIndex( type ) ) );
-				m_excludedTags.set( Tag::GetTagIndex( type ) );
+				FORGE_ASSERT( !m_includedTags.Test( type ) );
+				m_excludedTags.Set( type, true );
 			}
 		}
 
@@ -37,8 +37,8 @@ namespace ecs
 
 		void RemoveTagRequirement( const ecs::Tag::Type& type )
 		{
-			m_includedTags.reset( Tag::GetTagIndex( type ) );
-			m_excludedTags.reset( Tag::GetTagIndex( type ) );
+			m_includedTags.Set( type, false );
+			m_excludedTags.Set( type, false );
 		}
 
 		template< class T >
@@ -51,13 +51,13 @@ namespace ecs
 		{
 			if ( requirement == RequirementType::Included )
 			{
-				FORGE_ASSERT( !m_excludedFragments.test( Fragment::GetFragmentIndex( type ) ) );
-				m_includedFragments.set( Fragment::GetFragmentIndex( type ) );
+				FORGE_ASSERT( !m_excludedFragments.Test( type ) );
+				m_includedFragments.Set( type, true );
 			}
 			else
 			{
-				FORGE_ASSERT( !m_includedFragments.test( Fragment::GetFragmentIndex( type ) ) );
-				m_excludedFragments.set( Fragment::GetFragmentIndex( type ) );
+				FORGE_ASSERT( !m_includedFragments.Test( type ) );
+				m_excludedFragments.Set( type, true );
 			}
 		}
 
@@ -70,26 +70,26 @@ namespace ecs
 		template< class T >
 		void RemoveFragmentRequirement()
 		{
-			m_includedFragments.reset( Fragment::GetFragmentIndex( T::GetTypeStatic() ) );
-			m_excludedFragments.reset( Fragment::GetFragmentIndex( T::GetTypeStatic() ) );
+			m_includedFragments.Set( T::GetTypeStatic(), false );
+			m_excludedFragments.Set( T::GetTypeStatic(), false );
 		}
 
-		const std::bitset< Tag::c_maxTagsAmount >& GetRequiredTags() const
+		const TagsFlags& GetRequiredTags() const
 		{
 			return m_includedTags;
 		}
 
-		const std::bitset< Fragment::c_maxFragmentsAmount >& GetRequiredFragments() const
+		const FragmentsFlags& GetRequiredFragments() const
 		{
 			return m_includedFragments;
 		}
 
-		const std::bitset< Tag::c_maxTagsAmount >& GetExcludedTags() const
+		const TagsFlags& GetExcludedTags() const
 		{
 			return m_excludedTags;
 		}
 
-		const std::bitset< Fragment::c_maxFragmentsAmount >& GetExcludedFragments() const
+		const FragmentsFlags& GetExcludedFragments() const
 		{
 			return m_excludedFragments;
 		}
@@ -123,11 +123,11 @@ namespace ecs
 		void VisitArchetypes( ECSManager& ecsManager, const VisitFuncWithCommands& visitFunc ) const;
 
 	private:
-		std::bitset< Tag::c_maxTagsAmount > m_includedTags;
-		std::bitset< Tag::c_maxTagsAmount > m_excludedTags;
+		TagsFlags m_includedTags;
+		TagsFlags m_excludedTags;
 
-		std::bitset< Fragment::c_maxFragmentsAmount > m_includedFragments;
-		std::bitset< Fragment::c_maxFragmentsAmount > m_excludedFragments;
+		FragmentsFlags m_includedFragments;
+		FragmentsFlags m_excludedFragments;
 	};
 }
 

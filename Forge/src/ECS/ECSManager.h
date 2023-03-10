@@ -36,28 +36,33 @@ namespace ecs
 			AddFragmentToEntity( entityID, T::GetTypeStatic() );
 		}
 
-		template< class T >
-		void AddTagToEntity( EntityID entityID )
+		void AddTagToEntity( EntityID entityID, const ecs::Tag::Type& type )
 		{
 			PC_SCOPE_FUNC();
 
 			Archetype* currentArchetype = m_entityToArchetype[ entityID ];
 
-			if ( currentArchetype->GetArchetypeID().ContainsTag< T >() )
+			if ( currentArchetype->GetArchetypeID().ContainsTag( type ) )
 			{
 				return;
 			}
 
 			ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
-			id.AddTag< T >();
+			id.AddTag( type );
 
 			Archetype& newArchetype = UpdateEntityArchetype( entityID, id );
 
-			if( !newArchetype.GetArchetypeID().ContainsTag< T >() )
+			if ( !newArchetype.GetArchetypeID().ContainsTag( type ) )
 			{
 				FORGE_ASSERT( newArchetype.GetEntitiesAmount() == 1u );
-				newArchetype.AddTag< T >();
+				newArchetype.AddTag( type );
 			}
+		}
+
+		template< class T >
+		void AddTagToEntity( EntityID entityID )
+		{
+			AddTagToEntity( entityID, T::GetTypeStatic() );
 		}
 
 		template< class T >

@@ -11,7 +11,7 @@ namespace ecs
 	{
 		void AddTag( const ecs::Tag::Type& type )
 		{
-			m_tagsFlags.set( ecs::Tag::GetTagIndex( type ), true );
+			m_tagsFlags.Set( type, true );
 		}
 
 		template< class T >
@@ -22,7 +22,7 @@ namespace ecs
 
 		void RemoveTag( const ecs::Tag::Type& type )
 		{
-			m_tagsFlags.set( ecs::Tag::GetTagIndex( type ), false );
+			m_tagsFlags.Set( type , false );
 		}
 
 		template< class T >
@@ -33,7 +33,7 @@ namespace ecs
 
 		void AddFragment( const ecs::Fragment::Type& type )
 		{
-			m_fragmentsFlags.set( ecs::Fragment::GetFragmentIndex( type ), true );
+			m_fragmentsFlags.Set( type, true );
 		}
 
 		template< class T >
@@ -44,7 +44,7 @@ namespace ecs
 
 		void RemoveFragment( const ecs::Fragment::Type& type )
 		{
-			m_fragmentsFlags.set( ecs::Fragment::GetFragmentIndex( type ), false );
+			m_fragmentsFlags.Set( type, false );
 		}
 
 		template< class T >
@@ -55,7 +55,7 @@ namespace ecs
 
 		Bool ContainsTag( const ecs::Tag::Type& type ) const
 		{
-			return m_tagsFlags.test( ecs::Tag::GetTagIndex( type ) );
+			return m_tagsFlags.Test( type );
 		}
 
 		template< class T >
@@ -66,7 +66,7 @@ namespace ecs
 
 		Bool ContainsFragment( const ecs::Fragment::Type& type ) const
 		{
-			return m_fragmentsFlags.test( ecs::Fragment::GetFragmentIndex( type ) );
+			return m_fragmentsFlags.Test( type );
 		}
 
 		template< class T >
