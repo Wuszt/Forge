@@ -5,7 +5,6 @@ namespace forge
 	struct TransformFragment : public ecs::Fragment
 	{
 		DECLARE_STRUCT( TransformFragment, ecs::Fragment );
-		REGISTER_ECS_FRAGMENT();
 
 	public:
 		Transform m_transform;
@@ -22,7 +21,6 @@ namespace forge
 	struct TransformModifiedThisFrame : public ecs::Tag
 	{
 		DECLARE_STRUCT( TransformModifiedThisFrame, ecs::Tag );
-		REGISTER_ECS_TAG();
 	};
 
 	class TransformComponent : public DataComponent< TransformFragment >

@@ -16,7 +16,6 @@ namespace forge
 	struct AnimationFragment : public ecs::Fragment
 	{
 		DECLARE_STRUCT( AnimationFragment, ecs::Fragment );
-		REGISTER_ECS_FRAGMENT();
 
 		AnimationFragment();
 

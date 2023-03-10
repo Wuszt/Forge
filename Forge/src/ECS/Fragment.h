@@ -1,5 +1,4 @@
 #pragma once
-#define REGISTER_ECS_FRAGMENT(...) static Uint32 GetFragmentIndex() { static Uint32 id = InitializeAndGetID(GetTypeStatic()); return id; }
 
 namespace ecs
 {
@@ -9,37 +8,47 @@ namespace ecs
 
 		static const Uint32 c_maxFragmentsAmount = 32u;
 
+		using IndicesContainer = std::unordered_map< const Fragment::Type*, Uint32 >;
+		static Uint32 GetFragmentIndex( const Fragment::Type& fragmentType )
+		{
+			IndicesContainer& indicesLUT = GetIndices();
+
+			auto found = indicesLUT.find( &fragmentType );
+			if ( found == indicesLUT.end() )
+			{
+				indicesLUT[ &fragmentType ] = static_cast< Uint32 >( indicesLUT.size() );
+				FORGE_ASSERT( static_cast< Uint32 >( indicesLUT.size() ) < c_maxFragmentsAmount );
+				return static_cast< Uint32 >( indicesLUT.size() ) - 1u;
+			}
+
+			return found->second;
+		}
+
 #ifdef FORGE_DEBUGGING
 		static const Fragment::Type* GetDebugFragmentTypeFromIndex( Uint32 index )
 		{
-			return GetDebugFragmentsTypes()[ index ];
+			IndicesContainer& indicesLUT = GetIndices();
+			auto found = std::find_if( indicesLUT.begin(), indicesLUT.end(), [ index ]( const auto& entry )
+				{
+					return entry.second == index;
+				} );
+
+			if ( found == indicesLUT.end() )
+			{
+				return nullptr;
+			}
+
+			return found->first;
 		}
 #endif
 
-	protected:
-		static Uint32 InitializeAndGetID( const Fragment::Type& fragmentType )
+	private:
+		static IndicesContainer& GetIndices()
 		{
-			static Uint32 id = 0;
-			FORGE_ASSERT( id < c_maxFragmentsAmount );
-			const Uint32 newId = id++;
-
-#ifdef FORGE_DEBUGGING
-			GetDebugFragmentsTypes().resize(Math::Max(newId + 1u, static_cast< Uint32 >( GetDebugFragmentsTypes().size() )));
-			GetDebugFragmentsTypes()[ newId ] = &fragmentType;
-#endif
-
-			return newId;
+			static IndicesContainer indices;
+			return indices;
 		}
-
-#ifdef FORGE_DEBUGGING
-		static std::vector< const Fragment::Type* >& GetDebugFragmentsTypes()
-		{
-			static std::vector< const Fragment::Type* > s_fragmentsTypes;
-			return s_fragmentsTypes;
-		}		
-#endif
-
 	};
 
 	using FragmentsFlags = std::bitset< Fragment::c_maxFragmentsAmount >;
-}
+};

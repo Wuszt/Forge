@@ -15,48 +15,63 @@ namespace ecs
 			Included
 		};
 
-		template< class T >
-		void AddTagRequirement( ecs::Query::RequirementType requirement )
+		void AddTagRequirement( const ecs::Tag::Type& type, ecs::Query::RequirementType requirement )
 		{
-			if( requirement == RequirementType::Included )
+			if ( requirement == RequirementType::Included )
 			{
-				FORGE_ASSERT( !m_excludedTags.test( T::GetTagIndex() ) );
-				m_includedTags.set( T::GetTagIndex() );
+				FORGE_ASSERT( !m_excludedTags.test( Tag::GetTagIndex( type ) ) );
+				m_includedTags.set( Tag::GetTagIndex( type ) );
 			}
 			else
 			{
-				FORGE_ASSERT( !m_includedTags.test( T::GetTagIndex() ) );
-				m_excludedTags.set( T::GetTagIndex() );
+				FORGE_ASSERT( !m_includedTags.test( Tag::GetTagIndex( type ) ) );
+				m_excludedTags.set( Tag::GetTagIndex( type ) );
 			}
+		}
+
+		template< class T >
+		void AddTagRequirement( ecs::Query::RequirementType requirement )
+		{
+			AddTagRequirement( T::GetTypeStatic(), requirement );
+		}
+
+		void RemoveTagRequirement( const ecs::Tag::Type& type )
+		{
+			m_includedTags.reset( Tag::GetTagIndex( type ) );
+			m_excludedTags.reset( Tag::GetTagIndex( type ) );
 		}
 
 		template< class T >
 		void RemoveTagRequirement()
 		{
-			m_includedTags.reset( T::GetTagIndex() );
-			m_excludedTags.reset( T::GetTagIndex() );
+			RemoveTagRequirement( T::GetTypeStatic() );
+		}
+
+		void AddFragmentRequirement( const ecs::Fragment::Type& type, ecs::Query::RequirementType requirement )
+		{
+			if ( requirement == RequirementType::Included )
+			{
+				FORGE_ASSERT( !m_excludedFragments.test( Fragment::GetFragmentIndex( type ) ) );
+				m_includedFragments.set( Fragment::GetFragmentIndex( type ) );
+			}
+			else
+			{
+				FORGE_ASSERT( !m_includedFragments.test( Fragment::GetFragmentIndex( type ) ) );
+				m_excludedFragments.set( Fragment::GetFragmentIndex( type ) );
+			}
 		}
 
 		template< class T >
 		void AddFragmentRequirement( ecs::Query::RequirementType requirement )
 		{
-			if ( requirement == RequirementType::Included )
-			{
-				FORGE_ASSERT( !m_excludedFragments.test( T::GetFragmentIndex() ) );
-				m_includedFragments.set( T::GetFragmentIndex() );
-			}
-			else
-			{
-				FORGE_ASSERT( !m_includedFragments.test( T::GetFragmentIndex() ) );
-				m_excludedFragments.set( T::GetFragmentIndex() );
-			}
+			AddFragmentRequirement( T::GetTypeStatic(), requirement );
 		}
 
 		template< class T >
 		void RemoveFragmentRequirement()
 		{
-			m_includedFragments.reset( T::GetFragmentIndex() );
-			m_excludedFragments.reset( T::GetFragmentIndex() );
+			m_includedFragments.reset( Fragment::GetFragmentIndex( T::GetTypeStatic() ) );
+			m_excludedFragments.reset( Fragment::GetFragmentIndex( T::GetTypeStatic() ) );
 		}
 
 		const std::bitset< Tag::c_maxTagsAmount >& GetRequiredTags() const

@@ -3,84 +3,58 @@
 
 namespace ecs
 {
-	class IFragmentsPackage
+	class FragmentsPackage
 	{
 	public:
-		IFragmentsPackage();
-		virtual ~IFragmentsPackage() = 0;
-		virtual void AddEmptyFragment() = 0;
-		virtual void RemoveFragmentReorder( Uint32 index ) = 0;
-		virtual const Fragment::Type& GetFragmentType() const = 0;
-		virtual std::unique_ptr< IFragmentsPackage > GetEmptyCopy() const = 0;
-		virtual void MoveFragment( Uint32 index, IFragmentsPackage& source ) = 0;
-	};
-
-	template< class T >
-	class FragmentsPackage : public IFragmentsPackage
-	{
-	public:
-		FragmentsPackage( Uint32 initialSize = 0u )
-			: m_fragments( initialSize )
-		{}
-
-		T& operator[]( Uint32 index )
+		FragmentsPackage( const rtti::IType& type, Uint32 initialSize = 0u )
+			: m_fragments( forge::RawVector( type ) )
 		{
-			return m_fragments[ index ];
+			m_fragments.Resize( initialSize );
 		}
 
-		const T& operator[]( Uint32 index ) const
+		void AddEmptyFragment()
 		{
-			return m_fragments[ index ];
+			m_fragments.AddEmpty();
 		}
 
-		virtual void AddEmptyFragment() override
+		void RemoveFragmentReorder( Uint32 index )
 		{
-			EmplaceFragment();
+			m_fragments.RemoveAtReorder( index );
 		}
 
-		virtual void RemoveFragmentReorder( Uint32 index ) override
+		const Fragment::Type& GetFragmentType() const
 		{
-			forge::utils::RemoveReorder( m_fragments, index );
+			return static_cast< const Fragment::Type& >( m_fragments.GetType() );
 		}
 
-		virtual const Fragment::Type& GetFragmentType() const override
-		{
-			return T::GetTypeStatic();
-		}
-
+		template< class T >
 		forge::ArraySpan< T > GetFragments()
 		{
-			return m_fragments;
+			return m_fragments.AsArraySpan< T >();
 		}
-
+		template< class T >
 		forge::ArraySpan< const T > GetFragments() const
 		{
-			return m_fragments;
+			return m_fragments.AsArraySpan< const T >();
 		}
 
-		template< class... Ts >
+		template< class T, class... Ts >
 		void EmplaceFragment( Ts... data )
 		{
-			m_fragments.emplace_back( std::forward< Ts >( data )... );
+			m_fragments.Emplace< T >( std::forward< Ts >( data )... );
 		}
 
-		virtual std::unique_ptr< IFragmentsPackage > GetEmptyCopy() const override
+		void MoveFragment( Uint32 index, FragmentsPackage& source )
 		{
-			return std::make_unique< FragmentsPackage< T > >( 0u );
-		}
-
-		virtual void MoveFragment( Uint32 index, IFragmentsPackage& source ) override
-		{
-			auto& typedSource = static_cast< FragmentsPackage< T >& >( source );
-			m_fragments.emplace_back( std::move( typedSource.GetFragments()[ index ] ) );
+			source.m_fragments.MoveElement( index, m_fragments.AddEmpty() );
 		}
 
 		Uint32 GetFragmentsCount() const
 		{
-			return static_cast< Uint32 >( m_fragments.size() );
+			return m_fragments.GetSize();
 		}
 
 	private:
-		std::vector< T > m_fragments;
+		forge::RawVector m_fragments;
 	};
 }

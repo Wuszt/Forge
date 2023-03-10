@@ -14,7 +14,6 @@ namespace forge
 	struct RenderableFragment : public ecs::Fragment
 	{
 		DECLARE_STRUCT( RenderableFragment, ecs::Fragment );
-		REGISTER_ECS_FRAGMENT();
 
 		RenderableFragment() = default;
 		RenderableFragment( RenderableFragment&) {}
@@ -27,19 +26,16 @@ namespace forge
 	struct DirtyRenderable : public ecs::Tag
 	{
 		DECLARE_STRUCT( DirtyRenderable, ecs::Tag );
-		REGISTER_ECS_TAG()
 	};
 
 	struct IgnoresLights : public ecs::Tag
 	{
 		DECLARE_STRUCT( IgnoresLights, ecs::Tag );
-		REGISTER_ECS_TAG()
 	};
 
 	struct DrawAsOverlay : public ecs::Tag
 	{
 		DECLARE_STRUCT( DrawAsOverlay, ecs::Tag );
-		REGISTER_ECS_TAG()
 	};
 
 	class RenderingComponent : public DataComponent< RenderableFragment >

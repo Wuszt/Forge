@@ -13,22 +13,27 @@ namespace ecs
 
 		Archetype& UpdateEntityArchetype( EntityID entityID, const ArchetypeID& newID );
 
-		template< class T >
-		void AddFragmentToEntity( EntityID entityID )
+		void AddFragmentToEntity( EntityID entityID, const ecs::Fragment::Type& type )
 		{
 			PC_SCOPE_FUNC();
 
 			Archetype* currentArchetype = m_entityToArchetype[ entityID ];
 			ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
-			id.AddFragment< T >();
+			id.AddFragment( type );
 
 			Archetype& newArchetype = UpdateEntityArchetype( entityID, id );
 
-			if( !newArchetype.GetArchetypeID().ContainsFragment< T >() )
+			if ( !newArchetype.GetArchetypeID().ContainsFragment( type ) )
 			{
 				FORGE_ASSERT( newArchetype.GetEntitiesAmount() == 1u );
-				newArchetype.AddFragmentType< T >();
+				newArchetype.AddFragmentType( type );
 			}
+		}
+
+		template< class T >
+		void AddFragmentToEntity( EntityID entityID )
+		{
+			AddFragmentToEntity( entityID, T::GetTypeStatic() );
 		}
 
 		template< class T >

@@ -285,7 +285,6 @@ namespace
 	struct ContainsTransparentShapes : public ecs::Tag
 	{
 		DECLARE_STRUCT( ContainsTransparentShapes, ecs::Tag );
-		REGISTER_ECS_TAG();
 	};
 
 	IMPLEMENT_TYPE( ContainsTransparentShapes );
@@ -306,7 +305,7 @@ void systems::RenderingSystem::OnBeforeDraw()
 		ecs::Query renderablesToUpdate;
 		renderablesToUpdate.AddTagRequirement< forge::DirtyRenderable >( ecs::Query::RequirementType::Included );
 		renderablesToUpdate.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
-		renderablesToUpdate.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+		renderablesToUpdate.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 
 		renderablesToUpdate.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype, ecs::Query::DelayedCommands& cmds )
 		{
@@ -372,7 +371,7 @@ void systems::RenderingSystem::OnBeforeDraw()
 
 	ecs::Query query;
 	query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
-	query.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+	query.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 	query.AddTagRequirement< forge::TransformModifiedThisFrame >( ecs::Query::RequirementType::Included );
 
 	{
@@ -404,7 +403,7 @@ void systems::RenderingSystem::OnDraw()
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::Opaque" );
 		ecs::Query opaqueQuery;
-		opaqueQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+		opaqueQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 		opaqueQuery.AddTagRequirement< forge::DrawAsOverlay >( ecs::Query::RequirementType::Excluded );
 		opaqueQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Excluded );
 
@@ -412,7 +411,7 @@ void systems::RenderingSystem::OnDraw()
 		renderer::LightingData lightingData = lightingSystem.GetLightingData();
 
 		ecs::Query shadowsQuery;
-		shadowsQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+		shadowsQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 		shadowsQuery.AddTagRequirement< forge::IgnoresLights >( ecs::Query::RequirementType::Excluded );
 		shadowsQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Excluded );
 
@@ -423,7 +422,7 @@ void systems::RenderingSystem::OnDraw()
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::Transparent" );
 		ecs::Query transparentQuery;
-		transparentQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+		transparentQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 		transparentQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Included );
 
 		m_transparencyBlendState->Set();
@@ -438,13 +437,13 @@ void systems::RenderingSystem::OnDraw()
 		m_depthStencilBuffer->GetView().Clear();
 
 		ecs::Query opaqueOverlayQuery;
-		opaqueOverlayQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+		opaqueOverlayQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 		opaqueOverlayQuery.AddTagRequirement< forge::DrawAsOverlay >( ecs::Query::RequirementType::Included );
 		opaqueOverlayQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Excluded );
 		m_opaqueRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), opaqueOverlayQuery, renderer::RenderingPass::Opaque, nullptr );
 
 		ecs::Query transparentOverlayQuery;
-		transparentOverlayQuery.AddFragmentRequirement< renderer::IRawRenderableFragment >( ecs::Query::RequirementType::Included );
+		transparentOverlayQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 		transparentOverlayQuery.AddTagRequirement< forge::DrawAsOverlay >( ecs::Query::RequirementType::Included );
 		transparentOverlayQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Included );
 

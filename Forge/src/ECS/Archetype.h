@@ -9,40 +9,70 @@ namespace ecs
 {
 	struct ArchetypeID
 	{
+		void AddTag( const ecs::Tag::Type& type )
+		{
+			m_tagsFlags.set( ecs::Tag::GetTagIndex( type ), true );
+		}
+
 		template< class T >
 		void AddTag()
 		{
-			m_tagsFlags.set( T::GetTagIndex(), true );
+			AddTag( T::GetTypeStatic() );
+		}
+
+		void RemoveTag( const ecs::Tag::Type& type )
+		{
+			m_tagsFlags.set( ecs::Tag::GetTagIndex( type ), false );
 		}
 
 		template< class T >
 		void RemoveTag()
 		{
-			m_tagsFlags.set( T::GetTagIndex(), false );
+			RemoveTag( T::GetTypeStatic() );
+		}
+
+		void AddFragment( const ecs::Fragment::Type& type )
+		{
+			m_fragmentsFlags.set( ecs::Fragment::GetFragmentIndex( type ), true );
 		}
 
 		template< class T >
 		void AddFragment()
 		{
-			m_fragmentsFlags.set( T::GetFragmentIndex(), true );
+			AddFragment( T::GetTypeStatic() );
+		}
+
+		void RemoveFragment( const ecs::Fragment::Type& type )
+		{
+			m_fragmentsFlags.set( ecs::Fragment::GetFragmentIndex( type ), false );
 		}
 
 		template< class T >
 		void RemoveFragment()
 		{
-			m_fragmentsFlags.set( T::GetFragmentIndex(), false );
+			RemoveFragment( T::GetTypeStatic() );
+		}
+
+		Bool ContainsTag( const ecs::Tag::Type& type ) const
+		{
+			return m_tagsFlags.test( ecs::Tag::GetTagIndex( type ) );
 		}
 
 		template< class T >
 		Bool ContainsTag() const
 		{
-			return m_tagsFlags.test( T::GetTagIndex() );
+			return ContainsTag( T::GetTypeStatic() );
+		}
+
+		Bool ContainsFragment( const ecs::Fragment::Type& type ) const
+		{
+			return m_fragmentsFlags.test( ecs::Fragment::GetFragmentIndex( type ) );
 		}
 
 		template< class T >
 		Bool ContainsFragment() const
 		{
-			return m_fragmentsFlags.test( T::GetFragmentIndex() );
+			return ContainsFragment( T::GetTypeStatic() );
 		}
 
 		Bool ContainsAllTagsAndFragments( const TagsFlags& tags, const FragmentsFlags& fragments ) const
@@ -74,13 +104,13 @@ namespace ecs
 		template< class T >
 		forge::ArraySpan< const T > GetFragments() const
 		{
-			return static_cast< FragmentsPackage< T >* >( m_fragments.at( &T::GetTypeStatic() ).get() )->GetFragments();
+			return m_fragments.at( &T::GetTypeStatic() ).GetFragments< T >();
 		}
 
 		template< class T >
 		forge::ArraySpan< T > GetFragments()
 		{
-			return static_cast< FragmentsPackage< T >* >( m_fragments.at( &T::GetTypeStatic() ).get() )->GetFragments();
+			return m_fragments.at( &T::GetTypeStatic() ).GetFragments< T >();
 		}
 
 		template< class T >
@@ -115,30 +145,50 @@ namespace ecs
 			return m_sparseSet.at( static_cast< Uint32 >( id ) ) >= 0;
 		}
 
+		void AddFragmentType( const ecs::Fragment::Type& type )
+		{
+			FORGE_ASSERT( m_fragments.count( &type ) == 0 );
+			FORGE_ASSERT( !m_id.ContainsFragment( type ) );
+
+			m_fragments.emplace( &type, FragmentsPackage( type, m_entitiesAmount ) );
+			m_id.AddFragment( type );
+		}
+
 		template< class T >
 		void AddFragmentType()
 		{
-			FORGE_ASSERT( m_fragments.count( &T::GetTypeStatic() ) == 0 );
-			FORGE_ASSERT( !m_id.ContainsFragment< T >() );
+			AddFragmentType( T::GetTypeStatic() );
+		}
 
-			m_fragments.emplace( &T::GetTypeStatic(), std::make_unique< FragmentsPackage< T > >( m_entitiesAmount ) );
-			m_id.AddFragment< T >();
+		void RemoveFragmentType( const ecs::Fragment::Type& type )
+		{
+			FORGE_ASSERT( m_fragments.count( &type ) > 0 );
+			FORGE_ASSERT( m_id.ContainsFragment( type ) );
+
+			//m_fragments.emplace( &type, std::make_unique< FragmentsPackage >( type, m_entitiesAmount ) );
+			m_id.RemoveFragment( type );
 		}
 
 		template< class T >
 		void RemoveFragmentType()
 		{
-			FORGE_ASSERT( m_fragments.count( &T::GetTypeStatic() ) > 0 );
-			FORGE_ASSERT( m_id.ContainsFragment< T >()  );
+			RemoveFragmentType( T::GetTypeStatic() );
+		}
 
-			m_fragments.emplace( &T::GetTypeStatic(), std::make_unique< FragmentsPackage< T > >( m_entitiesAmount ) );
-			m_id.RemoveFragment< T >();
+		void AddTag( const ecs::Tag::Type& type )
+		{
+			m_id.AddTag( type );
 		}
 
 		template< class T >
 		void AddTag()
 		{
 			m_id.AddTag< T >();
+		}
+
+		void RemoveTag( const ecs::Tag::Type& type )
+		{
+			m_id.RemoveTag( type );
 		}
 
 		template< class T >
@@ -163,11 +213,11 @@ namespace ecs
 			{
 				if( source.ContainsFragment( *fragmentsPackage.first ) )
 				{
-					fragmentsPackage.second->MoveFragment( source.GetFragmentIndex( id ), source.GetFragmentsPackage( *fragmentsPackage.first ) );
+					fragmentsPackage.second.MoveFragment( source.GetFragmentIndex( id ), source.GetFragmentsPackage( *fragmentsPackage.first ) );
 				}
 				else
 				{
-					fragmentsPackage.second->AddEmptyFragment();
+					fragmentsPackage.second.AddEmptyFragment();
 				}
 			}
 
@@ -180,7 +230,7 @@ namespace ecs
 		{
 			for( auto& fragmentsPackage : m_fragments )
 			{
-				fragmentsPackage.second->AddEmptyFragment();
+				fragmentsPackage.second.AddEmptyFragment();
 			}
 
 			m_indexToEntity.emplace_back( id );
@@ -193,7 +243,7 @@ namespace ecs
 
 			for( auto& fragmentsPackage : m_fragments )
 			{
-				fragmentsPackage.second->RemoveFragmentReorder( m_sparseSet[ static_cast< Uint32 >( id ) ] );
+				fragmentsPackage.second.RemoveFragmentReorder( m_sparseSet[ static_cast< Uint32 >( id ) ] );
 			}
 
 			forge::utils::RemoveReorder( m_indexToEntity, m_sparseSet[ static_cast< Uint32 >( id ) ] );
@@ -224,19 +274,19 @@ namespace ecs
 			return m_sparseSet[ static_cast< Uint32 >( id ) ];
 		}
 
-		const IFragmentsPackage& GetFragmentsPackage( const Fragment::Type& type ) const
+		const FragmentsPackage& GetFragmentsPackage( const Fragment::Type& type ) const
 		{
-			return *m_fragments.at( &type );
+			return m_fragments.at( &type );
 		}
 
-		IFragmentsPackage& GetFragmentsPackage( const Fragment::Type& type )
+		FragmentsPackage& GetFragmentsPackage( const Fragment::Type& type )
 		{
-			return *m_fragments.at( &type );
+			return m_fragments.at( &type );
 		}
 
 		static const Uint32 c_invalidIndex = std::numeric_limits< Uint32 >::max();
 		std::vector< EntityID > m_indexToEntity;
-		std::unordered_map< const Fragment::Type*, std::unique_ptr< IFragmentsPackage > > m_fragments;
+		std::unordered_map< const Fragment::Type*, FragmentsPackage > m_fragments;
 		std::vector< Uint32 > m_sparseSet;
 		Uint32 m_entitiesAmount = 0u;
 		ArchetypeID m_id;

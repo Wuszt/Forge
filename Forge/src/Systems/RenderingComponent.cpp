@@ -18,7 +18,7 @@ void forge::RenderingComponent::OnAttach( EngineInstance& engineInstance )
 
 	DataComponent< forge::RenderableFragment >::OnAttach( engineInstance );
 	GetDirtyRenderable() = renderer::Renderable( engineInstance.GetRenderer() );
-	engineInstance.GetRenderer().AddRenderableECSFragment( engineInstance.GetECSManager(), engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ) );
+	engineInstance.GetECSManager().AddFragmentToEntity( engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ), engineInstance.GetRenderer().GetECSFragmentType() );
 	m_onShadersClearCache = engineInstance.GetRenderer().GetShadersManager()->RegisterCacheClearingListener(
 		[ this ]()
 		{

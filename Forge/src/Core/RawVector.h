@@ -56,7 +56,7 @@ namespace forge
 
 			Grow( 1u );
 
-			T* placeInBuffer = reinterpret_cast< T* >( GetRawDataUnsafe( GetSize() ) );
+			T* placeInBuffer = static_cast< T* >( GetRawDataUnsafe( GetSize() ) );
 			new ( placeInBuffer ) T( std::forward< TArgs >( params )... );
 
 			++m_size;
@@ -92,7 +92,7 @@ namespace forge
 		forge::ArraySpan< T > AsArraySpan()
 		{
 			FORGE_ASSERT( m_type.IsA< T >() );
-			return forge::ArraySpan< T >( reinterpret_cast< T* >( m_data.GetData() ), reinterpret_cast< T* >( GetRawDataUnsafe( GetSize() ) ) );
+			return forge::ArraySpan< T >( static_cast< T* >( m_data.GetData() ), static_cast< T* >( GetRawDataUnsafe( GetSize() ) ) );
 		}
 
 		template< class T >
@@ -100,7 +100,7 @@ namespace forge
 		{
 			FORGE_ASSERT( m_type.IsA< T >() );
 
-			return forge::ArraySpan< const T >( static_cast< const T* >( m_data.GetData() ), static_cast< T* >( GetRawDataUnsafe( GetSize() ) ) );
+			return forge::ArraySpan< const T >( static_cast< const T* >( m_data.GetData() ), static_cast< const T* >( GetRawDataUnsafe( GetSize() ) ) );
 		}
 
 		void* GetRawData( Uint32 index ) const
@@ -148,7 +148,7 @@ namespace forge
 			for ( Uint32 i = 0u; i < GetSize(); ++i )
 			{
 				Uint32 offset = m_type.GetSize() * i;
-				m_type.MoveInPlace( m_newData.GetData() + offset, m_data.GetData() + offset );
+				m_type.MoveInPlace( static_cast< Byte* >( m_newData.GetData() ) + offset, static_cast< Byte* >( m_data.GetData() ) + offset );
 			}
 
 			m_data = std::move( m_newData );
@@ -165,7 +165,7 @@ namespace forge
 	private:
 		void* GetRawDataUnsafe( Uint32 index ) const
 		{
-			return m_data.GetData() + ( index * m_type.GetSize() );
+			return static_cast< Byte* >( m_data.GetData() ) + ( index * m_type.GetSize() );
 		}
 
 		void Grow( Uint32 sizeDelta )

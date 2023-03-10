@@ -62,7 +62,7 @@ namespace forge
 			Reset();
 		}
 
-		Byte* GetData() const
+		void* GetData() const
 		{
 			return m_data;
 		}

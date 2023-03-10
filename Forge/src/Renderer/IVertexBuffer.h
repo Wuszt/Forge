@@ -138,7 +138,7 @@ namespace renderer
 
 			virtual Uint32 GetElementSize() const = 0;
 
-			virtual const Byte* GetData() const = 0;
+			virtual const void* GetData() const = 0;
 
 			InputElementDescription m_description;
 		};
@@ -157,9 +157,9 @@ namespace renderer
 				return sizeof( T );
 			}
 
-			virtual const Byte* GetData() const override
+			virtual const void* GetData() const override
 			{
-				return reinterpret_cast< const Byte* >( m_elements.data() );
+				return static_cast< const void* >( m_elements.data() );
 			}
 
 		private:
@@ -283,7 +283,7 @@ namespace renderer
 		{
 			for( Uint32 i = 0; i < m_verticesAmount; ++i )
 			{
-				memcpy( m_buffer.GetData() + i * m_vertexSize + offset, reinterpret_cast< const Byte* >( data ) + i * elementSize, elementSize );
+				memcpy( static_cast< Byte* >( m_buffer.GetData() ) + i * m_vertexSize + offset, static_cast< const Byte* >( data ) + i * elementSize, elementSize );
 			}
 		}
 

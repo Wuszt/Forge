@@ -40,6 +40,8 @@ namespace d3d11
 	class D3D11ShadersManager;
 	class D3D11Swapchain;
 
+	struct RawRenderableFragment;
+
 	class D3D11Renderer : public renderer::IRenderer
 	{
 	public:
@@ -91,10 +93,9 @@ namespace d3d11
 
 		virtual void SetViewportSize( const Vector2& size ) override;
 
-		virtual void AddRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID ) const override;
+		virtual const ecs::Fragment::Type& GetECSFragmentType() const override;
 		virtual void UpdateRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID, const renderer::Renderable& renderable ) const override;
 
-		virtual void Draw( const renderer::IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs = {} ) override;
 		virtual void Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs = {} ) override;
 		virtual void DrawRawVertices( Uint32 amount ) override;
 
@@ -106,7 +107,7 @@ namespace d3d11
 		virtual std::unique_ptr< renderer::IConstantBufferImpl > CreateConstantBufferImpl() const override;
 
 	private:
-		void Draw_Internal( const renderer::IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine );
+		void Draw_Internal( const RawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine );
 		void SetRenderTargets( const forge::ArraySpan< renderer::IRenderTargetView* >& rendererTargetViews, D3D11DepthStencilView* depthStencilView );
 		void InitializeSwapChainAndContext( const windows::WindowsWindow& window, Uint32 renderingResolutionWidth, Uint32 renderingResolutionHeight );
 

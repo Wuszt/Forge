@@ -1,5 +1,4 @@
 #pragma once
-#define REGISTER_ECS_TAG(...) static Uint32 GetTagIndex() { static Uint32 id = InitializeAndGetID( GetTypeStatic() ); return id; }
 
 namespace ecs
 {
@@ -9,35 +8,46 @@ namespace ecs
 
 		static const Uint32 c_maxTagsAmount = 32u;
 
+		using IndicesContainer = std::unordered_map< const Tag::Type*, Uint32 >;
+		static Uint32 GetTagIndex( const Tag::Type& tagType )
+		{
+			IndicesContainer& indicesLUT = GetIndices();
+
+			auto found = indicesLUT.find( &tagType );
+			if ( found == indicesLUT.end() )
+			{
+				indicesLUT[ &tagType ] = static_cast< Uint32 >( indicesLUT.size() );
+				FORGE_ASSERT( static_cast< Uint32 >( indicesLUT.size() ) < c_maxTagsAmount );
+				return static_cast< Uint32 >( indicesLUT.size() ) - 1u;
+			}
+
+			return found->second;
+		}
+
 #ifdef FORGE_DEBUGGING
 		static const Tag::Type* GetDebugTagTypeFromIndex( Uint32 index )
 		{
-			return GetDebugTagTypes()[ index ];
+			IndicesContainer& indicesLUT = GetIndices();
+			auto found = std::find_if( indicesLUT.begin(), indicesLUT.end(), [ index ]( const auto& entry )
+				{
+					return entry.second == index;
+				} );
+
+			if ( found == indicesLUT.end() )
+			{
+				return nullptr;
+			}
+
+			return found->first;
 		}
 #endif
 
-	protected:
-		static Uint32 InitializeAndGetID( const Tag::Type& tagType )
+	private:
+		static IndicesContainer& GetIndices()
 		{
-			static Uint32 id = 0;
-			FORGE_ASSERT( id < c_maxTagsAmount );
-			const Uint32 newId = id++;
-
-#ifdef FORGE_DEBUGGING
-			GetDebugTagTypes().resize( Math::Max( newId + 1u, static_cast< Uint32 >( GetDebugTagTypes().size() ) ) );
-			GetDebugTagTypes()[ newId ] = &tagType;
-#endif
-
-			return newId;
+			static IndicesContainer indices;
+			return indices;
 		}
-
-#ifdef FORGE_DEBUGGING
-		static std::vector< const Tag::Type* >& GetDebugTagTypes()
-		{
-			static std::vector< const Tag::Type* > s_tagTypes;
-			return s_tagTypes;
-		}
-#endif
 	};
 
 	using TagsFlags = std::bitset< Tag::c_maxTagsAmount >;

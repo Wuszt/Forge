@@ -299,8 +299,10 @@ namespace d3d11
 		m_context->GetDeviceContext()->RSSetViewports( 1, &viewport );
 	}
 
-	struct RawRenderableFragment : public renderer::IRawRenderableFragment
+	struct RawRenderableFragment : public ecs::Fragment
 	{
+		DECLARE_STRUCT( RawRenderableFragment, ecs::Fragment );
+
 		ID3D11Buffer* m_vertexBuffer = nullptr;
 		ID3D11Buffer* m_meshCB = nullptr;
 		Uint32 m_vbStride = 0u;
@@ -338,6 +340,13 @@ namespace d3d11
 		std::array< std::vector< Shape >, static_cast< Uint32 >( renderer::RenderingPass::Count ) > m_shapes;
 	};
 
+	IMPLEMENT_TYPE( d3d11::RawRenderableFragment );
+
+	const ecs::Fragment::Type& D3D11Renderer::GetECSFragmentType() const
+	{
+		return RawRenderableFragment::GetTypeStatic();
+	}
+
 	void D3D11Renderer::Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine /*= nullptr*/, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs /*= {} */ )
 	{
 		auto* context = GetContext()->GetDeviceContext();
@@ -355,7 +364,7 @@ namespace d3d11
 		}
 	}
 
-	void D3D11Renderer::Draw_Internal( const renderer::IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine /*= nullptr */ )
+	void D3D11Renderer::Draw_Internal( const RawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine /*= nullptr */ )
 	{
 		auto* context = GetContext()->GetDeviceContext();
 
@@ -400,11 +409,6 @@ namespace d3d11
 
 			GetContext()->Draw( shape.m_indicesAmount, 0 );
 		}
-	}
-
-	void D3D11Renderer::AddRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID ) const
-	{
-		ecsManager.AddFragmentToEntity< RawRenderableFragment >( entityID );
 	}
 
 	void D3D11Renderer::UpdateRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID, const renderer::Renderable& renderable ) const
@@ -482,19 +486,6 @@ namespace d3d11
 				rawRenderable->m_additionalVSCBs[ vsCBsAmount++ ] = { cb.m_vsBufferType, cbImpl->GetBuffer() };
 			}
 		}
-	}
-
-	void D3D11Renderer::Draw( const renderer::IRawRenderableFragment& fragment, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs )
-	{
-		auto* context = GetContext()->GetDeviceContext();
-		context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-
-		if ( !additionalSRVs.IsEmpty() )
-		{
-			SetShaderResourceViews( additionalSRVs, D3D11_STANDARD_VERTEX_ELEMENT_COUNT - additionalSRVs.GetSize() ); //todo: this is shit, srvs should be next to each other
-		}
-
-		Draw_Internal( fragment, renderingPass, shaderDefine );
 	}
 
 	void D3D11Renderer::DrawRawVertices( Uint32 amount )

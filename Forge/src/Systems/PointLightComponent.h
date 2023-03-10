@@ -6,7 +6,6 @@ namespace forge
 	struct PointLightFragment : public ecs::Fragment
 	{
 		DECLARE_STRUCT( PointLightFragment, ecs::Fragment );
-		REGISTER_ECS_FRAGMENT();
 
 		Vector3 m_color = { 1.0f, 1.0f, 1.0f };
 		Float m_power = 400.0f;

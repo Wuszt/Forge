@@ -6,7 +6,6 @@ namespace forge
 	struct SpotLightFragment : public ecs::Fragment
 	{
 		DECLARE_STRUCT( SpotLightFragment, ecs::Fragment )
-		REGISTER_ECS_FRAGMENT();
 
 		Vector3 m_color = { 1.0f, 1.0f, 1.0f };
 		Float m_innerAngle = FORGE_PI / 12.0f;

@@ -147,7 +147,7 @@ namespace renderer
 
 			m_rawData = std::move( forge::RawSmartPtr( m_dataSize ) );
 			memcpy( m_rawData.GetData(), prevData.GetData(), prevSize );
-			memcpy( m_rawData.GetData() + prevSize, &data, offset );
+			memcpy( static_cast< Byte* >( m_rawData.GetData() ) + prevSize, &data, offset );
 
 			CreateBuffer();
 		}
@@ -160,7 +160,7 @@ namespace renderer
 			{
 				Uint32 offset = m_offsets[ it->second ];
 
-				memcpy( m_rawData.GetData() + offset, &data, sizeof( T ) );
+				memcpy( static_cast< Byte* >( m_rawData.GetData() ) + offset, &data, sizeof( T ) );
 				return true;
 			}
 
@@ -175,7 +175,7 @@ namespace renderer
 			{
 				Uint32 offset = m_offsets[ it->second ];
 
-				memcpy( &output, m_rawData.GetData() + offset, sizeof( T ) );
+				memcpy( &output, static_cast< Byte* >( m_rawData.GetData() ) + offset, sizeof( T ) );
 				return true;
 			}
 

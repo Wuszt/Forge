@@ -6,7 +6,6 @@ namespace forge
 	struct DirectionalLightFragment : public ecs::Fragment
 	{
 		DECLARE_STRUCT( DirectionalLightFragment, ecs::Fragment );
-		REGISTER_ECS_FRAGMENT();
 
 		Vector3 Direction;
 		Float padding0;
