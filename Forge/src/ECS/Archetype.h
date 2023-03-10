@@ -165,7 +165,7 @@ namespace ecs
 			FORGE_ASSERT( m_fragments.count( &type ) > 0 );
 			FORGE_ASSERT( m_id.ContainsFragment( type ) );
 
-			//m_fragments.emplace( &type, std::make_unique< FragmentsPackage >( type, m_entitiesAmount ) );
+			m_fragments.erase( &type );
 			m_id.RemoveFragment( type );
 		}
 
