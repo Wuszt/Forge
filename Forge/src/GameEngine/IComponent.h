@@ -1,6 +1,12 @@
 #pragma once
 #include "../ECS/EntityID.h"
 #include "../ECS/ECSManager.h"
+#include "../ECS/CommandsQueue.h"
+
+namespace ecs
+{
+	class CommandsQueue;
+}
 
 namespace forge
 {
@@ -8,9 +14,7 @@ namespace forge
 	{
 		DECLARE_ABSTRACT_CLASS( IComponent );
 	public:
-		template< class T >
-		friend T* Object::AddComponent<T>();
-		friend void Object::OnDetach();
+		friend class Object;
 
 		IComponent();
 		virtual ~IComponent() = 0;
@@ -21,12 +25,15 @@ namespace forge
 		}
 
 	protected:
-		virtual void OnAttach( EngineInstance& engineInstance ) {}
-		virtual void OnDetach( EngineInstance& engineInstance ) {}
+		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) {}
+		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) {}
+
+		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) {}
+		virtual void OnDetached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) {}
 
 	private:
-		void Attach( EngineInstance& engineInstance, Object& owner );
-		void Detach( EngineInstance& engineInstance );
+		void Attach( EngineInstance& engineInstance, Object& owner, ecs::CommandsQueue& commandsQueue );
+		void Detach( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue );
 
 		Object* m_owner;
 	};
@@ -37,22 +44,24 @@ namespace forge
 	public:
 		using IComponent::IComponent;
 
-		virtual void OnAttach( EngineInstance& engineInstance ) override
+		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override
 		{
+			IComponent::OnAttaching( engineInstance, commandsQueue );
 			auto& objectsManager = engineInstance.GetObjectsManager();
 			auto& ecsManager = engineInstance.GetECSManager();
 
 			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
-			ecsManager.AddFragmentToEntity< TData >( id );
+			commandsQueue.AddFragment( id, TData::GetTypeStatic() );
 		}
 
-		virtual void OnDetach( EngineInstance& engineInstance ) override
+		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override
 		{
+			IComponent::OnDetaching( engineInstance, commandsQueue );
 			auto& objectsManager = engineInstance.GetObjectsManager();
 			auto& ecsManager = engineInstance.GetECSManager();
 
 			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
-			ecsManager.RemoveFragmentFromEntity< TData >( id );
+			commandsQueue.RemoveFragment( id, TData::GetTypeStatic() );
 		}
 
 		const TData& GetData() const

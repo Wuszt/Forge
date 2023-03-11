@@ -7,17 +7,22 @@ namespace ecs
 	{
 		DECLARE_STRUCT( Fragment );
 
-		static const Uint32 c_maxFragmentsAmount = 32u;
+		static const Uint32 c_maxFragmentsAmount = 64u;
 
-		using IndicesContainer = std::unordered_map< const Fragment::Type*, Uint32 >;
+		using IndicesLUT = std::unordered_map< const Fragment::Type*, Uint32 >;
+		using IndicesContainer = std::vector< const Fragment::Type* >;
+
 		static Uint32 GetTypeIndex( const Fragment::Type& fragmentType )
 		{
-			IndicesContainer& indicesLUT = GetIndices();
+			IndicesLUT& indicesLUT = GetIndicesLUT();
+			IndicesContainer& indices = GetIndices();
 
 			auto found = indicesLUT.find( &fragmentType );
 			if ( found == indicesLUT.end() )
 			{
-				indicesLUT[ &fragmentType ] = static_cast< Uint32 >( indicesLUT.size() );
+				indicesLUT[ &fragmentType ] = static_cast< Uint32 >( indices.size() );
+				indices.emplace_back( &fragmentType );
+
 				FORGE_ASSERT( static_cast< Uint32 >( indicesLUT.size() ) < c_maxFragmentsAmount );
 				return static_cast< Uint32 >( indicesLUT.size() ) - 1u;
 			}
@@ -25,28 +30,28 @@ namespace ecs
 			return found->second;
 		}
 
-#ifdef FORGE_DEBUGGING
-		static const Fragment::Type* GetDebugFragmentTypeFromIndex( Uint32 index )
+		static const Fragment::Type* GetTypeWithIndex( Uint32 index )
 		{
-			IndicesContainer& indicesLUT = GetIndices();
-			auto found = std::find_if( indicesLUT.begin(), indicesLUT.end(), [ index ]( const auto& entry )
-				{
-					return entry.second == index;
-				} );
+			IndicesContainer& indices = GetIndices();
 
-			if ( found == indicesLUT.end() )
+			if ( index >= indices.size() )
 			{
 				return nullptr;
 			}
 
-			return found->first;
+			return indices[ index ];
 		}
-#endif
 
 	private:
 		static IndicesContainer& GetIndices()
 		{
 			static IndicesContainer indices;
+			return indices;
+		}
+
+		static IndicesLUT& GetIndicesLUT()
+		{
+			static IndicesLUT indices;
 			return indices;
 		}
 	};

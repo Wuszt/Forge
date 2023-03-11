@@ -47,22 +47,27 @@ void ecs::ECSManager::AddFragmentsAndTagsToEntity( EntityID entityID, forge::Arr
 		fragmentsFlags.Set( *fragmentType, true );
 	}
 
+	AddFragmentsAndTagsToEntity( entityID, fragmentsFlags, tagsFlags );
+}
+
+void ecs::ECSManager::AddFragmentsAndTagsToEntity( EntityID entityID, FragmentsFlags fragments, TagsFlags tags )
+{
 	Archetype* currentArchetype = m_entityToArchetype[ entityID ];
 
-	if ( ( fragments.IsEmpty() && tags.IsEmpty() )
-		|| ( currentArchetype && currentArchetype->GetArchetypeID().ContainsAllTagsAndFragments( tagsFlags, fragmentsFlags ) ) )
+	if ( ( fragments.Any() && tags.Any() )
+		|| ( currentArchetype && currentArchetype->GetArchetypeID().ContainsAllTagsAndFragments( tags, fragments ) ) )
 	{
 		return;
 	}
 
 	ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
-	id.m_tagsFlags = id.m_tagsFlags | tagsFlags;
-	id.m_fragmentsFlags = id.m_fragmentsFlags | fragmentsFlags;
+	id.m_tagsFlags = id.m_tagsFlags | tags;
+	id.m_fragmentsFlags = id.m_fragmentsFlags | fragments;
 
-	MoveEntityToNewArchetype( entityID, id, fragments );
+	MoveEntityToNewArchetype( entityID, id );
 }
 
-void ecs::ECSManager::MoveEntityToNewArchetype( EntityID entityID, const ArchetypeID& newID, forge::ArraySpan< const ecs::Fragment::Type* > fragmentsToAdd /*= {} */ )
+void ecs::ECSManager::MoveEntityToNewArchetype( EntityID entityID, const ArchetypeID& newID )
 {
 	PC_SCOPE_FUNC();
 
@@ -78,20 +83,16 @@ void ecs::ECSManager::MoveEntityToNewArchetype( EntityID entityID, const Archety
 		std::vector< const ecs::Fragment::Type* > fragments;
 		if ( currentArchetype )
 		{
-			fragments = currentArchetype->GetFragmentsTypes();
-
-			fragments.erase( std::remove_if( fragments.begin(), fragments.end(), [ & ]( const ecs::Fragment::Type* type ) { return !newID.ContainsFragment( *type ); } ), fragments.end() );
-
-			for ( const auto* type : fragmentsToAdd )
-			{
-				if ( !currentArchetype->ContainsFragment( *type ) )
+			newID.m_fragmentsFlags.VisitSetTypes( [ & ]( const ecs::Fragment::Type& type )
 				{
-					fragments.emplace_back( type );
-				}
-			}
+					if ( !currentArchetype->ContainsFragment( type ) )
+					{
+						fragments.emplace_back( &type );
+					}
+				} );
 		}
 
-		targetArchetype = m_archetypes.emplace_back( std::make_unique< Archetype >( m_nextEntityID, fragments.empty() ? fragmentsToAdd : fragments, newID.m_tagsFlags ) ).get();
+		targetArchetype = m_archetypes.emplace_back( std::make_unique< Archetype >( m_nextEntityID, newID ) ).get();
 	}
 
 	if ( currentArchetype )

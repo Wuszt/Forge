@@ -38,8 +38,8 @@ namespace forge
 	public:
 		using DataComponent::DataComponent;
 
-		virtual void OnAttach( EngineInstance& engineInstance ) override;
-		virtual void OnDetach( EngineInstance& engineInstance ) override;
+		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
+		virtual void OnDetached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 
 		void SetAnimation( renderer::Animation animation );
 		void SetSkeleton( const renderer::SkeletonAsset& skeleton );

@@ -18,9 +18,10 @@ namespace forge
 	public:
 		using PlayerControllerComponent::PlayerControllerComponent;
 
-		virtual void OnAttach( EngineInstance& engineInstance );
-
 		virtual void Update() override;
+
+	protected:
+		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 
 	private:
 		IInput* m_input;

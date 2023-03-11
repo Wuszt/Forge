@@ -100,7 +100,7 @@ namespace Math
 	template< class T >
 	FORGE_INLINE T Log2( const T& value )
 	{
-		return std::log2( value );
+		return static_cast< T >( std::log2( value ) );
 	}
 
 	FORGE_INLINE Uint64 CombineHashes( Uint64 l, Uint64 r )

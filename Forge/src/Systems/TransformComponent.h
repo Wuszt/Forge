@@ -29,7 +29,7 @@ namespace forge
 	public:
 		using DataComponent::DataComponent;
 
-		virtual void OnAttach( EngineInstance& engineInstance );
+		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue );
 
 		TransformFragment& GetDirtyData()
 		{

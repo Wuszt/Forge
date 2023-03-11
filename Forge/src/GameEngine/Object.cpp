@@ -1,5 +1,6 @@
 #include "Fpch.h"
 #include "Object.h"
+#include "../ECS/CommandsQueue.h"
 
 forge::Object::Object( EngineInstance& engineInstance, ObjectID id )
 	: m_engineInstance( engineInstance )
@@ -10,10 +11,45 @@ forge::Object::~Object() = default;
 
 void forge::Object::OnDetach()
 {
+	ecs::CommandsQueue commandsQueue;
+
 	for( auto& comp : m_components )
 	{
-		comp.second->Detach( m_engineInstance );
+		comp.second->Detach( m_engineInstance, commandsQueue );
 	}
+
+	commandsQueue.Execute( GetEngineInstance().GetECSManager() );
+
+	for ( auto& comp : m_components )
+	{
+		comp.second->OnDetached( m_engineInstance, commandsQueue );
+	}
+
+	commandsQueue.Execute( GetEngineInstance().GetECSManager() );
+}
+
+void forge::Object::AttachComponents( std::vector< std::unique_ptr< IComponent > >&& components )
+{
+	std::vector< IComponent* > attachedComponents;
+	attachedComponents.reserve( components.size() );
+
+	ecs::CommandsQueue queue;
+
+	for ( auto& comp : components )
+	{
+		comp->Attach( m_engineInstance, *this, queue );
+		attachedComponents.emplace_back( comp.get() );
+		m_components.emplace( &comp->GetType(), std::move( comp ) );
+	}
+
+	queue.Execute( GetEngineInstance().GetECSManager() );
+
+	for ( IComponent* comp : attachedComponents )
+	{
+		comp->OnAttached( m_engineInstance, queue );
+	}
+
+	queue.Execute( GetEngineInstance().GetECSManager() );
 }
 
 void forge::Object::RequestAddingComponentsInternal( const std::function< void() >& creationFunc )

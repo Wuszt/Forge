@@ -122,15 +122,15 @@ namespace ecs
 	class Archetype
 	{
 	public:
-		Archetype( Uint32 size = 0u, forge::ArraySpan< const ecs::Fragment::Type* > fragments = {}, const TagsFlags& tags = TagsFlags() )
+		Archetype( Uint32 size = 0u, const ArchetypeID& id = ArchetypeID() )
 			: m_sparseSet( size, c_invalidIndex )
 		{
-			for ( const auto* fragmentType : fragments )
-			{
-				AddFragmentType( *fragmentType );
-			}
+			id.m_fragmentsFlags.VisitSetTypes( [ & ]( const ecs::Fragment::Type& fragment )
+				{
+					AddFragmentType( fragment );
+				} );
 
-			AddTags( tags );
+			m_id = id;			
 		}
 
 		template< class T >
@@ -303,19 +303,6 @@ namespace ecs
 		const ArchetypeID& GetArchetypeID() const
 		{
 			return m_id;
-		}
-
-		std::vector< const Fragment::Type* > GetFragmentsTypes() const
-		{
-			std::vector< const Fragment::Type* > types;
-			types.reserve( m_fragments.size() );
-
-			for ( const auto& pair : m_fragments )
-			{
-				types.emplace_back( pair.first );
-			}
-
-			return types;
 		}
 
 	private:

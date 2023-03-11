@@ -111,7 +111,7 @@ namespace forge
 			std::function< void() > m_creationFunc;
 		};
 		std::vector< ObjectCreationRequest > m_objectCreationRequests;
-
+		
 		struct ObjectDestructionRequest
 		{
 			forge::ObjectID m_id;

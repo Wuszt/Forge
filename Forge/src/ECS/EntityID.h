@@ -37,8 +37,10 @@ namespace ecs
 
 namespace std
 {
-	template<> struct std::hash< ecs::EntityID > {
-		std::size_t operator()( const ecs::EntityID& s ) const noexcept
+	template<>
+	struct std::hash< ecs::EntityID >
+	{
+		inline std::size_t operator()( const ecs::EntityID& s ) const noexcept
 		{
 			return static_cast< Uint32 >( s );
 		}

@@ -12,11 +12,11 @@ IMPLEMENT_TYPE( forge::DirtyRenderable );
 IMPLEMENT_TYPE( forge::IgnoresLights );
 IMPLEMENT_TYPE( forge::DrawAsOverlay );
 
-void forge::RenderingComponent::OnAttach( EngineInstance& engineInstance )
+void forge::RenderingComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	PC_SCOPE_FUNC();
 
-	DataComponent< forge::RenderableFragment >::OnAttach( engineInstance );
+	DataComponent< forge::RenderableFragment >::OnAttached( engineInstance, commandsQueue );
 	GetDirtyRenderable() = renderer::Renderable( engineInstance.GetRenderer() );
 	engineInstance.GetECSManager().AddFragmentToEntity( engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ), engineInstance.GetRenderer().GetECSFragmentType() );
 	m_onShadersClearCache = engineInstance.GetRenderer().GetShadersManager()->RegisterCacheClearingListener(

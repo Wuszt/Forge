@@ -13,6 +13,8 @@ namespace ecs
 
 		void AddFragmentsAndTagsToEntity( EntityID entityID, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags );
 
+		void AddFragmentsAndTagsToEntity( EntityID entityID, FragmentsFlags fragments, TagsFlags tags );
+
 		void AddFragmentToEntity( EntityID entityID, const ecs::Fragment::Type& fragment )
 		{
 			AddFragmentsAndTagsToEntity( entityID, { &fragment }, {});
@@ -24,7 +26,7 @@ namespace ecs
 			AddFragmentToEntity( entityID, T::GetTypeStatic() );
 		}
 
-		void MoveEntityToNewArchetype( EntityID entityID, const ArchetypeID& newID, forge::ArraySpan< const ecs::Fragment::Type* > fragmentsToAdd = {} );
+		void MoveEntityToNewArchetype( EntityID entityID, const ArchetypeID& newID );
 
 		void AddTagToEntity( EntityID entityID, const ecs::Tag::Type& type )
 		{

@@ -32,6 +32,16 @@ namespace ecs
 			return m_flags;
 		}
 
+		Bool Any() const
+		{
+			return m_flags.any();
+		}
+
+		void Flip()
+		{
+			m_flags.flip();
+		}
+
 		MyType operator&( const MyType& rTags ) const
 		{
 			MyType result;
@@ -69,6 +79,19 @@ namespace ecs
 		Uint32 GetSize() const
 		{
 			return Size;
+		}
+
+		void VisitSetTypes( std::function< void( const typename T::Type& ) > func ) const
+		{
+			Uint64 raw = m_flags.to_ullong();
+
+			while ( raw != 0u )
+			{
+				Uint64 tmp = raw - 1u;		
+				Uint32 index = static_cast< Uint32 >( Math::Log2( raw & ~tmp ) );
+				func( *T::GetTypeWithIndex( index ) );
+				raw = raw & tmp;
+			}
 		}
 
 	private:

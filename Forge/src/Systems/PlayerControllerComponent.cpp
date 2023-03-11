@@ -6,7 +6,7 @@
 
 IMPLEMENT_TYPE( forge::PlayerControllerComponent);
 
-void forge::FreeCameraControllerComponent::OnAttach( EngineInstance& engineInstance )
+void forge::FreeCameraControllerComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	m_input = engineInstance.GetWindow().GetInput();
 	m_ownerTransform = GetOwner().GetComponent< forge::TransformComponent >();

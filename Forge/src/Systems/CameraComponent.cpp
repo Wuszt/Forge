@@ -7,8 +7,10 @@
 
 IMPLEMENT_TYPE( forge::CameraComponent );
 
-void forge::CameraComponent::OnAttach( EngineInstance& engineInstance )
+void forge::CameraComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
+	Super::OnAttached( engineInstance, commandsQueue );
+
 	m_transformComponent = GetOwner().GetComponent< TransformComponent >();
 
 	m_windowEventToken = engineInstance.GetWindow().RegisterEventListener( [ &, window = &engineInstance.GetWindow() ]( const forge::IWindow::IEvent& event )

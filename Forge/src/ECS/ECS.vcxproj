@@ -314,6 +314,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Archetype.cpp" />
+    <ClCompile Include="CommandsQueue.cpp" />
     <ClCompile Include="ECSManager.cpp" />
     <ClCompile Include="Fpch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -329,6 +330,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Archetype.h" />
+    <ClInclude Include="CommandsQueue.h" />
     <ClInclude Include="ECSManager.h" />
     <ClInclude Include="EntityID.h" />
     <ClInclude Include="Fpch.h" />

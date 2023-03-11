@@ -12,3 +12,4 @@
 #include <functional>
 #include <typeindex>
 #include <bitset>
+#include <bit>

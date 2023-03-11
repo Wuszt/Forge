@@ -6,14 +6,14 @@ IMPLEMENT_TYPE( forge::IComponent );
 forge::IComponent::IComponent() = default;
 forge::IComponent::~IComponent() = default;
 
-void forge::IComponent::Attach( EngineInstance& engineInstance, Object& owner )
+void forge::IComponent::Attach( EngineInstance& engineInstance, Object& owner, ecs::CommandsQueue& commandsQueue )
 {
 	m_owner = &owner;
-	OnAttach( engineInstance );
+	OnAttaching( engineInstance, commandsQueue );
 }
 
-void forge::IComponent::Detach( EngineInstance& engineInstance )
+void forge::IComponent::Detach( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
-	OnDetach( engineInstance );
+	OnDetaching( engineInstance, commandsQueue );
 	m_owner = nullptr;
 }

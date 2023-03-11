@@ -27,7 +27,7 @@ static void DrawArchetype( const ecs::Archetype& archetype, Uint32 index )
 		{
 			if ( fragments.Test( i ) )
 			{
-				const ecs::Fragment::Type* type = ecs::Fragment::GetDebugFragmentTypeFromIndex( i );
+				const ecs::Fragment::Type* type = ecs::Fragment::GetTypeWithIndex( i );
 				if ( i + 1u != fragments.GetSize() )
 				{
 					buffer += type->GetName();
@@ -45,7 +45,7 @@ static void DrawArchetype( const ecs::Archetype& archetype, Uint32 index )
 		{
 			if ( tags.Test( i ) )
 			{
-				const ecs::Tag::Type* type = ecs::Tag::GetDebugTagTypeFromIndex( i );
+				const ecs::Tag::Type* type = ecs::Tag::GetTypeWithIndex( i );
 				if ( i + 1u != tags.GetSize() )
 				{
 					buffer += type->GetName();

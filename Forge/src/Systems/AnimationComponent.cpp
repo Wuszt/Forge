@@ -11,16 +11,16 @@ forge::AnimationFragment::AnimationFragment()
 	: m_animation( 0.0f, 0u )
 {}
 
-void forge::AnimationComponent::OnAttach( EngineInstance& engineInstance )
+void forge::AnimationComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
-	DataComponent< AnimationFragment >::OnAttach( engineInstance );
+	DataComponent< AnimationFragment >::OnAttached( engineInstance, commandsQueue );
 	GetMutableData().m_cb.SetImpl( engineInstance.GetRenderer().CreateConstantBufferImpl() );
 	GetOwner().GetComponent< forge::RenderingComponent >()->GetDirtyRenderable().AddConstantBuffer( { renderer::VSConstantBufferType::SkeletalMesh, renderer::PSConstantBufferType::Invalid, GetMutableData().m_cb.GetImpl() } );
 }
 
-void forge::AnimationComponent::OnDetach( EngineInstance& engineInstance )
+void forge::AnimationComponent::OnDetached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
-	DataComponent< AnimationFragment >::OnDetach( engineInstance );
+	DataComponent< AnimationFragment >::OnDetached( engineInstance, commandsQueue );
 	GetOwner().GetComponent< forge::RenderingComponent >()->GetDirtyRenderable().RemoveConstantBuffer( { renderer::VSConstantBufferType::SkeletalMesh, renderer::PSConstantBufferType::Invalid, GetMutableData().m_cb.GetImpl() } );
 }
 

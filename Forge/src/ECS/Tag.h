@@ -7,17 +7,22 @@ namespace ecs
 	{
 		DECLARE_STRUCT( Tag );
 
-		static constexpr Uint32 c_maxTagsAmount = 32u;
+		static constexpr Uint32 c_maxTagsAmount = 64u;
 
-		using IndicesContainer = std::unordered_map< const Tag::Type*, Uint32 >;
+		using IndicesLUT = std::unordered_map< const Tag::Type*, Uint32 >;
+		using IndicesContainer = std::vector< const Tag::Type* >;
+
 		static Uint32 GetTypeIndex( const Tag::Type& tagType )
 		{
-			IndicesContainer& indicesLUT = GetIndices();
+			IndicesLUT& indicesLUT = GetIndicesLUT();
+			IndicesContainer& indices = GetIndices();
 
 			auto found = indicesLUT.find( &tagType );
 			if ( found == indicesLUT.end() )
 			{
-				indicesLUT[ &tagType ] = static_cast< Uint32 >( indicesLUT.size() );
+				indicesLUT[ &tagType ] = static_cast< Uint32 >( indices.size() );
+				indices.emplace_back( &tagType );
+
 				FORGE_ASSERT( static_cast< Uint32 >( indicesLUT.size() ) < c_maxTagsAmount );
 				return static_cast< Uint32 >( indicesLUT.size() ) - 1u;
 			}
@@ -25,29 +30,29 @@ namespace ecs
 			return found->second;
 		}
 
-#ifdef FORGE_DEBUGGING
-		static const Tag::Type* GetDebugTagTypeFromIndex( Uint32 index )
+		static const Tag::Type* GetTypeWithIndex( Uint32 index )
 		{
-			IndicesContainer& indicesLUT = GetIndices();
-			auto found = std::find_if( indicesLUT.begin(), indicesLUT.end(), [ index ]( const auto& entry )
-				{
-					return entry.second == index;
-				} );
+			IndicesContainer& indices = GetIndices();
 
-			if ( found == indicesLUT.end() )
+			if ( index >= indices.size() )
 			{
 				return nullptr;
 			}
 
-			return found->first;
+			return indices[ index ];
 		}
-#endif
 
 	private:
 		static IndicesContainer& GetIndices()
 		{
 			static IndicesContainer indices;
 			return indices;
+		}
+
+		static IndicesLUT& GetIndicesLUT()
+		{
+			static IndicesLUT indicesLUT;
+			return indicesLUT;
 		}
 	};
 

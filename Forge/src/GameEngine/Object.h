@@ -24,7 +24,11 @@ namespace forge
 		{
 			RequestAddingComponentsInternal( [ this, initializeFunc ]()
 			{
-				AddComponents< T, Ts... >();
+				std::vector< std::unique_ptr< IComponent > > createdComponents;
+
+				CreateComponents< T, Ts... >( createdComponents );
+				AttachComponents( std::move( createdComponents ) );
+
 				if( initializeFunc )
 				{
 					initializeFunc();
@@ -45,25 +49,23 @@ namespace forge
 
 	private:
 		template< class T >
-		T* AddComponent()
+		std::unique_ptr< T > CreateComponent()
 		{
-			auto comp = std::make_unique< T >();
-			auto* rawcomp = comp.get();
-			m_components.emplace( &T::GetTypeStatic(), std::move( comp ) );
-			rawcomp->Attach( m_engineInstance, *this );
-			return rawcomp;
+			return std::make_unique< T >();
 		}
 
 		template< class... Ts >
-		decltype( typename std::enable_if<sizeof...( Ts ) == 0, void>::type() ) AddComponents()
+		decltype( typename std::enable_if<sizeof...( Ts ) == 0, void>::type() ) CreateComponents( std::vector< std::unique_ptr< IComponent > >& createdComponents )
 		{}
 
 		template< class T, class... Ts >
-		void AddComponents()
+		void CreateComponents( std::vector< std::unique_ptr< IComponent > >& createdComponents)
 		{
-			AddComponent< T >();
-			AddComponents< Ts... >();
+			createdComponents.emplace_back( CreateComponent< T >() );
+			CreateComponents< Ts... >( createdComponents );
 		}
+
+		void AttachComponents( std::vector< std::unique_ptr< IComponent > >&& components );
 
 		void RequestAddingComponentsInternal( const std::function< void() >& creationFunc );
 
