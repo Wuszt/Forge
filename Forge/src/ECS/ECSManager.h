@@ -11,23 +11,11 @@ namespace ecs
 
 		void RemoveEntity( EntityID id );
 
-		Archetype& UpdateEntityArchetype( EntityID entityID, const ArchetypeID& newID );
+		void AddFragmentsAndTagsToEntity( EntityID entityID, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags );
 
-		void AddFragmentToEntity( EntityID entityID, const ecs::Fragment::Type& type )
+		void AddFragmentToEntity( EntityID entityID, const ecs::Fragment::Type& fragment )
 		{
-			PC_SCOPE_FUNC();
-
-			Archetype* currentArchetype = m_entityToArchetype[ entityID ];
-			ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
-			id.AddFragment( type );
-
-			Archetype& newArchetype = UpdateEntityArchetype( entityID, id );
-
-			if ( !newArchetype.GetArchetypeID().ContainsFragment( type ) )
-			{
-				FORGE_ASSERT( newArchetype.GetEntitiesAmount() == 1u );
-				newArchetype.AddFragmentType( type );
-			}
+			AddFragmentsAndTagsToEntity( entityID, { &fragment }, {});
 		}
 
 		template< class T >
@@ -36,27 +24,11 @@ namespace ecs
 			AddFragmentToEntity( entityID, T::GetTypeStatic() );
 		}
 
+		void MoveEntityToNewArchetype( EntityID entityID, const ArchetypeID& newID, forge::ArraySpan< const ecs::Fragment::Type* > fragmentsToAdd = {} );
+
 		void AddTagToEntity( EntityID entityID, const ecs::Tag::Type& type )
 		{
-			PC_SCOPE_FUNC();
-
-			Archetype* currentArchetype = m_entityToArchetype[ entityID ];
-
-			if ( currentArchetype->GetArchetypeID().ContainsTag( type ) )
-			{
-				return;
-			}
-
-			ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
-			id.AddTag( type );
-
-			Archetype& newArchetype = UpdateEntityArchetype( entityID, id );
-
-			if ( !newArchetype.GetArchetypeID().ContainsTag( type ) )
-			{
-				FORGE_ASSERT( newArchetype.GetEntitiesAmount() == 1u );
-				newArchetype.AddTag( type );
-			}
+			AddFragmentsAndTagsToEntity( entityID, {}, { &type } );
 		}
 
 		template< class T >
@@ -65,48 +37,22 @@ namespace ecs
 			AddTagToEntity( entityID, T::GetTypeStatic() );
 		}
 
+		void RemoveFragmentFromEntity( EntityID entityID, const ecs::Fragment::Type& type );
+
 		template< class T >
 		void RemoveFragmentFromEntity( EntityID entityID )
 		{
-			PC_SCOPE_FUNC();
-
-			Archetype* currentArchetype = m_entityToArchetype[ entityID ];
-			ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
-			id.RemoveFragment< T >();
-
-			Archetype& newArchetype = UpdateEntityArchetype( entityID, id );
-
-			if( newArchetype.GetArchetypeID().ContainsFragment< T >() )
-			{
-				FORGE_ASSERT( newArchetype.GetEntitiesAmount() == 1u );
-				newArchetype.RemoveFragmentType< T >();
-			}
+			RemoveFragmentFromEntity( entityID, T::GetTypeStatic() );
 		}
 
 		Archetype* GetEntityArchetype( EntityID id );
 
+		void RemoveTagFromEntity( EntityID entityID, const ecs::Tag::Type& type );
+
 		template< class T >
 		void RemoveTagFromEntity( EntityID entityID )
 		{
-			PC_SCOPE_FUNC();
-
-			Archetype* currentArchetype = m_entityToArchetype[ entityID ];
-
-			if ( !currentArchetype->GetArchetypeID().ContainsTag< T >() )
-			{
-				return;
-			}
-
-			ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
-			id.RemoveTag< T > ( );
-
-			Archetype& newArchetype = UpdateEntityArchetype( entityID, id );
-
-			if( newArchetype.GetArchetypeID().ContainsTag< T >() )
-			{
-				FORGE_ASSERT( newArchetype.GetEntitiesAmount() == 1u );
-				newArchetype.RemoveTag< T >();
-			}
+			RemoveTagFromEntity( entityID, T::GetTypeStatic() );
 		}
 
 		Bool TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex ) const;

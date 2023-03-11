@@ -31,43 +31,103 @@ void ecs::ECSManager::RemoveEntity( EntityID id )
 	}
 }
 
-ecs::Archetype& ecs::ECSManager::UpdateEntityArchetype( EntityID entityID, const ArchetypeID& newID )
+void ecs::ECSManager::AddFragmentsAndTagsToEntity( EntityID entityID, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags )
+{
+	PC_SCOPE_FUNC();
+
+	TagsFlags tagsFlags;
+	for ( const auto* tagType : tags )
+	{
+		tagsFlags.Set( *tagType, true );
+	}
+
+	FragmentsFlags fragmentsFlags;
+	for ( const auto* fragmentType : fragments )
+	{
+		fragmentsFlags.Set( *fragmentType, true );
+	}
+
+	Archetype* currentArchetype = m_entityToArchetype[ entityID ];
+
+	if ( ( fragments.IsEmpty() && tags.IsEmpty() )
+		|| ( currentArchetype && currentArchetype->GetArchetypeID().ContainsAllTagsAndFragments( tagsFlags, fragmentsFlags ) ) )
+	{
+		return;
+	}
+
+	ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
+	id.m_tagsFlags = id.m_tagsFlags | tagsFlags;
+	id.m_fragmentsFlags = id.m_fragmentsFlags | fragmentsFlags;
+
+	MoveEntityToNewArchetype( entityID, id, fragments );
+}
+
+void ecs::ECSManager::MoveEntityToNewArchetype( EntityID entityID, const ArchetypeID& newID, forge::ArraySpan< const ecs::Fragment::Type* > fragmentsToAdd /*= {} */ )
 {
 	PC_SCOPE_FUNC();
 
 	Archetype* currentArchetype = m_entityToArchetype[ entityID ];
-	Archetype* targetArchetype = nullptr;
 	Uint32 archetypeIndex = 0u;
-	if( TryToFindArchetypeIndex( newID, archetypeIndex ) )
+	Archetype* targetArchetype = nullptr;
+	if ( TryToFindArchetypeIndex( newID, archetypeIndex ) )
 	{
 		targetArchetype = m_archetypes[ archetypeIndex ].get();
 	}
 	else
 	{
-		targetArchetype = currentArchetype ? m_archetypes.emplace_back( std::make_unique< Archetype >( currentArchetype->GetEmptyCopy() ) ).get() : m_archetypes.emplace_back( std::make_unique< Archetype >( m_nextEntityID ) ).get();
+		std::vector< const ecs::Fragment::Type* > fragments;
+		if ( currentArchetype )
+		{
+			fragments = currentArchetype->GetFragmentsTypes();
+
+			fragments.erase( std::remove_if( fragments.begin(), fragments.end(), [ & ]( const ecs::Fragment::Type* type ) { return !newID.ContainsFragment( *type ); } ), fragments.end() );
+
+			for ( const auto* type : fragmentsToAdd )
+			{
+				if ( !currentArchetype->ContainsFragment( *type ) )
+				{
+					fragments.emplace_back( type );
+				}
+			}
+		}
+
+		targetArchetype = m_archetypes.emplace_back( std::make_unique< Archetype >( m_nextEntityID, fragments.empty() ? fragmentsToAdd : fragments, newID.m_tagsFlags ) ).get();
 	}
 
-	FORGE_ASSERT( currentArchetype != targetArchetype );
-
-	if( currentArchetype )
+	if ( currentArchetype )
 	{
 		targetArchetype->StealEntityFrom( entityID, *currentArchetype );
+
+		if ( currentArchetype->IsEmpty() )
+		{
+			Uint32 currentArchetypeIndex = 0u;
+			FORGE_ASSURE( TryToFindArchetypeIndex( currentArchetype->GetArchetypeID(), currentArchetypeIndex ) );
+			forge::utils::RemoveReorder( m_archetypes, currentArchetypeIndex );
+		}
 	}
 	else
 	{
 		targetArchetype->AddEntity( entityID );
 	}
 
-	if( currentArchetype && currentArchetype->IsEmpty() )
+	m_entityToArchetype[ entityID ] = targetArchetype;
+}
+
+void ecs::ECSManager::RemoveFragmentFromEntity( EntityID entityID, const ecs::Fragment::Type& type )
+{
+	PC_SCOPE_FUNC();
+
+	Archetype* currentArchetype = m_entityToArchetype[ entityID ];
+	ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
+
+	if ( !id.ContainsFragment( type ) )
 	{
-		Uint32 currentArchetypeIndex = 0u;
-		FORGE_ASSURE( TryToFindArchetypeIndex( currentArchetype->GetArchetypeID(), currentArchetypeIndex ) );
-		forge::utils::RemoveReorder( m_archetypes, currentArchetypeIndex );
+		return;
 	}
 
-	m_entityToArchetype[ entityID ] = targetArchetype;
+	id.RemoveFragment( type );
 
-	return *targetArchetype;
+	MoveEntityToNewArchetype( entityID, id );
 }
 
 ecs::Archetype* ecs::ECSManager::GetEntityArchetype( EntityID id )
@@ -79,6 +139,23 @@ ecs::Archetype* ecs::ECSManager::GetEntityArchetype( EntityID id )
 	}
 
 	return nullptr;
+}
+
+void ecs::ECSManager::RemoveTagFromEntity( EntityID entityID, const ecs::Tag::Type& type )
+{
+	PC_SCOPE_FUNC();
+
+	Archetype* currentArchetype = m_entityToArchetype[ entityID ];
+	ArchetypeID id = currentArchetype ? currentArchetype->GetArchetypeID() : ArchetypeID();
+
+	if ( !id.ContainsTag( type ) )
+	{
+		return;
+	}
+
+	id.RemoveTag( type );
+
+	MoveEntityToNewArchetype( entityID, id );
 }
 
 Bool ecs::ECSManager::TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex ) const

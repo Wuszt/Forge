@@ -9,6 +9,11 @@ namespace ecs
 {
 	struct ArchetypeID
 	{
+		void AddTags( const TagsFlags& tags )
+		{
+			m_tagsFlags = m_tagsFlags | tags;
+		}
+
 		void AddTag( const ecs::Tag::Type& type )
 		{
 			m_tagsFlags.Set( type, true );
@@ -77,12 +82,32 @@ namespace ecs
 
 		Bool ContainsAllTagsAndFragments( const TagsFlags& tags, const FragmentsFlags& fragments ) const
 		{
-			return ( ( m_tagsFlags & tags ) == tags ) && ( ( m_fragmentsFlags & fragments ) == fragments );
+			return ContainsAllTags( tags ) && ContainsAllFragments( fragments );
 		}
 
 		Bool ContainsAnyTagsAndFragments( const TagsFlags& tags, const FragmentsFlags& fragments ) const
 		{
-			return ( ( m_tagsFlags & tags ) != 0 ) || ( ( m_fragmentsFlags & fragments ) != 0 );
+			return ContainsAnyTags( tags ) || ContainsAnyFragments( fragments );
+		}
+
+		Bool ContainsAllTags( const TagsFlags& tags ) const
+		{
+			return ( m_tagsFlags & tags ) == tags;
+		}
+
+		Bool ContainsAnyTags( const TagsFlags& tags ) const
+		{
+			return ( m_tagsFlags & tags ) != 0;
+		}
+
+		Bool ContainsAllFragments( const FragmentsFlags& fragments ) const
+		{
+			return ( m_fragmentsFlags & fragments ) == fragments;
+		}
+
+		Bool ContainsAnyFragments( const FragmentsFlags& fragments ) const
+		{
+			return ( m_fragmentsFlags & fragments ) != 0;
 		}
 
 		Bool operator==( const ArchetypeID& id ) const
@@ -97,9 +122,16 @@ namespace ecs
 	class Archetype
 	{
 	public:
-		Archetype( Uint32 size = 0u )
+		Archetype( Uint32 size = 0u, forge::ArraySpan< const ecs::Fragment::Type* > fragments = {}, const TagsFlags& tags = TagsFlags() )
 			: m_sparseSet( size, c_invalidIndex )
-		{}
+		{
+			for ( const auto* fragmentType : fragments )
+			{
+				AddFragmentType( *fragmentType );
+			}
+
+			AddTags( tags );
+		}
 
 		template< class T >
 		forge::ArraySpan< const T > GetFragments() const
@@ -173,6 +205,11 @@ namespace ecs
 		void RemoveFragmentType()
 		{
 			RemoveFragmentType( T::GetTypeStatic() );
+		}
+
+		void AddTags( const TagsFlags& tags )
+		{
+			m_id.AddTags( tags );
 		}
 
 		void AddTag( const ecs::Tag::Type& type )
@@ -266,6 +303,19 @@ namespace ecs
 		const ArchetypeID& GetArchetypeID() const
 		{
 			return m_id;
+		}
+
+		std::vector< const Fragment::Type* > GetFragmentsTypes() const
+		{
+			std::vector< const Fragment::Type* > types;
+			types.reserve( m_fragments.size() );
+
+			for ( const auto& pair : m_fragments )
+			{
+				types.emplace_back( pair.first );
+			}
+
+			return types;
 		}
 
 	private:
