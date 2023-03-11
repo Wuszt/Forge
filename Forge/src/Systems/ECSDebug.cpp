@@ -23,19 +23,17 @@ static void DrawArchetype( const ecs::Archetype& archetype, Uint32 index )
 	{
 		const auto& fragments = archetype.GetArchetypeID().m_fragmentsFlags;
 		std::string buffer;
-		for ( Uint32 i = 0u; i < fragments.GetSize(); ++i )
-		{
-			if ( fragments.Test( i ) )
+		Uint32 fragmentsSize = 0u;
+		fragments.VisitSetTypes( [ & ]( const ecs::Fragment::Type& type )
 			{
-				const ecs::Fragment::Type* type = ecs::Fragment::GetTypeWithIndex( i );
-				if ( i + 1u != fragments.GetSize() )
-				{
-					buffer += type->GetName();
-					buffer += ", ";
-				}
-			}
-		}
+				buffer += type.GetName();
+				buffer += "[" + std::to_string( type.GetSize() ) + "B]";
+				buffer += ", ";
+
+				fragmentsSize += type.GetSize();
+			} );
 		ImGui::Text( "\tFragments : [%s]", buffer.size() > 0u ? buffer.substr( 0u, buffer.size() - 2 ).c_str() : "None" );
+		ImGui::Text( "\Archetype Size: %u x %uB = %uB", archetype.GetEntitiesAmount(), fragmentsSize, archetype.GetEntitiesAmount() * fragmentsSize );
 	}
 
 	{
@@ -43,15 +41,11 @@ static void DrawArchetype( const ecs::Archetype& archetype, Uint32 index )
 		std::string buffer;
 		for ( Uint32 i = 0u; i < tags.GetSize(); ++i )
 		{
-			if ( tags.Test( i ) )
-			{
-				const ecs::Tag::Type* type = ecs::Tag::GetTypeWithIndex( i );
-				if ( i + 1u != tags.GetSize() )
+			tags.VisitSetTypes( [ & ]( const ecs::Tag::Type& type )
 				{
-					buffer += type->GetName();
+					buffer += type.GetName();
 					buffer += ", ";
-				}
-			}
+				} );
 		}
 		ImGui::Text( "\tTags : [%s]", buffer.size() > 0u ? buffer.substr( 0u, buffer.size() - 2 ).c_str() : "None" );
 	}
