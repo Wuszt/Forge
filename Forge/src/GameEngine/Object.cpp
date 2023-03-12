@@ -1,6 +1,7 @@
 #include "Fpch.h"
 #include "Object.h"
 #include "../ECS/CommandsQueue.h"
+#include "../ECS/EntityID.h"
 
 forge::Object::Object( EngineInstance& engineInstance, ObjectID id )
 	: m_engineInstance( engineInstance )
@@ -12,6 +13,11 @@ forge::Object::~Object() = default;
 void forge::Object::OnDetach()
 {
 	ecs::CommandsQueue commandsQueue;
+
+	if ( GetEngineInstance().GetObjectsManager().HasEntity( GetObjectID() ) )
+	{
+		commandsQueue.RemoveEntity( GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( GetObjectID() ) );
+	}
 
 	for( auto& comp : m_components )
 	{

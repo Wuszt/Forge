@@ -9,6 +9,7 @@ namespace ecs
 		FragmentsPackage( const rtti::IType& type, Uint32 initialSize = 0u )
 			: m_fragments( forge::RawVector( type ) )
 		{
+			m_fragments.SetCapacity( 128u );
 			m_fragments.Resize( initialSize );
 		}
 

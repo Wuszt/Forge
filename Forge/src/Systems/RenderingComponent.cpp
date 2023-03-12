@@ -12,13 +12,18 @@ IMPLEMENT_TYPE( forge::DirtyRenderable );
 IMPLEMENT_TYPE( forge::IgnoresLights );
 IMPLEMENT_TYPE( forge::DrawAsOverlay );
 
+void forge::RenderingComponent::OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
+{
+	DataComponent< RenderableFragment >::OnAttaching( engineInstance, commandsQueue );
+	commandsQueue.AddFragment( engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ), engineInstance.GetRenderer().GetECSFragmentType() );
+}
+
 void forge::RenderingComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	PC_SCOPE_FUNC();
 
 	DataComponent< forge::RenderableFragment >::OnAttached( engineInstance, commandsQueue );
 	GetDirtyRenderable() = renderer::Renderable( engineInstance.GetRenderer() );
-	engineInstance.GetECSManager().AddFragmentToEntity( engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ), engineInstance.GetRenderer().GetECSFragmentType() );
 	m_onShadersClearCache = engineInstance.GetRenderer().GetShadersManager()->RegisterCacheClearingListener(
 		[ this ]()
 		{
@@ -39,11 +44,11 @@ void forge::RenderingComponent::SetDirty()
 }
 
 template< class T >
-static void AddOrRemoveTag( forge::Object& owner, bool add )
+static void AddOrRemoveTag( forge::Object& owner, Bool add )
 {
 	auto& ecsManager = owner.GetEngineInstance().GetECSManager();
 	auto entityId = owner.GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( owner.GetObjectID() );
-	bool hasTag = ecsManager.GetEntityArchetype( entityId )->GetArchetypeID().ContainsTag< T >();
+	Bool hasTag = ecsManager.GetEntityArchetype( entityId )->GetArchetypeID().ContainsTag< T >();
 	if ( add && !hasTag )
 	{
 		ecsManager.AddTagToEntity< T >( entityId );

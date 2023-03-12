@@ -43,6 +43,7 @@ namespace forge
 		DECLARE_POLYMORPHIC_CLASS( RenderingComponent, forge::IComponent );
 
 	public:
+		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 		void LoadMeshAndMaterial( const std::string& path );
 		void SetDirty();

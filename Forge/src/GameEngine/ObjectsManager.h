@@ -1,10 +1,6 @@
 #pragma once
 #include "EngineInstance.h"
-
-namespace ecs
-{
-	class EntityID;
-}
+#include "../ECS/EntityID.h"
 
 namespace forge
 {
@@ -63,6 +59,11 @@ namespace forge
 		}
 
 		ecs::EntityID GetOrCreateEntityId( ObjectID id );
+
+		Bool HasEntity( ObjectID id ) const
+		{
+			return m_objectsToEntities.find( id ) != m_objectsToEntities.end();
+		}
 
 		template< class TObject = Object >
 		TObject* GetObject( const ObjectID& id )
