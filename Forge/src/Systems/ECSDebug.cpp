@@ -39,14 +39,11 @@ static void DrawArchetype( const ecs::Archetype& archetype, Uint32 index )
 	{
 		const auto& tags = archetype.GetArchetypeID().m_tagsFlags;;
 		std::string buffer;
-		for ( Uint32 i = 0u; i < tags.GetSize(); ++i )
-		{
-			tags.VisitSetTypes( [ & ]( const ecs::Tag::Type& type )
-				{
-					buffer += type.GetName();
-					buffer += ", ";
-				} );
-		}
+		tags.VisitSetTypes( [ & ]( const ecs::Tag::Type& type )
+			{
+				buffer += type.GetName();
+				buffer += ", ";
+			} );
 		ImGui::Text( "\tTags : [%s]", buffer.size() > 0u ? buffer.substr( 0u, buffer.size() - 2 ).c_str() : "None" );
 	}
 }

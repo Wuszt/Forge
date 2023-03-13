@@ -15,7 +15,7 @@
 #include "ECSDebug.h"
 #endif
 
-IMPLEMENT_TYPE( systems::DebugSystem);
+IMPLEMENT_TYPE( systems::DebugSystem );
 
 systems::DebugSystem::DebugSystem() = default;
 systems::DebugSystem::DebugSystem( DebugSystem&& ) = default;
@@ -25,180 +25,193 @@ void systems::DebugSystem::OnInitialize()
 {
 #ifdef FORGE_IMGUI_ENABLED
 	m_fpsCounterDrawingToken = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( []()
-	{
-		Float fps = forge::FPSCounter::GetAverageFPS( 1u );
-		Vector4 color{ 1.0f, 0.0f, 0.0f, 1.0f };
-
-		if( fps > 30.0f )
 		{
-			if( fps > 6.0f )
+			Float fps = forge::FPSCounter::GetAverageFPS( 1u );
+			Vector4 color{ 1.0f, 0.0f, 0.0f, 1.0f };
+
+			const Float minFps = 30.0f;
+			const Float criticalFps = 6.0f;
+
+			if ( fps > minFps )
 			{
-				color = { 0.0f, 1.0f, 0.0f, 1.0f };
+				if ( fps > criticalFps )
+				{
+					color = { 0.0f, 1.0f, 0.0f, 1.0f };
+				}
+				else
+				{
+					color = { 1.0f, 1.0f, 0.0f, 1.0f };
+				}
 			}
-			else
-			{
-				color = { 1.0f, 1.0f, 0.0f, 1.0f };
-			}
-		}
 
-		Uint32 bufferSize = 0u;
-		Uint32 currentOffset = 0u;
-		Float* buff = forge::FPSCounter::GetFPSCounter().GetBuffer( currentOffset, bufferSize );
+			Uint32 bufferSize = 0u;
+			Uint32 currentOffset = 0u;
+			Float* buff = forge::FPSCounter::GetFPSCounter().GetBuffer( currentOffset, bufferSize );
 
-		ImGui::PlotHistogram( "", buff, bufferSize, currentOffset, NULL, 0.0f, 120.0f, ImVec2( 100.0f, 40.0f ) );
-		ImGui::SameLine();
+			ImGui::PlotHistogram( "", buff, bufferSize, currentOffset, NULL, 0.0f, 120.0f, ImVec2( 100.0f, 40.0f ) );
+			ImGui::SameLine();
 
-		ImGui::SetWindowFontScale( 1.5f );
-		ImGui::PushStyleColor( ImGuiCol_Text, { color.X, color.Y, color.Z, color.W } );
-		ImGui::Text( "FPS: %.2f", fps );
-		ImGui::PopStyleColor();
-		ImGui::SetWindowFontScale( 1.0f );
-	} );
+			ImGui::SetWindowFontScale( 1.5f );
+			ImGui::PushStyleColor( ImGuiCol_Text, { color.X, color.Y, color.Z, color.W } );
+			ImGui::Text( "FPS: %.2f", fps );
+			ImGui::PopStyleColor();
+			ImGui::SetWindowFontScale( 1.0f );
+		} );
 
 	m_ecsDebug = std::make_unique< ecs::ECSDebug >( GetEngineInstance() );
 #endif
 
-	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostRendering, [this]() { Update(); } );
+	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostUpdate, [ this ]() { Update(); } );
 }
 
 void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
-	GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ = ]( forge::Object* obj )
+	auto initFunc = [ = ]( forge::Object* obj )
 	{
-		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ = ]()
+		auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+		auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+		renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
+
+		if ( wireFrame )
 		{
-			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+			renderingComponent->GetDirtyRenderable().SetFillMode( renderer::FillMode::WireFrame );
+		}
 
-			renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
+		transformComponent->GetDirtyData().m_transform.SetPosition( position );
+		transformComponent->GetDirtyData().m_scale = { radius, radius, radius };
 
-			if ( wireFrame )
-			{
-				renderingComponent->GetDirtyRenderable().SetFillMode( renderer::FillMode::WireFrame );
-			}
+		renderingComponent->SetInteractingWithLight( false );
+		renderingComponent->SetDrawAsOverlayEnabled( overlay );
+		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+	};
 
-			transformComponent->GetDirtyData().m_transform.SetPosition( position );
-			transformComponent->GetDirtyData().m_scale = { radius, radius, radius };
-
-			renderingComponent->SetInteractingWithLight( false );
-			renderingComponent->SetDrawAsOverlayEnabled( overlay );
-			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
-			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
-		} );
-
-		m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + lifetime } );
-	} );
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
 }
 
 void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& extension, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
-	GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ = ]( forge::Object* obj )
+	auto initFunc = [ = ]( forge::Object* obj )
 	{
-		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ = ]()
+		auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+		auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+		renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
+
+		if ( wireFrame )
 		{
-			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+			renderingComponent->GetDirtyRenderable().SetFillMode( renderer::FillMode::WireFrame );
+		}
 
-			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
+		transformComponent->GetDirtyData().m_transform.SetPosition( position );
+		transformComponent->GetDirtyData().m_scale = extension;
 
-			if ( wireFrame )
-			{
-				renderingComponent->GetDirtyRenderable().SetFillMode( renderer::FillMode::WireFrame );
-			}
+		renderingComponent->SetInteractingWithLight( false );
+		renderingComponent->SetDrawAsOverlayEnabled( overlay );
+		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+	};
 
-			transformComponent->GetDirtyData().m_transform.SetPosition( position );
-			transformComponent->GetDirtyData().m_scale = extension;
-
-			renderingComponent->SetInteractingWithLight( false );
-			renderingComponent->SetDrawAsOverlayEnabled( overlay );
-			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
-			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
-		} );
-
-		m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + lifetime } );
-	} );
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
 }
 
 void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, Float thickness, const Vector4& color, Bool overlay, Float lifetime )
 {
-	GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ = ]( forge::Object* obj )
-		{
-			obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ = ]()
-				{
-					auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-	                auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+	auto initFunc = [ = ]( forge::Object* obj )
+	{
+		auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+		auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-					renderingComponent->LoadMeshAndMaterial( "Models\\cylinder.obj" );
+		renderingComponent->LoadMeshAndMaterial( "Models\\cylinder.obj" );
 
-					transformComponent->GetDirtyData().m_transform.SetPosition( start + ( end - start ) * 0.5f );
-					transformComponent->GetDirtyData().m_scale = { thickness, thickness, ( end - start ).Mag() };
-					transformComponent->GetDirtyData().m_transform.SetOrientation( Quaternion::GetRotationBetweenVectors( Vector3::EZ(), end - start ) );
+		transformComponent->GetDirtyData().m_transform.SetPosition( start + ( end - start ) * 0.5f );
+		transformComponent->GetDirtyData().m_scale = { thickness, thickness, ( end - start ).Mag() };
+		transformComponent->GetDirtyData().m_transform.SetOrientation( Quaternion::GetRotationBetweenVectors( Vector3::EZ(), end - start ) );
 
-					renderingComponent->SetInteractingWithLight( false );
-					renderingComponent->SetDrawAsOverlayEnabled( overlay );
-					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
-					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
-				} );
+		renderingComponent->SetInteractingWithLight( false );
+		renderingComponent->SetDrawAsOverlayEnabled( overlay );
+		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+	};
 
-	        m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + lifetime } );
-		} );
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
 }
 
 void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Float angle, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
-	GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ = ]( forge::Object* obj )
+	auto initFunc = [ = ]( forge::Object* obj )
+	{
+		auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+		auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+		renderingComponent->LoadMeshAndMaterial( "Models\\cone.obj" );
+
+		if ( wireFrame )
 		{
-			obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ = ]()
-				{
-					auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-	                auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+			renderingComponent->GetDirtyRenderable().SetFillMode( renderer::FillMode::WireFrame );
+		}
 
-					renderingComponent->LoadMeshAndMaterial( "Models\\cone.obj" );
+		Vector3 direction = base - top;
+		const Float length = direction.Normalize();
 
-					if ( wireFrame )
-					{
-						renderingComponent->GetDirtyRenderable().SetFillMode( renderer::FillMode::WireFrame );
-					}
+		Matrix transform( Quaternion( Vector3{ DEG2RAD * 90.0f, 0.0f, 0.0f } ) );
+		transform = transform * Matrix( Vector3{ 0.0f, length * 0.5f, 0.0f } );
+		transform = transform * Quaternion::CreateFromDirection( direction );
+		transform = transform * Matrix( top );
 
-					Vector3 direction = base - top;
-					const Float length = direction.Normalize();
+		transformComponent->GetDirtyData().m_transform.SetOrientation( transform.GetRotation() );
+		transformComponent->GetDirtyData().m_transform.SetPosition( transform.GetTranslation() );
 
-					Matrix transform( Quaternion( Vector3{ DEG2RAD * 90.0f, 0.0f, 0.0f } ) );
-					transform = transform * Matrix( Vector3{ 0.0f, length * 0.5f, 0.0f } );
-					transform = transform * Quaternion::CreateFromDirection( direction );
-					transform = transform * Matrix( top );
+		const Float size = length * Math::Tg( angle );
+		transformComponent->GetDirtyData().m_scale = Vector3{ size, size, length };
 
-					transformComponent->GetDirtyData().m_transform.SetOrientation( transform.GetRotation() );
-					transformComponent->GetDirtyData().m_transform.SetPosition( transform.GetTranslation() );
+		renderingComponent->SetInteractingWithLight( false );
+		renderingComponent->SetDrawAsOverlayEnabled( overlay );
+		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+	};
 
-					const Float size = length * Math::Tg( angle );
-					transformComponent->GetDirtyData().m_scale = Vector3{ size, size, length };
-
-					renderingComponent->SetInteractingWithLight( false );
-					renderingComponent->SetDrawAsOverlayEnabled( overlay );
-					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
-					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
-				} );
-
-	        m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + lifetime } );
-		} );
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
 }
 
 void systems::DebugSystem::Update()
 {
 	Float currentTime = forge::Time::GetTime();
-	for( auto it = m_debugObjects.begin(); it != m_debugObjects.end(); )
+	Int32 requestsLastIndex = m_objectsCreationRequests.size() - 1;
+	for ( auto it = m_debugObjects.begin(); it != m_debugObjects.end(); )
 	{
-		if( currentTime > it->m_timestamp )
+		if ( currentTime > it->m_timestamp )
 		{
-			GetEngineInstance().GetObjectsManager().RequestDestructingObject( it->m_objectId );
-			it = forge::utils::RemoveReorder( m_debugObjects, it );
+			if ( requestsLastIndex >= 0 )
+			{
+				m_objectsCreationRequests[ requestsLastIndex ].m_initFunc( GetEngineInstance().GetObjectsManager().GetObject( it->m_objectId ) );
+				it->m_timestamp = m_objectsCreationRequests[ requestsLastIndex ].m_timestamp;
+				--requestsLastIndex;
+			}
+			else
+			{
+				GetEngineInstance().GetObjectsManager().RequestDestructingObject( it->m_objectId );
+				it = forge::utils::RemoveReorder( m_debugObjects, it );
+				continue;
+			}
 		}
-		else
-		{
-			++it;
-		}
+
+		++it;
 	}
+
+	m_objectsCreationRequests.resize( requestsLastIndex + 1 );
+
+	for ( auto&& request : std::move( m_objectsCreationRequests ) )
+	{
+		GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ request = std::move( request ), this ]( forge::Object* obj ) // a wez sprawdz tego move'a
+			{
+				obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ request = std::move( request ), obj ]() { request.m_initFunc( obj ); } );
+				m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + request.m_timestamp } );
+			} );
+	}
+
+	m_objectsCreationRequests.clear();
 }
 
 #endif
