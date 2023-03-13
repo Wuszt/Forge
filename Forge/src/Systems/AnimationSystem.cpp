@@ -40,10 +40,10 @@ void systems::AnimationSystem::Update()
 
 				for ( Uint32 j = 0u; j < static_cast< Uint32 >( m_temporaryTransforms.size() ); ++j )
 				{
-					animFragment.m_cb.GetData().Transforms[ j ] = animFragment.m_bonesOffsets[ j ] * m_temporaryTransforms[ j ];
+					animFragment.m_cb->GetData().Transforms[ j ] = animFragment.m_bonesOffsets[ j ] * m_temporaryTransforms[ j ];
 				}
 
-				animFragment.m_cb.UpdateBuffer();
+				animFragment.m_cb->UpdateBuffer();
 			}
 		} );
 }
@@ -70,7 +70,7 @@ void systems::AnimationSystem::OnRenderDebug()
 					Matrix entityWorldMatrix = transformFragments[ i ].ToMatrix();
 					for ( Uint32 j = 0u; j < static_cast< Uint32 >( m_temporaryTransforms.size() ); ++j )
 					{
-						Matrix boneMatrix = animFragment.m_bonesOffsets[ j ].AffineInverted() * animFragment.m_cb.GetData().Transforms[ j ] * entityWorldMatrix;
+						Matrix boneMatrix = animFragment.m_bonesOffsets[ j ].AffineInverted() * animFragment.m_cb->GetData().Transforms[j] * entityWorldMatrix;
 
 						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( boneMatrix.GetTranslation(), 5.0f, Vector4(0.0f, 1.0f, 0.0f, 1.0f), false, true, 0.0f);
 					}

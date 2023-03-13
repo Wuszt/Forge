@@ -20,14 +20,14 @@ namespace forge
 		AnimationFragment();
 
 		renderer::Animation m_animation;
-		Matrix m_bonesOffsets[ c_maxBonesAmount ];
+		std::vector< Matrix > m_bonesOffsets = std::vector< Matrix >( c_maxBonesAmount );
 
 		struct CB
 		{
 			Matrix Transforms[ c_maxBonesAmount ];
 		};
 
-		renderer::StaticConstantBuffer< CB > m_cb;
+		std::unique_ptr< renderer::StaticConstantBuffer< CB > > m_cb = std::make_unique<renderer::StaticConstantBuffer< CB >>();
 
 		Float m_currentTimeProgress = 0.0f;
 	};
