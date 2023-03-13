@@ -340,7 +340,7 @@ void systems::RenderingSystem::OnBeforeDraw()
 
 				cmds.AddCommand( [ this, entityID ]()
 					{
-						forge::RenderableFragment* renderableFragment = GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetFragment< forge::RenderableFragment >( entityID );
+						forge::RenderableFragment* renderableFragment = GetEngineInstance().GetECSManager().GetFragment< forge::RenderableFragment >( entityID );
 
 				Bool containsTransparentMaterials = false;
 				for ( auto& material : renderableFragment->m_renderable.GetMaterials() )

@@ -1,9 +1,17 @@
 #pragma once
+#include "../ECS/Fragment.h"
 
 namespace forge
 {
 	class IComponent;
 	class EngineInstance;
+
+	struct ObjectFragment : public ecs::Fragment
+	{
+		DECLARE_STRUCT( ObjectFragment, ecs::Fragment );
+
+		ObjectID m_objectID;
+	};
 
 	class Object
 	{
@@ -16,7 +24,7 @@ namespace forge
 			return m_id;
 		}
 
-		virtual void OnAttach() {}
+		virtual void OnAttach();
 		virtual void OnDetach();
 
 		template< class T, class... Ts >

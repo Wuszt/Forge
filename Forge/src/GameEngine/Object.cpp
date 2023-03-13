@@ -3,12 +3,23 @@
 #include "../ECS/CommandsQueue.h"
 #include "../ECS/EntityID.h"
 
+IMPLEMENT_TYPE( forge::ObjectFragment );
+
 forge::Object::Object( EngineInstance& engineInstance, ObjectID id )
 	: m_engineInstance( engineInstance )
 	, m_id( id )
 {}
 
 forge::Object::~Object() = default;
+
+void forge::Object::OnAttach()
+{
+	auto& ecsManager = GetEngineInstance().GetECSManager();
+	auto& objectsManager = GetEngineInstance().GetObjectsManager();
+	ecs::EntityID entityID = objectsManager.GetOrCreateEntityId( GetObjectID() );
+	ecsManager.AddFragmentToEntity( entityID, forge::ObjectFragment::GetTypeStatic() );
+	ecsManager.GetFragment< forge::ObjectFragment >( entityID )->m_objectID = GetObjectID();
+}
 
 void forge::Object::OnDetach()
 {

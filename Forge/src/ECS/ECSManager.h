@@ -49,6 +49,17 @@ namespace ecs
 
 		Archetype* GetEntityArchetype( EntityID id );
 
+		template< class T >
+		T* GetFragment( EntityID id )
+		{
+			if ( Archetype* archetype = GetEntityArchetype( id ) )
+			{
+				return archetype->GetFragment< T >( id );
+			}
+
+			return nullptr;
+		}
+
 		void RemoveTagFromEntity( EntityID entityID, const ecs::Tag::Type& type );
 
 		template< class T >
