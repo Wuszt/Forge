@@ -203,10 +203,31 @@ void CubeScene( forge::EngineInstance& engineInstance )
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
 
-			transformComponent->GetDirtyData().m_transform.SetPosition( Vector3::ZEROS() );
+			transformComponent->GetDirtyData().m_transform.SetPosition( { 0.0f, 0.0f, 250.0f } );
+			transformComponent->GetDirtyData().m_scale = Vector3::ONES() * 50.0f;
 
 			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
 			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+		} );
+	} );
+
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
+	{
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		{
+			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
+
+			auto& renderable = renderingComponent->GetData().m_renderable;
+			for ( auto& material : renderable.GetMaterials() )
+			{
+				material->SetTexture( engineInstancePtr->GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\grass.jpg" )->GetTexture(), renderer::Material::TextureType::Diffuse );
+			}
+
+			transformComponent->GetDirtyData().m_transform.SetPosition( Vector3::ZEROS() );
+			transformComponent->GetDirtyData().m_scale = { 1000.0f, 1000.0f, 0.01f };
 		} );
 	} );
 }
@@ -279,76 +300,20 @@ Int32 main()
 			//engineInstance.GetSystemsManager().GetSystem< systems::RenderingSystem >().SetSkyboxTexture( engineInstance.GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\skymap.dds" )->GetTexture() );
 
 			//MinecraftScene( engineInstance );
-			SponzaScene( engineInstance );
+			//SponzaScene( engineInstance );
 			//BunnyScene( engineInstance );
 
-			//for ( Uint32 i = 0u; i < 15u; ++i )
-			//{
-			//	for ( Uint32 j = 0u; j < 15u; ++j )
-			//	{
-			//		SkeletalMesh( engineInstance, { -400.0f + j * 100.0f, -400.0f + i * 200.0f, 0.0f } );
-			//	}
-			//}
-
-			//CubeScene(engineInstance);
-			SkeletalMesh( engineInstance, { 0.0f, 400.0f, 0.0f } );
-			SkeletalMesh( engineInstance, { 0.0f, 600.0f, 0.0f } );
-			SkeletalMesh( engineInstance, { 0.0f, 800.0f, 0.0f } );
-
-			const Vector3 start = Vector3();
-			const Vector3 end = { 5.0f, 5.0f, 5.0f };
-
-			//engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( start, 0.1f, Vector4( 1.0f, 0.0f, 0.0f, 1.0f ), 100.0f );
-			//engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawLine( start, end, 0.01f, Vector4( 0.0f, 1.0f, 1.0f, 1.0f ), 100.0f );
-			//engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( end, 0.1f, Vector4( 0.0f, 0.0f, 1.0f, 1.0f ), 100.0f );
-
-			//for ( Int32 x = -100; x <= 100; ++x )
-			//{
-			//	engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawLine( { static_cast< Float >( x ), -100.0f, 0.0f }, { static_cast< Float >( x ), 100.0f, 0.0f }, 0.01f, Vector4(0.0f, 1.0f, 0.0f, 1.0f), 100.0f);
-			//}
-
-			//for ( Int32 y = -100; y <= 100; ++y )
-			//{
-			//	engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawLine( { -100.0f, static_cast< Float >( y ), 0.0f }, { 100.0f, static_cast< Float >( y ), 0.0f }, 0.01f, Vector4( 0.0f, 1.0f, 0.0f, 1.0f ), 100.0f );
-			//}
-
-			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
-			{
-				light->RequestAddingComponents< forge::DirectionalLightComponent >( [ this, engineInstancePtr = &engineInstance, light ]()
-				{
-					m_sun = light->GetComponent< forge::DirectionalLightComponent >();
-					light->GetComponent< forge::DirectionalLightComponent >()->GetData().Direction = { 0.0f, 0.0f, -1.0f };
-				} );
-			} );
+			CubeScene(engineInstance);
+			//SkeletalMesh( engineInstance, { 0.0f, 400.0f, 0.0f } );
+			//SkeletalMesh( engineInstance, { 0.0f, 600.0f, 0.0f } );
+			//SkeletalMesh( engineInstance, { 0.0f, 800.0f, 0.0f } );
 		}
-
-		Int32 frame = 0u;
-		Uint32 deltaFrame = 1u;
-
-		Float accumulator = 0.0f;
-		Float speed = 1.0f;
-
-		struct cbBones
-		{
-			Matrix Bones[ 70u ];
-		};
-
-		std::unique_ptr< renderer::StaticConstantBuffer< cbBones > > bonesBuffer;
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{		
-			accumulator += engineInstance.GetSystemsManager().GetSystem< systems::TimeSystem >().GetDeltaTime() * speed;
-
 			if( engineInstance.GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
 			{
 				Shutdown();
-			}
-
-			if( m_sun )
-			{
-				Float currentAngle = DEG2RAD * 10.0f * engineInstance.GetSystemsManager().GetSystem< systems::TimeSystem >().GetCurrentTime();
-				m_sun->GetData().Direction = Quaternion( -FORGE_PI_HALF, 0.0f, currentAngle ) * Vector3::EY();
-				m_sun->GetData().Color = Vector3{ 1.0f, 1.0f, 1.0f } * 0.3f;
 			}
 		}
 
