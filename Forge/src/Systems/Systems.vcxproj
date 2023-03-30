@@ -227,6 +227,7 @@
       <PreprocessorDefinitions>FORGE_DEBUG_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -324,6 +325,8 @@
     </ClCompile>
     <ClCompile Include="IDebuggable.cpp" />
     <ClCompile Include="IMGUISystem.cpp" />
+    <ClCompile Include="PhysicsComponent.cpp" />
+    <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PointLightComponent.cpp" />
     <ClCompile Include="LightingSystem.cpp" />
     <ClCompile Include="PlayerControllerComponent.cpp" />
@@ -347,6 +350,8 @@
     <ClInclude Include="IDebuggable.h" />
     <ClInclude Include="IMGUISystem.h" />
     <ClInclude Include="InternalDefaults.h" />
+    <ClInclude Include="PhysicsComponent.h" />
+    <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="PointLightComponent.h" />
     <ClInclude Include="LightingSystem.h" />
     <ClInclude Include="PlayerControllerComponent.h" />

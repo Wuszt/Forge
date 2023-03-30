@@ -1,4 +1,3 @@
-
 #include "../Core/PublicDefaults.h"
 #include "../Math/PublicDefaults.h"
 #include "../GameEngine/PublicDefaults.h"
@@ -37,6 +36,7 @@
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/AnimationComponent.h"
 #include "../Systems/TransformSystem.h"
+#include "../Physics/PhysxProxy.h"
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -303,6 +303,7 @@ Int32 main()
 			//SponzaScene( engineInstance );
 			//BunnyScene( engineInstance );
 
+			physics::PhysxProxy physics;
 			CubeScene(engineInstance);
 			//SkeletalMesh( engineInstance, { 0.0f, 400.0f, 0.0f } );
 			//SkeletalMesh( engineInstance, { 0.0f, 600.0f, 0.0f } );

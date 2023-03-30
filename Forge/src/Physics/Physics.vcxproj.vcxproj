@@ -37,6 +37,8 @@
   <ItemGroup>
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="Fpch.h" />
+    <ClInclude Include="PhysxProxy.h" />
+    <ClInclude Include="PhysxScene.h" />
     <ClInclude Include="PublicDefaults.h" />
   </ItemGroup>
   <ItemGroup>
@@ -50,6 +52,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PhysxProxy.cpp" />
+    <ClCompile Include="PhysxScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">
@@ -187,6 +191,7 @@
       <PrecompiledHeaderFile>Fpch.h</PrecompiledHeaderFile>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

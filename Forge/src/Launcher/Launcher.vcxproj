@@ -138,6 +138,7 @@
       <PreprocessorDefinitions>FORGE_DEBUG_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -366,6 +367,9 @@ mklink $(ProjectDir)Depots $(ProjectDir)..\..\Depots
     </ProjectReference>
     <ProjectReference Include="..\Math\Math.vcxproj">
       <Project>{4ee1f241-1190-4a8f-be2a-2054bcab3709}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Physics\Physics.vcxproj.vcxproj">
+      <Project>{0e24b80c-132b-4ff7-843b-15042fc30d94}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Renderer\Renderer.vcxproj">
       <Project>{b80e49a4-1d06-4643-9ef0-34e4e56781ad}</Project>
