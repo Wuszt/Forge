@@ -4,6 +4,7 @@
 #include "../../External/physx/include/PxPhysicsAPI.h"
 #include "PhysxScene.h"
 
+#ifdef FORGE_DEBUG_VERSION
 #pragma comment( lib, "../../External/physx/lib/debug/PhysX_64.lib" )
 #pragma comment( lib, "../../External/physx/lib/debug/PhysXCommon_64.lib" )
 #pragma comment( lib, "../../External/physx/lib/debug/PhysXCooking_64.lib" )
@@ -11,6 +12,15 @@
 #pragma comment( lib, "../../External/physx/lib/debug/PhysXFoundation_64.lib" )
 #pragma comment( lib, "../../External/physx/lib/debug/PhysXPvdSDK_static_64.lib" )
 #pragma comment( lib, "../../External/physx/lib/debug/PhysXVehicle_static_64.lib" )
+#else
+#pragma comment( lib, "../../External/physx/lib/release/PhysX_64.lib" )
+#pragma comment( lib, "../../External/physx/lib/release/PhysXCommon_64.lib" )
+#pragma comment( lib, "../../External/physx/lib/release/PhysXCooking_64.lib" )
+#pragma comment( lib, "../../External/physx/lib/release/PhysXExtensions_static_64.lib" )
+#pragma comment( lib, "../../External/physx/lib/release/PhysXFoundation_64.lib" )
+#pragma comment( lib, "../../External/physx/lib/release/PhysXPvdSDK_static_64.lib" )
+#pragma comment( lib, "../../External/physx/lib/release/PhysXVehicle_static_64.lib" )
+#endif
 
 namespace
 {
