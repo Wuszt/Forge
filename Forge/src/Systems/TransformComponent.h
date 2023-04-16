@@ -31,6 +31,16 @@ namespace forge
 
 		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue );
 
+		const Transform& GetTransform() const
+		{
+			return GetData().m_transform;
+		}
+
+		const Vector3& GetScale() const
+		{
+			return GetData().m_scale;
+		}
+
 		TransformFragment& GetDirtyData()
 		{
 			GetOwner().GetEngineInstance().GetECSManager().AddTagToEntity< TransformModifiedThisFrame >( GetOwner().GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ) );

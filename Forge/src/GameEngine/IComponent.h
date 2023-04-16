@@ -38,15 +38,16 @@ namespace forge
 		Object* m_owner;
 	};
 
-	template< class TData >
-	class DataComponent : public IComponent
+	template< class TData, class ParentClass = IComponent >
+	class DataComponent : public ParentClass
 	{
 	public:
-		using IComponent::IComponent;
+		using ParentClass::ParentClass;
+		using ParentClass::GetOwner;
 
 		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override
 		{
-			IComponent::OnAttaching( engineInstance, commandsQueue );
+			ParentClass::OnAttaching( engineInstance, commandsQueue );
 			auto& objectsManager = engineInstance.GetObjectsManager();
 			auto& ecsManager = engineInstance.GetECSManager();
 
@@ -56,7 +57,7 @@ namespace forge
 
 		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override
 		{
-			IComponent::OnDetaching( engineInstance, commandsQueue );
+			ParentClass::OnDetaching( engineInstance, commandsQueue );
 			auto& objectsManager = engineInstance.GetObjectsManager();
 			auto& ecsManager = engineInstance.GetECSManager();
 

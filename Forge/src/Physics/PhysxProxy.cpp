@@ -2,7 +2,8 @@
 #include "PhysxProxy.h"
 
 #include "../../External/physx/include/PxPhysicsAPI.h"
-#include "PhysxScene.h"
+#include "PhysicsScene.h"
+#include "PhysicsMaterial.h"
 
 #ifdef FORGE_DEBUG_VERSION
 #pragma comment( lib, "../../External/physx/lib/debug/PhysX_64.lib" )
@@ -27,7 +28,6 @@ namespace
 	const Float c_defaultStaticFriction = 0.5f;
 	const Float c_defaultDynamicFriction = 0.5f;
 	const Float c_defaultRestitution = 0.5f;
-	const Float c_defaultDensity = 10.f;
 }
 
 physics::PhysxProxy::PhysxProxy()
@@ -46,22 +46,17 @@ physics::PhysxProxy::PhysxProxy()
 
 	m_pxDispatcher = physx::PxDefaultCpuDispatcherCreate( 2u );
 
-	m_pxDefaultMaterial = m_physX->createMaterial( c_defaultStaticFriction, c_defaultDynamicFriction, c_defaultRestitution );
+	m_defaultMaterial = std::make_unique< physics::PhysicsMaterial >( *this, c_defaultDynamicFriction, c_defaultStaticFriction, c_defaultRestitution );
 }
 
 physics::PhysxProxy::~PhysxProxy()
 {
-	m_pxDefaultMaterial->release();
-	m_pxDispatcher->release();
+	m_defaultMaterial.reset();
 
+	m_pxDispatcher->release();
 	PxCloseExtensions();
 	m_physX->release();
-	m_transport->release();
 	m_pvd->release();
+	m_transport->release();
 	m_pxFoundation->release();
-}
-
-std::unique_ptr< physics::PhysxScene > physics::PhysxProxy::CreateScene()
-{
-	return std::make_unique< physics::PhysxScene >( m_physX, m_pxDispatcher );
 }

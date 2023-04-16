@@ -16,7 +16,8 @@ namespace physx
 
 namespace physics
 {
-	class PhysxScene;
+	class PhysicsScene;
+	class PhysicsMaterial;
 
 	class PhysxProxy
 	{
@@ -24,7 +25,20 @@ namespace physics
 		PhysxProxy();
 		~PhysxProxy();
 
-		std::unique_ptr< PhysxScene > CreateScene();
+		physx::PxPhysics& GetPhysics() const
+		{
+			return *m_physX;
+		}
+
+		physx::PxDefaultCpuDispatcher& GetCPUDispatcher() const
+		{
+			return *m_pxDispatcher;
+		}
+
+		const PhysicsMaterial& GetDefaultMaterial() const
+		{
+			return *m_defaultMaterial;
+		}
 
 	private:
 		std::unique_ptr< physx::PxDefaultAllocator > m_pxAllocator;
@@ -35,7 +49,8 @@ namespace physics
 
 		physx::PxDefaultCpuDispatcher* m_pxDispatcher;
 
-		physx::PxMaterial* m_pxDefaultMaterial;
+		std::unique_ptr< PhysicsMaterial > m_defaultMaterial;
+
 		physx::PxPvd* m_pvd;
 		physx::PxPvdTransport* m_transport;
 	};

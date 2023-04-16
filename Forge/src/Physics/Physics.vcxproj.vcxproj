@@ -37,8 +37,11 @@
   <ItemGroup>
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="Fpch.h" />
+    <ClInclude Include="PhysicsActor.h" />
+    <ClInclude Include="PhysicsMaterial.h" />
     <ClInclude Include="PhysxProxy.h" />
-    <ClInclude Include="PhysxScene.h" />
+    <ClInclude Include="PhysicsScene.h" />
+    <ClInclude Include="PhysicsShape.h" />
     <ClInclude Include="PublicDefaults.h" />
   </ItemGroup>
   <ItemGroup>
@@ -52,8 +55,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PhysicsActor.cpp" />
+    <ClCompile Include="PhysicsMaterial.cpp" />
     <ClCompile Include="PhysxProxy.cpp" />
-    <ClCompile Include="PhysxScene.cpp" />
+    <ClCompile Include="PhysicsScene.cpp" />
+    <ClCompile Include="PhysicsShape.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">
@@ -216,7 +222,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-      <PostBuildEvent>
+    <PostBuildEvent>
       <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\debug\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -239,7 +245,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-      <PostBuildEvent>
+    <PostBuildEvent>
       <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -262,7 +268,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-      <PostBuildEvent>
+    <PostBuildEvent>
       <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -285,7 +291,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-      <PostBuildEvent>
+    <PostBuildEvent>
       <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -308,6 +314,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|x64'">
     <ClCompile>
@@ -328,7 +337,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-     <PostBuildEvent>
+    <PostBuildEvent>
       <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -351,7 +360,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-      <PostBuildEvent>
+    <PostBuildEvent>
       <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

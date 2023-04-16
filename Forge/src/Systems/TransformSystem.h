@@ -14,4 +14,3 @@ namespace systems
 		forge::CallbackToken m_updateToken;
 	};
 }
-

@@ -37,6 +37,9 @@
 #include "../Systems/AnimationComponent.h"
 #include "../Systems/TransformSystem.h"
 #include "../Physics/PhysxProxy.h"
+#include "../Systems/PhysicsSystem.h"
+#include "../Systems/PhysicsComponent.h"
+#include "../Physics/PhysicsShape.h"
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -194,40 +197,101 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 
 void CubeScene( forge::EngineInstance& engineInstance )
 {
+	//for( Uint32 i = 0u; i < 4000; ++i )
+	//{
+	//	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
+	//		{
+	//			obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsDynamicComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+	//				{
+	//					auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+	//					transformComponent->GetDirtyData().m_transform.SetPosition( { Math::Random::GetRNG().GetFloat(-100.0f, 100.0f), Math::Random::GetRNG().GetFloat( -100.0f, 100.0f ), 250.0f + Math::Random::GetRNG().GetFloat( 0.0f, 25.0f ) });
+	//					transformComponent->GetDirtyData().m_transform.SetOrientation( Quaternion::CreateFromDirection( Vector3{ Math::Random::GetRNG().GetFloat( -1.0f, 1.0f ), Math::Random::GetRNG().GetFloat( -1.0f, 1.0f ), Math::Random::GetRNG().GetFloat( -1.0f, 1.0f )}.Normalized() ) );
+	//					transformComponent->GetDirtyData().m_scale = Vector3::ONES() * Math::Random::GetRNG().GetFloat( 1.0f, 5.0f );
+
+	//					auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+	//					renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
+	//					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+	//					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+
+	//					auto* physicsComponent = obj->GetComponent< forge::PhysicsDynamicComponent >();
+	//					physicsComponent->GetActor().UpdateDensity( 1.0f );
+	//					physicsComponent->AddShape( physics::PhysicsShape( engineInstancePtr->GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), Vector3( transformComponent->GetData().m_scale * 0.5f ) ) );
+	//				} );
+	//		} );
+	//}
+
+	//for(Uint32 z = 0u; z < 5; ++z )
+	//{
+	//	for ( Uint32 x = 0u; x < 5; ++x )
+	//	{
+	//		for( Uint32 y = 0u; y < 5; ++y )
+	//		{
+	//			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ &, x, y, z ]( forge::Object* obj )
+	//				{
+	//					obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsDynamicComponent >( [ engineInstancePtr = &engineInstance, obj, x, y, z ]()
+	//						{
+	//							const Float scale = 1.0f;
+
+	//							auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+	//							transformComponent->GetDirtyData().m_transform.SetPosition( { static_cast< Float >( x ) * scale, static_cast< Float >( y ) * scale, static_cast< Float >( z ) + 1.0f } );
+	//							transformComponent->GetDirtyData().m_scale = Vector3::ONES() * scale;
+
+	//							auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+
+	//							renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
+	//							renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+	//							renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+
+	//							auto* physicsComponent = obj->GetComponent< forge::PhysicsDynamicComponent >();
+	//							physicsComponent->GetActor().UpdateDensity( 1.0f );
+	//							physicsComponent->AddShape( physics::PhysicsShape( engineInstancePtr->GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), Vector3( transformComponent->GetData().m_scale * 0.5f ) ) );
+	//						} );
+	//				} );
+	//		}
+	//	}
+	//}
+
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
-	{
-		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
 		{
-			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+			obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsDynamicComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+				{
+					auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+					transformComponent->GetDirtyData().m_transform.SetPosition( { 0.0f, 0.0f, 50.0f } );
+					transformComponent->GetDirtyData().m_transform.SetOrientation( Quaternion::CreateFromDirection( Vector3{ Math::Random::GetRNG().GetFloat( -1.0f, 1.0f ), Math::Random::GetRNG().GetFloat( -1.0f, 1.0f ), Math::Random::GetRNG().GetFloat( -1.0f, 1.0f ) }.Normalized() ) );
+					transformComponent->GetDirtyData().m_scale = Vector3::ONES() * 5.0f;
 
-			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
+					auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-			transformComponent->GetDirtyData().m_transform.SetPosition( { 0.0f, 0.0f, 250.0f } );
-			transformComponent->GetDirtyData().m_scale = Vector3::ONES() * 50.0f;
+					renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
+					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 
-			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
-			renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+					auto* physicsComponent = obj->GetComponent< forge::PhysicsDynamicComponent >();
+					physicsComponent->GetActor().UpdateDensity( 1.0f );
+					physicsComponent->AddShape( physics::PhysicsShape( engineInstancePtr->GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), Vector3( transformComponent->GetData().m_scale * 0.5f ) ) );
+				} );
 		} );
-	} );
 
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
 	{
-		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsStaticComponent  >( [ engineInstancePtr = &engineInstance, obj ]()
 		{
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+			transformComponent->GetDirtyData().m_transform.SetPosition( Vector3::ZEROS() );
+			transformComponent->GetDirtyData().m_scale = { 1000.0f, 1000.0f, 0.01f };
+
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
-
 			auto& renderable = renderingComponent->GetData().m_renderable;
 			for ( auto& material : renderable.GetMaterials() )
 			{
 				material->SetTexture( engineInstancePtr->GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\grass.jpg" )->GetTexture(), renderer::Material::TextureType::Diffuse );
 			}
 
-			transformComponent->GetDirtyData().m_transform.SetPosition( Vector3::ZEROS() );
-			transformComponent->GetDirtyData().m_scale = { 1000.0f, 1000.0f, 0.01f };
+			auto* physicsComponent = obj->GetComponent< forge::PhysicsStaticComponent >();
+			physicsComponent->AddShape( physics::PhysicsShape( engineInstancePtr->GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), Vector3( transformComponent->GetData().m_scale * 0.5f ) ) );
 		} );
 	} );
 }
@@ -269,6 +333,7 @@ Int32 main()
 				&systems::TimeSystem::GetTypeStatic(),
 				&systems::AnimationSystem::GetTypeStatic(),
 				&systems::TransformSystem::GetTypeStatic(),
+				&systems::PhysicsSystem::GetTypeStatic(),
 #ifdef FORGE_DEBUGGING
 				&systems::DebugSystem::GetTypeStatic(),
 #endif
@@ -303,7 +368,6 @@ Int32 main()
 			//SponzaScene( engineInstance );
 			//BunnyScene( engineInstance );
 
-			physics::PhysxProxy physics;
 			CubeScene(engineInstance);
 			//SkeletalMesh( engineInstance, { 0.0f, 400.0f, 0.0f } );
 			//SkeletalMesh( engineInstance, { 0.0f, 600.0f, 0.0f } );
