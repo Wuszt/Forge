@@ -197,29 +197,29 @@ void BunnyScene( forge::EngineInstance& engineInstance )
 
 void CubeScene( forge::EngineInstance& engineInstance )
 {
-	//for( Uint32 i = 0u; i < 4000; ++i )
-	//{
-	//	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
-	//		{
-	//			obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsDynamicComponent >( [ engineInstancePtr = &engineInstance, obj ]()
-	//				{
-	//					auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-	//					transformComponent->GetDirtyData().m_transform.SetPosition( { Math::Random::GetRNG().GetFloat(-100.0f, 100.0f), Math::Random::GetRNG().GetFloat( -100.0f, 100.0f ), 250.0f + Math::Random::GetRNG().GetFloat( 0.0f, 25.0f ) });
-	//					transformComponent->GetDirtyData().m_transform.SetOrientation( Quaternion::CreateFromDirection( Vector3{ Math::Random::GetRNG().GetFloat( -1.0f, 1.0f ), Math::Random::GetRNG().GetFloat( -1.0f, 1.0f ), Math::Random::GetRNG().GetFloat( -1.0f, 1.0f )}.Normalized() ) );
-	//					transformComponent->GetDirtyData().m_scale = Vector3::ONES() * Math::Random::GetRNG().GetFloat( 1.0f, 5.0f );
+	for( Uint32 i = 0u; i < 4000; ++i )
+	{
+		engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
+			{
+				obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsDynamicComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+					{
+						auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+						transformComponent->GetDirtyData().m_transform.SetPosition( { Math::Random::GetRNG().GetFloat(-100.0f, 100.0f), Math::Random::GetRNG().GetFloat( -100.0f, 100.0f ), 250.0f + Math::Random::GetRNG().GetFloat( 0.0f, 25.0f ) });
+						transformComponent->GetDirtyData().m_transform.SetOrientation( Quaternion::CreateFromDirection( Vector3{ Math::Random::GetRNG().GetFloat( -1.0f, 1.0f ), Math::Random::GetRNG().GetFloat( -1.0f, 1.0f ), Math::Random::GetRNG().GetFloat( -1.0f, 1.0f )}.Normalized() ) );
+						transformComponent->GetDirtyData().m_scale = Vector3::ONES() * Math::Random::GetRNG().GetFloat( 1.0f, 5.0f );
 
-	//					auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+						auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-	//					renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
-	//					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
-	//					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+						renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
+						renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ 1.0f, 1.0f, 1.0f, 1.0f } );
+						renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 
-	//					auto* physicsComponent = obj->GetComponent< forge::PhysicsDynamicComponent >();
-	//					physicsComponent->GetActor().UpdateDensity( 1.0f );
-	//					physicsComponent->AddShape( physics::PhysicsShape( engineInstancePtr->GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), Vector3( transformComponent->GetData().m_scale * 0.5f ) ) );
-	//				} );
-	//		} );
-	//}
+						auto* physicsComponent = obj->GetComponent< forge::PhysicsDynamicComponent >();
+						physicsComponent->GetActor().UpdateDensity( 1.0f );
+						physicsComponent->AddShape( physics::PhysicsShape( engineInstancePtr->GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), Vector3( transformComponent->GetData().m_scale * 0.5f ) ) );
+					} );
+			} );
+	}
 
 	//for(Uint32 z = 0u; z < 5; ++z )
 	//{
@@ -251,6 +251,17 @@ void CubeScene( forge::EngineInstance& engineInstance )
 	//		}
 	//	}
 	//}
+
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
+		{
+			light->RequestAddingComponents< forge::TransformComponent, forge::SpotLightComponent >( [ engineInstancePtr = &engineInstance, light ]()
+				{
+					light->GetComponent< forge::TransformComponent >()->GetDirtyData().m_transform.SetPosition( { 0.0f, 0.0f, 500.0f } );
+					light->GetComponent< forge::TransformComponent >()->GetDirtyData().m_transform.SetOrientation( Quaternion::CreateFromDirection( { 0.0f, 0.0f, -1.0f } ) );
+					light->GetComponent< forge::SpotLightComponent >()->GetData().m_innerAngle = FORGE_PI_HALF * 0.5f;
+					light->GetComponent< forge::SpotLightComponent >()->GetData().m_outerAngle = FORGE_PI_HALF * 0.75f;
+				} );
+		} );
 
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
 		{
