@@ -1,12 +1,12 @@
 #pragma once
-#include "IShaderResourceView.h"
+#include "IRenderingResource.h"
 
 namespace renderer
 {
 	class IShaderResourceView;
 	class IRenderTargetView;
 
-	class ITexture
+	class ITexture : public IRenderingResource
 	{
 	public:
 		enum class Type
@@ -37,8 +37,6 @@ namespace renderer
 		virtual forge::Callback< const Vector2& >& GetOnResizedCallback() = 0;
 		virtual Vector2 GetTextureSize() const = 0;
 		virtual Type GetType() const = 0;
-
-		virtual ~ITexture() = default;
 	};
 
 	FORGE_INLINE ITexture::Flags operator|( ITexture::Flags l, ITexture::Flags r )

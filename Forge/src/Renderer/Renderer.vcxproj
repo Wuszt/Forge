@@ -80,6 +80,7 @@
     <ClCompile Include="IIndexBuffer.cpp" />
     <ClCompile Include="IInputLayout.cpp" />
     <ClCompile Include="IRenderingPass.cpp" />
+    <ClCompile Include="IRenderingResource.cpp" />
     <ClCompile Include="ISamplerState.cpp" />
     <ClCompile Include="IShader.cpp" />
     <ClCompile Include="IShaderResourceView.cpp" />
@@ -127,6 +128,7 @@
     <ClInclude Include="IIndexBuffer.h" />
     <ClInclude Include="IInputLayout.h" />
     <ClInclude Include="IRenderingPass.h" />
+    <ClInclude Include="IRenderingResource.h" />
     <ClInclude Include="ISamplerState.h" />
     <ClInclude Include="IShader.h" />
     <ClInclude Include="IShaderResourceView.h" />

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IShader.h"
+#include "IRenderingResource.h"
 
 namespace renderer
 {
@@ -14,7 +15,7 @@ namespace renderer
 	template< class ShaderType >
 	class ShaderPack;
 
-	class Material
+	class Material : public IRenderingResource
 	{
 	public:
 

@@ -1,11 +1,12 @@
 #pragma once
+#include "IRenderingResource.h"
 
 namespace renderer
 {
 	class IVertexBuffer;
 	class IIndexBuffer;
 
-	class Model
+	class Model : public IRenderingResource
 	{
 	public:
 		struct Shape

@@ -1,4 +1,5 @@
 #pragma once
+#include "IRenderingResource.h"
 
 namespace renderer
 {
@@ -48,11 +49,8 @@ namespace renderer
 		Uint64 m_hash = 0u;
 	};
 
-	class IShader
+	class IShader : public IRenderingResource
 	{
-	public:
-		IShader();
-		virtual ~IShader() = 0;
 	};
 }
 
