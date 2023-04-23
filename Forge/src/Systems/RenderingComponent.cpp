@@ -4,7 +4,7 @@
 #include "../Renderer/Renderer.h"
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
-#include "../Renderer/IShadersManager.h"
+#include "../Renderer/ShadersManager.h"
 
 IMPLEMENT_TYPE( forge::RenderableFragment )
 IMPLEMENT_TYPE( forge::RenderingComponent )

@@ -68,7 +68,7 @@
     <ClCompile Include="Renderable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IShadersManager.cpp">
+    <ClCompile Include="ShadersManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TinyObjModelsLoader.cpp">
@@ -211,7 +211,7 @@
     <ClInclude Include="Renderable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IShadersManager.h">
+    <ClInclude Include="ShadersManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\External\tinyobjloader\tiny_obj_loader.h">

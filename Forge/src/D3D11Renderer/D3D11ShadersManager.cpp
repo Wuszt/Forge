@@ -4,7 +4,7 @@
 #include "../Core/DepotsContainer.h"
 
 d3d11::D3D11ShadersManager::D3D11ShadersManager( const forge::DepotsContainer& depotsContainer, D3D11Device& device, D3D11RenderContext& context )
-	: IShadersManager( depotsContainer )
+	: ShadersManager( depotsContainer )
 	, m_device( device )
 	, m_context( context )
 {}

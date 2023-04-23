@@ -12,11 +12,11 @@ namespace renderer
 	template< class ShaderType >
 	class ShaderPack;
 
-	class IShadersManager
+	class ShadersManager
 	{
 	public:
-		IShadersManager( const forge::DepotsContainer& depotsContainer );
-		~IShadersManager();
+		ShadersManager( const forge::DepotsContainer& depotsContainer );
+		virtual ~ShadersManager() = 0;
 
 		void SetBaseShaderDefines( std::vector< ShaderDefine > shaderDefines );
 		forge::ArraySpan< const ShaderDefine > GetBaseShaderDefines() const

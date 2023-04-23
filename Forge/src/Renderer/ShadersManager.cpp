@@ -1,5 +1,5 @@
 #include "Fpch.h"
-#include "IShadersManager.h"
+#include "ShadersManager.h"
 #include "IVertexShader.h"
 #include "IPixelShader.h"
 #include "IShader.h"
@@ -8,13 +8,13 @@
 
 namespace renderer
 {
-	IShadersManager::IShadersManager( const forge::DepotsContainer& depotsContainer )
+	ShadersManager::ShadersManager( const forge::DepotsContainer& depotsContainer )
 		: m_depotsContainer( depotsContainer )
 	{}
 
-	IShadersManager::~IShadersManager() = default;
+	ShadersManager::~ShadersManager() = default;
 
-	void IShadersManager::SetBaseShaderDefines( std::vector< ShaderDefine > shaderDefines )
+	void ShadersManager::SetBaseShaderDefines( std::vector< ShaderDefine > shaderDefines )
 	{
 		m_baseShaderDefines = std::move( shaderDefines );
 
@@ -37,7 +37,7 @@ namespace renderer
 		return static_cast<Uint32>( result );
 	}
 
-	std::shared_ptr< ShaderPack< IVertexShader > > IShadersManager::GetVertexShader( const std::string& path, std::vector< ShaderDefine > defines, Bool withSubshaders )
+	std::shared_ptr< ShaderPack< IVertexShader > > ShadersManager::GetVertexShader( const std::string& path, std::vector< ShaderDefine > defines, Bool withSubshaders )
 	{
 		FORGE_ASSERT( !withSubshaders || std::count_if( m_baseShaderDefines.begin(), m_baseShaderDefines.end(), [ &defines ]( const ShaderDefine& define ) { return std::count( defines.begin(), defines.end(), define ) > 0u; } ) == 0u );
 
@@ -67,7 +67,7 @@ namespace renderer
 		return shaderPack;
 	}
 
-	std::shared_ptr< ShaderPack< IPixelShader > > IShadersManager::GetPixelShader( const std::string& path, std::vector< ShaderDefine > defines, Bool withSubshaders )
+	std::shared_ptr< ShaderPack< IPixelShader > > ShadersManager::GetPixelShader( const std::string& path, std::vector< ShaderDefine > defines, Bool withSubshaders )
 	{
 		Uint32 shaderHash = CalcShaderHash( path, defines );
 		auto& shaderPack = m_pixelShaders[ shaderHash ];
@@ -95,7 +95,7 @@ namespace renderer
 		return shaderPack;
 	}
 
-	void IShadersManager::ClearCache()
+	void ShadersManager::ClearCache()
 	{
 		m_vertexShaders.clear();
 		m_pixelShaders.clear();
@@ -103,7 +103,7 @@ namespace renderer
 		m_onCacheClear.Invoke();
 	}
 
-	forge::CallbackToken IShadersManager::RegisterCacheClearingListener( const forge::Callback<>::TFunc& func )
+	forge::CallbackToken ShadersManager::RegisterCacheClearingListener( const forge::Callback<>::TFunc& func )
 	{
 		return m_onCacheClear.AddListener( func );
 	}

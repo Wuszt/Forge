@@ -106,7 +106,7 @@
     <ClCompile Include="TinyObjModelsLoader.cpp" />
     <ClCompile Include="PerspectiveCamera.cpp" />
     <ClCompile Include="Renderable.cpp" />
-    <ClCompile Include="IShadersManager.cpp" />
+    <ClCompile Include="ShadersManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\External\openfbx\src\miniz.h" />
@@ -156,7 +156,7 @@
     <ClInclude Include="PerspectiveCamera.h" />
     <ClInclude Include="PublicDefaults.h" />
     <ClInclude Include="Renderable.h" />
-    <ClInclude Include="IShadersManager.h" />
+    <ClInclude Include="ShadersManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">

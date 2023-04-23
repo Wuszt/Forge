@@ -14,7 +14,7 @@
 #include "Model.h"
 #include "Material.h"
 #include "Renderable.h"
-#include "IShadersManager.h"
+#include "ShadersManager.h"
 #include "ITexture.h"
 #include "IShaderResourceView.h"
 #include "ISamplerState.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include "../Renderer/IShadersManager.h"
+#include "../Renderer/ShadersManager.h"
 
 namespace renderer
 {
@@ -17,7 +17,7 @@ namespace d3d11
 	class D3D11RenderContext;
 	class D3D11Device;
 
-	class D3D11ShadersManager : public renderer::IShadersManager
+	class D3D11ShadersManager : public renderer::ShadersManager
 	{
 	public:
 		D3D11ShadersManager( const forge::DepotsContainer& depotsContainer, D3D11Device& device, D3D11RenderContext& context );

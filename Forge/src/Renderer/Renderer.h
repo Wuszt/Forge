@@ -33,7 +33,7 @@ namespace renderer
 	class IConstantBufferImpl;
 	class IDepthStencilBuffer;
 	class Renderable;
-	class IShadersManager;
+	class ShadersManager;
 	class ITexturesLoader;
 	class ISamplerState;
 	class IBlendState;
@@ -85,7 +85,7 @@ namespace renderer
 
 		virtual IRenderContext* GetContext() const = 0;
 		virtual ISwapchain* GetSwapchain() const = 0;
-		virtual IShadersManager* GetShadersManager() const = 0;
+		virtual ShadersManager* GetShadersManager() const = 0;
 
 		virtual std::unique_ptr< IInputLayout > CreateInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const = 0;
 		virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const Vertices& vertices ) const = 0;
