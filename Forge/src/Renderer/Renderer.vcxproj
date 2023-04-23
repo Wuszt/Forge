@@ -89,7 +89,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="IPixelShader.cpp" />
     <ClCompile Include="IRenderContext.cpp" />
-    <ClCompile Include="IRenderer.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="IRenderTargetView.cpp" />
     <ClCompile Include="ISwapchain.cpp" />
     <ClCompile Include="IVertexBuffer.cpp" />
@@ -137,7 +137,7 @@
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="IPixelShader.h" />
     <ClInclude Include="IRenderContext.h" />
-    <ClInclude Include="IRenderer.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="IRenderTargetView.h" />
     <ClInclude Include="ISwapchain.h" />
     <ClInclude Include="IVertexBuffer.h" />

@@ -8,7 +8,7 @@
 #include "AnimationSetAsset.h"
 #include <regex>
 
-renderer::FBXLoader::FBXLoader( renderer::IRenderer& renderer )
+renderer::FBXLoader::FBXLoader( renderer::Renderer& renderer )
 	: m_renderer( renderer )
 {}
 
@@ -321,7 +321,7 @@ std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHand
 	return std::make_shared< renderer::AnimationSetAsset >( path, animations );
 }
 
-std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, renderer::IRenderer& renderer, const SceneHandle& scene, const SkeletonData& skeletonData )
+std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, renderer::Renderer& renderer, const SceneHandle& scene, const SkeletonData& skeletonData )
 {
 	if ( scene->getMeshCount() == 0u )
 	{

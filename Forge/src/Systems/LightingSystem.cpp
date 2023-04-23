@@ -2,7 +2,7 @@
 #include "LightingSystem.h"
 #include "../Renderer/IRenderingPass.h"
 #include "RenderingSystem.h"
-#include "../Renderer/IRenderer.h"
+#include "../Renderer/Renderer.h"
 #include "../Renderer/PerspectiveCamera.h"
 #include "../renderer/IDepthStencilBuffer.h"
 

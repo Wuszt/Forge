@@ -13,7 +13,7 @@ namespace imgui
 
 namespace renderer
 {
-	class IRenderer;
+	class Renderer;
 	class IMeshesRenderingPass;
 	class FullScreenRenderingPass;
 	class ShadowMapsGenerator;
@@ -82,7 +82,7 @@ namespace systems
 		forge::CallbackToken m_beforeDrawToken;
 		forge::CallbackToken m_drawToken;
 		forge::CallbackToken m_presentToken;
-		renderer::IRenderer* m_renderer;
+		renderer::Renderer* m_renderer;
 
 		std::vector< std::unique_ptr< renderer::ISamplerState > > m_samplerStates;
 

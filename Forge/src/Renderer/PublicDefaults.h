@@ -1,5 +1,5 @@
 #pragma once
-#include "IRenderer.h"
+#include "Renderer.h"
 #include "IIndexBuffer.h"
 #include "IInputLayout.h"
 #include "IPixelShader.h"

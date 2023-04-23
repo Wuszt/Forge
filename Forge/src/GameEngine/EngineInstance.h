@@ -2,7 +2,7 @@
 
 namespace renderer
 {
-	class IRenderer;
+	class Renderer;
 }
 
 namespace systems
@@ -46,7 +46,7 @@ namespace forge
 			return *m_updateManager;
 		}
 
-		renderer::IRenderer& GetRenderer() const
+		renderer::Renderer& GetRenderer() const
 		{
 			return *m_renderer;
 		}
@@ -81,7 +81,7 @@ namespace forge
 		std::unique_ptr< AssetsManager > m_assetsManager;
 		std::unique_ptr< ecs::ECSManager > m_ecsManager;
 
-		std::unique_ptr< renderer::IRenderer > m_renderer;
+		std::unique_ptr< renderer::Renderer > m_renderer;
 		std::unique_ptr< IWindow > m_window;
 
 		forge::CallbackToken m_windowUpdateToken;

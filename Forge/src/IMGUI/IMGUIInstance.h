@@ -7,7 +7,7 @@
 namespace renderer
 {
 	class IIMGUIRenderAPIAdapter;
-	class IRenderer;
+	class Renderer;
 }
 
 namespace forge
@@ -18,7 +18,7 @@ namespace forge
 	class IMGUIInstance
 	{
 	public:
-		IMGUIInstance( IWindow& window, renderer::IRenderer& renderer );
+		IMGUIInstance( IWindow& window, renderer::Renderer& renderer );
 		~IMGUIInstance();
 
 		void OnNewFrame();

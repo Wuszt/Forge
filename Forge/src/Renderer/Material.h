@@ -6,7 +6,7 @@ namespace renderer
 {
 	class IVertexShader;
 	class IPixelShader;
-	class IRenderer;
+	class Renderer;
 	class ITexture;
 	class ConstantBuffer;
 	enum class RenderingPass;
@@ -26,7 +26,7 @@ namespace renderer
 			Count
 		};
 
-		Material( renderer::IRenderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass );
+		Material( renderer::Renderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass );
 		~Material();
 
 		std::shared_ptr< ShaderPack< IVertexShader > > GetVertexShader() const
@@ -83,7 +83,7 @@ namespace renderer
 		std::shared_ptr< ShaderPack< IPixelShader > > m_pixelShader;
 		std::unique_ptr< renderer::ConstantBuffer > m_constantBuffer;
 		std::unique_ptr< const IInputLayout > m_inputLayout;
-		IRenderer& m_renderer;
+		Renderer& m_renderer;
 
 		std::vector< renderer::ShaderDefine > m_shadersDefines;
 

@@ -5,7 +5,7 @@
 #include "../Core/AssetsManager.h"
 #include "ConstantBuffer.h"
 
-renderer::Renderable::Renderable( IRenderer& renderer )
+renderer::Renderable::Renderable( Renderer& renderer )
 	: m_renderer( &renderer )
 {
 	m_cbMesh.SetImpl( renderer.CreateConstantBufferImpl() );

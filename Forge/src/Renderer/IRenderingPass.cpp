@@ -1,7 +1,7 @@
 #include "Fpch.h"
 #include "IRenderingPass.h"
 
-renderer::IRenderingPass::IRenderingPass( IRenderer& renderer )
+renderer::IRenderingPass::IRenderingPass( Renderer& renderer )
 	: m_renderer( renderer )
 {}
 
@@ -21,7 +21,7 @@ void renderer::IRenderingPass::SetTargetTexture( ITexture& targetTexture )
 	m_onTargetTextureResized = m_targetTexture->GetOnResizedCallback().AddListener( [ & ]( const Vector2& size ) { OnTargetTextureResized( size ); } );
 }
 
-renderer::IMeshesRenderingPass::IMeshesRenderingPass( IRenderer& renderer )
+renderer::IMeshesRenderingPass::IMeshesRenderingPass( Renderer& renderer )
 	: IRenderingPass( renderer )
 {
 	m_cameraCB = renderer.CreateStaticConstantBuffer< CBCamera >();

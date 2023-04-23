@@ -3,14 +3,14 @@
 
 namespace renderer
 {
-	class IRenderer;
+	class Renderer;
 	class ShaderDefine;
 
 	class FullScreenRenderingPass : public IRenderingPass
 	{
 	public:
-		FullScreenRenderingPass( IRenderer& renderer, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines );
-		FullScreenRenderingPass( IRenderer& renderer, const std::string& fullscreenVSPath, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines );
+		FullScreenRenderingPass( Renderer& renderer, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines );
+		FullScreenRenderingPass( Renderer& renderer, const std::string& fullscreenVSPath, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines );
 
 		void Draw( forge::ArraySpan< const IShaderResourceView* > input );
 

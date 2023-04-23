@@ -1,5 +1,5 @@
 #include "Fpch.h"
-#include "../Renderer/IRenderer.h"
+#include "../Renderer/Renderer.h"
 #include "../Renderer/IShader.h"
 #include "ConstantBuffer.h"
 
@@ -17,7 +17,7 @@ std::vector< renderer::ShaderDefine > ConstructShaderDefines( const renderer::Mo
 	return result;
 }
 
-renderer::Material::Material( renderer::IRenderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass )
+renderer::Material::Material( renderer::Renderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass )
 	: m_renderer( renderer )
 {
 	m_shadersDefines = ConstructShaderDefines( model );

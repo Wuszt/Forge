@@ -2,7 +2,7 @@
 
 namespace renderer
 {
-	class IRenderer;
+	class Renderer;
 	struct LightingData;
 	class RawRenderablesPacks;
 	class ShaderDefine;
@@ -10,12 +10,12 @@ namespace renderer
 	class ShadowMapsGenerator
 	{
 	public:
-		ShadowMapsGenerator( IRenderer& renderer );
+		ShadowMapsGenerator( Renderer& renderer );
 	
 		void GenerateShadowMaps( ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, LightingData& lightingData );
 
 	private:
-		IRenderer& m_renderer;
+		Renderer& m_renderer;
 	};
 }
 

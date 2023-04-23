@@ -20,7 +20,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="IRenderer.cpp">
+    <ClCompile Include="Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IRenderContext.cpp">
@@ -154,7 +154,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IRenderer.h">
+    <ClInclude Include="Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IRenderContext.h">

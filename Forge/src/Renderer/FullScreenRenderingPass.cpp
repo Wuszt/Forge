@@ -1,12 +1,12 @@
 #include "Fpch.h"
 #include "FullScreenRenderingPass.h"
-#include "IRenderer.h"
+#include "Renderer.h"
 
-renderer::FullScreenRenderingPass::FullScreenRenderingPass( IRenderer& renderer, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines )
+renderer::FullScreenRenderingPass::FullScreenRenderingPass( Renderer& renderer, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines )
 	: FullScreenRenderingPass( renderer, "VS_Fullscreen.fx", fullscreenEffectPath, shaderDefines )
 {}
 
-renderer::FullScreenRenderingPass::FullScreenRenderingPass( IRenderer& renderer, const std::string& fullscreenVSPath, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines )
+renderer::FullScreenRenderingPass::FullScreenRenderingPass( Renderer& renderer, const std::string& fullscreenVSPath, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines )
 	: IRenderingPass( renderer )
 	, m_vertexShaderName( fullscreenVSPath )
 	, m_pixelShaderName( fullscreenEffectPath )

@@ -11,7 +11,7 @@
 #include "RenderingComponent.h"
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
-#include "../Renderer/IRenderer.h"
+#include "../Renderer/Renderer.h"
 #include "ECSDebug.h"
 #endif
 

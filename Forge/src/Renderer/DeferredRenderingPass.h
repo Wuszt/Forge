@@ -4,7 +4,7 @@
 
 namespace renderer
 {
-	class IRenderer;
+	class Renderer;
 	class IRenderTargetView;
 	class ITexture;
 	class FullScreenRenderingPass;
@@ -14,7 +14,7 @@ namespace renderer
 	class DeferredRenderingPass : public IMeshesRenderingPass
 	{
 	public:
-		DeferredRenderingPass( IRenderer& renderer );
+		DeferredRenderingPass( Renderer& renderer );
 
 		virtual void OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData ) override;
 		virtual void ClearTargetTexture() override;

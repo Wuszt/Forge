@@ -25,7 +25,7 @@ forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 		const Uint32 width = 1600;
 		const Uint32 height = 900;
 		m_window = forge::IWindow::CreateNewWindow( width, height );
-		m_renderer = renderer::IRenderer::CreateRenderer( GetDepotsContainer(), GetAssetsManager(), *m_window, renderer::RendererType::D3D11 );
+		m_renderer = renderer::Renderer::CreateRenderer( GetDepotsContainer(), GetAssetsManager(), *m_window, renderer::RendererType::D3D11 );
 
 		m_windowUpdateToken = GetUpdateManager().RegisterUpdateFunction( UpdateManager::BucketType::PostUpdate, [ & ]() { m_window->Update(); } );
 		m_windowClosedToken = m_window->RegisterEventListener( [ appPtr = &appInstance ]( const forge::IWindow::IEvent& ev )

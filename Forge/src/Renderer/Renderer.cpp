@@ -1,5 +1,5 @@
 #include "Fpch.h"
-#include "IRenderer.h"
+#include "Renderer.h"
 #include "../D3D11Renderer/D3D11Renderer.h"
 #include "TinyObjModelsLoader.h"
 #include "../Core/AssetsManager.h"
@@ -10,9 +10,9 @@ IMPLEMENT_TYPE( renderer::WireFrameTag );
 
 namespace renderer
 {
-	std::unique_ptr< IRenderer > IRenderer::CreateRenderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window, RendererType type )
+	std::unique_ptr< Renderer > Renderer::CreateRenderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window, RendererType type )
 	{
-		std::unique_ptr< IRenderer > result = nullptr;
+		std::unique_ptr< Renderer > result = nullptr;
 
 		switch( type )
 		{
@@ -27,15 +27,15 @@ namespace renderer
 		return result;
 	}
 
-	IRenderer::IRenderer( forge::AssetsManager& assetsManager )
+	Renderer::Renderer( forge::AssetsManager& assetsManager )
 	{
 		assetsManager.AddAssetsLoader< TinyObjModelsLoader >( *this );
 		assetsManager.AddAssetsLoader< renderer::FBXLoader >( *this );
 	}
 
-	IRenderer::~IRenderer() = default;
+	Renderer::~Renderer() = default;
 
-	void IRenderer::Draw( const renderer::Renderable& renderable )
+	void Renderer::Draw( const renderer::Renderable& renderable )
 	{
 		renderable.GetModel().GetVertexBuffer()->Set();
 		renderable.GetCBMesh().SetVS( VSConstantBufferType::Mesh );

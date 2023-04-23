@@ -4,7 +4,7 @@
 #include "IBlendState.h"
 #include "../ECS/Query.h"
 #include "../ECS/Archetype.h"
-#include "IRenderer.h"
+#include "Renderer.h"
 
 struct CBForwardRendering
 {
@@ -32,7 +32,7 @@ forge::ArraySpan< const renderer::ShaderDefine > renderer::ForwardRenderingPass:
 	return shaderDefines;
 }
 
-renderer::ForwardRenderingPass::ForwardRenderingPass( IRenderer& renderer )
+renderer::ForwardRenderingPass::ForwardRenderingPass( Renderer& renderer )
 	: IMeshesRenderingPass( renderer )
 {
 	m_cbForwardRendering = GetRenderer().CreateStaticConstantBuffer< CBForwardRendering >();

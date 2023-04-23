@@ -8,7 +8,7 @@
 
 namespace d3d11
 {
-	IMGUID3D11Adapter::IMGUID3D11Adapter( renderer::IRenderer& renderer )
+	IMGUID3D11Adapter::IMGUID3D11Adapter( renderer::Renderer& renderer )
 		: m_renderer( renderer )
 	{
 		FORGE_ASSERT( dynamic_cast<const D3D11Renderer*>( &renderer ) );

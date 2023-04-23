@@ -5,7 +5,7 @@
 #include "OrthographicCamera.h"
 #include "ShadowsRenderingPass.h"
 
-renderer::ShadowMapsGenerator::ShadowMapsGenerator( IRenderer& renderer )
+renderer::ShadowMapsGenerator::ShadowMapsGenerator( Renderer& renderer )
 	: m_renderer( renderer )
 {}
 

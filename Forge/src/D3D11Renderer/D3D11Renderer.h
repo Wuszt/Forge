@@ -1,5 +1,5 @@
 #pragma once
-#include "../Renderer/IRenderer.h"
+#include "../Renderer/Renderer.h"
 #include "D3D11RenderContext.h"
 #include "D3D11RenderTargetView.h"
 #include "D3D11DepthStencilBuffer.h"
@@ -42,7 +42,7 @@ namespace d3d11
 
 	struct RawRenderableFragment;
 
-	class D3D11Renderer : public renderer::IRenderer
+	class D3D11Renderer : public renderer::Renderer
 	{
 	public:
 		D3D11Renderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window );

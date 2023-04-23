@@ -3,7 +3,7 @@
 
 namespace forge
 {
-	class IRenderer;
+	class Renderer;
 	class IAsset;
 	class IAssetsLoader;
 	class DepotsContainer;

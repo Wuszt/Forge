@@ -2,7 +2,7 @@
 #include "AnimationComponent.h"
 #include "../Renderer/SkeletonAsset.h"
 #include "RenderingComponent.h"
-#include "../Renderer/IRenderer.h"
+#include "../Renderer/Renderer.h"
 
 IMPLEMENT_TYPE( forge::AnimationFragment );
 IMPLEMENT_TYPE( forge::AnimationComponent );

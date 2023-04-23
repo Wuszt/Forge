@@ -43,7 +43,7 @@ namespace renderer
 	class IRenderingPass
 	{
 	public:
-		IRenderingPass( IRenderer& renderer );
+		IRenderingPass( Renderer& renderer );
 		virtual ~IRenderingPass() = 0;
 
 		virtual void ClearTargetTexture();
@@ -56,7 +56,7 @@ namespace renderer
 		}
 
 	protected:
-		IRenderer& GetRenderer()
+		Renderer& GetRenderer()
 		{
 			return m_renderer;
 		}
@@ -65,7 +65,7 @@ namespace renderer
 
 	private:
 		ITexture* m_targetTexture;	
-		IRenderer& m_renderer;
+		Renderer& m_renderer;
 		forge::CallbackToken m_onTargetTextureResized;
 	};
 
@@ -80,7 +80,7 @@ namespace renderer
 	class IMeshesRenderingPass : public IRenderingPass
 	{
 	public:
-		IMeshesRenderingPass( IRenderer& renderer );
+		IMeshesRenderingPass( Renderer& renderer );
 		virtual ~IMeshesRenderingPass();
 
 		void Draw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )

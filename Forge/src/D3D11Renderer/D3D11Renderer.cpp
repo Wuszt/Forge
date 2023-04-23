@@ -41,7 +41,7 @@ namespace d3d11
 	}
 
 	D3D11Renderer::D3D11Renderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window )
-		: IRenderer( assetsManager )
+		: Renderer( assetsManager )
 	{
 		FORGE_ASSERT( dynamic_cast< windows::WindowsWindow* >( &window ) );
 

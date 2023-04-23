@@ -76,12 +76,12 @@ namespace renderer
 		DECLARE_STRUCT( WireFrameTag, ecs::Tag );
 	};
 
-	class IRenderer
+	class Renderer
 	{
 	public:
-		static std::unique_ptr< IRenderer > CreateRenderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window, RendererType type );
-		IRenderer( forge::AssetsManager& assetsManager );
-		virtual ~IRenderer();
+		static std::unique_ptr< Renderer > CreateRenderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window, RendererType type );
+		Renderer( forge::AssetsManager& assetsManager );
+		virtual ~Renderer() = 0;
 
 		virtual IRenderContext* GetContext() const = 0;
 		virtual ISwapchain* GetSwapchain() const = 0;

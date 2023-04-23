@@ -4,7 +4,7 @@
 #include "../Core/AssetsManager.h"
 #include "OrthographicCamera.h"
 
-renderer::SkyboxRenderingPass::SkyboxRenderingPass( forge::AssetsManager& assetsManager, renderer::IRenderer& renderer, std::shared_ptr< const renderer::ITexture > texture )
+renderer::SkyboxRenderingPass::SkyboxRenderingPass( forge::AssetsManager& assetsManager, renderer::Renderer& renderer, std::shared_ptr< const renderer::ITexture > texture )
 	: IRenderingPass( renderer )
 {
 	FORGE_ASSERT( texture->GetType() == renderer::ITexture::Type::TextureCube );

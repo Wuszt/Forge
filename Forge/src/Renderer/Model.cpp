@@ -2,9 +2,9 @@
 #include "Model.h"
 #include "../Renderer/IVertexBuffer.h"
 #include "../Renderer/IIndexBuffer.h"
-#include "../Renderer/IRenderer.h"
+#include "../Renderer/Renderer.h"
 
-renderer::Model::Model( renderer::IRenderer& renderer, const renderer::Vertices& vertices, const forge::ArraySpan< const renderer::Shape >& shapes )
+renderer::Model::Model( renderer::Renderer& renderer, const renderer::Vertices& vertices, const forge::ArraySpan< const renderer::Shape >& shapes )
 {
 	m_vertexBuffer = renderer.CreateVertexBuffer( vertices );
 

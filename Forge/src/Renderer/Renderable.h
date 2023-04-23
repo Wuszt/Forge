@@ -1,12 +1,12 @@
 #pragma once
 #include "ConstantBuffer.h"
-#include "IRenderer.h"
+#include "Renderer.h"
 
 namespace renderer
 {
 	class Model;
 	class Material;
-	class IRenderer;
+	class Renderer;
 	class IInputLayout;
 	
 	struct cbMesh
@@ -17,7 +17,7 @@ namespace renderer
 	class Renderable
 	{
 	public:
-		Renderable( IRenderer& renderer );
+		Renderable( Renderer& renderer );
 		Renderable();
 		~Renderable();
 
@@ -91,7 +91,7 @@ namespace renderer
 		}
 
 	private:
-		IRenderer* m_renderer;
+		Renderer* m_renderer;
 		std::shared_ptr< Model > m_model;
 		std::vector< std::unique_ptr< Material > > m_materials;
 		StaticConstantBuffer< cbMesh > m_cbMesh;

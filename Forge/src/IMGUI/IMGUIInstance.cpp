@@ -2,11 +2,11 @@
 #include "IMGUIInstance.h"
 #include "IMGUIPlatformAdapters.h"
 #include "IMGUIRenderAPIAdapters.h"
-#include "../Renderer/IRenderer.h"
+#include "../Renderer/Renderer.h"
 
 namespace forge
 {
-	IMGUIInstance::IMGUIInstance( IWindow& window, renderer::IRenderer& renderer )
+	IMGUIInstance::IMGUIInstance( IWindow& window, renderer::Renderer& renderer )
 	{
 #ifndef FORGE_IMGUI_ENABLED
 		FORGE_FATAL( "Imgui is not implemented for this platform" );

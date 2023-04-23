@@ -10,7 +10,7 @@
 #include "ShadowMapsGenerator.h"
 #include "../ECS/Query.h"
 #include "../ECS/Archetype.h"
-#include "IRenderer.h"
+#include "Renderer.h"
 
 struct CBDeferredRendering
 {
@@ -46,7 +46,7 @@ forge::ArraySpan< const renderer::ShaderDefine > renderer::DeferredRenderingPass
 	return shaderDefines;
 }
 
-renderer::DeferredRenderingPass::DeferredRenderingPass( IRenderer& renderer )
+renderer::DeferredRenderingPass::DeferredRenderingPass( Renderer& renderer )
 	: IMeshesRenderingPass( renderer )
 {
 	m_lightingPass = std::make_unique< FullScreenRenderingPass >( GetRenderer(), "DeferredLighting.fx", "DeferredLighting.fx", forge::ArraySpan< renderer::ShaderDefine >( {} ) );

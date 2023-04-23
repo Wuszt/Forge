@@ -3,13 +3,13 @@
 
 namespace renderer
 {
-	class IRenderer;
+	class Renderer;
 	class ITexture;
 
 	class SkyboxRenderingPass : public IRenderingPass
 	{
 	public:
-		SkyboxRenderingPass( forge::AssetsManager& assetsManager, renderer::IRenderer& renderer, std::shared_ptr< const renderer::ITexture > texture );
+		SkyboxRenderingPass( forge::AssetsManager& assetsManager, renderer::Renderer& renderer, std::shared_ptr< const renderer::ITexture > texture );
 
 		void Draw( const renderer::ICamera& camera );
 

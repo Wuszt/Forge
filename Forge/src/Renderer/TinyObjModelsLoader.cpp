@@ -7,7 +7,7 @@
 #include <fstream>
 #include "ModelAsset.h"
 
-renderer::TinyObjModelsLoader::TinyObjModelsLoader( renderer::IRenderer& renderer )
+renderer::TinyObjModelsLoader::TinyObjModelsLoader( renderer::Renderer& renderer )
 	: m_renderer( renderer )
 {}
 

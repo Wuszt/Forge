@@ -9,7 +9,7 @@ namespace renderer
 	class ForwardRenderingPass : public IMeshesRenderingPass 
 	{
 	public:
-		ForwardRenderingPass( IRenderer& renderer );
+		ForwardRenderingPass( Renderer& renderer );
 		~ForwardRenderingPass();
 
 		virtual void OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData ) override;

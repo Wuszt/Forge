@@ -1,7 +1,7 @@
 #include "Fpch.h"
 #include "../Renderer/ConstantBuffer.h"
 #include "RenderingComponent.h"
-#include "../Renderer/IRenderer.h"
+#include "../Renderer/Renderer.h"
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/IShadersManager.h"

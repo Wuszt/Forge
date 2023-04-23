@@ -9,7 +9,7 @@
 #include "../Systems/PlayerSystem.h"
 #include "../Systems/CameraComponent.h"
 #include "../Systems/RenderingSystem.h"
-#include "../Renderer/IRenderer.h"
+#include "../Renderer/Renderer.h"
 #include "../Core/IInput.h"
 #include "../Systems/LightingSystem.h"
 #include "../Renderer/Renderable.h"
