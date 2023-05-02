@@ -12,6 +12,8 @@ namespace physx
 	class PxMaterial;
 	class PxPvd;
 	class PxPvdTransport;
+
+	class PxCooking;
 }
 
 namespace physics
@@ -28,6 +30,11 @@ namespace physics
 		physx::PxPhysics& GetPhysics() const
 		{
 			return *m_physX;
+		}
+
+		physx::PxCooking& GetCooking() const
+		{
+			return *m_cooking;
 		}
 
 		physx::PxDefaultCpuDispatcher& GetCPUDispatcher() const
@@ -53,6 +60,8 @@ namespace physics
 
 		physx::PxPvd* m_pvd;
 		physx::PxPvdTransport* m_transport;
+
+		physx::PxCooking* m_cooking;
 	};
 }
 

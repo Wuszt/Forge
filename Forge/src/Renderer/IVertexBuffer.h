@@ -242,6 +242,11 @@ namespace renderer
 			return m_vertexSize * m_verticesAmount;
 		}
 
+		Uint32 GetVerticesAmount() const
+		{
+			return m_verticesAmount;
+		}
+
 		const void* GetData() const
 		{
 			return m_buffer.GetData();

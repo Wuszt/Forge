@@ -40,6 +40,8 @@
 #include "../Systems/PhysicsSystem.h"
 #include "../Systems/PhysicsComponent.h"
 #include "../Physics/PhysicsShape.h"
+#include "../Renderer/ModelAsset.h"
+#include "../Renderer/Model.h"
 
 void MinecraftScene( forge::EngineInstance& engineInstance )
 {
@@ -114,7 +116,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 {
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
 	{
-		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ engineInstancePtr = &engineInstance, obj ]()
+		obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsStaticComponent >( [ engineInstancePtr = &engineInstance, obj ]()
 		{
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
@@ -122,6 +124,28 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 			renderingComponent->LoadMeshAndMaterial( "Models\\sponza\\sponza.obj" );
 
 			transformComponent->GetDirtyData().m_transform.SetPosition( Vector3::ZEROS() );
+
+			auto* physicsComponent = obj->GetComponent< forge::PhysicsStaticComponent >();
+			auto modelAsset = engineInstancePtr->GetAssetsManager().GetAsset< renderer::ModelAsset >( "Models\\sponza\\sponza.obj" );
+
+			auto model = modelAsset->GetModel();
+			const renderer::Vertices& vertices = model->GetVertices();
+			std::vector< Vector3 > verts;
+			verts.resize( vertices.GetVerticesAmount() );
+
+			FORGE_ASSERT( vertices.GetInputElements().begin()->m_inputType == renderer::InputType::Position );
+			const Byte* address = static_cast< const Byte* >( vertices.GetData() );
+			for ( Vector3& vec : verts )
+			{
+				vec = *reinterpret_cast< const Vector3* >( address );
+				address += vertices.GetVertexSize();
+			}
+
+			std::vector< Uint32 > indices;
+			for ( renderer::Model::Shape& shape : model->GetShapes() )
+			{
+				physicsComponent->AddShape( physics::PhysicsShape( engineInstancePtr->GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), verts, shape.m_indices ) );
+			}
 		} );
 	} );
 
@@ -376,10 +400,10 @@ Int32 main()
 			//engineInstance.GetSystemsManager().GetSystem< systems::RenderingSystem >().SetSkyboxTexture( engineInstance.GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\skymap.dds" )->GetTexture() );
 
 			//MinecraftScene( engineInstance );
-			//SponzaScene( engineInstance );
+			SponzaScene( engineInstance );
 			//BunnyScene( engineInstance );
 
-			CubeScene(engineInstance);
+			//CubeScene(engineInstance);
 			//SkeletalMesh( engineInstance, { 0.0f, 400.0f, 0.0f } );
 			//SkeletalMesh( engineInstance, { 0.0f, 600.0f, 0.0f } );
 			//SkeletalMesh( engineInstance, { 0.0f, 800.0f, 0.0f } );

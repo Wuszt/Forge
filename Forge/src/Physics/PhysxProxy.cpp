@@ -47,6 +47,8 @@ physics::PhysxProxy::PhysxProxy()
 	m_pxDispatcher = physx::PxDefaultCpuDispatcherCreate( 2u );
 
 	m_defaultMaterial = std::make_unique< physics::PhysicsMaterial >( *this, c_defaultDynamicFriction, c_defaultStaticFriction, c_defaultRestitution );
+
+	m_cooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_pxFoundation, { physx::PxTolerancesScale() } );
 }
 
 physics::PhysxProxy::~PhysxProxy()
@@ -59,4 +61,5 @@ physics::PhysxProxy::~PhysxProxy()
 	m_pvd->release();
 	m_transport->release();
 	m_pxFoundation->release();
+	m_cooking->release();
 }

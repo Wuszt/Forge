@@ -95,7 +95,7 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::TinyObjModelsLoader::L
 		materialsData.back().m_buffer->UpdateBuffer();
 	}
 
-	return { std::make_shared< renderer::ModelAsset >( path, std::make_unique< renderer::Model >( m_renderer, vertices, shapes ), std::move( materialsData ) ) };
+	return { std::make_shared< renderer::ModelAsset >( path, std::make_unique< renderer::Model >( m_renderer, std::move( vertices ), shapes ), std::move( materialsData ) ) };
 }
 
 static const char* c_handledExceptions[] = { "obj" };

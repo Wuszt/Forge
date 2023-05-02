@@ -494,7 +494,7 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 
 	renderer::Vertices vertices = builder.Build();
 
-	std::unique_ptr< renderer::Model > model = std::make_unique< renderer::Model >( renderer, vertices, shapes );
+	std::unique_ptr< renderer::Model > model = std::make_unique< renderer::Model >( renderer, std::move( vertices ), shapes );
 	std::shared_ptr< renderer::ModelAsset > modelAsset = std::make_shared< renderer::ModelAsset >( path, std::move( model ), std::move( materialsData ) );
 
 	return modelAsset;
