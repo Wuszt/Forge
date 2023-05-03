@@ -12,6 +12,14 @@ Unit Tests have been moved to separate, private submodule. They're obviously not
 
 ### Current state:
 
+# 05.2023
+![](Journal/030523/state.gif)
+- ECS 2.0
+- Debug shapes + drawing wireframe
+- Animation component + system
+- Physx integration
+- Finally... skybox
+
 # 11.2022
 [![](https://markdown-videos.deta.dev/youtube/gvsBKjrnRLk)](https://youtu.be/gvsBKjrnRLk)
 - Spot lights and directional lights
