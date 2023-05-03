@@ -231,6 +231,11 @@ struct Vector4
 		return vec3;
 	}
 
+	Vector3& AsVector3()
+	{
+		return vec3;
+	}
+
 	const Float* AsArray() const
 	{
 		return &X;

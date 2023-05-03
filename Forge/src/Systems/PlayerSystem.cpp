@@ -45,13 +45,7 @@ void systems::PlayerSystem::Update()
 		m_wasShiftAndWheelPressed = false;
 	}
 
-	if( input->IsCursorLocked() )
-	{
-		if( m_activeController )
-		{
-			m_activeController->Update();
-		}
-	}
+	m_activeController->Update( input->IsCursorLocked() );
 }
 
 #ifdef FORGE_IMGUI_ENABLED

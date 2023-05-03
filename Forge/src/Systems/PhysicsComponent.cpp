@@ -2,6 +2,7 @@
 #include "PhysicsComponent.h"
 #include "PhysicsSystem.h"
 #include "TransformComponent.h"
+#include "../Physics/PhysicsShape.h"
 
 IMPLEMENT_TYPE( forge::IPhysicsComponent );
 
@@ -25,8 +26,12 @@ void forge::IPhysicsComponent::OnDetached( EngineInstance& engineInstance, ecs::
 	physicsSystem.UnregisterActor( GetActor() );
 }
 
-void forge::IPhysicsComponent::AddShape( const physics::PhysicsShape& shape )
+void forge::IPhysicsComponent::AddShape( physics::PhysicsShape&& shape )
 {
+	forge::TransformComponent* transformComponent = GetOwner().GetComponent< forge::TransformComponent >();
+	const Vector3* prevFrameScale = transformComponent->GetPrevFrameScale();
+	shape.ChangeScale( Vector3::ONES(), prevFrameScale ? *prevFrameScale : transformComponent->GetScale() );
+
 	GetActor().AddShape( shape );
 }
 
@@ -46,8 +51,8 @@ void forge::PhysicsDynamicComponent::UpdateDensity( Float density )
 	GetActor().UpdateDensity( m_density );
 }
 
-void forge::PhysicsDynamicComponent::AddShape( const physics::PhysicsShape& shape )
+void forge::PhysicsDynamicComponent::AddShape( physics::PhysicsShape&& shape )
 {
-	Super::AddShape( shape );
+	Super::AddShape( std::move( shape ) );
 	GetActor().UpdateDensity( m_density );
 }

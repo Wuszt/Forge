@@ -2,11 +2,26 @@
 #include "TransformComponent.h"
 
 IMPLEMENT_TYPE( forge::TransformFragment );
+IMPLEMENT_TYPE( forge::PreviousFrameTransformFragment );
+IMPLEMENT_TYPE( forge::PreviousFrameScaleFragment );
 IMPLEMENT_TYPE( forge::TransformComponent );
-IMPLEMENT_TYPE( forge::TransformModifiedThisFrame );
 
 void forge::TransformComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	DataComponent< TransformFragment >::OnAttached( engineInstance, commandsQueue );
-	GetOwner().GetEngineInstance().GetECSManager().AddTagToEntity< TransformModifiedThisFrame >( GetOwner().GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ) );
+	GetDirtyTransform() = Transform::IDENTITY();
+	GetDirtyScale() = Vector3::ONES();
+}
+
+const Vector3* forge::TransformComponent::GetPrevFrameScale() const
+{
+	auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
+	auto entityID = GetOwner().GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() );
+
+	if ( const PreviousFrameScaleFragment* prevFrameScaleFragment = ecsManager.GetFragment< PreviousFrameScaleFragment >( entityID ) )
+	{
+		return &prevFrameScaleFragment->m_previousScale;
+	}
+
+	return nullptr;
 }

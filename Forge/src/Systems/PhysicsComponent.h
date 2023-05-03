@@ -35,7 +35,7 @@ namespace forge
 		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 		virtual void OnDetached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 
-		virtual void AddShape( const physics::PhysicsShape& shape );
+		virtual void AddShape( physics::PhysicsShape&& shape );
 
 		virtual physics::PhysicsActor& GetActor() = 0;
 	};
@@ -56,7 +56,7 @@ namespace forge
 		virtual physics::PhysicsDynamicActor& GetActor() override;
 
 		void UpdateDensity( Float density );
-		virtual void AddShape( const physics::PhysicsShape& shape ) override;
+		virtual void AddShape( physics::PhysicsShape&& shape ) override;
 
 	private:
 		Float m_density = 1.0f;

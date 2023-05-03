@@ -227,9 +227,9 @@ void systems::LightingSystem::OnRenderDebug()
 					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen) )
 					{
 						ImGui::ColorEdit3( "Color", lightFragments[i].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
-						ImGui::SliderFloat( "Power", &lightFragments[i].m_power, 0.0f, 10000.0f );
+						ImGui::SliderFloat( "Power", &lightFragments[i].m_power, 0.0f, 10.0f );
 
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transformFragments[ i ].m_transform.GetPosition3(), 50.0f, lightFragments[ i ].m_color, true, false, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transformFragments[ i ].m_transform.GetPosition3(), 1.0f, lightFragments[ i ].m_color, true, false, 0.0f );
 
 						castShadowFunc( GetPointLights()[ i ], true );
 
@@ -263,15 +263,15 @@ void systems::LightingSystem::OnRenderDebug()
 					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
 					{
 						ImGui::ColorEdit3( "Color", lightFragments[ i ].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
-						ImGui::SliderFloat( "Power", &lightFragments[ i ].m_power, 0.0f, 10000.0f );
+						ImGui::SliderFloat( "Power", &lightFragments[ i ].m_power, 0.0f, 10.0f );
 						ImGui::SliderFloat( "Inner Angle", &lightFragments[ i ].m_innerAngle, 0.0f, lightFragments[ i ].m_outerAngle - 0.01f );
 						ImGui::SliderFloat( "Outer Angle", &lightFragments[ i ].m_outerAngle, 0.0f, FORGE_PI_HALF );
 
 						Vector3 pos = transformFragments[ i ].m_transform.GetPosition3();
 						Vector3 forward = transformFragments[ i ].m_transform.GetForward();
 
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCone( pos, pos + forward * 1000.0f, lightFragments[ i ].m_innerAngle, lightFragments[ i ].m_color, true, false, 0.0f );
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCone( pos, pos + forward * 1000.0f, lightFragments[ i ].m_outerAngle, lightFragments[ i ].m_color, true, false, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCone( pos, pos + forward * 10.0f, lightFragments[ i ].m_innerAngle, lightFragments[ i ].m_color, true, false, 0.0f );
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawCone( pos, pos + forward * 10.0f, lightFragments[ i ].m_outerAngle, lightFragments[ i ].m_color, true, false, 0.0f );
 
 						castShadowFunc( GetSpotLights()[ i ], false );
 

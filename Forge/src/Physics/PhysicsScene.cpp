@@ -39,11 +39,13 @@ void physics::PhysicsScene::RemoveActor( physics::PhysicsActor& actor )
 
 void physics::PhysicsScene::Simulate( Float deltaTime )
 {
-	if ( deltaTime > 0.5f )
-	{
-		return;
-	}
+	constexpr Float minDelta = 0.02f;
 
-	m_pxScene->simulate( deltaTime );
-	m_pxScene->fetchResults( true );
+	while ( deltaTime > 0.0f )
+	{
+		m_pxScene->simulate( Math::Min( deltaTime, minDelta ) );
+		m_pxScene->fetchResults( true );
+
+		deltaTime -= minDelta;
+	}
 }

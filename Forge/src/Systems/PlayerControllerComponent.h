@@ -3,6 +3,7 @@ namespace forge
 {
 	class IInput;
 	class TransformComponent;
+	class PhysicsDynamicComponent;
 
 	class PlayerControllerComponent : public IComponent
 	{
@@ -10,7 +11,7 @@ namespace forge
 	public:
 		using IComponent::IComponent;
 
-		virtual void Update() {}
+		virtual void Update( bool isInputEnabled ) {}
 	};
 
 	class FreeCameraControllerComponent : public PlayerControllerComponent
@@ -18,14 +19,15 @@ namespace forge
 	public:
 		using PlayerControllerComponent::PlayerControllerComponent;
 
-		virtual void Update() override;
+		virtual void Update( bool isInputEnabled ) override;
 
 	protected:
 		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 
 	private:
-		IInput* m_input;
-		TransformComponent* m_ownerTransform;
+		IInput* m_input = nullptr;
+		TransformComponent* m_ownerTransform = nullptr;
+		PhysicsDynamicComponent* m_physicsComponent = nullptr;
 
 		Float m_currentSpeed = 3.0f;
 

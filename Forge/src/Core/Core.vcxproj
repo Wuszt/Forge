@@ -37,6 +37,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\External\Mini-RTTI\RTTI.h" />
     <ClInclude Include="ArraySpan.h" />
+    <ClInclude Include="Assertions.h" />
     <ClInclude Include="AssetsManager.h" />
     <ClInclude Include="IAsset.h" />
     <ClInclude Include="Callback.h" />
@@ -216,7 +217,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;CORE_EXPORTS;_WINDOWS;_USRDLL;FORGE_DEBUG_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FORGE_DEBUG_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>fpch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)/External/spdlog/include</AdditionalIncludeDirectories>
@@ -334,7 +335,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>CORE_EXPORTS;_WINDOWS;_USRDLL;FORGE_RELEASE_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FORGE_RELEASE_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>fpch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)/External/spdlog/include</AdditionalIncludeDirectories>

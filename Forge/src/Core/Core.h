@@ -12,14 +12,20 @@
 #elif defined FORGE_RELEASE_VERSION
 
 #define FORGE_DEBUGGING
+#define NDEBUG
 
 #elif defined FORGE_PROFILING_VERSION
 
 #define FORGE_PROFILING_ENABLED
+#define _NDEBUG
 
 #elif defined FORGE_FINAL_VERSION
 
+#define NDEBUG
+
 #endif
+
+#define FORGE_INLINE inline
 
 #ifdef FORGE_DEBUGGING
 
@@ -33,30 +39,7 @@
 
 #endif
 
-#ifdef FORGE_ASSERTIONS_ENABLED
-#include <assert.h>
-#define FORGE_ASSERT( ... ) assert( __VA_ARGS__ )
-#else
-#define NDEBUG
-#define FORGE_ASSERT( ... )
-#endif
-
-#ifdef FORGE_FATALS_ENABLED
-#include <assert.h>
-#define FORGE_FATAL( msg ) assert(((void)msg, false ))
-#else
-#define NDEBUG
-#define FORGE_FATAL( msg )
-#endif
-
-#define FORGE_INLINE inline
-
-#ifdef FORGE_ASSURES_ENABLED
-#include <assert.h>
-#define FORGE_ASSURE( ... ) assert( __VA_ARGS__ )
-#else
-#define FORGE_ASSURE( ... ) __VA_ARGS__
-#endif
+#include "Assertions.h"
 
 #define FORGE_ARRAY_COUNT( arr ) sizeof( arr ) / sizeof( arr[ 0 ] )
 

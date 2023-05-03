@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ExternalIncludes.h"
 #include "Core.h"
+#include "ExternalIncludes.h"
 #include "Types.h"
 #include "../../External/Mini-RTTI/RTTI.h"
 

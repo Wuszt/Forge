@@ -8,7 +8,7 @@ namespace forge
 		DECLARE_STRUCT( PointLightFragment, ecs::Fragment );
 
 		Vector3 m_color = { 1.0f, 1.0f, 1.0f };
-		Float m_power = 400.0f;
+		Float m_power = 5.0f;
 	};
 
 	class PointLightComponent : public DataComponent< PointLightFragment >

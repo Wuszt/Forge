@@ -369,17 +369,23 @@ void systems::RenderingSystem::OnBeforeDraw()
 		} );
 	}
 
-	ecs::Query query;
-	query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
-	query.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
-	query.AddTagRequirement< forge::TransformModifiedThisFrame >( ecs::Query::RequirementType::Included );
+	ecs::Query modifiedTransformQuery;
+	modifiedTransformQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
+	modifiedTransformQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
+	modifiedTransformQuery.AddFragmentRequirement< forge::PreviousFrameTransformFragment >( ecs::Query::RequirementType::Included );
+
+	ecs::Query modifiedScaleQuery;
+	modifiedScaleQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
+	modifiedScaleQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
+	modifiedScaleQuery.AddFragmentRequirement< forge::PreviousFrameScaleFragment >( ecs::Query::RequirementType::Included );
 
 	{
 		PC_SCOPE( "RenderingSystem::OnDraw::UpdatingBuffers" );
-		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+
+		auto func = [ & ]( ecs::Archetype& archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-		    auto renderableFragments = archetype.GetFragments< forge::RenderableFragment >();
+			auto renderableFragments = archetype.GetFragments< forge::RenderableFragment >();
 
 			for ( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
 			{
@@ -387,7 +393,10 @@ void systems::RenderingSystem::OnBeforeDraw()
 				cb.GetData().W = transformFragments[ i ].ToMatrix();
 				cb.UpdateBuffer();
 			}
-		} );
+		};
+
+		modifiedTransformQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), func );
+		modifiedScaleQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), func );
 	}
 }
 

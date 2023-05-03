@@ -36,24 +36,30 @@ void forge::ObjectsManager::HandleRequests()
 {
 	PC_SCOPE_FUNC();
 
-	for( const auto& request : m_objectDestructionRequests )
 	{
-		RemoveObject( request.m_id );
+		auto requests = std::move( m_objectDestructionRequests );
+		m_objectDestructionRequests.clear();
+		for ( const auto& request : requests )
+		{
+			RemoveObject( request.m_id );
+		}
 	}
 
-	m_objectDestructionRequests.clear();
-
-	for( const auto& request : m_objectCreationRequests )
 	{
-		request.m_creationFunc();
+		auto requests = std::move( m_objectCreationRequests );
+		m_objectCreationRequests.clear();
+		for ( const auto& request : requests )
+		{
+			request.m_creationFunc();
+		}
 	}
 
-	m_objectCreationRequests.clear();
-
-	for( const auto& request : m_componentCreationRequests )
 	{
-		request.m_creationFunc();
+		auto requests = std::move( m_componentCreationRequests );
+		m_componentCreationRequests.clear();
+		for ( const auto& request : requests )
+		{
+			request.m_creationFunc();
+		}
 	}
-
-	m_componentCreationRequests.clear();
 }

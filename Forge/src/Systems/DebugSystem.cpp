@@ -78,8 +78,8 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 			renderingComponent->GetDirtyRenderable().SetFillMode( renderer::FillMode::WireFrame );
 		}
 
-		transformComponent->GetDirtyData().m_transform.SetPosition( position );
-		transformComponent->GetDirtyData().m_scale = { radius, radius, radius };
+		transformComponent->GetDirtyTransform().SetPosition( position );
+		transformComponent->GetDirtyScale() = { radius, radius, radius };
 
 		renderingComponent->SetInteractingWithLight( false );
 		renderingComponent->SetDrawAsOverlayEnabled( overlay );
@@ -104,8 +104,8 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 			renderingComponent->GetDirtyRenderable().SetFillMode( renderer::FillMode::WireFrame );
 		}
 
-		transformComponent->GetDirtyData().m_transform.SetPosition( position );
-		transformComponent->GetDirtyData().m_scale = extension;
+		transformComponent->GetDirtyTransform().SetPosition( position );
+		transformComponent->GetDirtyScale() = extension;
 
 		renderingComponent->SetInteractingWithLight( false );
 		renderingComponent->SetDrawAsOverlayEnabled( overlay );
@@ -125,9 +125,9 @@ void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, F
 
 		renderingComponent->LoadMeshAndMaterial( "Models\\cylinder.obj" );
 
-		transformComponent->GetDirtyData().m_transform.SetPosition( start + ( end - start ) * 0.5f );
-		transformComponent->GetDirtyData().m_scale = { thickness, thickness, ( end - start ).Mag() };
-		transformComponent->GetDirtyData().m_transform.SetOrientation( Quaternion::GetRotationBetweenVectors( Vector3::EZ(), end - start ) );
+		transformComponent->GetDirtyTransform().SetPosition( start + ( end - start ) * 0.5f );
+		transformComponent->GetDirtyScale() = { thickness, thickness, ( end - start ).Mag() };
+		transformComponent->GetDirtyTransform().SetOrientation( Quaternion::GetRotationBetweenVectors( Vector3::EZ(), end - start ) );
 
 		renderingComponent->SetInteractingWithLight( false );
 		renderingComponent->SetDrawAsOverlayEnabled( overlay );
@@ -160,11 +160,11 @@ void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Fl
 		transform = transform * Quaternion::CreateFromDirection( direction );
 		transform = transform * Matrix( top );
 
-		transformComponent->GetDirtyData().m_transform.SetOrientation( transform.GetRotation() );
-		transformComponent->GetDirtyData().m_transform.SetPosition( transform.GetTranslation() );
+		transformComponent->GetDirtyTransform().SetOrientation( transform.GetRotation() );
+		transformComponent->GetDirtyTransform().SetPosition( transform.GetTranslation() );
 
 		const Float size = length * Math::Tg( angle );
-		transformComponent->GetDirtyData().m_scale = Vector3{ size, size, length };
+		transformComponent->GetDirtyScale() = Vector3{ size, size, length };
 
 		renderingComponent->SetInteractingWithLight( false );
 		renderingComponent->SetDrawAsOverlayEnabled( overlay );

@@ -61,7 +61,7 @@ namespace d3d11
 		, m_device( device )
 		, m_context( context )
 	{
-		ID3D11Texture2D* backBuffer;
+		ID3D11Texture2D* backBuffer = nullptr;
 		FORGE_ASSURE( m_swapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)&backBuffer ) == S_OK );
 
 		m_backBuffer = std::make_unique< SwapchainTexture >( m_device, m_context, *backBuffer );
@@ -89,7 +89,7 @@ namespace d3d11
 		m_backBuffer->OnBeforeSwapchainResize();
 		FORGE_ASSURE( m_swapChain->ResizeBuffers( swapChainDesc.BufferCount, width, height, swapChainDesc.BufferDesc.Format, swapChainDesc.Flags ) == S_OK );
 
-		ID3D11Texture2D* backBuffer;
+		ID3D11Texture2D* backBuffer = nullptr;
 		FORGE_ASSURE( m_swapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (void**)&backBuffer ) == S_OK );
 		m_backBuffer->OnSwapchainResized( *backBuffer );
 	}

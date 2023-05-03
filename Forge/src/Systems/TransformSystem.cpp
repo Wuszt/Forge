@@ -11,22 +11,16 @@ void systems::TransformSystem::OnInitialize()
 
 void systems::TransformSystem::Update()
 {
-	ecs::Query query;
-	query.AddTagRequirement< forge::TransformModifiedThisFrame >( ecs::Query::RequirementType::Included );
-	query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
-
-	std::vector< ecs::EntityID > entities;
-
-	query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
-		{
-			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
-			{
-				entities.emplace_back( archetype.GetEntityIDWithIndex( i ) );
-			}
-		} );
-
-	for ( const ecs::EntityID& entity : entities )
+	for ( auto& archetype : GetEngineInstance().GetECSManager().GetArchetypes() )
 	{
-		GetEngineInstance().GetECSManager().RemoveTagFromEntity< forge::TransformModifiedThisFrame >( entity );
+		if ( archetype->GetArchetypeID().ContainsFragment< forge::PreviousFrameTransformFragment >() )
+		{
+			archetype->RemoveFragmentType< forge::PreviousFrameTransformFragment >();
+		}
+
+		if ( archetype->GetArchetypeID().ContainsFragment< forge::PreviousFrameScaleFragment >() )
+		{
+			archetype->RemoveFragmentType< forge::PreviousFrameScaleFragment >();
+		}
 	}
 }

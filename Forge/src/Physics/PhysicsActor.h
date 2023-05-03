@@ -14,6 +14,8 @@ namespace physics
 
 	class PhysicsActor
 	{
+		DECLARE_ABSTRACT_CLASS( PhysicsActor );
+
 	public:
 		virtual ~PhysicsActor() = default;
 
@@ -24,13 +26,25 @@ namespace physics
 
 		void AddShape( const physics::PhysicsShape& shape );
 
+		virtual void ChangeScale( const Vector3& prevScale, const Vector3& newScale );
+
 		virtual const physx::PxRigidActor& GetActor() const = 0;
 		virtual physx::PxRigidActor& GetActor() = 0;
 	};
 
 	class PhysicsDynamicActor : public PhysicsActor
 	{
+		DECLARE_CLASS( PhysicsDynamicActor, PhysicsActor );
+
 	public:
+		enum class ForceMode
+		{
+			Force,
+			Impulse,
+			VelocityChange,
+			Acceleration
+		};
+
 		PhysicsDynamicActor() = default;
 		PhysicsDynamicActor( PhysicsDynamicActor&& other );
 		~PhysicsDynamicActor();
@@ -39,8 +53,34 @@ namespace physics
 
 		void UpdateDensity( Float density );
 
+		void AddForce( const Vector3& force, ForceMode forceMode );
+		void AddTorque( const Vector3& torque, ForceMode forceMode );
+		void ClearForce( ForceMode forceMode );
+		void ClearTorque( ForceMode forceMode );
+
+		void EnableGravity( bool enable );
+		void EnableSimulation( bool enable );
+
+		Vector3 GetVelocity() const;
+		void SetVelocity( const Vector3& velocity );
+
+		Vector3 GetAngularVelocity() const;
+		void SetAngularVelocity( const Vector3& velocity );
+
+		virtual void ChangeScale( const Vector3& prevScale, const Vector3& newScale ) override;
+
 		virtual const physx::PxRigidActor& GetActor() const override;
 		virtual physx::PxRigidActor& GetActor() override;
+
+		const physx::PxRigidDynamic& GetDynamicActor() const
+		{
+			return *m_actor;
+		}
+
+		physx::PxRigidDynamic& GetDynamicActor()
+		{
+			return *m_actor;
+		}
 
 	private:
 		physx::PxRigidDynamic* m_actor;
@@ -48,6 +88,8 @@ namespace physics
 
 	class PhysicsStaticActor : public PhysicsActor
 	{
+		DECLARE_CLASS( PhysicsStaticActor, PhysicsActor );
+
 	public:
 		PhysicsStaticActor() = default;
 		PhysicsStaticActor( PhysicsStaticActor&& other );
@@ -57,6 +99,16 @@ namespace physics
 
 		virtual const physx::PxRigidActor& GetActor() const override;
 		virtual physx::PxRigidActor& GetActor() override;
+
+		const physx::PxRigidStatic& GetStaticActor() const
+		{
+			return *m_actor;
+		}
+
+		physx::PxRigidStatic& GetStaticActor()
+		{
+			return *m_actor;
+		}
 
 	private:
 		physx::PxRigidStatic* m_actor;

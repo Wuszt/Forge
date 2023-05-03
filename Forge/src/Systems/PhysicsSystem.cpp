@@ -38,52 +38,92 @@ void systems::PhysicsSystem::UnregisterActor( physics::PhysicsActor& actor )
 
 void systems::PhysicsSystem::Update()
 {
-	ecs::Query dynamicsQuery;
-	dynamicsQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
-	dynamicsQuery.AddFragmentRequirement< forge::PhysicsDynamicFragment >( ecs::Query::RequirementType::Included );
-
-	ecs::Query staticsQuery;
-	staticsQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
-	staticsQuery.AddFragmentRequirement< forge::PhysicsStaticFragment >( ecs::Query::RequirementType::Included );
-
-	auto updateFunc = [ & ]< class T >( ecs::Archetype& archetype )
 	{
-		auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-		auto physicsFragments = archetype.GetFragments< T >();
+		ecs::Query dynamicsQuery;
+		dynamicsQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
+		dynamicsQuery.AddFragmentRequirement< forge::PhysicsDynamicFragment >( ecs::Query::RequirementType::Included );
+		dynamicsQuery.AddFragmentRequirement< forge::PreviousFrameScaleFragment >( ecs::Query::RequirementType::Included );
 
-		for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
-		{
-			physicsFragments[ i ].m_actor.SetTransform( transformFragments[ i ].m_transform );
-		}
-	};
+		ecs::Query staticsQuery;
+		staticsQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
+		staticsQuery.AddFragmentRequirement< forge::PhysicsStaticFragment >( ecs::Query::RequirementType::Included );
+		staticsQuery.AddFragmentRequirement< forge::PreviousFrameScaleFragment >( ecs::Query::RequirementType::Included );
 
-	dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
-		{
-			updateFunc.operator()< forge::PhysicsDynamicFragment >( archetype );
-		} );
-
-	staticsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
-		{
-			updateFunc.operator() < forge::PhysicsStaticFragment > ( archetype );
-		} );
-
-	m_scene->Simulate( GetEngineInstance().GetSystemsManager().GetSystem< systems::TimeSystem >().GetDeltaTime() );
-
-	std::vector< ecs::EntityID > m_updatedEntities;
-	dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+		auto updateScaleFunc = [ & ]< class T >( ecs::Archetype & archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-			auto physicsFragments = archetype.GetFragments< forge::PhysicsDynamicFragment >();
+			auto physicsFragments = archetype.GetFragments< T >();
+			auto prevScaleFragments = archetype.GetFragments< forge::PreviousFrameScaleFragment >();
 
 			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
 			{
-				transformFragments[ i ].m_transform = physicsFragments[ i ].m_actor.GetTransform();
-				m_updatedEntities.emplace_back( archetype.GetEntityIDWithIndex( i ) );
+				physicsFragments[ i ].m_actor.ChangeScale( prevScaleFragments[ i ].m_previousScale, transformFragments[ i ].m_scale );
 			}
-		} );
+		};
 
-	for ( const ecs::EntityID entityID : m_updatedEntities )
+		dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+			{
+				updateScaleFunc.operator() < forge::PhysicsDynamicFragment > ( archetype );
+			} );
+
+		staticsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+			{
+				updateScaleFunc.operator() < forge::PhysicsStaticFragment > ( archetype );
+			} );
+	}
+
 	{
-		GetEngineInstance().GetECSManager().AddTagToEntity< forge::TransformModifiedThisFrame >( entityID );
+		ecs::Query dynamicsQuery;
+		dynamicsQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
+		dynamicsQuery.AddFragmentRequirement< forge::PhysicsDynamicFragment >( ecs::Query::RequirementType::Included );
+
+		ecs::Query staticsQuery;
+		staticsQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
+		staticsQuery.AddFragmentRequirement< forge::PhysicsStaticFragment >( ecs::Query::RequirementType::Included );
+
+		auto updateTransformFunc = [ & ]< class T >( ecs::Archetype & archetype )
+		{
+			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
+			auto physicsFragments = archetype.GetFragments< T >();
+
+			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
+			{
+				physicsFragments[ i ].m_actor.SetTransform( transformFragments[ i ].m_transform );
+			}
+		};
+
+		dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+			{
+				updateTransformFunc.operator() < forge::PhysicsDynamicFragment > ( archetype );
+			} );
+
+		staticsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+			{
+				updateTransformFunc.operator() < forge::PhysicsStaticFragment > ( archetype );
+			} );
+
+		m_scene->Simulate( GetEngineInstance().GetSystemsManager().GetSystem< systems::TimeSystem >().GetDeltaTime() );
+
+		std::vector< std::pair< ecs::EntityID, Transform > > m_updatedEntities;
+		dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+			{
+				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
+		auto physicsFragments = archetype.GetFragments< forge::PhysicsDynamicFragment >();
+
+		for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
+		{
+			m_updatedEntities.emplace_back( archetype.GetEntityIDWithIndex( i ), transformFragments[ i ].m_transform );
+			transformFragments[ i ].m_transform = physicsFragments[ i ].m_actor.GetTransform();
+		}
+			} );
+
+		for ( auto& updatedEntity : m_updatedEntities )
+		{
+			if ( GetEngineInstance().GetECSManager().GetFragment< forge::PreviousFrameTransformFragment >( updatedEntity.first ) == nullptr )
+			{
+				GetEngineInstance().GetECSManager().AddFragmentToEntity< forge::PreviousFrameTransformFragment >( updatedEntity.first );
+				GetEngineInstance().GetECSManager().GetFragment< forge::PreviousFrameTransformFragment >( updatedEntity.first )->m_previousTransform = updatedEntity.second;
+			}
+		}
 	}
 }
