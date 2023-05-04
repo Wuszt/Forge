@@ -36,6 +36,11 @@ void systems::PhysicsSystem::UnregisterActor( physics::PhysicsActor& actor )
 	m_scene->RemoveActor( actor );
 }
 
+bool systems::PhysicsSystem::PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult )
+{
+	return m_scene->PerformRaycast( start, direction, length, outResult );
+}
+
 void systems::PhysicsSystem::Update()
 {
 	{

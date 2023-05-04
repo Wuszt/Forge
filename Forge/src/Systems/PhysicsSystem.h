@@ -6,6 +6,7 @@ namespace physics
 	class PhysxProxy;
 	class PhysicsScene;
 	class PhysicsActor;
+	struct RaycastResult;
 }
 
 namespace systems
@@ -24,6 +25,8 @@ namespace systems
 
 		void RegisterActor( physics::PhysicsActor& actor );
 		void UnregisterActor( physics::PhysicsActor& actor );
+
+		bool PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult );
 
 		physics::PhysxProxy& GetPhysicsProxy()
 		{

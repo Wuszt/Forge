@@ -3,6 +3,7 @@
 #include "../../External/physx/include/PxPhysicsAPI.h"
 #include "PhysxProxy.h"
 #include "PhysicsActor.h"
+#include "RaycastResult.h"
 
 physics::PhysicsScene::PhysicsScene( PhysxProxy& proxy )
 {
@@ -35,6 +36,19 @@ void physics::PhysicsScene::AddActor( physics::PhysicsActor& actor )
 void physics::PhysicsScene::RemoveActor( physics::PhysicsActor& actor )
 {
 	m_pxScene->removeActor( actor.GetActor() );
+}
+
+bool physics::PhysicsScene::PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult )
+{
+	physx::PxRaycastBuffer hit;
+	bool anyHit = m_pxScene->raycast( physics::helpers::Convert( start ), physics::helpers::Convert( direction ), length, hit );
+	
+	if ( anyHit )
+	{
+		outResult = physics::RaycastResult::Convert( hit.block );
+	}
+
+	return anyHit;
 }
 
 void physics::PhysicsScene::Simulate( Float deltaTime )

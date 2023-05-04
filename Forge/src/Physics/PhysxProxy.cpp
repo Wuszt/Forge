@@ -53,6 +53,7 @@ physics::PhysxProxy::PhysxProxy()
 
 physics::PhysxProxy::~PhysxProxy()
 {
+	m_cooking->release();
 	m_defaultMaterial.reset();
 
 	m_pxDispatcher->release();
@@ -60,6 +61,6 @@ physics::PhysxProxy::~PhysxProxy()
 	m_physX->release();
 	m_pvd->release();
 	m_transport->release();
+
 	m_pxFoundation->release();
-	m_cooking->release();
 }

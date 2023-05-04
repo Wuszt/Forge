@@ -42,6 +42,7 @@
 #include "../Physics/PhysicsShape.h"
 #include "../Renderer/ModelAsset.h"
 #include "../Renderer/Model.h"
+#include "../Physics/RaycastResult.h"
 #pragma optimize( "", off )
 void SkeletalMesh( forge::EngineInstance& engineInstance, const Vector3& pos )
 {
@@ -68,8 +69,6 @@ void SkeletalMesh( forge::EngineInstance& engineInstance, const Vector3& pos )
 	} );
 }
 
-forge::TransformComponent* g_sponzaTransformComp = nullptr;
-
 void SponzaScene( forge::EngineInstance& engineInstance )
 {
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* obj )
@@ -78,7 +77,6 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		{
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
-			g_sponzaTransformComp = transformComponent;
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\sponza\\sponza.obj" );
 
@@ -236,6 +234,19 @@ Int32 main()
 							} );
 					} );
 			}
+
+			if ( auto* player = engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().GetCurrentPlayerObject() )
+			{
+				auto playerTransform = player->GetComponent< forge::TransformComponent >()->GetData().m_transform;
+
+				physics::RaycastResult result;
+				if ( engineInstance.GetSystemsManager().GetSystem< systems::PhysicsSystem >().PerformRaycast( playerTransform.GetPosition3() + playerTransform.GetForward(), playerTransform.GetForward(), 100.0f, result ) )
+				{
+					engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( result.m_position, 0.5f, Vector4( 1.0f, 0.0f, 0.0f, 1.0f ), true, false, -1.0f );
+					FORGE_LOG( "Hit!" );
+				}
+			}
+
 		}
 
 		virtual Bool WithRendering() const override

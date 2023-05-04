@@ -9,12 +9,6 @@ IMPLEMENT_TYPE( physics::PhysicsActor );
 IMPLEMENT_TYPE( physics::PhysicsDynamicActor );
 IMPLEMENT_TYPE( physics::PhysicsStaticActor );
 
-static physx::PxTransform Convert( const Transform& transform, Vector3 scale = Vector3::ONES() )
-{
-	return{ { transform.GetPosition3().X, transform.GetPosition3().Y, transform.GetPosition3().Z },
-		{ transform.GetOrientation().i, transform.GetOrientation().j, transform.GetOrientation().k, transform.GetOrientation().r } };
-}
-
 static physx::PxForceMode::Enum Convert( physics::PhysicsDynamicActor::ForceMode mode )
 {
 	switch ( mode )
@@ -34,14 +28,9 @@ static physx::PxForceMode::Enum Convert( physics::PhysicsDynamicActor::ForceMode
 	return physx::PxForceMode::eFORCE;
 }
 
-static physx::PxVec3 Convert( const Vector3& vec )
-{
-	return { vec.X, vec.Y, vec.Z };
-}
-
 void physics::PhysicsActor::SetTransform( const Transform& transform )
 {
-	GetActor().setGlobalPose( Convert( transform ) );
+	GetActor().setGlobalPose( physics::helpers::Convert( transform ) );
 }
 
 Transform physics::PhysicsActor::GetTransform() const
@@ -86,7 +75,7 @@ physics::PhysicsDynamicActor::~PhysicsDynamicActor()
 
 void physics::PhysicsDynamicActor::Initialize( PhysxProxy& proxy, Transform transform /*= Transform() */ )
 {
-	m_actor = proxy.GetPhysics().createRigidDynamic( Convert( transform ) );
+	m_actor = proxy.GetPhysics().createRigidDynamic( physics::helpers::Convert( transform ) );
 }
 
 void physics::PhysicsDynamicActor::UpdateDensity( Float density )
@@ -96,12 +85,12 @@ void physics::PhysicsDynamicActor::UpdateDensity( Float density )
 
 void physics::PhysicsDynamicActor::AddForce( const Vector3& force, ForceMode forceMode )
 {
-	GetDynamicActor().addForce( Convert( force ), Convert( forceMode ) );
+	GetDynamicActor().addForce( physics::helpers::Convert( force ), Convert( forceMode ) );
 }
 
 void physics::PhysicsDynamicActor::AddTorque( const Vector3& torque, ForceMode forceMode )
 {
-	GetDynamicActor().addTorque( Convert( torque ), Convert( forceMode ) );
+	GetDynamicActor().addTorque( physics::helpers::Convert( torque ), Convert( forceMode ) );
 }
 
 void physics::PhysicsDynamicActor::ClearForce( ForceMode forceMode )
@@ -132,7 +121,7 @@ Vector3 physics::PhysicsDynamicActor::GetVelocity() const
 
 void physics::PhysicsDynamicActor::SetVelocity( const Vector3& velocity )
 {
-	GetDynamicActor().setLinearVelocity( Convert( velocity ) );
+	GetDynamicActor().setLinearVelocity( physics::helpers::Convert( velocity ) );
 }
 
 Vector3 physics::PhysicsDynamicActor::GetAngularVelocity() const
@@ -143,7 +132,7 @@ Vector3 physics::PhysicsDynamicActor::GetAngularVelocity() const
 
 void physics::PhysicsDynamicActor::SetAngularVelocity( const Vector3& velocity )
 {
-	GetDynamicActor().setAngularVelocity( Convert( velocity ) );
+	GetDynamicActor().setAngularVelocity( physics::helpers::Convert( velocity ) );
 }
 
 void physics::PhysicsDynamicActor::ChangeScale( const Vector3& prevScale, const Vector3& newScale )
@@ -187,7 +176,7 @@ physics::PhysicsStaticActor::~PhysicsStaticActor()
 
 void physics::PhysicsStaticActor::Initialize( PhysxProxy& proxy, Transform transform /*= Transform() */ )
 {
-	m_actor = proxy.GetPhysics().createRigidStatic( Convert( transform ) );
+	m_actor = proxy.GetPhysics().createRigidStatic( physics::helpers::Convert( transform ) );
 }
 
 const physx::PxRigidActor& physics::PhysicsStaticActor::GetActor() const
