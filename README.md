@@ -1,5 +1,5 @@
 # Forge
-The game engine which purpose is to be a sandbox for various algorithms a.k.a. educational purposes.
+A game engine which purpose is to be a sandbox for various algorithms a.k.a. educational purposes.
 
 ### Goals:
 - As less external code as possible (as long as it makes sense/it's not boring to implement) - hence no helpers like DirectXTK
