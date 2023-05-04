@@ -18,7 +18,7 @@ namespace d3d11
 
 	void IMGUID3D11Adapter::Render()
 	{
-		std::vector< renderer::IRenderTargetView* > views = { m_renderer.GetSwapchain()->GetBackBuffer().GetRenderTargetView() };
+		renderer::IRenderTargetView* views[] = { m_renderer.GetSwapchain()->GetBackBuffer().GetRenderTargetView() };
 		m_renderer.SetRenderTargets( views, nullptr );
 
 		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );

@@ -176,7 +176,7 @@ Int32 main()
 			{
 				player->RequestAddingComponents< forge::TransformComponent, forge::CameraComponent, forge::FreeCameraControllerComponent >( [ engineInstancePtr = &engineInstance, player ]()
 				{
-					player->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition( { 0.0f, -400.0f, 200.0f } );
+					player->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition( { 0.0f, 0.0f, 2.0f } );
 					auto* cameraComp = player->GetComponent< forge::CameraComponent >();
 					cameraComp->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstancePtr->GetWindow() ));
 
@@ -188,13 +188,9 @@ Int32 main()
 				} );
 			} );
 
-			//engineInstance.GetSystemsManager().GetSystem< systems::RenderingSystem >().SetSkyboxTexture( engineInstance.GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\skymap.dds" )->GetTexture() );
+			engineInstance.GetSystemsManager().GetSystem< systems::RenderingSystem >().SetSkyboxTexture( engineInstance.GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\skymap.dds" )->GetTexture() );
 
-			//MinecraftScene( engineInstance );
 			SponzaScene( engineInstance );
-			//BunnyScene( engineInstance );
-
-			//CubeScene(engineInstance);
 			//SkeletalMesh( engineInstance, { 0.0f, 400.0f, 0.0f } );
 			//SkeletalMesh( engineInstance, { 0.0f, 600.0f, 0.0f } );
 			//SkeletalMesh( engineInstance, { 0.0f, 800.0f, 0.0f } );

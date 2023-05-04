@@ -48,7 +48,7 @@ renderer::ForwardRenderingPass::~ForwardRenderingPass() = default;
 
 void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
 {
-	std::vector< renderer::IRenderTargetView* > views{ GetTargetTexture() ? GetTargetTexture()->GetRenderTargetView() : nullptr };
+	renderer::IRenderTargetView* views[] = { GetTargetTexture() ? GetTargetTexture()->GetRenderTargetView() : nullptr };
 	GetRenderer().SetRenderTargets( views, &GetDepthStencilView() );
 
 	StaticConstantBuffer< CBForwardRendering >* cbRendering = static_cast< StaticConstantBuffer< CBForwardRendering >* >( m_cbForwardRendering.get() );

@@ -277,6 +277,7 @@ void systems::RenderingSystem::SetSkyboxTexture( std::shared_ptr< const renderer
 	if ( texture )
 	{
 		m_skyboxRenderingPass = std::make_unique<renderer::SkyboxRenderingPass>( GetEngineInstance().GetAssetsManager(), GetEngineInstance().GetRenderer(), texture );
+		m_skyboxRenderingPass->SetTargetTexture( *m_targetTexture );
 	}
 }
 
@@ -299,6 +300,12 @@ void systems::RenderingSystem::OnBeforeDraw()
 	m_renderer->OnBeforeDraw();
 
 	m_opaqueRenderingPass->ClearTargetTexture(); // this is fucked up, what about other rendering passes?
+
+	if ( m_skyboxRenderingPass )
+	{
+		PC_SCOPE( "RenderingSystem::OnDraw::Skybox" );
+		m_skyboxRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera() );
+	}
 
 	{
 		PC_SCOPE( "RenderingSystem::UpdatingRawRenderables" );
@@ -461,13 +468,6 @@ void systems::RenderingSystem::OnDraw()
 		m_transparentRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), transparentOverlayQuery, renderer::RenderingPass::Transparent, nullptr );
 		m_depthStencilState->EnableWrite( true );
 		m_transparencyBlendState->Clear();
-	}
-
-	if ( m_skyboxRenderingPass )
-	{
-		PC_SCOPE( "RenderingSystem::OnDraw::Skybox" );
-		m_skyboxRenderingPass->SetTargetTexture( *m_targetTexture );
-		m_skyboxRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera() );
 	}
 
 	m_renderer->SetViewportSize( Vector2( static_cast< Float >( GetEngineInstance().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetWindow().GetHeight() ) ) );

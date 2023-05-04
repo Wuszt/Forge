@@ -62,7 +62,7 @@ renderer::DeferredRenderingPass::DeferredRenderingPass( Renderer& renderer )
 
 void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
 {
-	std::vector< renderer::IRenderTargetView* > views{ GetTargetTexture()->GetRenderTargetView(), m_diffuseTexture->GetRenderTargetView(), m_normalsTexture->GetRenderTargetView() };
+	renderer::IRenderTargetView* views[] = { GetTargetTexture()->GetRenderTargetView(), m_diffuseTexture->GetRenderTargetView(), m_normalsTexture->GetRenderTargetView() };
 	GetRenderer().SetRenderTargets( views, &GetDepthStencilView() );
 
 	StaticConstantBuffer< CBDeferredRendering >* cbRendering = static_cast< StaticConstantBuffer< CBDeferredRendering >* >( m_cbDeferredRendering.get() );

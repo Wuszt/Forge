@@ -6,7 +6,7 @@ const renderer::ShaderDefine renderer::ShadowsRenderingPass::c_shadowPassDefine{
 
 void renderer::ShadowsRenderingPass::OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
 {
-	std::vector< renderer::IRenderTargetView* > views{ nullptr };
+	renderer::IRenderTargetView* views[] = { nullptr };
 	GetRenderer().SetRenderTargets( views, &GetDepthStencilView() );
 
 	ecs::Query queryCopy = query;

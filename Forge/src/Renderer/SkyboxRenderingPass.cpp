@@ -12,7 +12,6 @@ renderer::SkyboxRenderingPass::SkyboxRenderingPass( forge::AssetsManager& assets
 	m_renderable = Renderable( renderer );
 	m_renderable.SetModel( assetsManager, "Models\\sphere.obj");
 
-	renderer::PerspectiveCamera( 1.0, FORGE_PI / 3.0f, 1.0f, 10000.0f );
 	m_renderable.GetMaterials()[ 0 ]->SetShaders( "Skybox.fx", "Skybox.fx", renderer::RenderingPass::Opaque );
 	m_renderable.GetMaterials()[ 0 ]->SetTexture( texture, renderer::Material::TextureType::Diffuse );
 
@@ -21,6 +20,9 @@ renderer::SkyboxRenderingPass::SkyboxRenderingPass( forge::AssetsManager& assets
 
 void renderer::SkyboxRenderingPass::Draw( const renderer::ICamera& camera )
 {
+	renderer::IRenderTargetView* views[] = { GetTargetTexture()->GetRenderTargetView() };
+	GetRenderer().SetRenderTargets( views, m_depthStencilBuffer ? &m_depthStencilBuffer->GetView() : nullptr );
+
 	renderer::PerspectiveCamera perspectiveCamera;
 	Float aspectRatio = static_cast< const renderer::OrthographicCamera& >( camera ).GetAspectRatio();
 
