@@ -116,7 +116,7 @@ namespace forge
 
 		Uint32 GetCapacity() const
 		{
-			return static_cast< Uint32 >( m_data.GetSize() / static_cast< Uint64 >( m_type.GetSize() ) );
+			return static_cast< Uint32 >( m_data.GetSize() / m_type.GetSize() );
 		}
 
 		const rtti::IType& GetType() const
@@ -136,7 +136,7 @@ namespace forge
 				return;
 			}
 
-			Uint32 newMemorySize = newCapacity * m_type.GetSize();
+			Uint32 newMemorySize = static_cast< Uint32 >( newCapacity * m_type.GetSize() );
 
 			RawSmartPtr m_newData( newMemorySize );
 
@@ -147,7 +147,7 @@ namespace forge
 
 			for ( Uint32 i = 0u; i < GetSize(); ++i )
 			{
-				Uint32 offset = m_type.GetSize() * i;
+				Uint32 offset = static_cast< Uint32 >( m_type.GetSize() ) * i;
 				m_type.MoveInPlace( static_cast< Byte* >( m_newData.GetData() ) + offset, static_cast< Byte* >( m_data.GetData() ) + offset );
 			}
 

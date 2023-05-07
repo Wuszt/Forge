@@ -34,7 +34,7 @@ namespace physics
 
 	class PhysicsDynamicActor : public PhysicsActor
 	{
-		DECLARE_CLASS( PhysicsDynamicActor, PhysicsActor );
+		DECLARE_POLYMORPHIC_CLASS( PhysicsDynamicActor, PhysicsActor );
 
 	public:
 		enum class ForceMode
@@ -88,7 +88,7 @@ namespace physics
 
 	class PhysicsStaticActor : public PhysicsActor
 	{
-		DECLARE_CLASS( PhysicsStaticActor, PhysicsActor );
+		DECLARE_POLYMORPHIC_CLASS( PhysicsStaticActor, PhysicsActor );
 
 	public:
 		PhysicsStaticActor() = default;

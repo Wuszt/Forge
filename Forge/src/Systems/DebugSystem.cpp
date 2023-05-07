@@ -178,7 +178,7 @@ void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Fl
 void systems::DebugSystem::Update()
 {
 	Float currentTime = forge::Time::GetTime();
-	Int32 requestsLastIndex = m_objectsCreationRequests.size() - 1;
+	Int32 requestsLastIndex = static_cast< Int32 >( m_objectsCreationRequests.size() ) - 1;
 	for ( auto it = m_debugObjects.begin(); it != m_debugObjects.end(); )
 	{
 		if ( currentTime > it->m_timestamp )

@@ -30,7 +30,7 @@ static void DrawArchetype( const ecs::Archetype& archetype, Uint32 index )
 				buffer += "[" + std::to_string( type.GetSize() ) + "B]";
 				buffer += ", ";
 
-				fragmentsSize += type.GetSize();
+				fragmentsSize += static_cast< Uint32 >( type.GetSize() );
 			} );
 		ImGui::Text( "\tFragments : [%s]", buffer.size() > 0u ? buffer.substr( 0u, buffer.size() - 2 ).c_str() : "None" );
 		ImGui::Text( "\tArchetype Size: %u x %uB = %uB", archetype.GetEntitiesAmount(), fragmentsSize, archetype.GetEntitiesAmount() * fragmentsSize );
