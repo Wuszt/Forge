@@ -80,7 +80,7 @@ namespace forge
 		ObjectID m_id;
 		EngineInstance& m_engineInstance;
 
-		std::unordered_map< const rtti::IType*, std::unique_ptr< IComponent > > m_components;
+		std::unordered_map< const rtti::Type*, std::unique_ptr< IComponent > > m_components;
 	};
 }
 

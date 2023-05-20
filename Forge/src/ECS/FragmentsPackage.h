@@ -6,7 +6,7 @@ namespace ecs
 	class FragmentsPackage
 	{
 	public:
-		FragmentsPackage( const rtti::IType& type, Uint32 initialSize = 0u )
+		FragmentsPackage( const rtti::Type& type, Uint32 initialSize = 0u )
 			: m_fragments( forge::RawVector( type ) )
 		{
 			m_fragments.SetCapacity( 128u );

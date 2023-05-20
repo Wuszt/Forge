@@ -10,7 +10,7 @@ namespace forge
 			: m_type( T::GetTypeStatic() )
 		{}
 
-		RawVector( const rtti::IType& type )
+		RawVector( const rtti::Type& type )
 			: m_type( type )
 		{}
 
@@ -119,7 +119,7 @@ namespace forge
 			return static_cast< Uint32 >( m_data.GetSize() / m_type.GetSize() );
 		}
 
-		const rtti::IType& GetType() const
+		const rtti::Type& GetType() const
 		{
 			return m_type;
 		}
@@ -180,7 +180,7 @@ namespace forge
 		}
 
 		Uint32 m_size = 0u;
-		const rtti::IType& m_type;
+		const rtti::Type& m_type;
 		RawSmartPtr m_data;
 	};
 }
