@@ -1,4 +1,4 @@
 #include "Fpch.h"
 #include "Fragment.h"
 
-IMPLEMENT_TYPE( ecs::Fragment );
+RTTI_IMPLEMENT_TYPE( ecs::Fragment );

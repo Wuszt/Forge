@@ -10,7 +10,7 @@ namespace systems
 	class ISystem
 	{
 		friend class SystemsManager;
-		DECLARE_ABSTRACT_CLASS( ISystem );
+		RTTI_DECLARE_ABSTRACT_CLASS( ISystem );
 	public:
 		virtual ~ISystem() = 0;
 

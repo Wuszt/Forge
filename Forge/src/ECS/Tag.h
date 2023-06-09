@@ -5,7 +5,7 @@ namespace ecs
 {
 	struct Tag
 	{
-		DECLARE_STRUCT( Tag );
+		RTTI_DECLARE_STRUCT( Tag );
 
 		static constexpr Uint32 c_maxTagsAmount = 64u;
 

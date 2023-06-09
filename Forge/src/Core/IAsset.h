@@ -3,7 +3,7 @@ namespace forge
 {
 	class IAsset
 	{
-		DECLARE_ABSTRACT_CLASS( IAsset );
+		RTTI_DECLARE_ABSTRACT_CLASS( IAsset );
 	public:
 		IAsset( const std::string& path );
 		virtual ~IAsset() = default;

@@ -16,7 +16,7 @@
 #include "DebugSystem.h"
 #include "../ECS/Query.h"
 
-IMPLEMENT_TYPE( systems::LightingSystem );
+RTTI_IMPLEMENT_TYPE( systems::LightingSystem );
 
 const Float c_shadowMapBaseSize = 1024.0f;
 

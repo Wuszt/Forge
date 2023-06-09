@@ -73,7 +73,7 @@ namespace renderer
 
 	struct WireFrameTag : public ecs::Tag
 	{
-		DECLARE_STRUCT( WireFrameTag, ecs::Tag );
+		RTTI_DECLARE_STRUCT( WireFrameTag, ecs::Tag );
 	};
 
 	class Renderer

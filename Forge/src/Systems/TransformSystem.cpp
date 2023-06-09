@@ -2,7 +2,7 @@
 #include "TransformSystem.h"
 #include "../ECS/Query.h"
 
-IMPLEMENT_TYPE( systems::TransformSystem );
+RTTI_IMPLEMENT_TYPE( systems::TransformSystem );
 
 void systems::TransformSystem::OnInitialize()
 {

@@ -5,7 +5,7 @@ namespace ecs
 {
 	class ECSDebug : public forge::IDebuggable
 	{
-		DECLARE_CLASS( ECSDebug );
+		RTTI_DECLARE_CLASS( ECSDebug );
 	public:
 		ECSDebug();
 		ECSDebug( forge::EngineInstance& engineInstance );

@@ -1,7 +1,7 @@
 #include "Fpch.h"
 #include "AnimationSetAsset.h"
 
-IMPLEMENT_TYPE( renderer::AnimationSetAsset );
+RTTI_IMPLEMENT_TYPE( renderer::AnimationSetAsset );
 
 renderer::AnimationSetAsset::AnimationSetAsset()
 	: forge::IAsset("")

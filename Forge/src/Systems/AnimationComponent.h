@@ -15,7 +15,7 @@ namespace forge
 
 	struct AnimationFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( AnimationFragment, ecs::Fragment );
+		RTTI_DECLARE_STRUCT( AnimationFragment, ecs::Fragment );
 
 		AnimationFragment();
 
@@ -34,7 +34,7 @@ namespace forge
 
 	class AnimationComponent : public DataComponent< AnimationFragment >
 	{
-		DECLARE_POLYMORPHIC_CLASS( AnimationComponent, forge::IComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( AnimationComponent, forge::IComponent );
 	public:
 		using DataComponent::DataComponent;
 

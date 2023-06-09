@@ -1,4 +1,4 @@
 #include "Fpch.h"
 #include "Tag.h"
 
-IMPLEMENT_TYPE( ecs::Tag );
+RTTI_IMPLEMENT_TYPE( ecs::Tag );

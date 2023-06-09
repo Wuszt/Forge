@@ -5,7 +5,7 @@ namespace renderer
 {
 	class OrthographicCamera : public ICamera
 	{
-		DECLARE_POLYMORPHIC_CLASS( OrthographicCamera, renderer::ICamera );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( OrthographicCamera, renderer::ICamera );
 
 	public:
 		OrthographicCamera();

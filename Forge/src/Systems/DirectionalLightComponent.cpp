@@ -1,5 +1,5 @@
 #include "Fpch.h"
 #include "DirectionalLightComponent.h"
 
-IMPLEMENT_TYPE( forge::DirectionalLightFragment );
-IMPLEMENT_TYPE( forge::DirectionalLightComponent );
+RTTI_IMPLEMENT_TYPE( forge::DirectionalLightFragment );
+RTTI_IMPLEMENT_TYPE( forge::DirectionalLightComponent );

@@ -5,7 +5,7 @@ namespace renderer
 {
 	class SkeletonAsset : public forge::IAsset
 	{
-		DECLARE_POLYMORPHIC_CLASS( SkeletonAsset, forge::IAsset );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( SkeletonAsset, forge::IAsset );
 
 	public:
 		SkeletonAsset();

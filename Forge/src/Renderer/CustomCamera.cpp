@@ -1,7 +1,7 @@
 #include "Fpch.h"
 #include "CustomCamera.h"
 
-IMPLEMENT_TYPE( renderer::CustomCamera );
+RTTI_IMPLEMENT_TYPE( renderer::CustomCamera );
 
 namespace renderer
 {

@@ -10,7 +10,7 @@ namespace systems
 {
 	class PlayerSystem : public ISystem, forge::IDebuggable
 	{
-		DECLARE_POLYMORPHIC_CLASS( PlayerSystem, systems::ISystem );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( PlayerSystem, systems::ISystem );
 
 	public:
 		using ISystem::ISystem;

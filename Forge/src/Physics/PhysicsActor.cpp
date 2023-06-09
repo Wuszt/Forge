@@ -5,9 +5,9 @@
 #include "PhysicsShape.h"
 #include "../../External/physx/include/PxRigidActor.h"
 
-IMPLEMENT_TYPE( physics::PhysicsActor );
-IMPLEMENT_TYPE( physics::PhysicsDynamicActor );
-IMPLEMENT_TYPE( physics::PhysicsStaticActor );
+RTTI_IMPLEMENT_TYPE( physics::PhysicsActor );
+RTTI_IMPLEMENT_TYPE( physics::PhysicsDynamicActor );
+RTTI_IMPLEMENT_TYPE( physics::PhysicsStaticActor );
 
 static physx::PxForceMode::Enum Convert( physics::PhysicsDynamicActor::ForceMode mode )
 {

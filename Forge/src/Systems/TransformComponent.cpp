@@ -1,10 +1,10 @@
 #include "Fpch.h"
 #include "TransformComponent.h"
 
-IMPLEMENT_TYPE( forge::TransformFragment );
-IMPLEMENT_TYPE( forge::PreviousFrameTransformFragment );
-IMPLEMENT_TYPE( forge::PreviousFrameScaleFragment );
-IMPLEMENT_TYPE( forge::TransformComponent );
+RTTI_IMPLEMENT_TYPE( forge::TransformFragment );
+RTTI_IMPLEMENT_TYPE( forge::PreviousFrameTransformFragment );
+RTTI_IMPLEMENT_TYPE( forge::PreviousFrameScaleFragment );
+RTTI_IMPLEMENT_TYPE( forge::TransformComponent );
 
 void forge::TransformComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {

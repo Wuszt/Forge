@@ -15,19 +15,19 @@ namespace forge
 {
 	struct PhysicsStaticFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( PhysicsStaticFragment, ecs::Fragment );
+		RTTI_DECLARE_STRUCT( PhysicsStaticFragment, ecs::Fragment );
 		physics::PhysicsStaticActor m_actor;
 	};
 
 	struct PhysicsDynamicFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( PhysicsDynamicFragment, ecs::Fragment );
+		RTTI_DECLARE_STRUCT( PhysicsDynamicFragment, ecs::Fragment );
 		physics::PhysicsDynamicActor m_actor;
 	};
 
 	class IPhysicsComponent : public IComponent
 	{
-		DECLARE_ABSTRACT_CLASS( IPhysicsComponent, forge::IComponent );
+		RTTI_DECLARE_ABSTRACT_CLASS( IPhysicsComponent, forge::IComponent );
 
 		friend class systems::PhysicsSystem;
 
@@ -42,7 +42,7 @@ namespace forge
 
 	class PhysicsStaticComponent : public DataComponent< PhysicsStaticFragment, IPhysicsComponent >
 	{
-		DECLARE_POLYMORPHIC_CLASS( PhysicsStaticComponent, forge::IPhysicsComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( PhysicsStaticComponent, forge::IPhysicsComponent );
 
 	public:
 		virtual physics::PhysicsStaticActor& GetActor() override;
@@ -50,7 +50,7 @@ namespace forge
 
 	class PhysicsDynamicComponent : public DataComponent< PhysicsDynamicFragment, IPhysicsComponent >
 	{
-		DECLARE_POLYMORPHIC_CLASS( PhysicsDynamicComponent, forge::IPhysicsComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( PhysicsDynamicComponent, forge::IPhysicsComponent );
 
 	public:
 		virtual physics::PhysicsDynamicActor& GetActor() override;

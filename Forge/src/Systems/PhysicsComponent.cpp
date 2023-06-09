@@ -4,13 +4,13 @@
 #include "TransformComponent.h"
 #include "../Physics/PhysicsShape.h"
 
-IMPLEMENT_TYPE( forge::IPhysicsComponent );
+RTTI_IMPLEMENT_TYPE( forge::IPhysicsComponent );
 
-IMPLEMENT_TYPE( forge::PhysicsStaticFragment );
-IMPLEMENT_TYPE( forge::PhysicsStaticComponent );
+RTTI_IMPLEMENT_TYPE( forge::PhysicsStaticFragment );
+RTTI_IMPLEMENT_TYPE( forge::PhysicsStaticComponent );
 
-IMPLEMENT_TYPE( forge::PhysicsDynamicFragment );
-IMPLEMENT_TYPE( forge::PhysicsDynamicComponent );
+RTTI_IMPLEMENT_TYPE( forge::PhysicsDynamicFragment );
+RTTI_IMPLEMENT_TYPE( forge::PhysicsDynamicComponent );
 
 void forge::IPhysicsComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {

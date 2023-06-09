@@ -9,7 +9,7 @@ namespace systems
 {
 	class CamerasSystem : public ISystem
 	{
-		DECLARE_POLYMORPHIC_CLASS( CamerasSystem, systems::ISystem );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( CamerasSystem, systems::ISystem );
 
 	public:
 		using ISystem::ISystem;

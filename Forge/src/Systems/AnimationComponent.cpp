@@ -4,8 +4,8 @@
 #include "RenderingComponent.h"
 #include "../Renderer/Renderer.h"
 
-IMPLEMENT_TYPE( forge::AnimationFragment );
-IMPLEMENT_TYPE( forge::AnimationComponent );
+RTTI_IMPLEMENT_TYPE( forge::AnimationFragment );
+RTTI_IMPLEMENT_TYPE( forge::AnimationComponent );
 
 forge::AnimationFragment::AnimationFragment()
 	: m_animation( 0.0f, 0u )

@@ -12,7 +12,7 @@ namespace systems
 {
 	class DebugSystem : public ISystem
 	{
-		DECLARE_POLYMORPHIC_CLASS( DebugSystem, systems::ISystem );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( DebugSystem, systems::ISystem );
 
 	public:
 		DebugSystem();

@@ -6,11 +6,11 @@
 #include "../Renderer/Material.h"
 #include "../Renderer/ShadersManager.h"
 
-IMPLEMENT_TYPE( forge::RenderableFragment )
-IMPLEMENT_TYPE( forge::RenderingComponent )
-IMPLEMENT_TYPE( forge::DirtyRenderable );
-IMPLEMENT_TYPE( forge::IgnoresLights );
-IMPLEMENT_TYPE( forge::DrawAsOverlay );
+RTTI_IMPLEMENT_TYPE( forge::RenderableFragment )
+RTTI_IMPLEMENT_TYPE( forge::RenderingComponent )
+RTTI_IMPLEMENT_TYPE( forge::DirtyRenderable );
+RTTI_IMPLEMENT_TYPE( forge::IgnoresLights );
+RTTI_IMPLEMENT_TYPE( forge::DrawAsOverlay );
 
 void forge::RenderingComponent::OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {

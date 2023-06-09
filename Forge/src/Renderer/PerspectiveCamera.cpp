@@ -1,7 +1,7 @@
 #include "Fpch.h"
 #include "PerspectiveCamera.h"
 
-IMPLEMENT_TYPE( renderer::PerspectiveCamera );
+RTTI_IMPLEMENT_TYPE( renderer::PerspectiveCamera );
 
 namespace renderer
 {

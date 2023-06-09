@@ -1,7 +1,7 @@
 #include "Fpch.h"
 #include "OrthographicCamera.h"
 
-IMPLEMENT_TYPE( renderer::OrthographicCamera );
+RTTI_IMPLEMENT_TYPE( renderer::OrthographicCamera );
 
 renderer::OrthographicCamera::OrthographicCamera( Float width, Float aspectRatio, Float nearPlane, Float farPlane )
 	: m_volumeSize{ width, width / aspectRatio }

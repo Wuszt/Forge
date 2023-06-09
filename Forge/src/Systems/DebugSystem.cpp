@@ -15,7 +15,7 @@
 #include "ECSDebug.h"
 #endif
 
-IMPLEMENT_TYPE( systems::DebugSystem );
+RTTI_IMPLEMENT_TYPE( systems::DebugSystem );
 
 systems::DebugSystem::DebugSystem() = default;
 systems::DebugSystem::DebugSystem( DebugSystem&& ) = default;

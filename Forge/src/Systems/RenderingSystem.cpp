@@ -24,7 +24,7 @@
 #include "../ECS/Query.h"
 #include "../Renderer/SkyboxRenderingPass.h"
 
-IMPLEMENT_TYPE( systems::RenderingSystem );
+RTTI_IMPLEMENT_TYPE( systems::RenderingSystem );
 
 systems::RenderingSystem::RenderingSystem() = default;
 systems::RenderingSystem::RenderingSystem( RenderingSystem&& ) = default;
@@ -285,10 +285,10 @@ namespace
 {
 	struct ContainsTransparentShapes : public ecs::Tag
 	{
-		DECLARE_STRUCT( ContainsTransparentShapes, ecs::Tag );
+		RTTI_DECLARE_STRUCT( ContainsTransparentShapes, ecs::Tag );
 	};
 
-	IMPLEMENT_TYPE( ContainsTransparentShapes );
+	RTTI_IMPLEMENT_TYPE( ContainsTransparentShapes );
 }
 
 void systems::RenderingSystem::OnBeforeDraw()

@@ -13,7 +13,7 @@ namespace forge
 {
 	struct RenderableFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( RenderableFragment, ecs::Fragment );
+		RTTI_DECLARE_STRUCT( RenderableFragment, ecs::Fragment );
 
 		RenderableFragment() = default;
 		RenderableFragment( RenderableFragment&) {}
@@ -25,22 +25,22 @@ namespace forge
 
 	struct DirtyRenderable : public ecs::Tag
 	{
-		DECLARE_STRUCT( DirtyRenderable, ecs::Tag );
+		RTTI_DECLARE_STRUCT( DirtyRenderable, ecs::Tag );
 	};
 
 	struct IgnoresLights : public ecs::Tag
 	{
-		DECLARE_STRUCT( IgnoresLights, ecs::Tag );
+		RTTI_DECLARE_STRUCT( IgnoresLights, ecs::Tag );
 	};
 
 	struct DrawAsOverlay : public ecs::Tag
 	{
-		DECLARE_STRUCT( DrawAsOverlay, ecs::Tag );
+		RTTI_DECLARE_STRUCT( DrawAsOverlay, ecs::Tag );
 	};
 
 	class RenderingComponent : public DataComponent< RenderableFragment >
 	{
-		DECLARE_POLYMORPHIC_CLASS( RenderingComponent, forge::IComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( RenderingComponent, forge::IComponent );
 
 	public:
 		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;

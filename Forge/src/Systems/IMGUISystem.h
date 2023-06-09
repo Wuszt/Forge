@@ -98,7 +98,7 @@ namespace systems
 {
 	class IMGUISystem : public ISystem
 	{
-		DECLARE_POLYMORPHIC_CLASS( IMGUISystem, systems::ISystem );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( IMGUISystem, systems::ISystem );
 	public:
 		IMGUISystem();
 		IMGUISystem(IMGUISystem&&);

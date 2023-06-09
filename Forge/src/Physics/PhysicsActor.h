@@ -14,7 +14,7 @@ namespace physics
 
 	class PhysicsActor
 	{
-		DECLARE_ABSTRACT_CLASS( PhysicsActor );
+		RTTI_DECLARE_ABSTRACT_CLASS( PhysicsActor );
 
 	public:
 		virtual ~PhysicsActor() = default;
@@ -34,7 +34,7 @@ namespace physics
 
 	class PhysicsDynamicActor : public PhysicsActor
 	{
-		DECLARE_POLYMORPHIC_CLASS( PhysicsDynamicActor, PhysicsActor );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( PhysicsDynamicActor, PhysicsActor );
 
 	public:
 		enum class ForceMode
@@ -88,7 +88,7 @@ namespace physics
 
 	class PhysicsStaticActor : public PhysicsActor
 	{
-		DECLARE_POLYMORPHIC_CLASS( PhysicsStaticActor, PhysicsActor );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( PhysicsStaticActor, PhysicsActor );
 
 	public:
 		PhysicsStaticActor() = default;

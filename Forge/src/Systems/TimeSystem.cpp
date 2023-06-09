@@ -7,7 +7,7 @@
 #include "../Core/StringUtils.h"
 #endif
 
-IMPLEMENT_TYPE( systems::TimeSystem );
+RTTI_IMPLEMENT_TYPE( systems::TimeSystem );
 
 void systems::TimeSystem::OnInitialize()
 {

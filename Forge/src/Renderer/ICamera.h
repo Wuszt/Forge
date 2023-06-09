@@ -4,7 +4,7 @@ namespace renderer
 {
 	class ICamera
 	{
-		DECLARE_ABSTRACT_CLASS( ICamera );
+		RTTI_DECLARE_ABSTRACT_CLASS( ICamera );
 	public:
 		enum class CameraType
 		{

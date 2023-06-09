@@ -20,7 +20,7 @@ namespace systems
 {
 	class LightingSystem : public ISystem, public forge::IDebuggable
 	{
-		DECLARE_POLYMORPHIC_CLASS( LightingSystem, systems::ISystem );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( LightingSystem, systems::ISystem );
 
 	public:
 		using Super::Super;

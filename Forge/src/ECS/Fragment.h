@@ -5,7 +5,7 @@ namespace ecs
 {
 	struct Fragment
 	{
-		DECLARE_STRUCT( Fragment );
+		RTTI_DECLARE_STRUCT( Fragment );
 
 		static const Uint32 c_maxFragmentsAmount = 64u;
 

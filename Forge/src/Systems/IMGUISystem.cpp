@@ -6,7 +6,7 @@
 #include "../IMGUI/IMGUIInstance.h"
 #include "../Core/IWindow.h"
 
-IMPLEMENT_TYPE( systems::IMGUISystem );
+RTTI_IMPLEMENT_TYPE( systems::IMGUISystem );
 
 systems::IMGUISystem::IMGUISystem() = default;
 

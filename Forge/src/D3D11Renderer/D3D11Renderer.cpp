@@ -301,7 +301,7 @@ namespace d3d11
 
 	struct RawRenderableFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( RawRenderableFragment, ecs::Fragment );
+		RTTI_DECLARE_STRUCT( RawRenderableFragment, ecs::Fragment );
 
 		ID3D11Buffer* m_vertexBuffer = nullptr;
 		ID3D11Buffer* m_meshCB = nullptr;
@@ -340,7 +340,7 @@ namespace d3d11
 		std::array< std::vector< Shape >, static_cast< Uint32 >( renderer::RenderingPass::Count ) > m_shapes;
 	};
 
-	IMPLEMENT_TYPE( d3d11::RawRenderableFragment );
+	RTTI_IMPLEMENT_TYPE( d3d11::RawRenderableFragment );
 
 	const ecs::Fragment::Type& D3D11Renderer::GetECSFragmentType() const
 	{

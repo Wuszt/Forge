@@ -5,7 +5,7 @@ namespace systems
 {
 	class TransformSystem : public ISystem
 	{
-		DECLARE_POLYMORPHIC_CLASS( TransformSystem, systems::ISystem );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( TransformSystem, systems::ISystem );
 
 	private:
 		virtual void OnInitialize();

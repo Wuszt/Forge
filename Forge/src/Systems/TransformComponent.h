@@ -4,7 +4,7 @@ namespace forge
 {
 	struct TransformFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( TransformFragment, ecs::Fragment );
+		RTTI_DECLARE_STRUCT( TransformFragment, ecs::Fragment );
 
 		Transform m_transform;
 		Vector4 m_scale = Vector4::ONES();
@@ -19,21 +19,21 @@ namespace forge
 
 	struct PreviousFrameTransformFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( PreviousFrameTransformFragment, ecs::Fragment );
+		RTTI_DECLARE_STRUCT( PreviousFrameTransformFragment, ecs::Fragment );
 
 		Transform m_previousTransform;
 	};
 
 	struct PreviousFrameScaleFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( PreviousFrameScaleFragment, ecs::Fragment );
+		RTTI_DECLARE_STRUCT( PreviousFrameScaleFragment, ecs::Fragment );
 
 		Vector3 m_previousScale;
 	};
 
 	class TransformComponent : public DataComponent< TransformFragment >
 	{
-		DECLARE_POLYMORPHIC_CLASS( TransformComponent, forge::IComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( TransformComponent, forge::IComponent );
 	public:
 		using DataComponent::DataComponent;
 

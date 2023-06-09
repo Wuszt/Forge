@@ -7,7 +7,7 @@
 #include "TimeSystem.h"
 #include "../Physics/PhysicsScene.h"
 
-IMPLEMENT_TYPE( systems::PhysicsSystem );
+RTTI_IMPLEMENT_TYPE( systems::PhysicsSystem );
 
 systems::PhysicsSystem::PhysicsSystem() = default;
 systems::PhysicsSystem::PhysicsSystem( PhysicsSystem&& ) = default;

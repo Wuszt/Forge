@@ -5,7 +5,7 @@ namespace renderer
 {
 	class CustomCamera : public ICamera
 	{
-		DECLARE_POLYMORPHIC_CLASS( CustomCamera, renderer::ICamera );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( CustomCamera, renderer::ICamera );
 
 	public:
 		CustomCamera( Matrix projectionMatrix, Float nearPlane, Float farPlane )

@@ -45,7 +45,7 @@ namespace systems
 
 	class RenderingSystem : public ISystem, public forge::IDebuggable
 	{
-		DECLARE_STRUCT( RenderingSystem, systems::ISystem );
+		RTTI_DECLARE_STRUCT( RenderingSystem, systems::ISystem );
 
 	public:
 		RenderingSystem();

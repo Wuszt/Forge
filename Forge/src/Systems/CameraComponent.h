@@ -15,7 +15,7 @@ namespace forge
 
 	class CameraComponent : public IComponent
 	{
-		DECLARE_POLYMORPHIC_CLASS(CameraComponent, forge::IComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS(CameraComponent, forge::IComponent );
 	public:
 		using IComponent::IComponent;
 

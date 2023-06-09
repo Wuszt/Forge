@@ -13,7 +13,7 @@ namespace systems
 {
 	class PhysicsSystem : public ISystem
 	{
-		DECLARE_POLYMORPHIC_CLASS( PhysicsSystem, systems::ISystem );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( PhysicsSystem, systems::ISystem );
 
 	public:
 		PhysicsSystem();

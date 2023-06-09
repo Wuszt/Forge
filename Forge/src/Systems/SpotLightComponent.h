@@ -5,7 +5,7 @@ namespace forge
 {
 	struct SpotLightFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( SpotLightFragment, ecs::Fragment )
+		RTTI_DECLARE_STRUCT( SpotLightFragment, ecs::Fragment )
 
 		Vector3 m_color = { 1.0f, 1.0f, 1.0f };
 		Float m_innerAngle = FORGE_PI / 12.0f;
@@ -15,7 +15,7 @@ namespace forge
 
 	class SpotLightComponent : public DataComponent< SpotLightFragment >
 	{
-		DECLARE_POLYMORPHIC_CLASS( SpotLightComponent, forge::IComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( SpotLightComponent, forge::IComponent );
 	public:
 		using DataComponent::DataComponent;
 

@@ -7,7 +7,7 @@
 #include "PhysicsSystem.h"
 #include "../Physics/PhysicsShape.h"
 
-IMPLEMENT_TYPE( forge::PlayerControllerComponent);
+RTTI_IMPLEMENT_TYPE( forge::PlayerControllerComponent);
 
 void forge::FreeCameraControllerComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {

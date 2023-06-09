@@ -1,7 +1,7 @@
 #include "Fpch.h"
 #include "SkeletonAsset.h"
 
-IMPLEMENT_TYPE( renderer::SkeletonAsset );
+RTTI_IMPLEMENT_TYPE( renderer::SkeletonAsset );
 
 renderer::SkeletonAsset::SkeletonAsset()
 	: forge::IAsset("")

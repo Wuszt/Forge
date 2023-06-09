@@ -12,7 +12,7 @@ namespace forge
 {
 	class IComponent
 	{
-		DECLARE_ABSTRACT_CLASS( IComponent );
+		RTTI_DECLARE_ABSTRACT_CLASS( IComponent );
 	public:
 		friend class Object;
 

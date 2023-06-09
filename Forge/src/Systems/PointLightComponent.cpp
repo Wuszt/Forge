@@ -1,5 +1,5 @@
 #include "Fpch.h"
 #include "PointLightComponent.h"
 
-IMPLEMENT_TYPE( forge::PointLightFragment );
-IMPLEMENT_TYPE( forge::PointLightComponent );
+RTTI_IMPLEMENT_TYPE( forge::PointLightFragment );
+RTTI_IMPLEMENT_TYPE( forge::PointLightComponent );

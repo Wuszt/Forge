@@ -11,7 +11,7 @@
 #include "DebugSystem.h"
 #endif
 
-IMPLEMENT_TYPE( systems::AnimationSystem );
+RTTI_IMPLEMENT_TYPE( systems::AnimationSystem );
 
 void systems::AnimationSystem::OnInitialize()
 {

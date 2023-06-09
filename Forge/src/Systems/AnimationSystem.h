@@ -5,7 +5,7 @@ namespace systems
 {
 	class AnimationSystem : public ISystem, public forge::IDebuggable
 	{
-		DECLARE_POLYMORPHIC_CLASS( AnimationSystem, systems::ISystem );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( AnimationSystem, systems::ISystem );
 
 	public:
 		AnimationSystem() = default;

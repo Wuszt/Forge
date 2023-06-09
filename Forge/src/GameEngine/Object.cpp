@@ -3,7 +3,7 @@
 #include "../ECS/CommandsQueue.h"
 #include "../ECS/EntityID.h"
 
-IMPLEMENT_TYPE( forge::ObjectFragment );
+RTTI_IMPLEMENT_TYPE( forge::ObjectFragment );
 
 forge::Object::Object( EngineInstance& engineInstance, ObjectID id )
 	: m_engineInstance( engineInstance )

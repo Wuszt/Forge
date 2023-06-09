@@ -1,7 +1,7 @@
 #include "Fpch.h"
 #include "ISystem.h"
 
-IMPLEMENT_TYPE( systems::ISystem )
+RTTI_IMPLEMENT_TYPE( systems::ISystem )
 
 systems::ISystem::~ISystem() = default;
 

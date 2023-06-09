@@ -1,5 +1,5 @@
 #include "Fpch.h"
 #include "SpotLightComponent.h"
 
-IMPLEMENT_TYPE( forge::SpotLightFragment )
-IMPLEMENT_TYPE( forge::SpotLightComponent )
+RTTI_IMPLEMENT_TYPE( forge::SpotLightFragment )
+RTTI_IMPLEMENT_TYPE( forge::SpotLightComponent )

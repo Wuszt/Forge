@@ -5,7 +5,7 @@ namespace renderer
 {
 	class PerspectiveCamera : public ICamera
 	{
-		DECLARE_POLYMORPHIC_CLASS( PerspectiveCamera, renderer::ICamera );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( PerspectiveCamera, renderer::ICamera );
 
 	public:
 		PerspectiveCamera();

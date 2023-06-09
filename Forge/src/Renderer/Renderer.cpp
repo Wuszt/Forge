@@ -6,7 +6,7 @@
 #include "FBXLoader.h"
 #include "../ECS/ECSManager.h"
 
-IMPLEMENT_TYPE( renderer::WireFrameTag );
+RTTI_IMPLEMENT_TYPE( renderer::WireFrameTag );
 
 namespace renderer
 {

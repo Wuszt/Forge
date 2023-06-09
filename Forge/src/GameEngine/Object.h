@@ -8,7 +8,7 @@ namespace forge
 
 	struct ObjectFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( ObjectFragment, ecs::Fragment );
+		RTTI_DECLARE_STRUCT( ObjectFragment, ecs::Fragment );
 
 		ObjectID m_objectID;
 	};

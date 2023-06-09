@@ -4,7 +4,7 @@
 #include "ECSDebug.h"
 #include "../../External/imgui/imgui.h"
 
-IMPLEMENT_TYPE( ecs::ECSDebug );
+RTTI_IMPLEMENT_TYPE( ecs::ECSDebug );
 
 ecs::ECSDebug::ECSDebug( forge::EngineInstance& engineInstance )
 	: m_engineInstance( &engineInstance )

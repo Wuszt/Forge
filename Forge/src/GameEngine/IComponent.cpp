@@ -1,7 +1,7 @@
 #include "Fpch.h"
 #include "IComponent.h"
 
-IMPLEMENT_TYPE( forge::IComponent );
+RTTI_IMPLEMENT_TYPE( forge::IComponent );
 
 forge::IComponent::IComponent() = default;
 forge::IComponent::~IComponent() = default;

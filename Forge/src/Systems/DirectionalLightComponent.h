@@ -5,7 +5,7 @@ namespace forge
 {
 	struct DirectionalLightFragment : public ecs::Fragment
 	{
-		DECLARE_STRUCT( DirectionalLightFragment, ecs::Fragment );
+		RTTI_DECLARE_STRUCT( DirectionalLightFragment, ecs::Fragment );
 
 		Vector3 Direction;
 		Float padding0;
@@ -16,7 +16,7 @@ namespace forge
 
 	class DirectionalLightComponent : public DataComponent< DirectionalLightFragment >
 	{
-		DECLARE_POLYMORPHIC_CLASS( DirectionalLightComponent, forge::IComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( DirectionalLightComponent, forge::IComponent );
 	public:
 		using DataComponent::DataComponent;
 
