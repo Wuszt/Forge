@@ -21,7 +21,10 @@ Unit Tests have been moved to separate, private submodule. They're obviously not
 - Finally... skybox
 
 # 11.2022
-[![](https://markdown-videos.deta.dev/youtube/gvsBKjrnRLk)](https://youtu.be/gvsBKjrnRLk)
+YouTube video : <br />
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=gvsBKjrnRLk
+" target="_blank"><img src="http://img.youtube.com/vi/gvsBKjrnRLk/0.jpg" 
+width="480" height="360" border="0" /></a>
 - Spot lights and directional lights
 - Orthographic camera
 - Shadows for point, spot and directional lights
