@@ -3,7 +3,7 @@
 #include "Core.h"
 #include "ExternalIncludes.h"
 #include "Types.h"
-#include "../../External/Mini-RTTI/RTTI.h"
+#include "../../External/LibeRTTI/LibeRTTI.h"
 
 #include "Profiling.h"
 #include "Time.h"

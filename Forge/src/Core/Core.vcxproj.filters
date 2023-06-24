@@ -83,14 +83,14 @@
     <ClInclude Include="AssetsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\External\Mini-RTTI\RTTI.h">
-      <Filter>External</Filter>
-    </ClInclude>
     <ClInclude Include="RawVector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Assertions.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\LibeRTTI\LibeRTTI.h">
+      <Filter>External</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -14,9 +14,9 @@
 [submodule "Forge/External/openfbx"]
 	path = Forge/External/openfbx
 	url = https://github.com/nem0/OpenFBX.git
-[submodule "Forge/External/Mini-RTTI"]
-	path = Forge/External/Mini-RTTI
-	url = https://github.com/Wuszt/Mini-RTTI.git
 [submodule "Forge/External/Tracy"]
 	path = Forge/External/Tracy
 	url = https://github.com/wolfpld/tracy.git
+[submodule "Forge/External/LibeRTTI"]
+	path = Forge/External/LibeRTTI
+	url = https://github.com/Wuszt/LibeRTTI.git
