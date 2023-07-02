@@ -15,6 +15,8 @@ namespace forge
 
 	class Object
 	{
+		RTTI_DECLARE_POLYMORPHIC_CLASS( Object );
+
 	public:
 		Object( EngineInstance& engineInstance, ObjectID id );
 		virtual ~Object();
@@ -47,15 +49,18 @@ namespace forge
 		template< class T >
 		T* GetComponent()
 		{
-			return static_cast< T* >( m_components.at( &T::GetTypeStatic() ).get() ); 
+			return static_cast< T* >( m_components[ m_componentsLUT.at( &T::GetTypeStatic() ) ].get() ); 
 		}
 
 		EngineInstance& GetEngineInstance() const
 		{
-			return m_engineInstance;
+			return *m_engineInstance;
 		}
 
 	private:
+		Object();
+		Object( Object&& );
+
 		template< class T >
 		std::unique_ptr< T > CreateComponent()
 		{
@@ -78,9 +83,10 @@ namespace forge
 		void RequestAddingComponentsInternal( const std::function< void() >& creationFunc );
 
 		ObjectID m_id;
-		EngineInstance& m_engineInstance;
+		EngineInstance* m_engineInstance = nullptr;
 
-		std::unordered_map< const rtti::Type*, std::unique_ptr< IComponent > > m_components;
+		std::vector< std::unique_ptr< IComponent > > m_components;
+		std::unordered_map< const rtti::Type*, Uint32 > m_componentsLUT;
 	};
 }
 
