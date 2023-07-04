@@ -9,3 +9,4 @@
 #include "ISystem.h"
 #include "SystemsManager.h"
 #include "IComponent.h"
+#include "Serializer.h"
