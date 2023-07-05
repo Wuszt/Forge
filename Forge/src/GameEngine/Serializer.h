@@ -38,6 +38,7 @@ namespace forge
 		void SerializeClassOrStruct( const rtti::Type& type, void* address );
 		void SerializeArray( const rtti::ContainerType& type, void* address );
 		void SerializeDynamicContainer( const rtti::ContainerType& type, void* address );
+		void SerializeUniquePointer( const rtti::UniquePtrBaseType& type, void* address );
 
 		std::stringstream m_stream;
 		Mode m_mode;

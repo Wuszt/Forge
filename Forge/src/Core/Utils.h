@@ -33,7 +33,7 @@ namespace forge
 		RawSmartPtr( Uint64 size = 0u )
 		{
 			m_size = size;
-			m_data = new Byte[ m_size ];
+			m_data = malloc( m_size );
 		}
 
 		RawSmartPtr( RawSmartPtr&& ptr )
@@ -41,8 +41,7 @@ namespace forge
 			m_data = ptr.m_data;
 			m_size = ptr.m_size;
 
-			ptr.m_data = new Byte[ 0 ];
-			ptr.m_size = 0u;
+			ptr.Release();
 		}
 
 		RawSmartPtr& operator=( RawSmartPtr&& ptr )
@@ -52,7 +51,7 @@ namespace forge
 			m_size = ptr.m_size;
 
 			ptr.m_size = 0u;
-			ptr.m_data = new Byte[ 0u ];
+			ptr.m_data = malloc( 0 );
 
 			return *this;
 		}
@@ -76,13 +75,19 @@ namespace forge
 		{
 			if( m_size > 0u )
 			{
-				delete[] m_data;
+				free( m_data );
 				m_size = 0u;
 			}
 		}
 
+		void Release()
+		{
+			m_data = malloc( 0 );
+			m_size = 0u;
+		}
+
 	private:
 		Uint64 m_size = 0u;
-		Byte* m_data = nullptr;
+		void* m_data = nullptr;
 	};
 }

@@ -25,6 +25,10 @@ void forge::Serializer::SerializeType( const rtti::Type& type, void* address )
 		SerializeDynamicContainer( static_cast< const ::rtti::ContainerType& >( type ), address );
 		break;
 
+	case rtti::Type::Kind::UniquePointer:
+		SerializeUniquePointer( static_cast< const ::rtti::UniquePtrBaseType& >( type ), address );
+		break;
+
 	default:
 		FORGE_FATAL();
 	}
@@ -127,6 +131,33 @@ void forge::Serializer::SerializeDynamicContainer( const rtti::ContainerType& ty
 			static_cast< const ::rtti::DynamicContainerType* >( &type )->EmplaceElement( address, buffer.GetData() );
 		}
 
+		break;
+	}
+
+	default:
+		FORGE_FATAL();
+	}
+}
+
+void forge::Serializer::SerializeUniquePointer( const rtti::UniquePtrBaseType& type, void* address )
+{
+	switch ( m_mode )
+	{
+	case forge::Serializer::Mode::Saving:
+	{
+		void* pointedAddress = type.GetPointedAddress( address );
+		SerializeType( type.GetInternalType(), pointedAddress );
+		break;
+	}
+
+	case forge::Serializer::Mode::Loading:
+	{
+		type.ConstructInPlace( address );
+		forge::RawSmartPtr buffer( type.GetInternalType().GetSize() );
+		type.GetInternalType().ConstructInPlace( buffer.GetData() );
+		SerializeType( type.GetInternalType(), buffer.GetData() );
+		type.SetPointedgAddress( address, buffer.GetData() );
+		buffer.Release();
 		break;
 	}
 
