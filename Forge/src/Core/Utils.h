@@ -33,7 +33,7 @@ namespace forge
 		RawSmartPtr( Uint64 size = 0u )
 		{
 			m_size = size;
-			m_data = malloc( m_size );
+			m_data = ::operator new( size );
 		}
 
 		RawSmartPtr( RawSmartPtr&& ptr )
@@ -51,7 +51,7 @@ namespace forge
 			m_size = ptr.m_size;
 
 			ptr.m_size = 0u;
-			ptr.m_data = malloc( 0 );
+			ptr.m_data = ::operator new( 0 );
 
 			return *this;
 		}
@@ -75,14 +75,14 @@ namespace forge
 		{
 			if( m_size > 0u )
 			{
-				free( m_data );
+				::operator delete( m_data );
 				m_size = 0u;
 			}
 		}
 
 		void Release()
 		{
-			m_data = malloc( 0 );
+			m_data = ::operator new( 0 );
 			m_size = 0u;
 		}
 
