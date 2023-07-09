@@ -40,6 +40,22 @@ namespace forge
 		void SerializeDynamicContainer( const rtti::ContainerType& type, void* address );
 		void SerializeUniquePointer( const rtti::UniquePtrBaseType& type, void* address );
 
+		void Write( const void* data, Uint64 size );
+
+		template< class T >
+		void Write( const T& data )
+		{
+			Write( &data, sizeof( T ) );
+		}
+
+		void Read( void* data, Uint64 size );
+
+		template< class T >
+		void Read( T& data )
+		{
+			Read( &data, sizeof( T ) );
+		}
+
 		std::stringstream m_stream;
 		Mode m_mode;
 	};
