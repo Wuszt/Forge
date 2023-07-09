@@ -1,15 +1,11 @@
 #include "Fpch.h"
 #include "Serializer.h"
+#include "Streams.h"
 
-void forge::Serializer::Write( const void* data, Uint64 size )
-{
-	m_stream.write( reinterpret_cast< const char* >( data ), size );
-}
-
-void forge::Serializer::Read( void* data, Uint64 size )
-{
-	m_stream.read( reinterpret_cast< char* >( data ), size );
-}
+forge::Serializer::Serializer( Mode mode, Stream& stream )
+	: m_mode( mode )
+	, m_stream( stream )
+{}
 
 void forge::Serializer::SerializeType( const rtti::Type& type, void* address )
 {
@@ -49,11 +45,11 @@ void forge::Serializer::SerializePrimitive( const rtti::Type& type, void* addres
 	switch ( m_mode )
 	{
 	case forge::Serializer::Mode::Saving:
-		Write( address, type.GetSize() );
+		m_stream.Write( address, type.GetSize() );
 		break;
 
 	case forge::Serializer::Mode::Loading:
-		Read( address, type.GetSize() );
+		m_stream.Read( address, type.GetSize() );
 		break;
 
 	default:
@@ -75,57 +71,49 @@ void forge::Serializer::SerializeClassOrStruct( const rtti::Type& type, void* ad
 	{
 	case Mode::Saving:
 	{
-		Write( propertiesAmount );
+		m_stream.Write( propertiesAmount );
 		for ( Uint32 i = 0u; i < propertiesAmount; ++i )
 		{
 			const ::rtti::Property* prop = type.GetProperty( i );
 			
-			rtti::ID propertyId = prop->GetID();
-			Write( propertyId );
-			
-			rtti::ID typeId = prop->GetType().GetID();
-			Write( typeId );
+			m_stream.Write( prop->GetID() );
+			m_stream.Write( prop->GetType().GetID() );
 
 			Uint64 serializedSize = 0u;
-			auto pos = m_stream.tellp();
-			Write( serializedSize );
+			auto pos = m_stream.GetWritePos();
+			m_stream.Write( serializedSize );
+
 			SerializeType( prop->GetType(), prop->GetAddress( address ) );
-			auto endPos = m_stream.tellp();
-			serializedSize = m_stream.tellp() - pos - sizeof( serializedSize );
+			auto endPos = m_stream.GetWritePos();
+			serializedSize = m_stream.GetWritePos() - pos - sizeof( serializedSize );
 
-			m_stream.seekp( pos, std::ios_base::beg );
-			Write( serializedSize );
+			m_stream.SetWritePos( pos );
+			m_stream.Write( serializedSize );
 
-			m_stream.seekp( endPos, std::ios_base::beg );
+			m_stream.SetWritePos( endPos );
 		}
 		break;
 	}
 
 	case Mode::Loading:
 	{
-		decltype( propertiesAmount ) serializedPropertiesAmount = 0u;
-		Read( serializedPropertiesAmount );
+		Uint32 serializedPropertiesAmount = m_stream.Read< Uint32 >();
 
 		std::unordered_map< rtti::ID, std::streampos > m_serializedProperties;
 
 		for ( Uint32 i = 0u; i < serializedPropertiesAmount; ++i )
 		{
-			rtti::ID propertyId = 0u;
-			Read( propertyId );
-
-			rtti::ID typeId = 0u;
-			Read( typeId );
-
-			Uint64 serializedSize = 0u;
-			Read( serializedSize );
+			rtti::ID propertyId = m_stream.Read< rtti::ID >();
+			rtti::ID typeId = m_stream.Read< rtti::ID >();	
+			Uint64 serializedSize = m_stream.Read< Uint64 >();
 
 			FORGE_ASSERT( !m_serializedProperties.contains( CombineIds( propertyId, typeId ) ) );
-			m_serializedProperties[ CombineIds( propertyId, typeId ) ] = m_stream.tellg();
+			m_serializedProperties[ CombineIds( propertyId, typeId ) ] = m_stream.GetReadPos();
 
-			m_stream.seekg( serializedSize, std::ios_base::cur );
+			m_stream.SetReadPos( m_stream.GetReadPos() + serializedSize );
 		}
 
-		auto endPos = m_stream.tellg();
+		auto endPos = m_stream.GetReadPos();
 
 		for ( Uint32 i = 0u; i < propertiesAmount; ++i )
 		{
@@ -134,7 +122,7 @@ void forge::Serializer::SerializeClassOrStruct( const rtti::Type& type, void* ad
 			auto foundSerialized = m_serializedProperties.find( CombineIds( prop->GetID(), prop->GetType().GetID() ) );
 			if ( foundSerialized != m_serializedProperties.end() )
 			{
-				m_stream.seekg( foundSerialized->second, std::ios_base::beg );
+				m_stream.SetReadPos( foundSerialized->second );
 				SerializeType( prop->GetType(), prop->GetAddress( address ) );
 			}
 		}
@@ -153,8 +141,7 @@ void forge::Serializer::SerializeArray( const rtti::ContainerType& type, void* a
 	{
 	case forge::Serializer::Mode::Saving:
 	{
-		const Uint32 amount = static_cast< Uint32 >( type.GetElementsAmount( address ) );
-		Write( amount );
+		m_stream.Write( static_cast< Uint32 >( type.GetElementsAmount( address ) ) );
 
 		type.VisitElements( address, [ this, &type ]( const void* elementAddress )
 			{
@@ -166,8 +153,7 @@ void forge::Serializer::SerializeArray( const rtti::ContainerType& type, void* a
 
 	case forge::Serializer::Mode::Loading:
 	{
-		Uint32 serializedAmount = 0u;
-		Read( serializedAmount );
+		Uint32 serializedAmount = m_stream.Read< Uint32 >();
 		Uint32 arrayTypeCount = static_cast< Uint32 >( type.GetElementsAmount( nullptr ) );
 
 		const Uint32 internalTypeSize = static_cast< Uint32 >( type.GetInternalType().GetSize() );
@@ -194,8 +180,7 @@ void forge::Serializer::SerializeDynamicContainer( const rtti::ContainerType& ty
 	{
 	case forge::Serializer::Mode::Saving:
 	{
-		const Uint32 amount = static_cast< Uint32 >( type.GetElementsAmount( address ) );
-		Write( amount );
+		m_stream.Write( static_cast< Uint32 >( type.GetElementsAmount( address ) ) );
 
 		type.VisitElements( address, [ this, &type ]( const void* elementAddress )
 			{
@@ -207,8 +192,7 @@ void forge::Serializer::SerializeDynamicContainer( const rtti::ContainerType& ty
 
 	case forge::Serializer::Mode::Loading:
 	{
-		Uint32 amount = 0u;
-		Read( amount );
+		Uint32 amount = m_stream.Read< Uint32 >();
 
 		FORGE_ASSERT( dynamic_cast< const ::rtti::DynamicContainerType* >( &type ) );
 		forge::RawSmartPtr buffer( type.GetInternalType().GetSize() );

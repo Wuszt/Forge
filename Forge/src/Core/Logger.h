@@ -1,5 +1,4 @@
 #pragma once
-#include <sstream>
 
 #define FORGE_LOG( ... ) forge::Logger::LogInfo( ##__VA_ARGS__ )
 #define FORGE_LOG_WARNING( ... ) forge::Logger::LogWarning( ##__VA_ARGS__ )

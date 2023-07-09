@@ -2,6 +2,8 @@
 
 namespace forge
 {
+	class Stream;
+
 	class Serializer
 	{
 	public:
@@ -11,20 +13,7 @@ namespace forge
 			Loading,
 		};
 
-		Serializer( Mode mode )
-			: m_mode( mode )
-		{}
-
-		Serializer( Serializer& ) = delete;
-		Serializer( Serializer&& ) = delete;
-
-		Serializer( Mode mode, Serializer&& other )
-			: m_stream( std::move( other.m_stream ) )
-			, m_mode( mode )
-		{
-			m_stream.clear();
-			m_stream.seekp( 0u, std::ios_base::beg );
-		}
+		Serializer( Mode mode, Stream& stream );
 
 		template< class T >
 		void Serialize( T& data )
@@ -40,23 +29,7 @@ namespace forge
 		void SerializeDynamicContainer( const rtti::ContainerType& type, void* address );
 		void SerializeUniquePointer( const rtti::UniquePtrBaseType& type, void* address );
 
-		void Write( const void* data, Uint64 size );
-
-		template< class T >
-		void Write( const T& data )
-		{
-			Write( &data, sizeof( T ) );
-		}
-
-		void Read( void* data, Uint64 size );
-
-		template< class T >
-		void Read( T& data )
-		{
-			Read( &data, sizeof( T ) );
-		}
-
-		std::stringstream m_stream;
+		Stream& m_stream;
 		Mode m_mode;
 	};
 }
