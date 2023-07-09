@@ -333,7 +333,6 @@
     </ClCompile>
     <ClCompile Include="IComponent.cpp" />
     <ClCompile Include="ISystem.cpp" />
-    <ClCompile Include="Serializer.cpp" />
     <ClCompile Include="SystemsManager.cpp" />
     <ClCompile Include="UpdateManager.cpp" />
   </ItemGroup>
@@ -348,7 +347,6 @@
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="ISystem.h" />
     <ClInclude Include="PublicDefaults.h" />
-    <ClInclude Include="Serializer.h" />
     <ClInclude Include="SystemsManager.h" />
     <ClInclude Include="UpdateManager.h" />
   </ItemGroup>

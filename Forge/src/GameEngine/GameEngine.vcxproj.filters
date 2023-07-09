@@ -25,9 +25,12 @@
     <ClCompile Include="SystemsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="ObjectID.cpp" />
-    <ClCompile Include="Serializer.cpp" />
+    <ClCompile Include="Object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectID.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationInstance.h">
@@ -60,9 +63,12 @@
     <ClInclude Include="SystemsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Object.h" />
-    <ClInclude Include="ObjectID.h" />
-    <ClInclude Include="Serializer.h" />
+    <ClInclude Include="Object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

@@ -8,7 +8,7 @@ void forge::Serializer::Write( const void* data, Uint64 size )
 
 void forge::Serializer::Read( void* data, Uint64 size )
 {
-
+	m_stream.read( reinterpret_cast< char* >( data ), size );
 }
 
 void forge::Serializer::SerializeType( const rtti::Type& type, void* address )
@@ -172,7 +172,9 @@ void forge::Serializer::SerializeArray( const rtti::ContainerType& type, void* a
 
 		const Uint32 internalTypeSize = static_cast< Uint32 >( type.GetInternalType().GetSize() );
 
-		for ( Uint32 i = 0u; i < Math::Min( serializedAmount, arrayTypeCount ); ++i )
+		Uint32 deserializeAmount = serializedAmount < arrayTypeCount ? serializedAmount : arrayTypeCount;
+
+		for ( Uint32 i = 0u; i < deserializeAmount; ++i )
 		{
 			Byte* currentAddress = static_cast< Byte* >( address ) + i * internalTypeSize;
 			SerializeType( type.GetInternalType(), currentAddress );

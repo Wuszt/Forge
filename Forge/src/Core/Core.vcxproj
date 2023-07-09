@@ -50,6 +50,7 @@
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Profiling.h" />
     <ClInclude Include="RawVector.h" />
+    <ClInclude Include="Serializer.h" />
     <ClInclude Include="StringUtils.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Utils.h" />
@@ -74,6 +75,7 @@
     <ClCompile Include="IWindow.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="RawVector.cpp" />
+    <ClCompile Include="Serializer.cpp" />
     <ClCompile Include="StringUtils.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="WindowsInput.cpp" />

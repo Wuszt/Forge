@@ -92,6 +92,9 @@
     <ClInclude Include="..\..\External\LibeRTTI\LibeRTTI.h">
       <Filter>External</Filter>
     </ClInclude>
+    <ClInclude Include="Serializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fpch.cpp">
@@ -143,6 +146,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RawVector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Serializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
