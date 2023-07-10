@@ -24,7 +24,9 @@ namespace forge
 		void SerializeArray( const rtti::ContainerType& type, const void* address );
 		void SerializeDynamicContainer( const rtti::ContainerType& type, const void* address );
 		void SerializeUniquePointer( const rtti::UniquePtrBaseType& type, const void* address );
+		void SerializeSharedPointer( const rtti::SharedPtrBaseType& type, const void* address );
 
+		std::unordered_map< const void*, Uint64 > m_sharedPtrsOffsets;
 		Stream& m_stream;
 	};
 
@@ -48,7 +50,9 @@ namespace forge
 		void DeserializeArray( const rtti::ContainerType& type, void* address );
 		void DeserializeDynamicContainer( const rtti::ContainerType& type, void* address );
 		void DeserializeUniquePointer( const rtti::UniquePtrBaseType& type, void* address );
+		void DeserializeSharedPointer( const rtti::SharedPtrBaseType& type, void* address );
 
+		std::unordered_map< Uint64, void* > m_sharedPtrsAddresses;
 		Stream& m_stream;
 	};
 }

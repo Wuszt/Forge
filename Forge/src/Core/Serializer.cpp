@@ -30,6 +30,10 @@ void forge::Serializer::SerializeType( const rtti::Type& type, const void* addre
 		SerializeUniquePointer( static_cast< const ::rtti::UniquePtrBaseType& >( type ), address );
 		break;
 
+	case rtti::Type::Kind::SharedPointer:
+		SerializeSharedPointer( static_cast< const ::rtti::SharedPtrBaseType& >( type ), address );
+		break;
+
 	default:
 		FORGE_FATAL();
 	}
@@ -61,6 +65,10 @@ void forge::Deserializer::DeserializeType( const rtti::Type& type, void* address
 
 	case rtti::Type::Kind::UniquePointer:
 		DeserializeUniquePointer( static_cast< const ::rtti::UniquePtrBaseType& >( type ), address );
+		break;
+
+	case rtti::Type::Kind::SharedPointer:
+		DeserializeSharedPointer( static_cast< const ::rtti::SharedPtrBaseType& >( type ), address );
 		break;
 
 	default:
@@ -208,4 +216,58 @@ void forge::Deserializer::DeserializeUniquePointer( const rtti::UniquePtrBaseTyp
 	DeserializeType( type.GetInternalType(), buffer.GetData() );
 	type.SetPointedAddress( address, buffer.GetData() );
 	buffer.Release();
+}
+
+void forge::Serializer::SerializeSharedPointer( const rtti::SharedPtrBaseType& type, const void* address )
+{
+	const void* pointedAddress = type.GetPointedAddress( address );
+	auto found = m_sharedPtrsOffsets.find( pointedAddress );
+	if ( found != m_sharedPtrsOffsets.end() )
+	{
+		m_stream.Write( found->second );
+	}
+	else
+	{
+		m_stream.Write( std::numeric_limits< Uint64 >::max() );
+		m_sharedPtrsOffsets[ pointedAddress ] = m_stream.GetWritePos();
+		SerializeType( type.GetInternalType(), pointedAddress );
+	}
+}
+
+void forge::Deserializer::DeserializeSharedPointer( const rtti::SharedPtrBaseType& type, void* address )
+{
+	type.ConstructInPlace( address );
+	const Uint64 dataPos = m_stream.Read< Uint64 >();
+	auto deserializeInternalFunc = [&]()
+	{
+		auto currentPos = m_stream.GetReadPos();
+		forge::RawSmartPtr buffer( type.GetInternalType().GetSize() );
+		type.GetInternalType().ConstructInPlace( buffer.GetData() );
+		DeserializeType( type.GetInternalType(), buffer.GetData() );
+		type.SetPointedAddress( address, buffer.GetData() );
+		m_sharedPtrsAddresses[ currentPos ] = address;
+		buffer.Release();
+	};
+
+	if ( dataPos == std::numeric_limits< Uint64 >::max() )
+	{
+		deserializeInternalFunc();
+	}
+	else
+	{
+		auto found = m_sharedPtrsAddresses.find( dataPos );
+		if ( found != m_sharedPtrsAddresses.end() )
+		{
+			type.AssignSharedPtr( found->second, address );
+		}
+		else
+		{
+			auto currentPos = m_stream.GetReadPos();
+			m_stream.SetReadPos( dataPos );
+			deserializeInternalFunc();
+			m_stream.SetReadPos( currentPos );
+		}
+	}
+
+
 }
