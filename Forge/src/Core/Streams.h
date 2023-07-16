@@ -12,7 +12,10 @@ namespace forge
 		virtual Uint64 GetPos() const = 0;
 		virtual void SetPos( Uint64 pos ) = 0;
 
-		virtual void ResetPos() = 0;
+		virtual void ResetPos()
+		{
+			SetPos( 0u );
+		}
 
 		template< class T >
 		void Write( const T& data )
@@ -33,7 +36,6 @@ namespace forge
 	{
 	public:
 		MemoryStream( Uint64 initialCapacity );
-		~MemoryStream();
 
 		virtual void Write( const void* data, Uint64 size ) override;
 		virtual void Read( void* data, Uint64 size ) override;
@@ -41,11 +43,25 @@ namespace forge
 		virtual Uint64 GetPos() const override;
 		virtual void SetPos( Uint64 pos ) override;
 
-		virtual void ResetPos() override;
-
 	private:
 		std::vector<Byte> m_buffer;
 		Uint64 m_pos = 0u;
+	};
+
+	class FileStream : public Stream
+	{
+	public:
+		FileStream( const Char* filePath, Bool append );
+		~FileStream();
+
+		void Write( const void* data, Uint64 size ) override;
+		void Read( void* data, Uint64 size ) override;
+
+		Uint64 GetPos() const override;
+		void SetPos( Uint64 pos ) override;
+
+	private:
+		std::unique_ptr< std::fstream > m_stream;
 	};
 }
 
