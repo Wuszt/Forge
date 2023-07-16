@@ -105,16 +105,16 @@ void forge::Serializer::SerializeClassOrStruct( const rtti::Type& type, const vo
 		m_stream.Write( prop->GetType().GetID() );
 
 		Uint64 serializedSize = 0u;
-		auto pos = m_stream.GetWritePos();
+		auto pos = m_stream.GetPos();
 		m_stream.Write( serializedSize );
 		SerializeType( prop->GetType(), prop->GetAddress( address ) );
-		auto endPos = m_stream.GetWritePos();
-		serializedSize = m_stream.GetWritePos() - pos - sizeof( serializedSize );
+		auto endPos = m_stream.GetPos();
+		serializedSize = m_stream.GetPos() - pos - sizeof( serializedSize );
 
-		m_stream.SetWritePos( pos );
+		m_stream.SetPos( pos );
 		m_stream.Write( serializedSize );
 
-		m_stream.SetWritePos( endPos );
+		m_stream.SetPos( endPos );
 	}
 }
 
@@ -132,12 +132,12 @@ void forge::Deserializer::DeserializeClassOrStruct( const rtti::Type& type, void
 		Uint64 serializedSize = m_stream.Read< Uint64 >();
 
 		FORGE_ASSERT( !m_serializedProperties.contains( CombineIds( propertyId, typeId ) ) );
-		m_serializedProperties[ CombineIds( propertyId, typeId ) ] = m_stream.GetReadPos();
+		m_serializedProperties[ CombineIds( propertyId, typeId ) ] = m_stream.GetPos();
 
-		m_stream.SetReadPos( m_stream.GetReadPos() + serializedSize );
+		m_stream.SetPos( m_stream.GetPos() + serializedSize );
 	}
 
-	auto endPos = m_stream.GetReadPos();
+	auto endPos = m_stream.GetPos();
 
 	for ( Uint32 i = 0u; i < propertiesAmount; ++i )
 	{
@@ -146,7 +146,7 @@ void forge::Deserializer::DeserializeClassOrStruct( const rtti::Type& type, void
 		auto foundSerialized = m_serializedProperties.find( CombineIds( prop->GetID(), prop->GetType().GetID() ) );
 		if ( foundSerialized != m_serializedProperties.end() )
 		{
-			m_stream.SetReadPos( foundSerialized->second );
+			m_stream.SetPos( foundSerialized->second );
 			DeserializeType( prop->GetType(), prop->GetAddress( address ) );
 		}
 	}
@@ -229,7 +229,7 @@ void forge::Serializer::SerializeSharedPointer( const rtti::SharedPtrBaseType& t
 	else
 	{
 		m_stream.Write( std::numeric_limits< Uint64 >::max() );
-		m_sharedPtrsOffsets[ pointedAddress ] = m_stream.GetWritePos();
+		m_sharedPtrsOffsets[ pointedAddress ] = m_stream.GetPos();
 		SerializeType( type.GetInternalType(), pointedAddress );
 	}
 }
@@ -240,7 +240,7 @@ void forge::Deserializer::DeserializeSharedPointer( const rtti::SharedPtrBaseTyp
 	const Uint64 dataPos = m_stream.Read< Uint64 >();
 	auto deserializeInternalFunc = [&]()
 	{
-		auto currentPos = m_stream.GetReadPos();
+		auto currentPos = m_stream.GetPos();
 		forge::RawSmartPtr buffer( type.GetInternalType().GetSize() );
 		type.GetInternalType().ConstructInPlace( buffer.GetData() );
 		DeserializeType( type.GetInternalType(), buffer.GetData() );
@@ -262,10 +262,10 @@ void forge::Deserializer::DeserializeSharedPointer( const rtti::SharedPtrBaseTyp
 		}
 		else
 		{
-			auto currentPos = m_stream.GetReadPos();
-			m_stream.SetReadPos( dataPos );
+			auto currentPos = m_stream.GetPos();
+			m_stream.SetPos( dataPos );
 			deserializeInternalFunc();
-			m_stream.SetReadPos( currentPos );
+			m_stream.SetPos( currentPos );
 		}
 	}
 

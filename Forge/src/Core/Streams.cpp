@@ -2,45 +2,37 @@
 #include "Streams.h"
 #include "sstream"
 
-forge::MemoryStream::MemoryStream()
-	: m_stream( std::make_unique< std::stringstream >() )
-{}
+forge::MemoryStream::MemoryStream( Uint64 initialCapacity )
+{
+	m_buffer.reserve( initialCapacity );
+}
 
 forge::MemoryStream::~MemoryStream() = default;
 
 void forge::MemoryStream::Write( const void* data, Uint64 size )
 {
-	m_stream->write( reinterpret_cast< const char* >( data ), size );
+	m_buffer.resize( m_buffer.size() + size );
+	memcpy( &m_buffer[ m_pos ], data, size );
+	m_pos += size;
 }
 
 void forge::MemoryStream::Read( void* data, Uint64 size )
 {
-	m_stream->read( reinterpret_cast< char* >( data ), size );
+	memcpy( data, &m_buffer[ m_pos ], size );
+	m_pos += size;
 }
 
-Uint64 forge::MemoryStream::GetReadPos() const
+Uint64 forge::MemoryStream::GetPos() const
 {
-	return m_stream->tellg();
+	return m_pos;
 }
 
-Uint64 forge::MemoryStream::GetWritePos() const
+void forge::MemoryStream::SetPos( Uint64 pos )
 {
-	return m_stream->tellp();
-}
-
-void forge::MemoryStream::SetReadPos( Uint64 pos )
-{
-	m_stream->seekg( pos, std::ios_base::beg );
-}
-
-void forge::MemoryStream::SetWritePos( Uint64 pos )
-{
-	m_stream->seekp( pos, std::ios_base::beg );
+	m_pos = pos;
 }
 
 void forge::MemoryStream::ResetPos()
 {
-	m_stream->clear();
-	SetReadPos( 0u );
-	SetWritePos( 0u );
+	SetPos( 0u );
 }
