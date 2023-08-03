@@ -8,6 +8,7 @@
 [submodule "Forge/External/imgui"]
 	path = Forge/External/imgui
 	url = https://github.com/ocornut/imgui.git
+	branch = docking
 [submodule "Forge/External/tinyobjloader"]
 	path = Forge/External/tinyobjloader
 	url = https://github.com/tinyobjloader/tinyobjloader.git

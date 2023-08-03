@@ -22,6 +22,12 @@ namespace d3d11
 		m_renderer.SetRenderTargets( views, nullptr );
 
 		ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
+
+		if ( ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+		}
 	}
 
 	void IMGUID3D11Adapter::OnNewFrame()
