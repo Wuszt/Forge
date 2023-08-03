@@ -30,15 +30,21 @@ void forge::MemoryStream::SetPos( Uint64 pos )
 	m_pos = pos;
 }
 
-forge::FileStream::FileStream( const Char* filePath, Bool append )
+forge::FileStream::FileStream( const Char* filePath, Bool append, Uint64 bufferSize )
 	: m_stream( std::make_unique< std::fstream >() )
 {
 	m_stream->open( filePath, std::ios::out | std::ios::app );
 	m_stream->close();
-	m_stream->open( filePath, std::ios::in | std::ios::out | std::ios::binary | (append ? std::ios::app : 0) );
+	m_stream->open( filePath, std::ios::in | std::ios::out | std::ios::binary |  (append ? std::ios::app : 0 ) );
+
+	m_stream->rdbuf()->pubsetbuf( nullptr, bufferSize );
+	m_stream->sync_with_stdio( false );
 }
 
-forge::FileStream::~FileStream() = default;
+forge::FileStream::~FileStream()
+{
+	m_stream->close();
+}
 
 void forge::FileStream::Write( const void* data, Uint64 size )
 {
@@ -50,6 +56,22 @@ void forge::FileStream::Read( void* data, Uint64 size )
 {
 	m_stream->read( reinterpret_cast< char* >( data ), size );
 	m_stream->seekp( m_stream->tellg(), std::ios_base::beg );
+}
+
+Uint64 forge::FileStream::GetSize() const
+{
+	Uint64 currentPos = GetPos();
+
+	m_stream->seekg( 0, std::ios::beg );
+	auto begin = m_stream->tellg();
+
+	m_stream->seekg( 0, std::ios::end );
+	auto end = m_stream->tellg();
+
+	Uint64 size = end - begin;
+	m_stream->seekg( currentPos );
+
+	return size;
 }
 
 Uint64 forge::FileStream::GetPos() const
