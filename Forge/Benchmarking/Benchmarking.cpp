@@ -3,6 +3,7 @@
 #include "../src/Core/Serializer.h"
 #include "../src/Core/Streams.h"
 #include "../src/Math/Random.h"
+#include "filesystem"
 
 struct StructWithPrimitives
 {
@@ -54,7 +55,7 @@ struct StructWithContainers
 
 	auto operator<=>( const StructWithContainers& ) const = default;
 
-	std::array< Uint32, 123u > m_array;
+	std::array< Uint32, 12345u > m_array;
 	std::vector< StructWithPrimitives > m_vec;
 	std::unordered_set< Uint32 > m_set;
 	std::unordered_map< Uint32, StructWithPrimitives > m_map;
@@ -63,7 +64,7 @@ struct StructWithContainers
 	{
 		StructWithContainers src;
 
-		for ( Uint32 i = 0u; i < 123u; ++i )
+		for ( Uint32 i = 0u; i < 12345u; ++i )
 		{
 			src.m_array[ i ] = i;
 			src.m_vec.emplace_back( StructWithPrimitives::GetInitialized( seed * i + i ) );
@@ -107,17 +108,18 @@ int main()
 {
 	forge::Time::Initialize();
 
-    Uint64 iterations = 10;
+    Uint64 iterations = 100;
 
 	Double init = 0.0;
 	Double serializing = 0.0;
 	Double deserializing = 0.0;
 
 	forge::StopWatch allSw;
-	StructWithPointers src;
-	src.m_uniquePrimitive = std::make_unique< Uint32 >( 123u );
+	std::unique_ptr< StructWithPointers > srcData = std::make_unique<StructWithPointers>();
+	StructWithPointers& src = *srcData;
+	src.m_uniquePrimitive = std::make_unique< Uint32 >( 123456u );
 	src.m_uniqueStruct = std::make_unique< StructWithContainers >( StructWithContainers::GetInitialized() );
-	src.m_sharedPrimitive0 = std::make_shared< Uint32 >( 123u );
+	src.m_sharedPrimitive0 = std::make_shared< Uint32 >( 123456u );
 	src.m_sharedStruct0 = std::make_shared< StructWithContainers >( StructWithContainers::GetInitialized() );
 	src.m_sharedPrimitive1 = src.m_sharedPrimitive0;
 	src.m_sharedStruct1 = src.m_sharedStruct0;
@@ -125,24 +127,39 @@ int main()
     {
 		forge::StopWatch initSw;
 
-		StructWithPointers dest;
+		std::unique_ptr< StructWithPointers > destData = std::make_unique<StructWithPointers>();
+		StructWithPointers& dest = *destData;
 
 		const Uint64 c_bufferInitialSize = 256 * 1024;
-		forge::MemoryStream stream( c_bufferInitialSize );
-
+		const Char* fileName = "test.data";
+			
 		init += initSw.GetDuration();
 
 		forge::StopWatch serializationSw;
-		forge::Serializer inSerializer( stream );
-		inSerializer.Serialize( src );
+		{
+			forge::MemoryStream stream( c_bufferInitialSize );
+			forge::Serializer inSerializer( stream );
+			inSerializer.Serialize( src );
+			forge::FileStream fstream( fileName, false );
+			stream.ResetPos();
+			fstream.Write( stream.GetData(), stream.GetSize() );
+		}
 		serializing += serializationSw.GetDuration();
 
-		stream.ResetPos();
-
 		forge::StopWatch deserializationSw;
-		forge::Deserializer outSerializer( stream );
-		outSerializer.Deserialize( dest );
+		{
+			forge::FileStream fstream( fileName, false );
+			forge::MemoryStream stream( c_bufferInitialSize );
+			fstream.ResetPos();
+			stream.AppendUninitializedData( fstream.GetSize() );
+			stream.ResetPos();
+			fstream.Read( stream.GetData(), fstream.GetSize() );
+			forge::Deserializer outSerializer( stream );
+			outSerializer.Deserialize( dest );
+		}
 		deserializing += deserializationSw.GetDuration();
+
+		std::filesystem::remove( fileName );
     }
 
     std::cout << "All:" << allSw.GetDuration() << "\n";

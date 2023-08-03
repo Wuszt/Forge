@@ -52,7 +52,18 @@ namespace forge
 
 		const void* GetData() const
 		{
-			return m_buffer.data();
+			return m_buffer.data() + GetPos();
+		}
+
+		void* GetData()
+		{
+			return m_buffer.data() + GetPos();
+		}
+
+		void AppendUninitializedData( Uint64 size )
+		{
+			m_buffer.resize( m_buffer.size() + size );
+			SetPos( GetPos() + size );
 		}
 
 	private:
