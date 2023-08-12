@@ -105,7 +105,7 @@ namespace systems
 		std::unique_ptr< renderer::IBlendState > m_transparencyBlendState;
 
 #ifdef FORGE_IMGUI_ENABLED
-		void OnBeforeDrawDebug();
+		void CacheDepthBufferForDebug();
 		std::shared_ptr< imgui::TopBarItem > m_topBarButton;
 		forge::CallbackToken m_topBarButtonToken;
 		forge::CallbackToken m_overlayDebugToken;

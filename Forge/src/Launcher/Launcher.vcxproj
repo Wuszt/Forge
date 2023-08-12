@@ -145,7 +145,7 @@
     </Link>
     <PostBuildEvent>
       <Command>del $(TargetDir)Depots
-mklink $(TargetDir)Depots $(TargetDir)..\Depots
+mklink $(TargetDir)Depots $(TargetDir)..\..\Depots
 
 del $(ProjectDir)Depots
 mklink $(ProjectDir)Depots $(ProjectDir)..\..\Depots

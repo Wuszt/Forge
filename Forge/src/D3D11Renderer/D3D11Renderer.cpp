@@ -268,20 +268,18 @@ namespace d3d11
 
 	void D3D11Renderer::OnBeforeDraw()
 	{
+		struct cbFrame
 		{
-			struct cbFrame
-			{
-				Float Time;
-				Float padding[ 3 ];
-			};
+			Float Time;
+			Float padding[ 3 ];
+		};
 
-			auto buff = CreateStaticConstantBuffer< cbFrame >();
+		auto buff = CreateStaticConstantBuffer< cbFrame >();
 
-			buff->GetData().Time = forge::Time::GetTime();
-			buff->UpdateBuffer();
-			buff->SetVS( renderer::VSConstantBufferType::Frame );
-			buff->SetPS( renderer::PSConstantBufferType::Frame );
-		}
+		buff->GetData().Time = forge::Time::GetTime();
+		buff->UpdateBuffer();
+		buff->SetVS( renderer::VSConstantBufferType::Frame );
+		buff->SetPS( renderer::PSConstantBufferType::Frame );
 	}
 
 	void D3D11Renderer::SetViewportSize( const Vector2& size )

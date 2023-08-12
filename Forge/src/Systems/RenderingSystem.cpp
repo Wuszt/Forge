@@ -211,7 +211,7 @@ void systems::RenderingSystem::OnRenderDebug()
 	ImGui::End();
 }
 
-void systems::RenderingSystem::OnBeforeDrawDebug()
+void systems::RenderingSystem::CacheDepthBufferForDebug()
 {
 	if( m_depthBufferDebugTexture )
 	{
@@ -293,10 +293,6 @@ namespace
 
 void systems::RenderingSystem::OnBeforeDraw()
 {
-#ifdef FORGE_IMGUI_ENABLED
-	OnBeforeDrawDebug();
-#endif
-
 	m_renderer->OnBeforeDraw();
 
 	m_opaqueRenderingPass->ClearTargetTexture(); // this is fucked up, what about other rendering passes?
@@ -449,6 +445,10 @@ void systems::RenderingSystem::OnDraw()
 	}
 
 	{
+#ifdef FORGE_IMGUI_ENABLED
+		CacheDepthBufferForDebug();
+#endif
+
 		PC_SCOPE( "RenderingSystem::OnDraw::Overlay" );
 		m_depthStencilBuffer->GetView().Clear();
 
