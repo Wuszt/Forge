@@ -44,6 +44,7 @@
 #ifdef FORGE_IMGUI_ENABLED
 #include "../Systems/IMGUISystem.h"
 #endif
+#include "../Renderer/ISwapchain.h"
 
 #pragma optimize( "", off )
 void SkeletalMesh( forge::EngineInstance& engineInstance, const Vector3& pos )
@@ -191,6 +192,7 @@ Int32 main()
 			} );
 
 			engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetSkyboxTexture( engineInstance.GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\skymap.dds" )->GetTexture() );
+			engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetTargetTexture( &engineInstance.GetRenderingManager().GetRenderer().GetSwapchain()->GetBackBuffer() );
 
 			SponzaScene( engineInstance );
 			//SkeletalMesh( engineInstance, { 0.0f, 400.0f, 0.0f } );

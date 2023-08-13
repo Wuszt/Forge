@@ -39,52 +39,6 @@ void systems::SceneRenderingSystem::OnInitialize()
 
 	m_renderer = &GetEngineInstance().GetRenderingManager().GetRenderer();
 	m_camerasSystem = &GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >();
-	m_depthStencilBuffer = m_renderer->CreateDepthStencilBuffer( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth(), GetEngineInstance().GetRenderingManager().GetWindow().GetHeight() );
-	m_shadowMapsGenerator = std::make_unique<renderer::ShadowMapsGenerator>( *m_renderer );
-
-	{
-		m_samplerStates.emplace_back( m_renderer->CreateSamplerState( renderer::SamplerStateFilterType::MIN_MAG_MIP_LINEAR, renderer::SamplerStateComparisonType::ALWAYS ) );
-		m_samplerStates.emplace_back( m_renderer->CreateSamplerState( renderer::SamplerStateFilterType::COMPARISON_MIN_MAG_LINEAR_MIP_POINT, renderer::SamplerStateComparisonType::LESS ) );
-
-		std::vector< renderer::ISamplerState* > samplerStates;
-		for( auto& samplerState : m_samplerStates )
-		{
-			samplerStates.emplace_back( samplerState.get() );
-		}
-
-		m_renderer->SetSamplerStates( samplerStates );
-	}
-
-	m_beforeDrawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::SceneRenderingSystem::OnBeforeDraw, this ) );
-	m_drawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::SceneRenderingSystem::OnDraw, this ) );
-
-	m_intermediateTexture = m_renderer->CreateTexture( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth(), GetEngineInstance().GetRenderingManager().GetWindow().GetHeight(),
-		renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
-		renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
-
-	SetRenderingMode( RenderingMode::Deferred );
-
-	m_transparentRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
-	m_transparentRenderingPass->SetTargetTexture( *m_intermediateTexture );
-	m_transparentRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
-
-	m_transparencyBlendState = GetEngineInstance().GetRenderingManager().GetRenderer().CreateBlendState( { renderer::BlendOperand::BLEND_SRC_ALPHA, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_INV_SRC_ALPHA },
-		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ZERO } );
-
-	std::vector< renderer::ShaderDefine > baseShaderDefines;
-	baseShaderDefines.insert( baseShaderDefines.end(), renderer::DeferredRenderingPass::GetRequiredShaderDefines().begin(), renderer::DeferredRenderingPass::GetRequiredShaderDefines().end() );
-	baseShaderDefines.insert( baseShaderDefines.end(), renderer::ForwardRenderingPass::GetRequiredShaderDefines().begin(), renderer::ForwardRenderingPass::GetRequiredShaderDefines().end() );
-	baseShaderDefines.insert( baseShaderDefines.end(), renderer::ShadowsRenderingPass::GetRequiredShaderDefines().begin(), renderer::ShadowsRenderingPass::GetRequiredShaderDefines().end() );
-	m_renderer->GetShadersManager()->SetBaseShaderDefines( std::move( baseShaderDefines ) );
-
-	m_depthStencilState = m_renderer->CreateDepthStencilState( renderer::DepthStencilComparisonFunc::COMPARISON_LESS_EQUAL );
-	m_depthStencilState->Set();
-	m_targetTexture = &m_renderer->GetSwapchain()->GetBackBuffer();
-	m_onBackBufferResizedToken = m_targetTexture->GetOnResizedCallback().AddListener(
-		[ & ]( const Vector2& newSize )
-		{
-			UpdateRenderingResolution( m_renderingResolutionScale );
-		} );
 
 #ifdef FORGE_IMGUI_ENABLED
 	m_topBarButton = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().GetTopBar().AddButton( { "Reload shaders" }, false );
@@ -97,8 +51,11 @@ void systems::SceneRenderingSystem::OnInitialize()
 	{
 		ImGui::Text( "Window res: %u x %u", GetEngineInstance().GetRenderingManager().GetWindow().GetWidth(), GetEngineInstance().GetRenderingManager().GetWindow().GetHeight() );
 
-		const Vector2 renderingRes = GetRenderingResolution();
-		ImGui::Text( "Rendering res(%u%%) : %u x %u", static_cast<Uint32>( m_renderingResolutionScale * 100.0f ), static_cast< Uint32 >( renderingRes.X ), static_cast< Uint32 >( renderingRes.Y ) );
+		if( m_targetTexture )
+		{
+			const Vector2 renderingRes = GetRenderingResolution();
+			ImGui::Text( "Rendering res(%u%%) : %u x %u", static_cast<Uint32>( m_renderingResolutionScale * 100.0f ), static_cast< Uint32 >( renderingRes.X ), static_cast< Uint32 >( renderingRes.Y ) );
+		}
 	} );
 #endif
 }
@@ -227,6 +184,86 @@ void systems::SceneRenderingSystem::CacheDepthBufferForDebug()
 }
 #endif
 
+void systems::SceneRenderingSystem::Initialize( renderer::ITexture& targetTexture )
+{
+	renderer::ITexture* previousTargetTexture = m_targetTexture;
+	m_targetTexture = &targetTexture;
+
+	m_onTargetTextureResize = m_targetTexture->GetOnResizedCallback().AddListener(
+		[ & ]( const Vector2& newSize )
+		{
+			UpdateRenderingResolution( m_renderingResolutionScale );
+		} );
+
+	if ( previousTargetTexture )
+	{
+		UpdateRenderingResolution( m_renderingResolutionScale );
+		return;
+	}
+
+	const Vector2 renderingResolution = GetRenderingResolution();;
+	const Uint32 x = static_cast< Uint32 >( renderingResolution.X );
+	const Uint32 y = static_cast< Uint32 >( renderingResolution.Y );
+
+	m_depthStencilBuffer = m_renderer->CreateDepthStencilBuffer( x, y );
+	m_shadowMapsGenerator = std::make_unique<renderer::ShadowMapsGenerator>( *m_renderer );
+
+	{
+		m_samplerStates.emplace_back( m_renderer->CreateSamplerState( renderer::SamplerStateFilterType::MIN_MAG_MIP_LINEAR, renderer::SamplerStateComparisonType::ALWAYS ) );
+		m_samplerStates.emplace_back( m_renderer->CreateSamplerState( renderer::SamplerStateFilterType::COMPARISON_MIN_MAG_LINEAR_MIP_POINT, renderer::SamplerStateComparisonType::LESS ) );
+
+		std::vector< renderer::ISamplerState* > samplerStates;
+		for ( auto& samplerState : m_samplerStates )
+		{
+			samplerStates.emplace_back( samplerState.get() );
+		}
+	}
+
+	m_beforeDrawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::SceneRenderingSystem::OnBeforeDraw, this ) );
+	m_drawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::SceneRenderingSystem::OnDraw, this ) );
+
+	m_intermediateTexture = m_renderer->CreateTexture( x, y,
+		renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
+		renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
+
+	if( m_skyboxRenderingPass )
+	{
+		m_skyboxRenderingPass->SetTargetTexture( *m_intermediateTexture );
+	}
+
+	SetRenderingMode( RenderingMode::Deferred );
+
+	m_transparentRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
+	m_transparentRenderingPass->SetTargetTexture( *m_intermediateTexture );
+	m_transparentRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
+
+	m_transparencyBlendState = GetEngineInstance().GetRenderingManager().GetRenderer().CreateBlendState( { renderer::BlendOperand::BLEND_SRC_ALPHA, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_INV_SRC_ALPHA },
+		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ZERO } );
+
+	std::vector< renderer::ShaderDefine > baseShaderDefines;
+	baseShaderDefines.insert( baseShaderDefines.end(), renderer::DeferredRenderingPass::GetRequiredShaderDefines().begin(), renderer::DeferredRenderingPass::GetRequiredShaderDefines().end() );
+	baseShaderDefines.insert( baseShaderDefines.end(), renderer::ForwardRenderingPass::GetRequiredShaderDefines().begin(), renderer::ForwardRenderingPass::GetRequiredShaderDefines().end() );
+	baseShaderDefines.insert( baseShaderDefines.end(), renderer::ShadowsRenderingPass::GetRequiredShaderDefines().begin(), renderer::ShadowsRenderingPass::GetRequiredShaderDefines().end() );
+	m_renderer->GetShadersManager()->SetBaseShaderDefines( std::move( baseShaderDefines ) );
+
+	m_depthStencilState = m_renderer->CreateDepthStencilState( renderer::DepthStencilComparisonFunc::COMPARISON_LESS_EQUAL );
+	m_depthStencilState->Set();
+}
+
+void systems::SceneRenderingSystem::Deinitialize()
+{
+	m_onTargetTextureResize.Unregister();
+	m_targetTexture = nullptr;
+	m_depthStencilBuffer = nullptr;
+	m_shadowMapsGenerator = nullptr;
+	m_beforeDrawToken.Unregister();
+	m_drawToken.Unregister();
+	m_intermediateTexture = nullptr;
+	m_transparentRenderingPass = nullptr;
+	m_transparencyBlendState = nullptr;
+	m_depthStencilState = nullptr;
+}
+
 void systems::SceneRenderingSystem::SetRenderingMode( RenderingMode renderingMode )
 {
 	m_renderingMode = renderingMode;
@@ -270,7 +307,23 @@ void systems::SceneRenderingSystem::SetSkyboxTexture( std::shared_ptr< const ren
 	if ( texture )
 	{
 		m_skyboxRenderingPass = std::make_unique<renderer::SkyboxRenderingPass>( GetEngineInstance().GetAssetsManager(), GetEngineInstance().GetRenderingManager().GetRenderer(), texture );
-		m_skyboxRenderingPass->SetTargetTexture( *m_intermediateTexture );
+
+		if ( m_intermediateTexture )
+		{
+			m_skyboxRenderingPass->SetTargetTexture( *m_intermediateTexture );
+		}
+	}
+}
+
+void systems::SceneRenderingSystem::SetTargetTexture( renderer::ITexture* texture )
+{
+	if ( texture )
+	{
+		Initialize( *texture );
+	}
+	else
+	{
+		Deinitialize();
 	}
 }
 
@@ -392,9 +445,19 @@ void systems::SceneRenderingSystem::OnDraw()
 {
 	PC_SCOPE_FUNC();
 
-	if ( !m_camerasSystem->GetActiveCamera() )
+	if ( !m_camerasSystem->GetActiveCamera() || !m_targetTexture )
 	{
 		return;
+	}
+
+	{
+		std::vector< renderer::ISamplerState* > samplerStates;
+		samplerStates.reserve( m_samplerStates.size() );
+		for ( auto& samplerState : m_samplerStates )
+		{
+			samplerStates.emplace_back( samplerState.get() );
+		}
+		m_renderer->SetSamplerStates( samplerStates );
 	}
 
 	if ( m_skyboxRenderingPass )

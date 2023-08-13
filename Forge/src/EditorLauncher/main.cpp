@@ -26,6 +26,7 @@
 #include "../Systems/PhysicsComponent.h"
 #include "../Renderer/Model.h"
 #include "../GameEngine/RenderingManager.h"
+#include "../Renderer/ISwapchain.h"
 
 void CubeScene( forge::EngineInstance& engineInstance )
 {
@@ -73,6 +74,8 @@ Int32 main()
 
 			engineInstance.GetSystemsManager().AddSystems( systems );
 			engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor( { 0.55f, 0.55f, 0.55f } );
+
+			engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetTargetTexture( &engineInstance.GetRenderingManager().GetRenderer().GetSwapchain()->GetBackBuffer() );
 
 			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* player )
 				{

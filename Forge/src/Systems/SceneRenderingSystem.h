@@ -62,11 +62,16 @@ namespace systems
 
 		void SetSkyboxTexture( std::shared_ptr< const renderer::ITexture > texture );
 
+		void SetTargetTexture( renderer::ITexture* texture );
+
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;
 #endif
 
 	private:
+		void Initialize( renderer::ITexture& targetTexture );
+		void Deinitialize();
+
 		enum class RenderingMode
 		{
 			Forward,
@@ -79,7 +84,7 @@ namespace systems
 		systems::CamerasSystem* m_camerasSystem = nullptr;
 		forge::CallbackToken m_beforeDrawToken;
 		forge::CallbackToken m_drawToken;
-		forge::CallbackToken m_onBackBufferResizedToken;
+		forge::CallbackToken m_onTargetTextureResize;
 		renderer::Renderer* m_renderer;
 
 		std::vector< std::unique_ptr< renderer::ISamplerState > > m_samplerStates;

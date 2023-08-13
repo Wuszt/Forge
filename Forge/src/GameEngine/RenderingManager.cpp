@@ -3,6 +3,7 @@
 #include "../Core/IWindow.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/ISwapchain.h"
+#include "../Renderer/IRenderTargetView.h"
 
 renderer::RenderingManager::RenderingManager( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::UpdateManager& updateManager )
 {
@@ -18,6 +19,7 @@ renderer::RenderingManager::RenderingManager( const forge::DepotsContainer& depo
 
 	m_prerenderingToken = updateManager.RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, [ this ]()
 	{
+		GetRenderer().GetSwapchain()->GetBackBuffer().GetRenderTargetView()->Clear();
 		GetRenderer().OnBeforeDraw();
 		GetRenderer().SetViewportSize( Vector2( static_cast< Float >( GetWindow().GetWidth() ), static_cast< Float >( GetWindow().GetHeight() ) ) );
 	} );
