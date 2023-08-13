@@ -35,7 +35,7 @@ namespace renderer
 		virtual const IShaderResourceView* GetShaderResourceView() const = 0;
 		virtual IRenderTargetView* GetRenderTargetView() const = 0;
 		virtual forge::Callback< const Vector2& >& GetOnResizedCallback() = 0;
-		virtual Vector2 GetTextureSize() const = 0;
+		virtual Vector2 GetSize() const = 0;
 		virtual Type GetType() const = 0;
 	};
 

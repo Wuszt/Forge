@@ -43,14 +43,14 @@ namespace systems
 {
 	class CamerasSystem;
 
-	class RenderingSystem : public ISystem, public forge::IDebuggable
+	class SceneRenderingSystem : public ISystem, public forge::IDebuggable
 	{
-		RTTI_DECLARE_STRUCT( RenderingSystem, systems::ISystem );
+		RTTI_DECLARE_STRUCT( SceneRenderingSystem, systems::ISystem );
 
 	public:
-		RenderingSystem();
-		RenderingSystem( RenderingSystem&& );
-		~RenderingSystem();
+		SceneRenderingSystem();
+		SceneRenderingSystem( SceneRenderingSystem&& );
+		~SceneRenderingSystem();
 
 		virtual void OnInitialize() override;
 

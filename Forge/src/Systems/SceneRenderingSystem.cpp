@@ -1,6 +1,6 @@
 #include "Fpch.h"
 #include "../Renderer/PublicDefaults.h"
-#include "RenderingSystem.h"
+#include "SceneRenderingSystem.h"
 
 #include "CamerasSystem.h"
 #include "CameraComponent.h"
@@ -25,16 +25,16 @@
 #include "../Renderer/ICamera.h"
 #endif
 
-RTTI_IMPLEMENT_TYPE( systems::RenderingSystem );
+RTTI_IMPLEMENT_TYPE( systems::SceneRenderingSystem );
 
-systems::RenderingSystem::RenderingSystem() = default;
-systems::RenderingSystem::RenderingSystem( RenderingSystem&& ) = default;
-systems::RenderingSystem::~RenderingSystem() = default;
+systems::SceneRenderingSystem::SceneRenderingSystem() = default;
+systems::SceneRenderingSystem::SceneRenderingSystem( SceneRenderingSystem&& ) = default;
+systems::SceneRenderingSystem::~SceneRenderingSystem() = default;
 
-void systems::RenderingSystem::OnInitialize()
+void systems::SceneRenderingSystem::OnInitialize()
 {
 #ifdef FORGE_IMGUI_ENABLED
-	InitializeDebuggable< systems::RenderingSystem >( GetEngineInstance() );
+	InitializeDebuggable< systems::SceneRenderingSystem >( GetEngineInstance() );
 #endif
 
 	m_renderer = &GetEngineInstance().GetRenderingManager().GetRenderer();
@@ -55,8 +55,8 @@ void systems::RenderingSystem::OnInitialize()
 		m_renderer->SetSamplerStates( samplerStates );
 	}
 
-	m_beforeDrawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::RenderingSystem::OnBeforeDraw, this ) );
-	m_drawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::RenderingSystem::OnDraw, this ) );
+	m_beforeDrawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::SceneRenderingSystem::OnBeforeDraw, this ) );
+	m_drawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::SceneRenderingSystem::OnDraw, this ) );
 
 	m_intermediateTexture = m_renderer->CreateTexture( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth(), GetEngineInstance().GetRenderingManager().GetWindow().GetHeight(),
 		renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
@@ -104,7 +104,7 @@ void systems::RenderingSystem::OnInitialize()
 }
 
 #ifdef FORGE_IMGUI_ENABLED
-void systems::RenderingSystem::OnRenderDebug()
+void systems::SceneRenderingSystem::OnRenderDebug()
 {
 	if( ImGui::Begin( "Rendering System" ) )
 	{
@@ -176,7 +176,7 @@ void systems::RenderingSystem::OnRenderDebug()
 				}
 
 				{
-					if( m_depthBufferDebugTexture == nullptr || m_depthBufferDebugTexture->GetTextureSize() != m_depthStencilBuffer->GetTexture()->GetTextureSize() )
+					if( m_depthBufferDebugTexture == nullptr || m_depthBufferDebugTexture->GetSize() != m_depthStencilBuffer->GetTexture()->GetSize() )
 					{
 						m_depthBufferDebugTexture = m_renderer->CreateTexture( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth(), GetEngineInstance().GetRenderingManager().GetWindow().GetHeight(),
 							renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
@@ -204,7 +204,7 @@ void systems::RenderingSystem::OnRenderDebug()
 	ImGui::End();
 }
 
-void systems::RenderingSystem::CacheDepthBufferForDebug()
+void systems::SceneRenderingSystem::CacheDepthBufferForDebug()
 {
 	if( m_depthBufferDebugTexture )
 	{
@@ -227,7 +227,7 @@ void systems::RenderingSystem::CacheDepthBufferForDebug()
 }
 #endif
 
-void systems::RenderingSystem::SetRenderingMode( RenderingMode renderingMode )
+void systems::SceneRenderingSystem::SetRenderingMode( RenderingMode renderingMode )
 {
 	m_renderingMode = renderingMode;
 	switch( renderingMode )
@@ -243,7 +243,7 @@ void systems::RenderingSystem::SetRenderingMode( RenderingMode renderingMode )
 	m_opaqueRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
 }
 
-void systems::RenderingSystem::UpdateRenderingResolution( Float scale )
+void systems::SceneRenderingSystem::UpdateRenderingResolution( Float scale )
 {
 	m_renderingResolutionScale = scale;
 	const Vector2 renderingResolution = GetRenderingResolution();
@@ -254,9 +254,9 @@ void systems::RenderingSystem::UpdateRenderingResolution( Float scale )
 	m_intermediateTexture->Resize( renderingResolution );
 }
 
-Vector2 systems::RenderingSystem::GetRenderingResolution()
+Vector2 systems::SceneRenderingSystem::GetRenderingResolution()
 {
-	Vector2 result = m_targetTexture->GetTextureSize();
+	Vector2 result = m_targetTexture->GetSize();
 	result *= m_renderingResolutionScale;
 	result.X = static_cast< Float >( static_cast< Uint32 >( result.X ) );
 	result.Y = static_cast< Float >( static_cast< Uint32 >( result.Y ) );
@@ -264,7 +264,7 @@ Vector2 systems::RenderingSystem::GetRenderingResolution()
 	return result;
 }
 
-void systems::RenderingSystem::SetSkyboxTexture( std::shared_ptr< const renderer::ITexture > texture )
+void systems::SceneRenderingSystem::SetSkyboxTexture( std::shared_ptr< const renderer::ITexture > texture )
 {
 	m_skyboxRenderingPass = nullptr;
 	if ( texture )
@@ -284,12 +284,12 @@ namespace
 	RTTI_IMPLEMENT_TYPE( ContainsTransparentShapes );
 }
 
-void systems::RenderingSystem::OnBeforeDraw()
+void systems::SceneRenderingSystem::OnBeforeDraw()
 {
 	m_opaqueRenderingPass->ClearTargetTexture(); // this is fucked up, what about other rendering passes?
 
 	{
-		PC_SCOPE( "RenderingSystem::UpdatingRawRenderables" );
+		PC_SCOPE( "SceneRenderingSystem::UpdatingRawRenderables" );
 		ecs::Query renderablesToUpdate;
 		renderablesToUpdate.AddTagRequirement< forge::DirtyRenderable >( ecs::Query::RequirementType::Included );
 		renderablesToUpdate.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
@@ -368,7 +368,7 @@ void systems::RenderingSystem::OnBeforeDraw()
 	modifiedScaleQuery.AddFragmentRequirement< forge::PreviousFrameScaleFragment >( ecs::Query::RequirementType::Included );
 
 	{
-		PC_SCOPE( "RenderingSystem::OnDraw::UpdatingBuffers" );
+		PC_SCOPE( "SceneRenderingSystem::OnDraw::UpdatingBuffers" );
 
 		auto func = [ & ]( ecs::Archetype& archetype )
 		{
@@ -388,7 +388,7 @@ void systems::RenderingSystem::OnBeforeDraw()
 	}
 }
 
-void systems::RenderingSystem::OnDraw()
+void systems::SceneRenderingSystem::OnDraw()
 {
 	PC_SCOPE_FUNC();
 
@@ -399,12 +399,12 @@ void systems::RenderingSystem::OnDraw()
 
 	if ( m_skyboxRenderingPass )
 	{
-		PC_SCOPE( "RenderingSystem::OnDraw::Skybox" );
+		PC_SCOPE( "SceneRenderingSystem::OnDraw::Skybox" );
 		m_skyboxRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera() );
 	}
 
 	{
-		PC_SCOPE( "RenderingSystem::OnDraw::Opaque" );
+		PC_SCOPE( "SceneRenderingSystem::OnDraw::Opaque" );
 		ecs::Query opaqueQuery;
 		opaqueQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 		opaqueQuery.AddTagRequirement< forge::DrawAsOverlay >( ecs::Query::RequirementType::Excluded );
@@ -423,7 +423,7 @@ void systems::RenderingSystem::OnDraw()
 	}
 
 	{
-		PC_SCOPE( "RenderingSystem::OnDraw::Transparent" );
+		PC_SCOPE( "SceneRenderingSystem::OnDraw::Transparent" );
 		ecs::Query transparentQuery;
 		transparentQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 		transparentQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Included );
@@ -440,7 +440,7 @@ void systems::RenderingSystem::OnDraw()
 		CacheDepthBufferForDebug();
 #endif
 
-		PC_SCOPE( "RenderingSystem::OnDraw::Overlay" );
+		PC_SCOPE( "SceneRenderingSystem::OnDraw::Overlay" );
 		m_depthStencilBuffer->GetView().Clear();
 
 		ecs::Query opaqueOverlayQuery;

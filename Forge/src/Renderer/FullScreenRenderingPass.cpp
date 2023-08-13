@@ -28,5 +28,5 @@ void renderer::FullScreenRenderingPass::Draw( forge::ArraySpan< const IShaderRes
 
 void renderer::FullScreenRenderingPass::AdjustViewportSize()
 {
-	GetRenderer().SetViewportSize( GetTargetTexture()->GetTextureSize() );
+	GetRenderer().SetViewportSize( GetTargetTexture()->GetSize() );
 }

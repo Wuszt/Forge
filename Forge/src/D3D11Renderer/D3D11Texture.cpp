@@ -155,7 +155,7 @@ namespace d3d11
 		InvokeResizeCallback( size );
 	}
 
-	Vector2 D3D11Texture::GetTextureSize() const
+	Vector2 D3D11Texture::GetSize() const
 	{
 		D3D11_TEXTURE2D_DESC texDesc;
 		m_texture->GetDesc( &texDesc );

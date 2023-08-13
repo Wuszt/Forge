@@ -13,7 +13,7 @@ void forge::imgui::DrawTexture( const std::string& name, const renderer::ITextur
 			preTextureDrawing();
 		}
 
-		const Vector2& size = texture.GetTextureSize();
+		const Vector2& size = texture.GetSize();
 		Float contentWidth = ImGui::GetWindowWidth() - ImGui::GetCursorPosX();
 		const ImVec2 textureSize = ImVec2( contentWidth, contentWidth * size.Y / size.X );
 		ImGui::Image( texture.GetShaderResourceView()->GetRawSRV(), textureSize );

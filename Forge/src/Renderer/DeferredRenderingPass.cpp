@@ -221,8 +221,8 @@ void renderer::DeferredRenderingPass::SetTargetTexture( ITexture& targetTexture 
 
 	ITexture::Flags flags = ITexture::Flags::BIND_RENDER_TARGET | ITexture::Flags::BIND_SHADER_RESOURCE;
 
-	m_normalsTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetTextureSize().X ), static_cast< Uint32 >( targetTexture.GetTextureSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, ITexture::Format::R8G8B8A8_UNORM );
-	m_diffuseTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetTextureSize().X ), static_cast< Uint32 >( targetTexture.GetTextureSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, ITexture::Format::R8G8B8A8_UNORM );
+	m_normalsTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetSize().X ), static_cast< Uint32 >( targetTexture.GetSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, ITexture::Format::R8G8B8A8_UNORM );
+	m_diffuseTexture = GetRenderer().CreateTexture( static_cast< Uint32 >( targetTexture.GetSize().X ), static_cast< Uint32 >( targetTexture.GetSize().Y ), flags, ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, ITexture::Format::R8G8B8A8_UNORM );
 }
 
 void renderer::DeferredRenderingPass::OnTargetTextureResized( const Vector2& size )

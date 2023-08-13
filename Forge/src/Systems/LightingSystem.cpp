@@ -1,7 +1,7 @@
 #include "Fpch.h"
 #include "LightingSystem.h"
 #include "../Renderer/IRenderingPass.h"
-#include "RenderingSystem.h"
+#include "SceneRenderingSystem.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/PerspectiveCamera.h"
 #include "../renderer/IDepthStencilBuffer.h"
@@ -167,7 +167,7 @@ void systems::LightingSystem::OnRenderDebug()
 
 	auto drawTextureFunc = [ & ]( const renderer::ITexture& texture, forge::ArraySpan< renderer::ShaderDefine > shaderDefines )
 	{
-		Vector2 shadowMapSize = texture.GetTextureSize();
+		Vector2 shadowMapSize = texture.GetSize();
 		auto tempTexture = GetEngineInstance().GetRenderingManager().GetRenderer().CreateTexture( static_cast<Uint32>( shadowMapSize.X ), static_cast<Uint32>( shadowMapSize.Y ),
 			renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
 			renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );

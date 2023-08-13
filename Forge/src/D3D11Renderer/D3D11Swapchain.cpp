@@ -52,7 +52,7 @@ namespace d3d11
 			SetTexture( texture );
 
 			CreateViewsIfRequired( D3D11_BIND_RENDER_TARGET, c_backBufferFormat );
-			InvokeResizeCallback( GetTextureSize() );
+			InvokeResizeCallback( GetSize() );
 		}
 	};
 

@@ -52,12 +52,12 @@ renderer::IDepthStencilView& renderer::IMeshesRenderingPass::GetDepthStencilView
 
 void renderer::IMeshesRenderingPass::AdjustViewportSize()
 {
-	Vector2 resolution = GetTargetTexture() ? GetTargetTexture()->GetTextureSize() : Vector2::ZEROS();
+	Vector2 resolution = GetTargetTexture() ? GetTargetTexture()->GetSize() : Vector2::ZEROS();
 	
 	if( GetDepthStencilBuffer() )
 	{
-		resolution.X = Math::Max( resolution.X, GetDepthStencilBuffer()->GetTexture()->GetTextureSize().X );
-		resolution.Y = Math::Max( resolution.Y, GetDepthStencilBuffer()->GetTexture()->GetTextureSize().Y );
+		resolution.X = Math::Max( resolution.X, GetDepthStencilBuffer()->GetTexture()->GetSize().X );
+		resolution.Y = Math::Max( resolution.Y, GetDepthStencilBuffer()->GetTexture()->GetSize().Y );
 	}
 
 	GetRenderer().SetViewportSize( resolution );

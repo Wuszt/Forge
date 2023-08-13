@@ -332,7 +332,7 @@
     <ClCompile Include="PlayerControllerComponent.cpp" />
     <ClCompile Include="PlayerSystem.cpp" />
     <ClCompile Include="RenderingComponent.cpp" />
-    <ClCompile Include="RenderingSystem.cpp" />
+    <ClCompile Include="SceneRenderingSystem.cpp" />
     <ClCompile Include="SpotLightComponent.cpp" />
     <ClCompile Include="TimeSystem.cpp" />
     <ClCompile Include="TransformComponent.cpp" />
@@ -358,7 +358,7 @@
     <ClInclude Include="PlayerSystem.h" />
     <ClInclude Include="PublicDefaults.h" />
     <ClInclude Include="RenderingComponent.h" />
-    <ClInclude Include="RenderingSystem.h" />
+    <ClInclude Include="SceneRenderingSystem.h" />
     <ClInclude Include="SpotLightComponent.h" />
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="TransformComponent.h" />

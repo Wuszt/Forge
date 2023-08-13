@@ -7,7 +7,7 @@
 #include "../Systems/PlayerControllerComponent.h"
 #include "../Systems/PlayerSystem.h"
 #include "../Systems/CameraComponent.h"
-#include "../Systems/RenderingSystem.h"
+#include "../Systems/SceneRenderingSystem.h"
 #include "../Core/IInput.h"
 #include "../Systems/LightingSystem.h"
 #include "../Renderer/PerspectiveCamera.h"
@@ -56,7 +56,7 @@ Int32 main()
 			{
 				&systems::CamerasSystem::GetTypeStatic(),
 				&systems::PlayerSystem::GetTypeStatic(),
-				&systems::RenderingSystem::GetTypeStatic(),
+				&systems::SceneRenderingSystem::GetTypeStatic(),
 				&systems::LightingSystem::GetTypeStatic(),
 				&systems::TimeSystem::GetTypeStatic(),
 				&systems::AnimationSystem::GetTypeStatic(),

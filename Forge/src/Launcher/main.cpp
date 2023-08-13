@@ -8,7 +8,7 @@
 #include "../Systems/PlayerControllerComponent.h"
 #include "../Systems/PlayerSystem.h"
 #include "../Systems/CameraComponent.h"
-#include "../Systems/RenderingSystem.h"
+#include "../Systems/SceneRenderingSystem.h"
 #include "../Renderer/Renderer.h"
 #include "../Core/IInput.h"
 #include "../Systems/LightingSystem.h"
@@ -155,7 +155,7 @@ Int32 main()
 			{
 				&systems::CamerasSystem::GetTypeStatic(),
 				&systems::PlayerSystem::GetTypeStatic(),
-				&systems::RenderingSystem::GetTypeStatic(),
+				&systems::SceneRenderingSystem::GetTypeStatic(),
 				&systems::LightingSystem::GetTypeStatic(),
 				&systems::TimeSystem::GetTypeStatic(),
 				&systems::AnimationSystem::GetTypeStatic(),
@@ -190,7 +190,7 @@ Int32 main()
 				} );
 			} );
 
-			engineInstance.GetSystemsManager().GetSystem< systems::RenderingSystem >().SetSkyboxTexture( engineInstance.GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\skymap.dds" )->GetTexture() );
+			engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetSkyboxTexture( engineInstance.GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\skymap.dds" )->GetTexture() );
 
 			SponzaScene( engineInstance );
 			//SkeletalMesh( engineInstance, { 0.0f, 400.0f, 0.0f } );

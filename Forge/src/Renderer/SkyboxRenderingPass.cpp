@@ -50,7 +50,7 @@ void renderer::SkyboxRenderingPass::Draw( const renderer::ICamera& camera )
 	m_cameraCB->SetVS( renderer::VSConstantBufferType::Camera );
 	m_cameraCB->SetPS( renderer::PSConstantBufferType::Camera );
 
-	GetRenderer().SetViewportSize( GetTargetTexture()->GetTextureSize() );
+	GetRenderer().SetViewportSize( GetTargetTexture()->GetSize() );
 
 	CullingMode prevMode = GetRenderer().GetCullingMode();
 	GetRenderer().SetCullingMode( CullingMode::CullingFront );

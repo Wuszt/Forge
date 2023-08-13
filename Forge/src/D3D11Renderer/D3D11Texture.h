@@ -43,7 +43,7 @@ namespace d3d11
 			return m_onResizedCallback;
 		}
 
-		virtual Vector2 GetTextureSize() const override;
+		virtual Vector2 GetSize() const override;
 
 		virtual renderer::ITexture::Type GetType() const override
 		{
