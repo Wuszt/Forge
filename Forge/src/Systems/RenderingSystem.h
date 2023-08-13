@@ -58,8 +58,6 @@ namespace systems
 
 		void OnDraw();
 
-		void OnPresent();
-
 		Vector2 GetRenderingResolution();
 
 		void SetSkyboxTexture( std::shared_ptr< const renderer::ITexture > texture );
@@ -81,7 +79,7 @@ namespace systems
 		systems::CamerasSystem* m_camerasSystem = nullptr;
 		forge::CallbackToken m_beforeDrawToken;
 		forge::CallbackToken m_drawToken;
-		forge::CallbackToken m_presentToken;
+		forge::CallbackToken m_onBackBufferResizedToken;
 		renderer::Renderer* m_renderer;
 
 		std::vector< std::unique_ptr< renderer::ISamplerState > > m_samplerStates;
@@ -93,12 +91,12 @@ namespace systems
 		std::unique_ptr< renderer::IDepthStencilBuffer > m_depthStencilBuffer;
 		std::unique_ptr< renderer::IDepthStencilState > m_depthStencilState;
 
-		std::unique_ptr< renderer::ITexture > m_targetTexture;
+		std::unique_ptr< renderer::ITexture > m_intermediateTexture;
+		renderer::ITexture* m_targetTexture = nullptr;
 
 		std::unique_ptr< renderer::ShadowMapsGenerator > m_shadowMapsGenerator;
 
 		RenderingMode m_renderingMode = RenderingMode::Deferred;
-		forge::CallbackToken m_windowCallbackToken;
 
 		Float m_renderingResolutionScale = 1.0f;
 

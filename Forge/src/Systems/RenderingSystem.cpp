@@ -57,16 +57,15 @@ void systems::RenderingSystem::OnInitialize()
 
 	m_beforeDrawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PreRendering, std::bind( &systems::RenderingSystem::OnBeforeDraw, this ) );
 	m_drawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::RenderingSystem::OnDraw, this ) );
-	m_presentToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Present, std::bind( &systems::RenderingSystem::OnPresent, this ) );
 
-	m_targetTexture = m_renderer->CreateTexture( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth(), GetEngineInstance().GetRenderingManager().GetWindow().GetHeight(),
+	m_intermediateTexture = m_renderer->CreateTexture( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth(), GetEngineInstance().GetRenderingManager().GetWindow().GetHeight(),
 		renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
 		renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
 
 	SetRenderingMode( RenderingMode::Deferred );
 
 	m_transparentRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
-	m_transparentRenderingPass->SetTargetTexture( *m_targetTexture );
+	m_transparentRenderingPass->SetTargetTexture( *m_intermediateTexture );
 	m_transparentRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
 
 	m_transparencyBlendState = GetEngineInstance().GetRenderingManager().GetRenderer().CreateBlendState( { renderer::BlendOperand::BLEND_SRC_ALPHA, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_INV_SRC_ALPHA },
@@ -80,19 +79,12 @@ void systems::RenderingSystem::OnInitialize()
 
 	m_depthStencilState = m_renderer->CreateDepthStencilState( renderer::DepthStencilComparisonFunc::COMPARISON_LESS_EQUAL );
 	m_depthStencilState->Set();
-	m_windowCallbackToken = GetEngineInstance().GetRenderingManager().GetWindow().RegisterEventListener(
-			[ & ]( const forge::IWindow::IEvent& event )
-	{
-		switch( event.GetEventType() )
+	m_targetTexture = &m_renderer->GetSwapchain()->GetBackBuffer();
+	m_onBackBufferResizedToken = m_targetTexture->GetOnResizedCallback().AddListener(
+		[ & ]( const Vector2& newSize )
 		{
-		case forge::IWindow::EventType::OnResized:
-			FORGE_ASSERT( dynamic_cast<const forge::IWindow::OnResizedEvent*>( &event ) );
-			const forge::IWindow::OnResizedEvent& resizedEvent = static_cast<const forge::IWindow::OnResizedEvent&>( event );
-
 			UpdateRenderingResolution( m_renderingResolutionScale );
-			break;
-		}
-	} );
+		} );
 
 #ifdef FORGE_IMGUI_ENABLED
 	m_topBarButton = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().GetTopBar().AddButton( { "Reload shaders" }, false );
@@ -247,7 +239,7 @@ void systems::RenderingSystem::SetRenderingMode( RenderingMode renderingMode )
 		m_opaqueRenderingPass = std::make_unique< renderer::ForwardRenderingPass >( *m_renderer );
 		break;
 	}
-	m_opaqueRenderingPass->SetTargetTexture( *m_targetTexture );
+	m_opaqueRenderingPass->SetTargetTexture( *m_intermediateTexture );
 	m_opaqueRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
 }
 
@@ -259,12 +251,12 @@ void systems::RenderingSystem::UpdateRenderingResolution( Float scale )
 	const Uint32 renderingResolutionWidth = static_cast<Uint32>( renderingResolution.X );
 	const Uint32 renderingResolutionHeight = static_cast<Uint32>( renderingResolution.Y );
 	m_depthStencilBuffer->Resize( renderingResolutionWidth, renderingResolutionHeight );
-	m_targetTexture->Resize( renderingResolution );
+	m_intermediateTexture->Resize( renderingResolution );
 }
 
 Vector2 systems::RenderingSystem::GetRenderingResolution()
 {
-	Vector2 result = { static_cast<Float>( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetRenderingManager().GetWindow().GetHeight() ) };
+	Vector2 result = m_targetTexture->GetTextureSize();
 	result *= m_renderingResolutionScale;
 	result.X = static_cast< Float >( static_cast< Uint32 >( result.X ) );
 	result.Y = static_cast< Float >( static_cast< Uint32 >( result.Y ) );
@@ -278,7 +270,7 @@ void systems::RenderingSystem::SetSkyboxTexture( std::shared_ptr< const renderer
 	if ( texture )
 	{
 		m_skyboxRenderingPass = std::make_unique<renderer::SkyboxRenderingPass>( GetEngineInstance().GetAssetsManager(), GetEngineInstance().GetRenderingManager().GetRenderer(), texture );
-		m_skyboxRenderingPass->SetTargetTexture( *m_targetTexture );
+		m_skyboxRenderingPass->SetTargetTexture( *m_intermediateTexture );
 	}
 }
 
@@ -294,15 +286,7 @@ namespace
 
 void systems::RenderingSystem::OnBeforeDraw()
 {
-	m_renderer->OnBeforeDraw();
-
 	m_opaqueRenderingPass->ClearTargetTexture(); // this is fucked up, what about other rendering passes?
-
-	if ( m_skyboxRenderingPass )
-	{
-		PC_SCOPE( "RenderingSystem::OnDraw::Skybox" );
-		m_skyboxRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera() );
-	}
 
 	{
 		PC_SCOPE( "RenderingSystem::UpdatingRawRenderables" );
@@ -408,9 +392,15 @@ void systems::RenderingSystem::OnDraw()
 {
 	PC_SCOPE_FUNC();
 
-	if( !m_camerasSystem->GetActiveCamera() )
+	if ( !m_camerasSystem->GetActiveCamera() )
 	{
 		return;
+	}
+
+	if ( m_skyboxRenderingPass )
+	{
+		PC_SCOPE( "RenderingSystem::OnDraw::Skybox" );
+		m_skyboxRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera() );
 	}
 
 	{
@@ -471,13 +461,7 @@ void systems::RenderingSystem::OnDraw()
 		m_transparencyBlendState->Clear();
 	}
 
-	m_renderer->SetViewportSize( Vector2( static_cast< Float >( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetRenderingManager().GetWindow().GetHeight() ) ) );
 	renderer::FullScreenRenderingPass copyResourcePass( *m_renderer, "CopyTexture.fx", {} );
-	copyResourcePass.SetTargetTexture( m_renderer->GetSwapchain()->GetBackBuffer() );
-	copyResourcePass.Draw( { m_targetTexture->GetShaderResourceView() } );
-}
-
-void systems::RenderingSystem::OnPresent()
-{
-	m_renderer->GetSwapchain()->Present();
+	copyResourcePass.SetTargetTexture( *m_targetTexture );
+	copyResourcePass.Draw( { m_intermediateTexture->GetShaderResourceView() } );
 }

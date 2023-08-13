@@ -113,6 +113,3 @@ Int32 main()
 
 	engineInstance.Run();
 }
-
-// Rendering manager, ktory zajmuje sie czyszczeniem, swapowaniem bufferow itd
-// Rendering system -> SceneRenderingSystem

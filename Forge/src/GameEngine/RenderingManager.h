@@ -25,10 +25,14 @@ namespace renderer
 		}
 
 	private:
+		Float m_renderingResolutionScale = 1.0f;
+
 		std::unique_ptr< renderer::Renderer > m_renderer;
 		std::unique_ptr< forge::IWindow > m_window;
 
 		forge::CallbackToken m_windowUpdateToken;
+		forge::CallbackToken m_prerenderingToken;
+		forge::CallbackToken m_presentToken;
 	};
 }
 
