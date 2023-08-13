@@ -2,7 +2,7 @@
 
 namespace renderer
 {
-	class Renderer;
+	class RenderingManager;
 }
 
 namespace systems
@@ -46,16 +46,6 @@ namespace forge
 			return *m_updateManager;
 		}
 
-		renderer::Renderer& GetRenderer() const
-		{
-			return *m_renderer;
-		}
-
-		IWindow& GetWindow() const
-		{
-			return *m_window;
-		}
-
 		const DepotsContainer& GetDepotsContainer() const
 		{
 			return *m_depotsContainer;
@@ -71,6 +61,12 @@ namespace forge
 			return *m_ecsManager;
 		}
 
+
+		renderer::RenderingManager& GetRenderingManager() const
+		{
+			return *m_renderingManager;
+		}
+
 		void Run();
 
 	private:
@@ -80,11 +76,8 @@ namespace forge
 		std::unique_ptr< DepotsContainer > m_depotsContainer;
 		std::unique_ptr< AssetsManager > m_assetsManager;
 		std::unique_ptr< ecs::ECSManager > m_ecsManager;
+		std::unique_ptr< renderer::RenderingManager > m_renderingManager;
 
-		std::unique_ptr< renderer::Renderer > m_renderer;
-		std::unique_ptr< IWindow > m_window;
-
-		forge::CallbackToken m_windowUpdateToken;
 		forge::CallbackToken m_windowClosedToken;
 
 		ApplicationInstance& m_appInstance;

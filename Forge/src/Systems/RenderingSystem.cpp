@@ -14,15 +14,16 @@
 #include "../Renderer/ShadowsRenderingPass.h"
 #include "../Renderer/IBlendState.h"
 #include "../Renderer/ShadowMapsGenerator.h"
+#include "../Renderer/TextureAsset.h"
+#include "../Core/AssetsManager.h"
+#include "../ECS/Query.h"
+#include "../Renderer/SkyboxRenderingPass.h"
+#include "../GameEngine/RenderingManager.h"
 
 #ifdef FORGE_IMGUI_ENABLED
 #include "../IMGUI/PublicDefaults.h"
 #include "../Renderer/ICamera.h"
 #endif
-#include "../Renderer/TextureAsset.h"
-#include "../Core/AssetsManager.h"
-#include "../ECS/Query.h"
-#include "../Renderer/SkyboxRenderingPass.h"
 
 RTTI_IMPLEMENT_TYPE( systems::RenderingSystem );
 
@@ -36,9 +37,9 @@ void systems::RenderingSystem::OnInitialize()
 	InitializeDebuggable< systems::RenderingSystem >( GetEngineInstance() );
 #endif
 
-	m_renderer = &GetEngineInstance().GetRenderer();
+	m_renderer = &GetEngineInstance().GetRenderingManager().GetRenderer();
 	m_camerasSystem = &GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >();
-	m_depthStencilBuffer = m_renderer->CreateDepthStencilBuffer( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight() );
+	m_depthStencilBuffer = m_renderer->CreateDepthStencilBuffer( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth(), GetEngineInstance().GetRenderingManager().GetWindow().GetHeight() );
 	m_shadowMapsGenerator = std::make_unique<renderer::ShadowMapsGenerator>( *m_renderer );
 
 	{
@@ -58,7 +59,7 @@ void systems::RenderingSystem::OnInitialize()
 	m_drawToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Rendering, std::bind( &systems::RenderingSystem::OnDraw, this ) );
 	m_presentToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Present, std::bind( &systems::RenderingSystem::OnPresent, this ) );
 
-	m_targetTexture = m_renderer->CreateTexture( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight(), 
+	m_targetTexture = m_renderer->CreateTexture( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth(), GetEngineInstance().GetRenderingManager().GetWindow().GetHeight(),
 		renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
 		renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
 
@@ -68,7 +69,7 @@ void systems::RenderingSystem::OnInitialize()
 	m_transparentRenderingPass->SetTargetTexture( *m_targetTexture );
 	m_transparentRenderingPass->SetDepthStencilBuffer( m_depthStencilBuffer.get() );
 
-	m_transparencyBlendState = GetEngineInstance().GetRenderer().CreateBlendState( { renderer::BlendOperand::BLEND_SRC_ALPHA, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_INV_SRC_ALPHA },
+	m_transparencyBlendState = GetEngineInstance().GetRenderingManager().GetRenderer().CreateBlendState( { renderer::BlendOperand::BLEND_SRC_ALPHA, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_INV_SRC_ALPHA },
 		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ZERO } );
 
 	std::vector< renderer::ShaderDefine > baseShaderDefines;
@@ -79,7 +80,7 @@ void systems::RenderingSystem::OnInitialize()
 
 	m_depthStencilState = m_renderer->CreateDepthStencilState( renderer::DepthStencilComparisonFunc::COMPARISON_LESS_EQUAL );
 	m_depthStencilState->Set();
-	m_windowCallbackToken = GetEngineInstance().GetWindow().RegisterEventListener(
+	m_windowCallbackToken = GetEngineInstance().GetRenderingManager().GetWindow().RegisterEventListener(
 			[ & ]( const forge::IWindow::IEvent& event )
 	{
 		switch( event.GetEventType() )
@@ -97,12 +98,12 @@ void systems::RenderingSystem::OnInitialize()
 	m_topBarButton = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().GetTopBar().AddButton( { "Reload shaders" }, false );
 	m_topBarButtonToken = m_topBarButton->GetCallback().AddListener( [ this ]()
 		{
-			GetEngineInstance().GetRenderer().GetShadersManager()->ClearCache();
+			GetEngineInstance().GetRenderingManager().GetRenderer().GetShadersManager()->ClearCache();
 		} );
 
 	m_overlayDebugToken = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [ this ]()
 	{
-		ImGui::Text( "Window res: %u x %u", GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight() );
+		ImGui::Text( "Window res: %u x %u", GetEngineInstance().GetRenderingManager().GetWindow().GetWidth(), GetEngineInstance().GetRenderingManager().GetWindow().GetHeight() );
 
 		const Vector2 renderingRes = GetRenderingResolution();
 		ImGui::Text( "Rendering res(%u%%) : %u x %u", static_cast<Uint32>( m_renderingResolutionScale * 100.0f ), static_cast< Uint32 >( renderingRes.X ), static_cast< Uint32 >( renderingRes.Y ) );
@@ -185,7 +186,7 @@ void systems::RenderingSystem::OnRenderDebug()
 				{
 					if( m_depthBufferDebugTexture == nullptr || m_depthBufferDebugTexture->GetTextureSize() != m_depthStencilBuffer->GetTexture()->GetTextureSize() )
 					{
-						m_depthBufferDebugTexture = m_renderer->CreateTexture( GetEngineInstance().GetWindow().GetWidth(), GetEngineInstance().GetWindow().GetHeight(),
+						m_depthBufferDebugTexture = m_renderer->CreateTexture( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth(), GetEngineInstance().GetRenderingManager().GetWindow().GetHeight(),
 							renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
 							renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
 					}
@@ -263,7 +264,7 @@ void systems::RenderingSystem::UpdateRenderingResolution( Float scale )
 
 Vector2 systems::RenderingSystem::GetRenderingResolution()
 {
-	Vector2 result = { static_cast<Float>( GetEngineInstance().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetWindow().GetHeight() ) };
+	Vector2 result = { static_cast<Float>( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetRenderingManager().GetWindow().GetHeight() ) };
 	result *= m_renderingResolutionScale;
 	result.X = static_cast< Float >( static_cast< Uint32 >( result.X ) );
 	result.Y = static_cast< Float >( static_cast< Uint32 >( result.Y ) );
@@ -276,7 +277,7 @@ void systems::RenderingSystem::SetSkyboxTexture( std::shared_ptr< const renderer
 	m_skyboxRenderingPass = nullptr;
 	if ( texture )
 	{
-		m_skyboxRenderingPass = std::make_unique<renderer::SkyboxRenderingPass>( GetEngineInstance().GetAssetsManager(), GetEngineInstance().GetRenderer(), texture );
+		m_skyboxRenderingPass = std::make_unique<renderer::SkyboxRenderingPass>( GetEngineInstance().GetAssetsManager(), GetEngineInstance().GetRenderingManager().GetRenderer(), texture );
 		m_skyboxRenderingPass->SetTargetTexture( *m_targetTexture );
 	}
 }
@@ -470,7 +471,7 @@ void systems::RenderingSystem::OnDraw()
 		m_transparencyBlendState->Clear();
 	}
 
-	m_renderer->SetViewportSize( Vector2( static_cast< Float >( GetEngineInstance().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetWindow().GetHeight() ) ) );
+	m_renderer->SetViewportSize( Vector2( static_cast< Float >( GetEngineInstance().GetRenderingManager().GetWindow().GetWidth() ), static_cast<Float>( GetEngineInstance().GetRenderingManager().GetWindow().GetHeight() ) ) );
 	renderer::FullScreenRenderingPass copyResourcePass( *m_renderer, "CopyTexture.fx", {} );
 	copyResourcePass.SetTargetTexture( m_renderer->GetSwapchain()->GetBackBuffer() );
 	copyResourcePass.Draw( { m_targetTexture->GetShaderResourceView() } );

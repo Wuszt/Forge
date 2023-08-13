@@ -23,14 +23,6 @@
 #include "../../External/imgui/imgui.h"
 #include "../Renderer/AnimationSetAsset.h"
 #include "../Renderer/SkeletonAsset.h"
-
-#ifdef FORGE_DEBUGGING
-#include "../Systems/DebugSystem.h"
-#endif
-
-#ifdef FORGE_IMGUI_ENABLED
-#include "../Systems/IMGUISystem.h"
-#endif
 #include "../GameEngine/ISystem.h"
 #include "../Core/ArraySpan.h"
 #include "../Systems/AnimationSystem.h"
@@ -43,6 +35,16 @@
 #include "../Renderer/ModelAsset.h"
 #include "../Renderer/Model.h"
 #include "../Physics/RaycastResult.h"
+#include "../GameEngine/RenderingManager.h"
+
+#ifdef FORGE_DEBUGGING
+#include "../Systems/DebugSystem.h"
+#endif
+
+#ifdef FORGE_IMGUI_ENABLED
+#include "../Systems/IMGUISystem.h"
+#endif
+
 #pragma optimize( "", off )
 void SkeletalMesh( forge::EngineInstance& engineInstance, const Vector3& pos )
 {
@@ -178,7 +180,7 @@ Int32 main()
 				{
 					player->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition( { 0.0f, 0.0f, 2.0f } );
 					auto* cameraComp = player->GetComponent< forge::CameraComponent >();
-					cameraComp->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstancePtr->GetWindow() ));
+					cameraComp->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstancePtr->GetRenderingManager().GetWindow() ));
 
 					auto& camerasSystem = engineInstancePtr->GetSystemsManager().GetSystem< systems::CamerasSystem >();
 					camerasSystem.SetActiveCamera( cameraComp );
@@ -198,12 +200,12 @@ Int32 main()
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{		
-			if( engineInstance.GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
+			if( engineInstance.GetRenderingManager().GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
 			{
 				Shutdown();
 			}
 
-			if ( engineInstance.GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Space ) )
+			if ( engineInstance.GetRenderingManager().GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Space ) )
 			{
 				engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* sphere )
 					{

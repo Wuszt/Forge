@@ -6,6 +6,7 @@
 #include "../Core/DepotsContainer.h"
 #include "../Renderer/TinyObjModelsLoader.h"
 #include "../Core/AssetsManager.h"
+#include "RenderingManager.h"
 
 forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 	: m_appInstance( appInstance )
@@ -18,17 +19,13 @@ forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 	m_ecsManager = std::make_unique< ecs::ECSManager >();
 	m_updateManager = std::make_unique< forge::UpdateManager >();
 	m_systemManager = std::make_unique< systems::SystemsManager >( *this );
-	m_objectsManager = std::make_unique< forge::ObjectsManager >( *this, *m_updateManager, *m_ecsManager ); 
+	m_objectsManager = std::make_unique< forge::ObjectsManager >( *this, *m_updateManager, *m_ecsManager );
 
 	if( m_appInstance.WithRendering() )
 	{
-		const Uint32 width = 1600;
-		const Uint32 height = 900;
-		m_window = forge::IWindow::CreateNewWindow( width, height );
-		m_renderer = renderer::Renderer::CreateRenderer( GetDepotsContainer(), GetAssetsManager(), *m_window, renderer::RendererType::D3D11 );
+		m_renderingManager = std::make_unique< renderer::RenderingManager >( GetDepotsContainer(), GetAssetsManager(), GetUpdateManager() );
 
-		m_windowUpdateToken = GetUpdateManager().RegisterUpdateFunction( UpdateManager::BucketType::PostUpdate, [ & ]() { m_window->Update(); } );
-		m_windowClosedToken = m_window->RegisterEventListener( [ appPtr = &appInstance ]( const forge::IWindow::IEvent& ev )
+		m_windowClosedToken = GetRenderingManager().GetWindow().RegisterEventListener( [ appPtr = &appInstance ]( const forge::IWindow::IEvent& ev )
 		{
 			if( ev.GetEventType() == IWindow::EventType::OnCloseRequested )
 			{
@@ -49,11 +46,6 @@ void forge::EngineInstance::Run()
 		PC_SCOPE( "Frame" );
 		forge::Time::Update();
 		forge::FPSCounter::OnUpdate( forge::Time::GetDeltaTime() );
-
-		if( m_window )
-		{
-			m_window->Update();
-		}
 
 		m_appInstance.OnUpdate( *this );
 

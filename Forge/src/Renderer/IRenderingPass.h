@@ -19,6 +19,7 @@ namespace renderer
 	class IDepthStencilBuffer;
 	class IDepthStencilView;
 	class ICamera;
+	class Renderer;
 
 	enum class RenderingPass;
 

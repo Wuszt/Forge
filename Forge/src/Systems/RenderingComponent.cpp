@@ -5,6 +5,7 @@
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/ShadersManager.h"
+#include "../GameEngine/RenderingManager.h"
 
 RTTI_IMPLEMENT_TYPE( forge::RenderableFragment )
 RTTI_IMPLEMENT_TYPE( forge::RenderingComponent )
@@ -15,7 +16,7 @@ RTTI_IMPLEMENT_TYPE( forge::DrawAsOverlay );
 void forge::RenderingComponent::OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	DataComponent< RenderableFragment >::OnAttaching( engineInstance, commandsQueue );
-	commandsQueue.AddFragment( engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ), engineInstance.GetRenderer().GetECSFragmentType() );
+	commandsQueue.AddFragment( engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ), engineInstance.GetRenderingManager().GetRenderer().GetECSFragmentType() );
 }
 
 void forge::RenderingComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
@@ -23,8 +24,8 @@ void forge::RenderingComponent::OnAttached( EngineInstance& engineInstance, ecs:
 	PC_SCOPE_FUNC();
 
 	DataComponent< forge::RenderableFragment >::OnAttached( engineInstance, commandsQueue );
-	GetDirtyRenderable() = renderer::Renderable( engineInstance.GetRenderer() );
-	m_onShadersClearCache = engineInstance.GetRenderer().GetShadersManager()->RegisterCacheClearingListener(
+	GetDirtyRenderable() = renderer::Renderable( engineInstance.GetRenderingManager().GetRenderer() );
+	m_onShadersClearCache = engineInstance.GetRenderingManager().GetRenderer().GetShadersManager()->RegisterCacheClearingListener(
 		[ this ]()
 		{
 			SetDirty();

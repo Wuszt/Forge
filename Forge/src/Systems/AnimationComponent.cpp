@@ -3,6 +3,7 @@
 #include "../Renderer/SkeletonAsset.h"
 #include "RenderingComponent.h"
 #include "../Renderer/Renderer.h"
+#include "../GameEngine/RenderingManager.h"
 
 RTTI_IMPLEMENT_TYPE( forge::AnimationFragment );
 RTTI_IMPLEMENT_TYPE( forge::AnimationComponent );
@@ -14,7 +15,7 @@ forge::AnimationFragment::AnimationFragment()
 void forge::AnimationComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	DataComponent< AnimationFragment >::OnAttached( engineInstance, commandsQueue );
-	GetMutableData().m_cb->SetImpl( engineInstance.GetRenderer().CreateConstantBufferImpl() );
+	GetMutableData().m_cb->SetImpl( engineInstance.GetRenderingManager().GetRenderer().CreateConstantBufferImpl() );
 	GetOwner().GetComponent< forge::RenderingComponent >()->GetDirtyRenderable().AddConstantBuffer( { renderer::VSConstantBufferType::SkeletalMesh, renderer::PSConstantBufferType::Invalid, GetMutableData().m_cb->GetImpl() } );
 }
 

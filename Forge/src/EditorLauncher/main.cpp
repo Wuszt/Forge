@@ -25,6 +25,7 @@
 #include "../Systems/PhysicsSystem.h"
 #include "../Systems/PhysicsComponent.h"
 #include "../Renderer/Model.h"
+#include "../GameEngine/RenderingManager.h"
 
 void CubeScene( forge::EngineInstance& engineInstance )
 {
@@ -79,7 +80,7 @@ Int32 main()
 						{
 							player->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition( { 0.0f, -5.0f, 0.0f } );
 							auto* cameraComp = player->GetComponent< forge::CameraComponent >();
-							cameraComp->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstancePtr->GetWindow() ) );
+							cameraComp->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstancePtr->GetRenderingManager().GetWindow() ) );
 
 							auto& camerasSystem = engineInstancePtr->GetSystemsManager().GetSystem< systems::CamerasSystem >();
 							camerasSystem.SetActiveCamera( cameraComp );
@@ -95,7 +96,7 @@ Int32 main()
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{
-			if ( engineInstance.GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
+			if ( engineInstance.GetRenderingManager().GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
 			{
 				Shutdown();
 			}
@@ -112,3 +113,6 @@ Int32 main()
 
 	engineInstance.Run();
 }
+
+// Rendering manager, ktory zajmuje sie czyszczeniem, swapowaniem bufferow itd
+// Rendering system -> SceneRenderingSystem

@@ -6,12 +6,13 @@
 #include "PhysicsComponent.h"
 #include "PhysicsSystem.h"
 #include "../Physics/PhysicsShape.h"
+#include "../GameEngine/RenderingManager.h"
 
 RTTI_IMPLEMENT_TYPE( forge::PlayerControllerComponent);
 
 void forge::FreeCameraControllerComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
-	m_input = engineInstance.GetWindow().GetInput();
+	m_input = engineInstance.GetRenderingManager().GetWindow().GetInput();
 	m_ownerTransform = GetOwner().GetComponent< forge::TransformComponent >();
 
 	GetOwner().RequestAddingComponents< forge::PhysicsDynamicComponent >( [ this ]()

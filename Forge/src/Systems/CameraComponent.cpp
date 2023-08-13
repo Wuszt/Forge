@@ -4,6 +4,7 @@
 #include "../Renderer/PerspectiveCamera.h"
 #include "TransformComponent.h"
 #include "../Renderer/OrthographicCamera.h"
+#include "../GameEngine/RenderingManager.h"
 
 RTTI_IMPLEMENT_TYPE( forge::CameraComponent );
 
@@ -13,7 +14,7 @@ void forge::CameraComponent::OnAttached( EngineInstance& engineInstance, ecs::Co
 
 	m_transformComponent = GetOwner().GetComponent< TransformComponent >();
 
-	m_windowEventToken = engineInstance.GetWindow().RegisterEventListener( [ &, window = &engineInstance.GetWindow() ]( const forge::IWindow::IEvent& event )
+	m_windowEventToken = engineInstance.GetRenderingManager().GetWindow().RegisterEventListener( [ &, window = &engineInstance.GetRenderingManager().GetWindow() ]( const forge::IWindow::IEvent& event )
 	{
 		if( event.GetEventType() == forge::IWindow::EventType::OnResized )
 		{

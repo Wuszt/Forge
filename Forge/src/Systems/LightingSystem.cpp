@@ -15,6 +15,7 @@
 
 #include "DebugSystem.h"
 #include "../ECS/Query.h"
+#include "../GameEngine/RenderingManager.h"
 
 RTTI_IMPLEMENT_TYPE( systems::LightingSystem );
 
@@ -60,7 +61,7 @@ void systems::LightingSystem::Update()
 		m_pointsLightsData.resize( Math::Min( static_cast< Uint32 >( m_pointsLightsData.size() ), lightsAmount ) );
 		for( Uint32 i = static_cast< Uint32 >( m_pointsLightsData.size() ); i < lightsAmount; ++i )
 		{
-			auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution, true );
+			auto shadowMap = GetEngineInstance().GetRenderingManager().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution, true );
 			m_pointsLightsData.push_back( { renderer::PointLightData(), std::move( shadowMap ) } );
 		}
 
@@ -92,7 +93,7 @@ void systems::LightingSystem::Update()
 		m_spotLightsData.resize( Math::Min( static_cast< Uint32 >( m_spotLightsData.size() ), lightsAmount ) );
 		for( Uint32 i = static_cast< Uint32 >( m_spotLightsData.size() ); i < lightsAmount; ++i )
 		{
-			auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution, false );
+			auto shadowMap = GetEngineInstance().GetRenderingManager().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution, false );
 			m_spotLightsData.push_back( { renderer::SpotLightData(), std::move( shadowMap ) } );
 		}
 
@@ -126,7 +127,7 @@ void systems::LightingSystem::Update()
 		m_directionalLightsData.resize( Math::Min( static_cast< Uint32 >( m_directionalLightsData.size() ), lightsAmount ) );
 		for( Uint32 i = static_cast< Uint32 >( m_directionalLightsData.size() ); i < lightsAmount; ++i )
 		{
-			auto shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution );
+			auto shadowMap = GetEngineInstance().GetRenderingManager().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution );
 			m_directionalLightsData.push_back( { renderer::DirectionalLightData(), std::move( shadowMap ) } );
 		}
 
@@ -155,7 +156,7 @@ void systems::LightingSystem::OnRenderDebug()
 			if( castShadows )
 			{
 				Uint32 shadowMapsResolution = static_cast<Uint32>( c_shadowMapBaseSize * m_shadowsResolutionScale );
-				light.m_shadowMap = GetEngineInstance().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution, isPointLight );
+				light.m_shadowMap = GetEngineInstance().GetRenderingManager().GetRenderer().CreateDepthStencilBuffer( shadowMapsResolution, shadowMapsResolution, isPointLight );
 			}
 			else
 			{
@@ -167,7 +168,7 @@ void systems::LightingSystem::OnRenderDebug()
 	auto drawTextureFunc = [ & ]( const renderer::ITexture& texture, forge::ArraySpan< renderer::ShaderDefine > shaderDefines )
 	{
 		Vector2 shadowMapSize = texture.GetTextureSize();
-		auto tempTexture = GetEngineInstance().GetRenderer().CreateTexture( static_cast<Uint32>( shadowMapSize.X ), static_cast<Uint32>( shadowMapSize.Y ),
+		auto tempTexture = GetEngineInstance().GetRenderingManager().GetRenderer().CreateTexture( static_cast<Uint32>( shadowMapSize.X ), static_cast<Uint32>( shadowMapSize.Y ),
 			renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE,
 			renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
 
@@ -180,12 +181,12 @@ void systems::LightingSystem::OnRenderDebug()
 				Float padding[ 3 ];
 			};
 
-			auto cb = GetEngineInstance().GetRenderer().CreateStaticConstantBuffer< CB >();
+			auto cb = GetEngineInstance().GetRenderingManager().GetRenderer().CreateStaticConstantBuffer< CB >();
 			cb->GetData().Denominator = m_depthBufferDenominator;
 			cb->UpdateBuffer();
 			cb->SetPS( renderer::PSConstantBufferType::Material );
 
-			renderer::FullScreenRenderingPass fsPass( GetEngineInstance().GetRenderer(), "DepthBufferDebug.fx", shaderDefines );
+			renderer::FullScreenRenderingPass fsPass( GetEngineInstance().GetRenderingManager().GetRenderer(), "DepthBufferDebug.fx", shaderDefines );
 			fsPass.SetTargetTexture( *tempTexture );
 			fsPass.Draw( { texture.GetShaderResourceView() } );
 

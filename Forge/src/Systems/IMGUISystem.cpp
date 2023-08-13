@@ -5,6 +5,7 @@
 #include "../IMGUI/PublicDefaults.h"
 #include "../IMGUI/IMGUIInstance.h"
 #include "../Core/IWindow.h"
+#include "../GameEngine/RenderingManager.h"
 
 RTTI_IMPLEMENT_TYPE( systems::IMGUISystem );
 
@@ -16,7 +17,7 @@ systems::IMGUISystem::~IMGUISystem() = default;
 
 void systems::IMGUISystem::OnInitialize()
 {
-	m_imguiInstance = std::make_unique< forge::IMGUIInstance >( GetEngineInstance().GetWindow(), GetEngineInstance().GetRenderer() );
+	m_imguiInstance = std::make_unique< forge::IMGUIInstance >( GetEngineInstance().GetRenderingManager().GetWindow(), GetEngineInstance().GetRenderingManager().GetRenderer());
 	m_preUpdateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::FrameStart, [ & ]()
 	{
 		m_imguiInstance->OnNewFrame();

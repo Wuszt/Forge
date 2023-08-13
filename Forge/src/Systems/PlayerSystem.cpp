@@ -3,6 +3,7 @@
 #include "PlayerControllerComponent.h"
 #include "../Core/IInput.h"
 #include "../Core/IWindow.h"
+#include "../GameEngine/RenderingManager.h"
 
 #ifdef FORGE_IMGUI_ENABLED
 #include "../IMGUI/PublicDefaults.h"
@@ -30,7 +31,7 @@ forge::Object* systems::PlayerSystem::GetCurrentPlayerObject() const
 
 void systems::PlayerSystem::Update()
 {
-	auto input = GetEngineInstance().GetWindow().GetInput();
+	auto input = GetEngineInstance().GetRenderingManager().GetWindow().GetInput();
 	if( input->GetKey( forge::IInput::Key::Shift ) && input->GetMouseButton( forge::IInput::MouseButton::MiddleButton ) )
 	{
 		if( !m_wasShiftAndWheelPressed )
@@ -67,11 +68,11 @@ void systems::PlayerSystem::OnRenderDebug()
 				{
 					if( type == renderer::ICamera::CameraType::Perspective )
 					{
-						cameraComponent->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( GetEngineInstance().GetWindow() ) );
+						cameraComponent->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( GetEngineInstance().GetRenderingManager().GetWindow() ) );
 					}
 					else
 					{
-						cameraComponent->CreateImplementation< renderer::OrthographicCamera >( forge::CameraComponent::GetDefaultOrthographicCamera( GetEngineInstance().GetWindow() ) );
+						cameraComponent->CreateImplementation< renderer::OrthographicCamera >( forge::CameraComponent::GetDefaultOrthographicCamera( GetEngineInstance().GetRenderingManager().GetWindow() ) );
 					}
 				}
 

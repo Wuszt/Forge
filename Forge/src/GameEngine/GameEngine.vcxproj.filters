@@ -31,6 +31,7 @@
     <ClCompile Include="ObjectID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RenderingManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationInstance.h">
@@ -69,6 +70,7 @@
     <ClInclude Include="ObjectID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RenderingManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
