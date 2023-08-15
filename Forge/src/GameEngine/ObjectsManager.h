@@ -1,6 +1,7 @@
 #pragma once
 #include "EngineInstance.h"
 #include "../ECS/EntityID.h"
+#include "ObjectID.h"
 
 namespace forge
 {

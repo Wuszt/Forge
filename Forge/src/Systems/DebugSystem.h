@@ -1,6 +1,6 @@
 #pragma once
 #ifdef FORGE_DEBUGGING
-
+#include "../GameEngine/ISystem.h"
 #ifdef FORGE_IMGUI_ENABLED
 namespace ecs
 {

@@ -1,4 +1,6 @@
 #pragma once
+#include "../GameEngine/IComponent.h"
+#include "../ECS/Fragment.h"
 
 namespace forge
 {
@@ -51,33 +53,9 @@ namespace forge
 
 		const Vector3* GetPrevFrameScale() const;
 
-		Transform& GetDirtyTransform()
-		{
-			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
-			auto entityID = GetOwner().GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() );
+		Transform& GetDirtyTransform();
 
-			if ( ecsManager.GetFragment< PreviousFrameTransformFragment >( entityID ) == nullptr )
-			{
-				ecsManager.AddFragmentToEntity< PreviousFrameTransformFragment >( entityID );
-				ecsManager.GetFragment< PreviousFrameTransformFragment >( entityID )->m_previousTransform = GetData().m_transform;
-			}
-
-			return GetMutableData().m_transform;
-		}
-
-		Vector3& GetDirtyScale()
-		{
-			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
-			auto entityID = GetOwner().GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() );
-
-			if ( ecsManager.GetFragment< PreviousFrameScaleFragment >( entityID ) == nullptr )
-			{
-				ecsManager.AddFragmentToEntity< PreviousFrameScaleFragment >( entityID );
-				ecsManager.GetFragment< PreviousFrameScaleFragment >( entityID )->m_previousScale = GetData().m_scale;
-			}
-
-			return GetMutableData().m_scale.AsVector3();
-		}
+		Vector3& GetDirtyScale();
 	};
 }
 

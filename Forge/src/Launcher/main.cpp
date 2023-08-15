@@ -36,6 +36,7 @@
 #include "../Renderer/Model.h"
 #include "../Physics/RaycastResult.h"
 #include "../GameEngine/RenderingManager.h"
+#include "../Renderer/ISwapchain.h"
 
 #ifdef FORGE_DEBUGGING
 #include "../Systems/DebugSystem.h"
@@ -44,7 +45,6 @@
 #ifdef FORGE_IMGUI_ENABLED
 #include "../Systems/IMGUISystem.h"
 #endif
-#include "../Renderer/ISwapchain.h"
 
 #pragma optimize( "", off )
 void SkeletalMesh( forge::EngineInstance& engineInstance, const Vector3& pos )
