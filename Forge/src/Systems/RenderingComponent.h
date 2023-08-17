@@ -1,5 +1,6 @@
 #pragma once
 #include "../Renderer/Renderable.h"
+#include "../GameEngine/IComponent.h"
 
 namespace renderer
 {

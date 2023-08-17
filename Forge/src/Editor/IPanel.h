@@ -1,10 +1,27 @@
 #pragma once
-class IPanel
+
+namespace forge
 {
-public:
-	virtual ~IPanel() = default;
+	class EngineInstance;
+}
 
-protected:
-	virtual void Draw() {}
-};
+namespace editor
+{
+	class IPanel
+	{
+	public:
+		IPanel( forge::EngineInstance& engineIntance );
+		virtual ~IPanel() = default;
 
+		virtual void Draw() = 0;
+
+	protected:
+		forge::EngineInstance& GetEngineInstance() const
+		{
+			return m_engineInstance;
+		}
+
+	private:
+		forge::EngineInstance& m_engineInstance;
+	};
+}

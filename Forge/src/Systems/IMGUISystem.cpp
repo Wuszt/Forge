@@ -25,7 +25,7 @@ void systems::IMGUISystem::OnInitialize()
 
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, [ & ]()
 	{
-		DrawOverlay();
+		//DrawOverlay();
 		m_topBar.Draw();
 	} );
 

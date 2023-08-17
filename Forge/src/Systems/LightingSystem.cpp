@@ -173,7 +173,7 @@ void systems::LightingSystem::OnRenderDebug()
 			renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
 
 
-		forge::imgui::DrawTexture( "Depth", *tempTexture, false, [ & ]()
+		forge::imgui::DrawFoldableTextureView( "Depth", *tempTexture, false, [ & ]()
 		{
 			struct CB
 			{

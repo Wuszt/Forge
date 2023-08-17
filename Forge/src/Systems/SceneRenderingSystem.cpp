@@ -118,7 +118,7 @@ void systems::SceneRenderingSystem::OnRenderDebug()
 				auto texturesAssets = GetEngineInstance().GetAssetsManager().GetLoadedAssetsOfType< renderer::TextureAsset >();
 				for( const auto& asset : texturesAssets )
 				{
-					forge::imgui::DrawTexture( asset->GetPath(), *asset->GetTexture() );
+					forge::imgui::DrawFoldableTextureView( asset->GetPath(), *asset->GetTexture() );
 				}
 
 				ImGui::EndTabItem();
@@ -128,8 +128,8 @@ void systems::SceneRenderingSystem::OnRenderDebug()
 			{
 				if( dynamic_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() ) )
 				{
-					forge::imgui::DrawTexture( "Normals", *static_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() )->GetNormalsTexture() );
-					forge::imgui::DrawTexture( "Diffuse", *static_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() )->GetDiffuseTexture() );
+					forge::imgui::DrawFoldableTextureView( "Normals", *static_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() )->GetNormalsTexture() );
+					forge::imgui::DrawFoldableTextureView( "Diffuse", *static_cast<renderer::DeferredRenderingPass*>( m_opaqueRenderingPass.get() )->GetDiffuseTexture() );
 				}
 
 				{
@@ -145,7 +145,7 @@ void systems::SceneRenderingSystem::OnRenderDebug()
 					m_depthBufferDenominator = Math::Min( m_depthBufferDenominator, maxValue );
 					ImGui::SliderFloat( "Denominator", &m_depthBufferDenominator, maxValue * 0.001f, maxValue );
 
-					forge::imgui::DrawTexture( "Depth", *m_depthBufferDebugTexture );			
+					forge::imgui::DrawFoldableTextureView( "Depth", *m_depthBufferDebugTexture );			
 				}
 
 				ImGui::EndTabItem();

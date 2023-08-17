@@ -4,11 +4,11 @@
 #include "../Renderer/ITexture.h"
 #include "../Renderer/IShaderResourceView.h"
 
-void forge::imgui::DrawTexture( const std::string& name, const renderer::ITexture& texture, Bool open /*= true*/, std::function<void()> preTextureDrawing /*= nullptr */ )
+void forge::imgui::DrawFoldableTextureView( const std::string& name, const renderer::ITexture& texture, Bool open /*= true*/, std::function<void()> preTextureDrawing /*= nullptr */ )
 {
-	if( ImGui::TreeNodeEx( name.c_str(), open ? ImGuiTreeNodeFlags_DefaultOpen : 0 ) )
+	if ( ImGui::TreeNodeEx( name.c_str(), open ? ImGuiTreeNodeFlags_DefaultOpen : 0 ) )
 	{
-		if( preTextureDrawing )
+		if ( preTextureDrawing )
 		{
 			preTextureDrawing();
 		}
@@ -17,7 +17,7 @@ void forge::imgui::DrawTexture( const std::string& name, const renderer::ITextur
 		Float contentWidth = ImGui::GetWindowWidth() - ImGui::GetCursorPosX();
 		const ImVec2 textureSize = ImVec2( contentWidth, contentWidth * size.Y / size.X );
 		ImGui::Image( texture.GetShaderResourceView()->GetRawSRV(), textureSize );
-		if( ImGui::IsItemHovered() && ImGui::IsMouseDown( ImGuiMouseButton_Right ) )
+		if ( ImGui::IsItemHovered() && ImGui::IsMouseDown( ImGuiMouseButton_Right ) )
 		{
 			ImVec2 pos = ImGui::GetCursorScreenPos();
 			ImGuiIO& io = ImGui::GetIO();

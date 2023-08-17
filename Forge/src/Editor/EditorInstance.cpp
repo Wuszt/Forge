@@ -32,6 +32,11 @@
 #include "../Systems/PlayerControllerComponent.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/ISwapchain.h"
+#include "../GameEngine/UpdateManager.h"
+#include "../../External/imgui/imgui.h"
+
+#include "SceneEditor.h"
+#include "IPanel.h"
 
 void CubeScene(forge::EngineInstance& engineInstance)
 {
@@ -49,8 +54,17 @@ void CubeScene(forge::EngineInstance& engineInstance)
 		});
 }
 
+forge::EditorInstance::EditorInstance( const std::string& applicationName )
+	: forge::ApplicationInstance( applicationName )
+{}
+
+forge::EditorInstance::~EditorInstance() = default;
+
 void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 {
+	m_engineInstance = &engineInstance;
+	m_updateToken = engineInstance.GetUpdateManager().RegisterUpdateFunction(forge::UpdateManager::BucketType::Update, [this](){ Update(); });
+
 	const systems::ISystem::ClassType* systems[]
 	{
 		&systems::CamerasSystem::GetTypeStatic(),
@@ -73,7 +87,7 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 	engineInstance.GetSystemsManager().AddSystems(systems);
 	engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor({ 0.55f, 0.55f, 0.55f });
 
-	engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetTargetTexture(&engineInstance.GetRenderingManager().GetRenderer().GetSwapchain()->GetBackBuffer());
+	//engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetTargetTexture(&engineInstance.GetRenderingManager().GetRenderer().GetSwapchain()->GetBackBuffer());
 
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([&](forge::Object* player)
 		{
@@ -94,12 +108,20 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 
 	CubeScene(engineInstance);
 
+	m_panels.emplace_back(std::make_unique<editor::SceneEditor>(engineInstance));
 }
 
-void forge::EditorInstance::OnUpdate(forge::EngineInstance& engineInstance)
+void forge::EditorInstance::Update()
 {
-	if (engineInstance.GetRenderingManager().GetWindow().GetInput()->GetKeyDown(forge::IInput::Key::Escape))
+	if ( m_engineInstance->GetRenderingManager().GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
 	{
 		Shutdown();
+	}
+
+	ImGui::DockSpaceOverViewport( ImGui::GetMainViewport() );
+
+	for ( auto& panel : m_panels )
+	{
+		panel->Draw();
 	}
 }
