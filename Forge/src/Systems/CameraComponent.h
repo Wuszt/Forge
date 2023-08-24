@@ -49,7 +49,7 @@ namespace forge
 
 	private:
 		std::unique_ptr< renderer::ICamera > m_implementation;
-		forge::CallbackToken m_windowEventToken;
+		forge::CallbackToken m_onResolutionChangeToken;
 		TransformComponent* m_transformComponent;
 	};
 }

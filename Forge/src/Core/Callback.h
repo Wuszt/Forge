@@ -90,9 +90,9 @@ namespace forge
 			m_implementation->Invoke( params... );
 		}
 
-		[[nodiscard]] CallbackToken AddListener( const TFunc& func )
+		[[nodiscard]] CallbackToken AddListener( TFunc func )
 		{
-			return CallbackToken( m_implementation->AddListener( func ), m_implementation );
+			return CallbackToken( m_implementation->AddListener( std::move( func ) ), m_implementation );
 		}
 
 		void RemoveListener( CallbackID id )
@@ -117,9 +117,9 @@ namespace forge
 				}
 			}
 
-			CallbackID AddListener( const TFunc& func )
+			CallbackID AddListener( TFunc func )
 			{
-				m_funcs.emplace_back( func );
+				m_funcs.emplace_back( std::move( func ) );
 
 				if( m_nextFreeID == GetInvalidCallbackID() )
 				{

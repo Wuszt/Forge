@@ -64,6 +64,11 @@ namespace systems
 
 		void SetTargetTexture( renderer::ITexture* texture );
 
+		forge::CallbackToken RegisterOnRenderingResolutionChange( std::function< void( const Vector2& ) > func )
+		{
+			return m_onChangedRenderingResolution.AddListener( std::move( func ) );
+		}
+
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;
 #endif
@@ -106,6 +111,8 @@ namespace systems
 		Float m_renderingResolutionScale = 1.0f;
 
 		std::unique_ptr< renderer::IBlendState > m_transparencyBlendState;
+
+		forge::Callback< const Vector2& > m_onChangedRenderingResolution;
 
 #ifdef FORGE_IMGUI_ENABLED
 		void CacheDepthBufferForDebug();

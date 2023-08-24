@@ -5,6 +5,7 @@
 #include "TransformComponent.h"
 #include "../Renderer/OrthographicCamera.h"
 #include "../GameEngine/RenderingManager.h"
+#include "SceneRenderingSystem.h"
 
 RTTI_IMPLEMENT_TYPE( forge::CameraComponent );
 
@@ -14,7 +15,7 @@ void forge::CameraComponent::OnAttached( EngineInstance& engineInstance, ecs::Co
 
 	m_transformComponent = GetOwner().GetComponent< TransformComponent >();
 
-	m_windowEventToken = engineInstance.GetRenderingManager().GetWindow().RegisterEventListener( [ &, window = &engineInstance.GetRenderingManager().GetWindow() ]( const forge::IWindow::IEvent& event )
+	m_onResolutionChangeToken = engineInstance.GetRenderingManager().GetWindow().RegisterEventListener( [ &, window = &engineInstance.GetRenderingManager().GetWindow() ]( const forge::IWindow::IEvent& event )
 	{
 		if( event.GetEventType() == forge::IWindow::EventType::OnResized )
 		{
@@ -38,6 +39,31 @@ void forge::CameraComponent::OnAttached( EngineInstance& engineInstance, ecs::Co
 				break;
 			};
 		}
+	} );
+
+	m_onResolutionChangeToken = engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().RegisterOnRenderingResolutionChange( [ this ]( const Vector2& res )
+	{
+			const Float aspectRatio = res.X / res.Y;
+
+			switch ( GetCameraType() )
+			{
+			case renderer::ICamera::CameraType::Perspective:
+			{
+				auto& camera = static_cast< renderer::PerspectiveCamera& >( *m_implementation );
+				m_implementation = std::make_unique< renderer::PerspectiveCamera >( aspectRatio, camera.GetFOV(), camera.GetNearPlane(), camera.GetFarPlane() );
+				break;
+			}
+			case renderer::ICamera::CameraType::Orthographic:
+			{
+				auto& camera = static_cast< renderer::OrthographicCamera& >( *m_implementation );
+				m_implementation = std::make_unique< renderer::OrthographicCamera >( camera.GetVolumeSize().X, aspectRatio, camera.GetNearPlane(), camera.GetFarPlane() );
+				break;
+			}
+
+			default:
+				FORGE_FATAL( "Unknown type" );
+				break;
+			};
 	} );
 }
 

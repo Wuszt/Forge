@@ -289,6 +289,7 @@ void systems::SceneRenderingSystem::UpdateRenderingResolution( Float scale )
 	const Uint32 renderingResolutionHeight = static_cast<Uint32>( renderingResolution.Y );
 	m_depthStencilBuffer->Resize( renderingResolutionWidth, renderingResolutionHeight );
 	m_intermediateTexture->Resize( renderingResolution );
+	m_onChangedRenderingResolution.Invoke( renderingResolution );
 }
 
 Vector2 systems::SceneRenderingSystem::GetRenderingResolution()
