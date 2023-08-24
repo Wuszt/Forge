@@ -37,22 +37,23 @@ void systems::IMGUISystem::OnInitialize()
 
 void systems::IMGUISystem::DrawOverlay()
 {
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-	const float PAD = 10.0f;
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+	const float padding = 10.0f;
 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImVec2 work_pos = viewport->WorkPos;
-	ImVec2 work_size = viewport->WorkSize;
-	ImVec2 window_pos, window_pos_pivot;
-	window_pos.x = work_pos.x + PAD;
-	window_pos.y = work_pos.y + PAD;
-	window_pos_pivot.x = 0.0f;
-	window_pos_pivot.y = 0.0f;
-	ImGui::SetNextWindowPos( window_pos, ImGuiCond_Always, window_pos_pivot );
-	window_flags |= ImGuiWindowFlags_NoMove;
+	ImVec2 workPos = viewport->WorkPos;
+	ImVec2 workSize = viewport->WorkSize;
+	ImVec2 windowPos;
+	ImVec2 windowPosPivot;
+	windowPos.x = windowPos.x + padding;
+	windowPos.y = windowPos.y + padding;
+	windowPosPivot.x = 0.0f;
+	windowPosPivot.y = 0.0f;
+	ImGui::SetNextWindowPos( windowPos, ImGuiCond_Always, windowPosPivot );
+	windowFlags |= ImGuiWindowFlags_NoMove;
 
 	ImGui::SetNextWindowBgAlpha( 0.35f );
 	Bool tmp = true;
-	if( ImGui::Begin( "Overlay", &tmp, window_flags ) )
+	if( ImGui::Begin( "Overlay", &tmp, windowFlags ) )
 	{
 		m_overlayCallback.Invoke();
 	}
