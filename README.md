@@ -12,7 +12,7 @@ Unit Tests have been moved to separate, private submodule. They're obviously not
 
 ### Current state:
 
-# 05.2023
+# v0.04
 ![](Journal/030523/state.gif)
 - ECS 2.0
 - Debug shapes + drawing wireframe
@@ -20,7 +20,7 @@ Unit Tests have been moved to separate, private submodule. They're obviously not
 - Physx integration
 - Finally... skybox
 
-# 11.2022
+# v0.03
 YouTube video : <br />
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=gvsBKjrnRLk
 " target="_blank"><img src="http://img.youtube.com/vi/gvsBKjrnRLk/0.jpg" 
@@ -33,14 +33,14 @@ width="480" height="360" border="0" /></a>
 - FBXes loading
 - Skeletal animations
 
-# 03.2022
+# v0.02
 ![](Journal/040322/state.gif)
 - Deferred shading
 - IMGUI debug with G-Buffer preview
 - Smooth runtime switch between Forward<->Deferred mode thanks to one, macro based Uber shader
 - Separate rendering passes for Opaque, Transparent (not implented yet) and Non-lit (for drawing in-world debugs) objects
 
-# 12.2021
+# v0.01
 ![](Journal/301221/state.gif)
 - ECS Systems, Components and Entities
 - Forward rendering
