@@ -116,6 +116,11 @@ std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path
 {
 	std::vector< Matrix > bonesOffsets;
 
+	if ( scene->getMesh( 0 )->getGeometry()->getSkin() == nullptr )
+	{
+		return nullptr;
+	}
+
 	for ( Uint32 i = 0u; i < static_cast< Uint32 >( scene->getMesh( 0 )->getGeometry()->getSkin()->getClusterCount() ); ++i )
 	{
 		const ofbx::Cluster* mainCluster = scene->getMesh( 0 )->getGeometry()->getSkin()->getCluster( i );
@@ -344,7 +349,9 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 		auto* mesh = scene->getMesh( i );
 		auto* geometry = mesh->getGeometry();
 
-		Matrix transformMatrix = CONVERT2FORGE( mesh->getGlobalTransform() );
+		Matrix correctingScale;
+		correctingScale.SetScale( 0.01f );
+		const Matrix transformMatrix = CONVERT2FORGE( mesh->getGlobalTransform() ) * correctingScale;
 
 		Uint32 materialIndexOffset = static_cast< Uint32 >( materialsData.size() );
 		for ( Uint32 i = 0; i < static_cast< Uint32 >( mesh->getMaterialCount() ); ++i )
@@ -549,7 +556,6 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::FBXLoader::LoadAssets(
 			loadedAssets.emplace_back( animation );
 		}
 	}
-
 
 	if ( auto model = LoadModel( path, m_renderer, scene, skeletonData ) )
 	{

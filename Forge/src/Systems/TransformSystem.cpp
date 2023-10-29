@@ -11,16 +11,26 @@ void systems::TransformSystem::OnInitialize()
 
 void systems::TransformSystem::Update()
 {
-	for ( auto& archetype : GetEngineInstance().GetECSManager().GetArchetypes() )
-	{
-		if ( archetype->GetArchetypeID().ContainsFragment< forge::PreviousFrameTransformFragment >() )
-		{
-			archetype->RemoveFragmentType< forge::PreviousFrameTransformFragment >();
-		}
+	auto& ecsManager = GetEngineInstance().GetECSManager();
+	ecs::CommandsQueue cmdsQueue;
 
-		if ( archetype->GetArchetypeID().ContainsFragment< forge::PreviousFrameScaleFragment >() )
-		{
-			archetype->RemoveFragmentType< forge::PreviousFrameScaleFragment >();
-		}
+	{
+		ecs::Query previousFrameTransformToUpdateQuery;
+		previousFrameTransformToUpdateQuery.AddFragmentRequirement< forge::PreviousFrameTransformFragment >(ecs::Query::RequirementType::Included);
+		previousFrameTransformToUpdateQuery.VisitArchetypes( ecsManager, [ & ]( ecs::ArchetypeView archetype )
+			{
+				cmdsQueue.RemoveFragment( archetype.GetArchetypeID(), forge::PreviousFrameTransformFragment::GetTypeStatic() );
+			} );
 	}
+
+	{
+		ecs::Query previousFrameScaleToUpdateQuery;
+		previousFrameScaleToUpdateQuery.AddFragmentRequirement< forge::PreviousFrameScaleFragment >( ecs::Query::RequirementType::Included );
+		previousFrameScaleToUpdateQuery.VisitArchetypes( ecsManager, [ & ]( ecs::ArchetypeView archetype )
+			{
+				cmdsQueue.RemoveFragment( archetype.GetArchetypeID(), forge::PreviousFrameScaleFragment::GetTypeStatic() );
+			} );
+	}
+
+	cmdsQueue.Execute( ecsManager );
 }

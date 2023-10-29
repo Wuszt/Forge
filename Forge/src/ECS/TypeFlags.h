@@ -42,6 +42,13 @@ namespace ecs
 			m_flags.flip();
 		}
 
+		TypeFlags Flipped() const
+		{
+			TypeFlags result = *this;
+			result.Flip();
+			return result;
+		}
+
 		MyType operator&( const MyType& rTags ) const
 		{
 			MyType result;

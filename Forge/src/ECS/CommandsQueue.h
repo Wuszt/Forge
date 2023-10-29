@@ -13,6 +13,12 @@ namespace ecs
 
 		void RemoveEntity( EntityID entityID );
 
+		void AddFragment( ArchetypeID archetypeId, const ecs::Fragment::Type& type );
+		void AddTag( ArchetypeID archetypeId, const ecs::Tag::Type& type );
+
+		void RemoveFragment( ArchetypeID archetypeId, const ecs::Fragment::Type& type );
+		void RemoveTag( ArchetypeID archetypeId, const ecs::Tag::Type& type );
+
 		void Execute( ECSManager& ecsManager );
 
 	private:
@@ -27,6 +33,16 @@ namespace ecs
 			Bool m_remove = false;
 		};
 
-		std::unordered_map< EntityID, EntityCommands > m_queue;
+		struct ArchetypeCommands
+		{
+			FragmentsFlags m_fragmentsToAdd;
+			FragmentsFlags m_fragmentsToRemove;
+
+			TagsFlags m_tagsToAdd;
+			TagsFlags m_tagsToRemove;
+		};
+
+		std::unordered_map< EntityID, EntityCommands > m_entitiesQueue;
+		std::unordered_map< ArchetypeID, ArchetypeCommands > m_archetypesQueue;
 	};
 }

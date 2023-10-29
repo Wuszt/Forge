@@ -16,12 +16,12 @@ ecs::ECSDebug::ECSDebug( ECSDebug&& ) = default;
 ecs::ECSDebug::ECSDebug() = default;
 ecs::ECSDebug::~ECSDebug() = default;
 
-static void DrawArchetype( const ecs::Archetype& archetype, Uint32 index )
+static void DrawArchetype( ecs::ArchetypeView archetype, Uint32 index )
 {
 	ImGui::Text( "Archetype%u", index );
 	ImGui::Text( "\tEntities amount : %u", archetype.GetEntitiesAmount() );
 	{
-		const auto& fragments = archetype.GetArchetypeID().m_fragmentsFlags;
+		const auto& fragments = archetype.GetArchetypeID().GetFragmentsFlags();
 		std::string buffer;
 		Uint32 fragmentsSize = 0u;
 		fragments.VisitSetTypes( [ & ]( const ecs::Fragment::Type& type )
@@ -37,7 +37,7 @@ static void DrawArchetype( const ecs::Archetype& archetype, Uint32 index )
 	}
 
 	{
-		const auto& tags = archetype.GetArchetypeID().m_tagsFlags;;
+		const auto& tags = archetype.GetArchetypeID().GetTagsFlags();
 		std::string buffer;
 		tags.VisitSetTypes( [ & ]( const ecs::Tag::Type& type )
 			{
@@ -52,11 +52,11 @@ void ecs::ECSDebug::OnRenderDebug()
 {
 	if ( ImGui::Begin( "ECS" ) )
 	{
-		const auto archetypes = m_engineInstance->GetECSManager().GetArchetypes();
-		for ( Uint32 i = 0u; i < archetypes.GetSize(); ++i )
-		{
-			DrawArchetype( *archetypes[ i ], i );
-		}
+		Uint32 i = 0u;
+		m_engineInstance->GetECSManager().VisitAllArchetypes( [ & ]( ecs::ArchetypeView archetype )
+			{
+				DrawArchetype( archetype, i++ );
+			} );
 	}
 	ImGui::End();
 }

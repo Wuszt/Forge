@@ -3,7 +3,7 @@
 
 namespace ecs
 {
-	class Archetype;
+	class ArchetypeView;
 
 	class Query
 	{
@@ -74,22 +74,22 @@ namespace ecs
 			m_excludedFragments.Set( T::GetTypeStatic(), false );
 		}
 
-		const TagsFlags& GetRequiredTags() const
+		TagsFlags GetRequiredTags() const
 		{
 			return m_includedTags;
 		}
 
-		const FragmentsFlags& GetRequiredFragments() const
+		FragmentsFlags GetRequiredFragments() const
 		{
 			return m_includedFragments;
 		}
 
-		const TagsFlags& GetExcludedTags() const
+		TagsFlags GetExcludedTags() const
 		{
 			return m_excludedTags;
 		}
 
-		const FragmentsFlags& GetExcludedFragments() const
+		FragmentsFlags GetExcludedFragments() const
 		{
 			return m_excludedFragments;
 		}
@@ -116,10 +116,10 @@ namespace ecs
 			std::vector< CommandFunc > m_commands;
 		};
 
-		using VisitFunc = std::function< void( Archetype& ) >;
+		using VisitFunc = std::function< void( ecs::ArchetypeView ) >;
 		void VisitArchetypes( ECSManager& ecsManager, const VisitFunc& visitFunc ) const;
 		
-		using VisitFuncWithCommands = std::function< void( Archetype&, DelayedCommands& commands ) >;
+		using VisitFuncWithCommands = std::function< void( ecs::ArchetypeView, DelayedCommands& commands ) >;
 		void VisitArchetypes( ECSManager& ecsManager, const VisitFuncWithCommands& visitFunc ) const;
 
 	private:

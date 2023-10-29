@@ -61,7 +61,6 @@ namespace forge
 			return *m_ecsManager;
 		}
 
-
 		renderer::RenderingManager& GetRenderingManager() const
 		{
 			return *m_renderingManager;

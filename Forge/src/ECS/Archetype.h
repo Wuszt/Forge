@@ -7,9 +7,16 @@
 
 namespace ecs
 {
-	struct ArchetypeID
+	class ArchetypeID
 	{
-		void AddTags( const TagsFlags& tags )
+	public:
+		ArchetypeID() = default;
+		ArchetypeID( FragmentsFlags fragments, TagsFlags tags )
+			: m_fragmentsFlags( fragments )
+			, m_tagsFlags( tags )
+		{}
+
+		void AddTags( TagsFlags tags )
 		{
 			m_tagsFlags = m_tagsFlags | tags;
 		}
@@ -27,13 +34,28 @@ namespace ecs
 
 		void RemoveTag( const ecs::Tag::Type& type )
 		{
-			m_tagsFlags.Set( type , false );
+			m_tagsFlags.Set( type, false );
 		}
 
 		template< class T >
 		void RemoveTag()
 		{
 			RemoveTag( T::GetTypeStatic() );
+		}
+
+		void RemoveTags( TagsFlags tags )
+		{
+			m_tagsFlags = m_tagsFlags & tags.Flipped();
+		}
+
+		void ClearTags()
+		{
+			m_tagsFlags.Reset();
+		}
+
+		void AddFragments( FragmentsFlags fragments )
+		{
+			m_fragmentsFlags = m_fragmentsFlags | fragments;
 		}
 
 		void AddFragment( const ecs::Fragment::Type& type )
@@ -45,6 +67,11 @@ namespace ecs
 		void AddFragment()
 		{
 			AddFragment( T::GetTypeStatic() );
+		}
+
+		void RemoveFragments( FragmentsFlags fragments )
+		{
+			m_fragmentsFlags = m_fragmentsFlags & fragments.Flipped();
 		}
 
 		void RemoveFragment( const ecs::Fragment::Type& type )
@@ -80,32 +107,32 @@ namespace ecs
 			return ContainsFragment( T::GetTypeStatic() );
 		}
 
-		Bool ContainsAllTagsAndFragments( const TagsFlags& tags, const FragmentsFlags& fragments ) const
+		Bool ContainsAllTagsAndFragments( TagsFlags tags, FragmentsFlags fragments ) const
 		{
 			return ContainsAllTags( tags ) && ContainsAllFragments( fragments );
 		}
 
-		Bool ContainsAnyTagsAndFragments( const TagsFlags& tags, const FragmentsFlags& fragments ) const
+		Bool ContainsAnyTagsAndFragments( TagsFlags tags, FragmentsFlags fragments ) const
 		{
 			return ContainsAnyTags( tags ) || ContainsAnyFragments( fragments );
 		}
 
-		Bool ContainsAllTags( const TagsFlags& tags ) const
+		Bool ContainsAllTags( TagsFlags tags ) const
 		{
 			return ( m_tagsFlags & tags ) == tags;
 		}
 
-		Bool ContainsAnyTags( const TagsFlags& tags ) const
+		Bool ContainsAnyTags( TagsFlags tags ) const
 		{
 			return ( m_tagsFlags & tags ) != 0;
 		}
 
-		Bool ContainsAllFragments( const FragmentsFlags& fragments ) const
+		Bool ContainsAllFragments( FragmentsFlags fragments ) const
 		{
 			return ( m_fragmentsFlags & fragments ) == fragments;
 		}
 
-		Bool ContainsAnyFragments( const FragmentsFlags& fragments ) const
+		Bool ContainsAnyFragments( FragmentsFlags fragments ) const
 		{
 			return ( m_fragmentsFlags & fragments ) != 0;
 		}
@@ -115,6 +142,17 @@ namespace ecs
 			return id.m_tagsFlags == m_tagsFlags && id.m_fragmentsFlags == m_fragmentsFlags;
 		}
 
+		FragmentsFlags GetFragmentsFlags() const
+		{
+			return m_fragmentsFlags;
+		}
+
+		TagsFlags GetTagsFlags() const
+		{
+			return m_tagsFlags;
+		}
+
+	private:
 		TagsFlags m_tagsFlags;
 		FragmentsFlags m_fragmentsFlags;
 	};
@@ -125,12 +163,12 @@ namespace ecs
 		Archetype( Uint32 size = 0u, const ArchetypeID& id = ArchetypeID() )
 			: m_sparseSet( size, c_invalidIndex )
 		{
-			id.m_fragmentsFlags.VisitSetTypes( [ & ]( const ecs::Fragment::Type& fragment )
+			id.GetFragmentsFlags().VisitSetTypes( [ & ]( const ecs::Fragment::Type& fragment )
 				{
 					AddFragmentType( fragment );
 				} );
 
-			m_id = id;			
+			m_id = id;
 		}
 
 		template< class T >
@@ -148,7 +186,7 @@ namespace ecs
 		template< class T >
 		const T* GetFragment( EntityID id ) const
 		{
-			if( !ContainsObject( id ) || !m_id.ContainsFragment< T >() )
+			if ( !ContainsEntity( id ) || !m_id.ContainsFragment< T >() )
 			{
 				return nullptr;
 			}
@@ -159,7 +197,7 @@ namespace ecs
 		template< class T >
 		T* GetFragment( EntityID id )
 		{
-			return const_cast< T* >( static_cast<const Archetype*>( this )->GetFragment< T >( id ) );
+			return const_cast< T* >( static_cast< const Archetype* >( this )->GetFragment< T >( id ) );
 		}
 
 		void OnEntityCreated()
@@ -172,7 +210,7 @@ namespace ecs
 			FORGE_ASSERT( m_sparseSet[ static_cast< Uint32 >( id ) ] == c_invalidIndex ); // pls destroy components before you destroy their owner
 		}
 
-		Bool ContainsObject( EntityID id ) const
+		Bool ContainsEntity( EntityID id ) const
 		{
 			return m_sparseSet.at( static_cast< Uint32 >( id ) ) >= 0;
 		}
@@ -207,7 +245,7 @@ namespace ecs
 			RemoveFragmentType( T::GetTypeStatic() );
 		}
 
-		void AddTags( const TagsFlags& tags )
+		void AddTags( TagsFlags tags )
 		{
 			m_id.AddTags( tags );
 		}
@@ -234,6 +272,16 @@ namespace ecs
 			m_id.RemoveTag< T >();
 		}
 
+		void RemoveTags( TagsFlags tags )
+		{
+			m_id.RemoveTags( tags );
+		}
+
+		void ClearTags()
+		{
+			m_id.ClearTags();
+		}
+
 		Uint32 GetEntitiesAmount() const
 		{
 			return m_entitiesAmount;
@@ -246,9 +294,9 @@ namespace ecs
 
 		void StealEntityFrom( EntityID id, Archetype& source )
 		{
-			for( auto& fragmentsPackage : m_fragments )
+			for ( auto& fragmentsPackage : m_fragments )
 			{
-				if( source.ContainsFragment( *fragmentsPackage.first ) )
+				if ( source.ContainsFragment( *fragmentsPackage.first ) )
 				{
 					fragmentsPackage.second.MoveFragment( source.GetFragmentIndex( id ), source.GetFragmentsPackage( *fragmentsPackage.first ) );
 				}
@@ -259,13 +307,41 @@ namespace ecs
 			}
 
 			m_indexToEntity.emplace_back( id );
-			m_sparseSet[ static_cast< Uint32 >( id ) ] = m_entitiesAmount++;		
+			m_sparseSet[ static_cast< Uint32 >( id ) ] = m_entitiesAmount++;
 			source.RemoveEntity( id );
+		}
+
+		void StealEntitiesFrom( Archetype& source )
+		{
+			for ( auto& fragmentsPackage : m_fragments )
+			{
+				if ( source.ContainsFragment( *fragmentsPackage.first ) )
+				{
+					for ( Uint32 i = 0u; i < source.GetEntitiesAmount(); ++i )
+					{
+						fragmentsPackage.second.MoveFragment( i, source.GetFragmentsPackage( *fragmentsPackage.first ) );
+					}
+				}
+				else
+				{
+					fragmentsPackage.second.AddEmptyFragments( source.GetEntitiesAmount() );
+				}
+			}
+
+			m_indexToEntity.reserve( m_indexToEntity.size() + source.GetEntitiesAmount() );
+			for ( Uint32 i = 0u; i < source.GetEntitiesAmount(); ++i )
+			{
+				EntityID id = source.GetEntityIDWithIndex( i );
+				m_indexToEntity.emplace_back( id );
+				m_sparseSet[ static_cast< Uint32 >( id ) ] = m_entitiesAmount++;
+			}
+
+			source = Archetype();
 		}
 
 		void AddEntity( EntityID id )
 		{
-			for( auto& fragmentsPackage : m_fragments )
+			for ( auto& fragmentsPackage : m_fragments )
 			{
 				fragmentsPackage.second.AddEmptyFragment();
 			}
@@ -278,7 +354,7 @@ namespace ecs
 		{
 			*std::find( m_sparseSet.begin(), m_sparseSet.end(), GetEntitiesAmount() - 1u ) = GetFragmentIndex( id );
 
-			for( auto& fragmentsPackage : m_fragments )
+			for ( auto& fragmentsPackage : m_fragments )
 			{
 				fragmentsPackage.second.RemoveFragmentReorder( m_sparseSet[ static_cast< Uint32 >( id ) ] );
 			}
@@ -328,15 +404,53 @@ namespace ecs
 		Uint32 m_entitiesAmount = 0u;
 		ArchetypeID m_id;
 	};
+
+	class ArchetypeView
+	{
+	public:
+		ArchetypeView( Archetype& archetype )
+			: m_archetype( archetype )
+		{}
+
+		template< class T >
+		forge::ArraySpan< const T > GetFragments() const
+		{
+			return m_archetype.GetFragments< T >();
+		}
+
+		template< class T >
+		forge::ArraySpan< T > GetFragments()
+		{
+			return m_archetype.GetFragments< T >();
+		}
+
+		Uint32 GetEntitiesAmount() const
+		{
+			return m_archetype.GetEntitiesAmount();
+		}
+
+		EntityID GetEntityIDWithIndex( Uint32 index ) const
+		{
+			return m_archetype.GetEntityIDWithIndex( index );
+		}
+
+		const ArchetypeID& GetArchetypeID() const
+		{
+			return m_archetype.GetArchetypeID();
+		}
+
+	private:
+		Archetype& m_archetype;
+	};
 }
 
 namespace std
 {
-	template<> 
+	template<>
 	struct std::hash< ecs::ArchetypeID > {
 		std::size_t operator()( const ecs::ArchetypeID& id ) const noexcept
 		{
-			return Math::CombineHashes( Math::CalculateHash( id.m_tagsFlags ), Math::CalculateHash( id.m_fragmentsFlags ) );
+			return Math::CombineHashes( Math::CalculateHash( id.GetTagsFlags() ), Math::CalculateHash( id.GetFragmentsFlags() ) );
 		}
 	};
 }

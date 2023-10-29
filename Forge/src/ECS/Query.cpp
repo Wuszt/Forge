@@ -3,31 +3,28 @@
 
 void ecs::Query::VisitArchetypes( ECSManager& ecsManager, const VisitFunc& visitFunc ) const
 {
-	auto archetypes = ecsManager.GetArchetypes();
-
-	for( auto& archetype : archetypes )
-	{
-		if( archetype->GetArchetypeID().ContainsAllTagsAndFragments( m_includedTags, m_includedFragments ) && 
-			!archetype->GetArchetypeID().ContainsAnyTagsAndFragments( m_excludedTags, m_excludedFragments ))
+	ecsManager.VisitAllArchetypes( [ & ]( ecs::ArchetypeView view )
 		{
-			visitFunc( *archetype );
-		}
-	}
+			if ( view.GetArchetypeID().ContainsAllTagsAndFragments( m_includedTags, m_includedFragments )
+				&& !view.GetArchetypeID().ContainsAnyTagsAndFragments( m_excludedTags, m_excludedFragments ) )
+			{
+				visitFunc( view );
+			}
+		} );
 }
 
 void ecs::Query::VisitArchetypes( ECSManager& ecsManager, const VisitFuncWithCommands& visitFunc ) const
 {
 	DelayedCommands commands;
-	auto archetypes = ecsManager.GetArchetypes();
 
-	for ( auto& archetype : archetypes )
-	{
-		if ( archetype->GetArchetypeID().ContainsAllTagsAndFragments( m_includedTags, m_includedFragments ) &&
-			!archetype->GetArchetypeID().ContainsAnyTagsAndFragments( m_excludedTags, m_excludedFragments ) )
+	ecsManager.VisitAllArchetypes( [ & ]( ecs::ArchetypeView view )
 		{
-			visitFunc( *archetype, commands );
-		}
-	}
+			if ( view.GetArchetypeID().ContainsAllTagsAndFragments( m_includedTags, m_includedFragments )
+				&& !view.GetArchetypeID().ContainsAnyTagsAndFragments( m_excludedTags, m_excludedFragments ) )
+			{
+				visitFunc( view, commands );
+			}
+		} );
 
 	commands.Execute();
 }

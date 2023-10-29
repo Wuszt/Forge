@@ -54,7 +54,7 @@ void systems::PhysicsSystem::Update()
 		staticsQuery.AddFragmentRequirement< forge::PhysicsStaticFragment >( ecs::Query::RequirementType::Included );
 		staticsQuery.AddFragmentRequirement< forge::PreviousFrameScaleFragment >( ecs::Query::RequirementType::Included );
 
-		auto updateScaleFunc = [ & ]< class T >( ecs::Archetype & archetype )
+		auto updateScaleFunc = [ & ]< class T >( ecs::ArchetypeView archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
 			auto physicsFragments = archetype.GetFragments< T >();
@@ -66,12 +66,12 @@ void systems::PhysicsSystem::Update()
 			}
 		};
 
-		dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+		dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
 			{
 				updateScaleFunc.operator() < forge::PhysicsDynamicFragment > ( archetype );
 			} );
 
-		staticsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+		staticsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
 			{
 				updateScaleFunc.operator() < forge::PhysicsStaticFragment > ( archetype );
 			} );
@@ -86,7 +86,7 @@ void systems::PhysicsSystem::Update()
 		staticsQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 		staticsQuery.AddFragmentRequirement< forge::PhysicsStaticFragment >( ecs::Query::RequirementType::Included );
 
-		auto updateTransformFunc = [ & ]< class T >( ecs::Archetype & archetype )
+		auto updateTransformFunc = [ & ]< class T >( ecs::ArchetypeView archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
 			auto physicsFragments = archetype.GetFragments< T >();
@@ -97,12 +97,12 @@ void systems::PhysicsSystem::Update()
 			}
 		};
 
-		dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+		dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
 			{
 				updateTransformFunc.operator() < forge::PhysicsDynamicFragment > ( archetype );
 			} );
 
-		staticsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+		staticsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
 			{
 				updateTransformFunc.operator() < forge::PhysicsStaticFragment > ( archetype );
 			} );
@@ -110,7 +110,7 @@ void systems::PhysicsSystem::Update()
 		m_scene->Simulate( GetEngineInstance().GetSystemsManager().GetSystem< systems::TimeSystem >().GetDeltaTime() );
 
 		std::vector< std::pair< ecs::EntityID, Transform > > m_updatedEntities;
-		dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype )
+		dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
 			{
 				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
 		auto physicsFragments = archetype.GetFragments< forge::PhysicsDynamicFragment >();

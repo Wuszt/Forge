@@ -3,36 +3,60 @@
 
 void ecs::CommandsQueue::AddFragment( EntityID entityID, const ecs::Fragment::Type& type )
 {
-	m_queue[ entityID ].m_fragmentsToAdd.Set( type, true );
-	m_queue[ entityID ].m_fragmentsToRemove.Set( type, false );
+	m_entitiesQueue[ entityID ].m_fragmentsToAdd.Set( type, true );
+	m_entitiesQueue[ entityID ].m_fragmentsToRemove.Set( type, false );
+}
+
+void ecs::CommandsQueue::AddFragment( ArchetypeID archetypeId, const ecs::Fragment::Type& type )
+{
+	m_archetypesQueue[ archetypeId ].m_fragmentsToAdd.Set( type, true );
+	m_archetypesQueue[ archetypeId ].m_fragmentsToRemove.Set( type, false );
 }
 
 void ecs::CommandsQueue::AddTag( EntityID entityID, const ecs::Tag::Type& type )
 {
-	m_queue[ entityID ].m_tagsToAdd.Set( type, true );
-	m_queue[ entityID ].m_tagsToRemove.Set( type, false );
+	m_entitiesQueue[ entityID ].m_tagsToAdd.Set( type, true );
+	m_entitiesQueue[ entityID ].m_tagsToRemove.Set( type, false );
+}
+
+void ecs::CommandsQueue::AddTag( ArchetypeID archetypeId, const ecs::Tag::Type& type )
+{
+	m_archetypesQueue[ archetypeId ].m_tagsToAdd.Set( type, true );
+	m_archetypesQueue[ archetypeId ].m_tagsToRemove.Set( type, false );
 }
 
 void ecs::CommandsQueue::RemoveFragment( EntityID entityID, const ecs::Fragment::Type& type )
 {
-	m_queue[ entityID ].m_fragmentsToAdd.Set( type, false );
-	m_queue[ entityID ].m_fragmentsToRemove.Set( type, true );
+	m_entitiesQueue[ entityID ].m_fragmentsToAdd.Set( type, false );
+	m_entitiesQueue[ entityID ].m_fragmentsToRemove.Set( type, true );
+}
+
+void ecs::CommandsQueue::RemoveFragment( ArchetypeID archetypeId, const ecs::Fragment::Type& type )
+{
+	m_archetypesQueue[ archetypeId ].m_fragmentsToAdd.Set( type, false );
+	m_archetypesQueue[ archetypeId ].m_fragmentsToRemove.Set( type, true );
 }
 
 void ecs::CommandsQueue::RemoveTag( EntityID entityID, const ecs::Tag::Type& type )
 {
-	m_queue[ entityID ].m_tagsToAdd.Set( type, false );
-	m_queue[ entityID ].m_tagsToRemove.Set( type, true );
+	m_entitiesQueue[ entityID ].m_tagsToAdd.Set( type, false );
+	m_entitiesQueue[ entityID ].m_tagsToRemove.Set( type, true );
+}
+
+void ecs::CommandsQueue::RemoveTag( ArchetypeID archetypeId, const ecs::Tag::Type& type )
+{
+	m_archetypesQueue[ archetypeId ].m_tagsToAdd.Set( type, false );
+	m_archetypesQueue[ archetypeId ].m_tagsToRemove.Set( type, true );
 }
 
 void ecs::CommandsQueue::RemoveEntity( EntityID entityID )
 {
-	m_queue[ entityID ].m_remove = true;
+	m_entitiesQueue[ entityID ].m_remove = true;
 }
 
 void ecs::CommandsQueue::Execute( ECSManager& ecsManager )
 {
-	for ( auto& [ entityID, commands ] : m_queue )
+	for ( const auto& [ entityID, commands ] : m_entitiesQueue )
 	{
 		if ( commands.m_remove )
 		{
@@ -44,15 +68,11 @@ void ecs::CommandsQueue::Execute( ECSManager& ecsManager )
 		const ArchetypeID originalID = archetype ? ecsManager.GetEntityArchetype( entityID )->GetArchetypeID() : ArchetypeID();
 		ArchetypeID newID = originalID;
 
-		newID.m_fragmentsFlags = newID.m_fragmentsFlags | commands.m_fragmentsToAdd;
+		newID.AddFragments( commands.m_fragmentsToAdd );
+		newID.RemoveFragments( commands.m_fragmentsToRemove );
 
-		commands.m_fragmentsToRemove.Flip();
-		newID.m_fragmentsFlags = newID.m_fragmentsFlags & commands.m_fragmentsToRemove;
-
-		newID.m_tagsFlags = newID.m_tagsFlags | commands.m_tagsToAdd;
-
-		commands.m_tagsToRemove.Flip();
-		newID.m_tagsFlags = newID.m_tagsFlags & commands.m_tagsToRemove;
+		newID.AddTags( commands.m_tagsToAdd );
+		newID.RemoveTags( commands.m_tagsToRemove );
 
 		if ( newID != originalID )
 		{
@@ -60,5 +80,15 @@ void ecs::CommandsQueue::Execute( ECSManager& ecsManager )
 		}
 	}
 
-	m_queue.clear();
+	m_entitiesQueue.clear();
+
+	for ( const auto& [ archetypeId, commands ] : m_archetypesQueue )
+	{
+		FragmentsFlags fragments = ( archetypeId.GetFragmentsFlags() | commands.m_fragmentsToAdd ) & commands.m_fragmentsToRemove.Flipped();
+		TagsFlags tags = ( archetypeId.GetTagsFlags() | commands.m_tagsToAdd ) & commands.m_tagsToRemove.Flipped();
+
+		ecsManager.SetArchetypeFragmentsAndTags( archetypeId, fragments, tags );
+	}
+
+	m_archetypesQueue.clear();
 }

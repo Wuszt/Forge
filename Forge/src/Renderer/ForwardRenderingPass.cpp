@@ -73,7 +73,7 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 		GetRenderer().ClearShaderResourceViews();
 
 		{
-			solidQuery.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+			solidQuery.VisitArchetypes( ecsManager, [ & ]( ecs::ArchetypeView archetype )
 				{
 					GetRenderer().Draw( archetype, renderingPass, sd, srvs );
 				} );
@@ -82,7 +82,7 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 		{
 			GetRenderer().SetCullingMode( renderer::CullingMode::None );
 			GetRenderer().SetFillMode( FillMode::WireFrame );
-			wireFrameQuery.VisitArchetypes( ecsManager, [ & ]( ecs::Archetype& archetype )
+			wireFrameQuery.VisitArchetypes( ecsManager, [ & ]( ecs::ArchetypeView archetype )
 				{
 					GetRenderer().Draw( archetype, renderingPass, sd, srvs );
 				} );

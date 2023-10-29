@@ -15,7 +15,7 @@ namespace ecs
 {
 	class ECSManager;
 	class EntityID;
-	class Archetype;
+	class ArchetypeView;
 }
 
 namespace renderer
@@ -114,7 +114,7 @@ namespace renderer
 
 		virtual void DrawRawVertices( Uint32 amount ) = 0;
 		void Draw( const renderer::Renderable& renderable );
-		virtual void Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs = {} ) = 0;
+		virtual void Draw( ecs::ArchetypeView archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs = {} ) = 0;
 		virtual const ecs::Fragment::Type& GetECSFragmentType() const = 0;
 		virtual void UpdateRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID, const renderer::Renderable& renderable ) const = 0;
 

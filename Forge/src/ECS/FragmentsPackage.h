@@ -18,6 +18,11 @@ namespace ecs
 			m_fragments.AddEmpty();
 		}
 
+		void AddEmptyFragments( Uint32 amount )
+		{
+			m_fragments.Resize( m_fragments.GetSize() + amount );
+		}
+
 		void RemoveFragmentReorder( Uint32 index )
 		{
 			m_fragments.RemoveAtReorder( index );

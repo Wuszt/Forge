@@ -345,7 +345,7 @@ namespace d3d11
 		return RawRenderableFragment::GetTypeStatic();
 	}
 
-	void D3D11Renderer::Draw( const ecs::Archetype& archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine /*= nullptr*/, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs /*= {} */ )
+	void D3D11Renderer::Draw( ecs::ArchetypeView archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine /*= nullptr*/, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs /*= {} */ )
 	{
 		auto* context = GetContext()->GetDeviceContext();
 		context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );

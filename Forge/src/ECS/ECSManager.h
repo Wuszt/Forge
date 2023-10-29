@@ -47,6 +47,15 @@ namespace ecs
 			RemoveFragmentFromEntity( entityID, T::GetTypeStatic() );
 		}
 
+		void SetArchetypeFragmentsAndTags( const ecs::ArchetypeID& archetypeId, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags );
+		void SetArchetypeFragmentsAndTags( const ecs::ArchetypeID& archetypeId, FragmentsFlags fragments, TagsFlags tags );
+
+		void AddFragmentsAndTagsToArchetype( const ecs::ArchetypeID& archetypeId, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags );
+		void AddFragmentsAndTagsToArchetype( const ecs::ArchetypeID& archetypeId, FragmentsFlags fragments, TagsFlags tags );
+
+		void RemoveFragmentsAndTagsFromArchetype( const ecs::ArchetypeID& archetypeId, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags );
+		void RemoveFragmentsAndTagsFromArchetype( const ecs::ArchetypeID& archetypeId, FragmentsFlags fragments, TagsFlags tags );
+
 		Archetype* GetEntityArchetype( EntityID id );
 
 		template< class T >
@@ -68,14 +77,11 @@ namespace ecs
 			RemoveTagFromEntity( entityID, T::GetTypeStatic() );
 		}
 
-		Bool TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex ) const;
-
-		forge::ArraySpan< std::unique_ptr< Archetype > > GetArchetypes()
-		{
-			return m_archetypes;
-		}
+		void VisitAllArchetypes( std::function< void( ecs::ArchetypeView ) > visitFunc );
 
 	private:
+		Bool TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex ) const;
+
 		std::unordered_map< EntityID, Archetype* > m_entityToArchetype;
 		std::vector< std::unique_ptr< Archetype > > m_archetypes;
 		Uint32 m_nextEntityID = 0u;

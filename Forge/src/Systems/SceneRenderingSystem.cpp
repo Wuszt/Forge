@@ -88,7 +88,7 @@ void systems::SceneRenderingSystem::OnRenderDebug()
 				{
 					ecs::Query renderablesQuery;
 					renderablesQuery.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
-					renderablesQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ this ]( ecs::Archetype& archetype, ecs::Query::DelayedCommands& cmds )
+					renderablesQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ this ]( ecs::ArchetypeView archetype, ecs::Query::DelayedCommands& cmds )
 						{
 							for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
 							{
@@ -349,7 +349,7 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 		renderablesToUpdate.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
 		renderablesToUpdate.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 
-		renderablesToUpdate.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::Archetype& archetype, ecs::Query::DelayedCommands& cmds )
+		renderablesToUpdate.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype, ecs::Query::DelayedCommands& cmds )
 		{
 		   auto renderables = archetype.GetFragments< forge::RenderableFragment >();
 
@@ -381,32 +381,32 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 				}
 
 				cmds.AddCommand( [ this, entityID ]()
-					{
-						forge::RenderableFragment* renderableFragment = GetEngineInstance().GetECSManager().GetFragment< forge::RenderableFragment >( entityID );
-
-				Bool containsTransparentMaterials = false;
-				for ( auto& material : renderableFragment->m_renderable.GetMaterials() )
 				{
-					containsTransparentMaterials |= material->GetRenderingPass() == renderer::RenderingPass::Transparent;
-				}
+					forge::RenderableFragment* renderableFragment = GetEngineInstance().GetECSManager().GetFragment< forge::RenderableFragment >( entityID );
 
-				if ( containsTransparentMaterials )
-				{
-					if ( !GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetArchetypeID().ContainsTag< ContainsTransparentShapes >() )
+					Bool containsTransparentMaterials = false;
+					for ( auto& material : renderableFragment->m_renderable.GetMaterials() )
 					{
-						GetEngineInstance().GetECSManager().AddTagToEntity< ContainsTransparentShapes >( entityID );
+						containsTransparentMaterials |= material->GetRenderingPass() == renderer::RenderingPass::Transparent;
 					}
-				}
-				else
-				{
-					if ( GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetArchetypeID().ContainsTag< ContainsTransparentShapes >() )
-					{
-						GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsTransparentShapes >( entityID );
-					}
-				}
 
-				GetEngineInstance().GetECSManager().RemoveTagFromEntity< forge::DirtyRenderable >( entityID );
-					} );
+					if ( containsTransparentMaterials )
+					{
+						if ( !GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetArchetypeID().ContainsTag< ContainsTransparentShapes >() )
+						{
+							GetEngineInstance().GetECSManager().AddTagToEntity< ContainsTransparentShapes >( entityID );
+						}
+					}
+					else
+					{
+						if ( GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetArchetypeID().ContainsTag< ContainsTransparentShapes >() )
+						{
+							GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsTransparentShapes >( entityID );
+						}
+					}
+
+					GetEngineInstance().GetECSManager().RemoveTagFromEntity< forge::DirtyRenderable >( entityID );
+				} );
 			}
 		} );
 	}
@@ -424,7 +424,7 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 	{
 		PC_SCOPE( "SceneRenderingSystem::OnDraw::UpdatingBuffers" );
 
-		auto func = [ & ]( ecs::Archetype& archetype )
+		auto func = [ & ]( ecs::ArchetypeView archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
 			auto renderableFragments = archetype.GetFragments< forge::RenderableFragment >();
