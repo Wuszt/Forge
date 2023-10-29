@@ -45,7 +45,7 @@ bool physics::PhysicsScene::PerformRaycast( const Vector3& start, const Vector3&
 	
 	if ( anyHit )
 	{
-		outResult = physics::RaycastResult::Convert( hit.block );
+		outResult = physics::RaycastResult( hit.block );
 	}
 
 	return anyHit;

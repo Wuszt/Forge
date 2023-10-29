@@ -6,6 +6,7 @@
 #include "PhysicsComponent.h"
 #include "TimeSystem.h"
 #include "../Physics/PhysicsScene.h"
+#include "../Physics/RaycastResult.h"
 
 RTTI_IMPLEMENT_TYPE( systems::PhysicsSystem );
 
@@ -16,7 +17,7 @@ systems::PhysicsSystem::~PhysicsSystem() = default;
 void systems::PhysicsSystem::OnInitialize()
 {
 	m_physicsProxy = std::make_unique< physics::PhysxProxy >();
-	m_scene = std::make_unique<physics::PhysicsScene>( *m_physicsProxy );
+	m_scene = std::make_unique< physics::PhysicsScene >( *m_physicsProxy );
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostUpdate, std::bind( &systems::PhysicsSystem::Update, this ) );
 }
 
@@ -131,4 +132,12 @@ void systems::PhysicsSystem::Update()
 			}
 		}
 	}
+}
+
+physics::UserData physics::UserData::GetFromRaycastResult( const RaycastResult& raycastResult )
+{
+	physics::UserData userData;
+	static_assert( sizeof( userData ) == sizeof( raycastResult.m_userData ) );
+	std::memcpy( &userData, &raycastResult.m_userData, sizeof( raycastResult.m_userData ) );
+	return userData;
 }

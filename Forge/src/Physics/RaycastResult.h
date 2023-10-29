@@ -9,9 +9,11 @@ namespace physics
 {
 	struct RaycastResult
 	{
-		Vector3 m_position;
+		RaycastResult() = default;
+		RaycastResult( const physx::PxRaycastHit& hit );
 
-		static RaycastResult Convert( const physx::PxRaycastHit& hit );
+		Vector3 m_position;
+		void* m_userData = nullptr;
 	};
 }
 

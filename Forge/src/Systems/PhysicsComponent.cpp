@@ -15,7 +15,15 @@ RTTI_IMPLEMENT_TYPE( forge::PhysicsDynamicComponent );
 void forge::IPhysicsComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	auto& physicsSystem = engineInstance.GetSystemsManager().GetSystem < systems::PhysicsSystem >();
-	GetActor().Initialize( physicsSystem.GetPhysicsProxy(), GetOwner().GetComponent< forge::TransformComponent >()->GetTransform() );
+	const forge::ObjectID objectId = GetOwner().GetObjectID();
+	const ecs::EntityID entityId = engineInstance.GetObjectsManager().GetOrCreateEntityId( objectId );
+
+	void* rawUserData = nullptr;
+	physics::UserData userData{ entityId, objectId };
+	static_assert( sizeof( rawUserData) == sizeof( userData ) );
+
+	std::memcpy( &rawUserData, &userData, sizeof( userData ) );
+	GetActor().Initialize( physicsSystem.GetPhysicsProxy(), GetOwner().GetComponent< forge::TransformComponent >()->GetTransform(), rawUserData );
 
 	physicsSystem.RegisterActor( GetActor() );
 }

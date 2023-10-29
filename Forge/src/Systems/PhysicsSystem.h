@@ -40,3 +40,14 @@ namespace systems
 		forge::CallbackToken m_updateToken;
 	};
 }
+
+namespace physics
+{
+	struct UserData
+	{
+		ecs::EntityID entityId;
+		forge::ObjectID objectId;
+
+		static UserData GetFromRaycastResult( const RaycastResult& raycastResult );
+	};
+}

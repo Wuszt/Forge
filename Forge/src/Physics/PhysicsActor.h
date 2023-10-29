@@ -19,7 +19,7 @@ namespace physics
 	public:
 		virtual ~PhysicsActor() = default;
 
-		virtual void Initialize( PhysxProxy& proxy, Transform transform = Transform() ) = 0;
+		virtual void Initialize( PhysxProxy& proxy, Transform transform = Transform(), void* userData = nullptr ) = 0;
 
 		void SetTransform( const Transform& transform );
 		Transform GetTransform() const;
@@ -49,7 +49,7 @@ namespace physics
 		PhysicsDynamicActor( PhysicsDynamicActor&& other );
 		~PhysicsDynamicActor();
 
-		virtual void Initialize( PhysxProxy& proxy, Transform transform = Transform() ) override;
+		virtual void Initialize( PhysxProxy& proxy, Transform transform = Transform(), void* userData = nullptr ) override;
 
 		void UpdateDensity( Float density );
 
@@ -95,7 +95,7 @@ namespace physics
 		PhysicsStaticActor( PhysicsStaticActor&& other );
 		~PhysicsStaticActor();
 
-		virtual void Initialize( PhysxProxy& proxy, Transform transform = Transform() ) override;
+		virtual void Initialize( PhysxProxy& proxy, Transform transform = Transform(), void* userData = nullptr ) override;
 
 		virtual const physx::PxRigidActor& GetActor() const override;
 		virtual physx::PxRigidActor& GetActor() override;

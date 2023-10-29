@@ -28,6 +28,11 @@ static physx::PxForceMode::Enum Convert( physics::PhysicsDynamicActor::ForceMode
 	return physx::PxForceMode::eFORCE;
 }
 
+void physics::PhysicsActor::Initialize( PhysxProxy& proxy, Transform transform /*= Transform()*/, void* userData /*= nullptr */ )
+{
+	GetActor().userData = userData;
+}
+
 void physics::PhysicsActor::SetTransform( const Transform& transform )
 {
 	GetActor().setGlobalPose( physics::helpers::Convert( transform ) );
@@ -73,9 +78,10 @@ physics::PhysicsDynamicActor::~PhysicsDynamicActor()
 	}
 }
 
-void physics::PhysicsDynamicActor::Initialize( PhysxProxy& proxy, Transform transform /*= Transform() */ )
+void physics::PhysicsDynamicActor::Initialize( PhysxProxy& proxy, Transform transform /*= Transform() */, void* userData /*= nullptr */ )
 {
 	m_actor = proxy.GetPhysics().createRigidDynamic( physics::helpers::Convert( transform ) );
+	Super::Initialize( proxy, transform, userData );
 }
 
 void physics::PhysicsDynamicActor::UpdateDensity( Float density )
@@ -174,9 +180,10 @@ physics::PhysicsStaticActor::~PhysicsStaticActor()
 	}
 }
 
-void physics::PhysicsStaticActor::Initialize( PhysxProxy& proxy, Transform transform /*= Transform() */ )
+void physics::PhysicsStaticActor::Initialize( PhysxProxy& proxy, Transform transform /*= Transform() */, void* userData /*= nullptr */ )
 {
 	m_actor = proxy.GetPhysics().createRigidStatic( physics::helpers::Convert( transform ) );
+	Super::Initialize( proxy, transform, userData );
 }
 
 const physx::PxRigidActor& physics::PhysicsStaticActor::GetActor() const

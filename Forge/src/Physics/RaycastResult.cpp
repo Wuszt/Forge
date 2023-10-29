@@ -1,10 +1,9 @@
 #include "Fpch.h"
 #include "RaycastResult.h"
+#include "../../External/physx/include/PxActor.h"
 
-physics::RaycastResult physics::RaycastResult::Convert( const physx::PxRaycastHit& hit )
+physics::RaycastResult::RaycastResult( const physx::PxRaycastHit& hit )
 {
-	RaycastResult result;
-	result.m_position = physics::helpers::Convert( hit.position );
-
-	return result;
+	m_position = physics::helpers::Convert( hit.position );
+	m_userData = hit.actor->userData;
 }
