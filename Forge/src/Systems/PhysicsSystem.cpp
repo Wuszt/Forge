@@ -18,7 +18,7 @@ void systems::PhysicsSystem::OnInitialize()
 {
 	m_physicsProxy = std::make_unique< physics::PhysxProxy >();
 	m_scene = std::make_unique< physics::PhysicsScene >( *m_physicsProxy );
-	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostUpdate, std::bind( &systems::PhysicsSystem::Update, this ) );
+	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostUpdate, std::bind( &systems::PhysicsSystem::UpdateSimulation, this ) );
 }
 
 void systems::PhysicsSystem::OnDeinitialize()
@@ -39,10 +39,45 @@ void systems::PhysicsSystem::UnregisterActor( physics::PhysicsActor& actor )
 
 bool systems::PhysicsSystem::PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult )
 {
+	UpdateScene();
+
 	return m_scene->PerformRaycast( start, direction, length, outResult );
 }
 
-void systems::PhysicsSystem::Update()
+void systems::PhysicsSystem::UpdateSimulation()
+{
+	UpdateScene();
+
+	m_scene->Simulate( GetEngineInstance().GetSystemsManager().GetSystem< systems::TimeSystem >().GetDeltaTime() );
+
+	ecs::Query dynamicsQuery;
+	dynamicsQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
+	dynamicsQuery.AddFragmentRequirement< forge::PhysicsDynamicFragment >( ecs::Query::RequirementType::Included );
+
+	std::vector< std::pair< ecs::EntityID, Transform > > m_updatedEntities;
+	dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
+		{
+			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
+			auto physicsFragments = archetype.GetFragments< forge::PhysicsDynamicFragment >();
+
+			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
+			{
+				m_updatedEntities.emplace_back( archetype.GetEntityIDWithIndex( i ), transformFragments[ i ].m_transform );
+				transformFragments[ i ].m_transform = physicsFragments[ i ].m_actor.GetTransform();
+			}
+		} );
+
+	for ( auto& updatedEntity : m_updatedEntities )
+	{
+		if ( GetEngineInstance().GetECSManager().GetFragment< forge::PreviousFrameTransformFragment >( updatedEntity.first ) == nullptr )
+		{
+			GetEngineInstance().GetECSManager().AddFragmentToEntity< forge::PreviousFrameTransformFragment >( updatedEntity.first );
+			GetEngineInstance().GetECSManager().GetFragment< forge::PreviousFrameTransformFragment >( updatedEntity.first )->m_previousTransform = updatedEntity.second;
+		}
+	}
+}
+
+void systems::PhysicsSystem::UpdateScene()
 {
 	{
 		ecs::Query dynamicsQuery;
@@ -107,30 +142,6 @@ void systems::PhysicsSystem::Update()
 			{
 				updateTransformFunc.operator() < forge::PhysicsStaticFragment > ( archetype );
 			} );
-
-		m_scene->Simulate( GetEngineInstance().GetSystemsManager().GetSystem< systems::TimeSystem >().GetDeltaTime() );
-
-		std::vector< std::pair< ecs::EntityID, Transform > > m_updatedEntities;
-		dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
-			{
-				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-		auto physicsFragments = archetype.GetFragments< forge::PhysicsDynamicFragment >();
-
-		for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
-		{
-			m_updatedEntities.emplace_back( archetype.GetEntityIDWithIndex( i ), transformFragments[ i ].m_transform );
-			transformFragments[ i ].m_transform = physicsFragments[ i ].m_actor.GetTransform();
-		}
-			} );
-
-		for ( auto& updatedEntity : m_updatedEntities )
-		{
-			if ( GetEngineInstance().GetECSManager().GetFragment< forge::PreviousFrameTransformFragment >( updatedEntity.first ) == nullptr )
-			{
-				GetEngineInstance().GetECSManager().AddFragmentToEntity< forge::PreviousFrameTransformFragment >( updatedEntity.first );
-				GetEngineInstance().GetECSManager().GetFragment< forge::PreviousFrameTransformFragment >( updatedEntity.first )->m_previousTransform = updatedEntity.second;
-			}
-		}
 	}
 }
 

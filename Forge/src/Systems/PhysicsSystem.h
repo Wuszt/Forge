@@ -34,7 +34,8 @@ namespace systems
 		}
 
 	private:
-		void Update();
+		void UpdateSimulation();
+		void UpdateScene();
 		std::unique_ptr< physics::PhysxProxy > m_physicsProxy;
 		std::unique_ptr< physics::PhysicsScene > m_scene;
 		forge::CallbackToken m_updateToken;
