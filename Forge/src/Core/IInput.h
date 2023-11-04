@@ -153,15 +153,25 @@ namespace forge
 			MiddleButton = static_cast<Uint32>( Key::MidMouseBtn ),
 		};
 
+		enum class KeyState
+		{
+			None,
+			Clicked,
+			Held,
+			Released,
+		};
+
 		virtual ~IInput() = default;
 
 		virtual Bool GetKey( Key key ) const = 0;
 		virtual Bool GetKeyDown( Key key ) const = 0;
 		virtual Bool GetKeyUp( Key key ) const = 0;
+		virtual KeyState GetKeyState( Key key ) const = 0;
 		virtual const Vector3& GetMouseDeltaAxises() const = 0;
 		virtual Bool GetMouseButton( MouseButton button ) const = 0;
 		virtual Bool GetMouseButtonDown( MouseButton button ) const = 0;
 		virtual Bool GetMouseButtonUp( MouseButton button ) const = 0;
+		virtual KeyState GetMouseButtonState( MouseButton button ) const = 0;
 		virtual const Vector2& GetMouseCurrentAxises() const = 0;
 		virtual void LockCursor( Bool lock ) = 0;
 		virtual Bool IsCursorLocked() const = 0;

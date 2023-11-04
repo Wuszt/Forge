@@ -31,14 +31,6 @@ namespace forge
 			m_objectCreationRequests.emplace_back( req );
 		}
 
-		void RequestAddingComponentsToObject( const std::function< void() >& creationFunc )
-		{
-			ComponentCreationRequest req;
-			req.m_creationFunc = creationFunc;
-
-			m_componentCreationRequests.emplace_back( req );
-		}
-
 		void RequestDestructingObject( forge::ObjectID id )
 		{
 			m_objectDestructionRequests.emplace_back( ObjectDestructionRequest{ id } );
@@ -119,12 +111,6 @@ namespace forge
 			forge::ObjectID m_id;
 		};
 		std::vector< ObjectDestructionRequest > m_objectDestructionRequests;
-
-		struct ComponentCreationRequest
-		{
-			std::function< void() > m_creationFunc;
-		};
-		std::vector< ComponentCreationRequest > m_componentCreationRequests;
 
 		forge::CallbackToken m_tickToken;
 

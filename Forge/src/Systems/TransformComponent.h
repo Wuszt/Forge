@@ -41,7 +41,7 @@ namespace forge
 
 		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue );
 
-		Transform GetTransform() const
+		const Transform& GetTransform() const
 		{
 			return GetData().m_transform;
 		}

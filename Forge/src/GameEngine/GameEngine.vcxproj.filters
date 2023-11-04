@@ -34,6 +34,7 @@
     <ClCompile Include="RenderingManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectLifetimeToken.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationInstance.h">
@@ -75,6 +76,7 @@
     <ClInclude Include="RenderingManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectLifetimeToken.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

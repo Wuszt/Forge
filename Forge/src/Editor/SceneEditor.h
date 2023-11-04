@@ -1,5 +1,6 @@
 #pragma once
-#include "IPanel.h"
+#include "PanelBase.h"
+#include "../GameEngine/ObjectLifetimeToken.h"
 
 namespace forge
 {
@@ -13,13 +14,27 @@ namespace renderer
 
 namespace editor
 {
-	class SceneEditor : public IPanel
+	class SceneGrid;
+	class Gizmo;
+
+	class SceneEditor : public PanelBase
 	{
 	public:
 		SceneEditor( forge::EngineInstance& engineInstance );
+		~SceneEditor();
+
+	protected:
 		virtual void Draw() override;
+		virtual const Char* GetName() const override
+		{
+			return "Scene Editor";
+		}
 
 	private:
-		std::unique_ptr<renderer::ITexture> m_targetTexture;
+		bool FindHoveredObject( const Vector2& cursorPos, forge::ObjectID& outObjectId, Vector3& outRayDir ) const;
+
+		std::unique_ptr< renderer::ITexture > m_targetTexture;
+		std::unique_ptr< editor::SceneGrid > m_sceneGrid;
+		forge::ObjectLifetimeToken m_gizmoToken;
 	};
 }

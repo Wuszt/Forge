@@ -17,10 +17,16 @@
     <ClCompile Include="SceneEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IPanel.cpp">
+    <ClCompile Include="PanelBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EditorInstance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Gizmo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -37,10 +43,16 @@
     <ClInclude Include="SceneEditor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IPanel.h">
+    <ClInclude Include="PanelBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EditorInstance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gizmo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGrid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

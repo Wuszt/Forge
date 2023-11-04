@@ -327,16 +327,20 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Final|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="IPanel.cpp" />
+    <ClCompile Include="Gizmo.cpp" />
+    <ClCompile Include="PanelBase.cpp" />
     <ClCompile Include="SceneEditor.cpp" />
+    <ClCompile Include="SceneGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EditorInstance.h" />
     <ClInclude Include="Fpch.h" />
+    <ClInclude Include="Gizmo.h" />
     <ClInclude Include="InternalDefaults.h" />
-    <ClInclude Include="IPanel.h" />
+    <ClInclude Include="PanelBase.h" />
     <ClInclude Include="PublicDefaults.h" />
     <ClInclude Include="SceneEditor.h" />
+    <ClInclude Include="SceneGrid.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

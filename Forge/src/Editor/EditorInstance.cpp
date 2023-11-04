@@ -36,22 +36,20 @@
 #include "../../External/imgui/imgui.h"
 
 #include "SceneEditor.h"
-#include "IPanel.h"
+#include "PanelBase.h"
 
 void CubeScene(forge::EngineInstance& engineInstance)
 {
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([&](forge::Object* obj)
-		{
-			obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsStaticComponent >([engineInstancePtr = &engineInstance, obj]()
-				{
-					auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-					auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+	{
+		obj->AddComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsStaticComponent >();
+		auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
+		auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-					renderingComponent->LoadMeshAndMaterial("Models\\cube.obj");
+		renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
 
-					transformComponent->GetDirtyTransform().SetPosition(Vector3::ZEROS());
-				});
-		});
+		transformComponent->GetDirtyTransform().SetPosition( Vector3::ZEROS() );
+	});
 }
 
 forge::EditorInstance::EditorInstance( const std::string& applicationName )
@@ -76,39 +74,34 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 		&systems::TransformSystem::GetTypeStatic(),
 		&systems::PhysicsSystem::GetTypeStatic(),
 #ifdef FORGE_DEBUGGING
-				& systems::DebugSystem::GetTypeStatic(),
+		&systems::DebugSystem::GetTypeStatic(),
 #endif
 
 #ifdef FORGE_IMGUI_ENABLED
-				& systems::IMGUISystem::GetTypeStatic()
+		&systems::IMGUISystem::GetTypeStatic()
 #endif
 	};
 
 	engineInstance.GetSystemsManager().AddSystems(systems);
 	engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor({ 0.55f, 0.55f, 0.55f });
 
-	//engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetTargetTexture(&engineInstance.GetRenderingManager().GetRenderer().GetSwapchain()->GetBackBuffer());
-
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([&](forge::Object* player)
-		{
-			player->RequestAddingComponents< forge::TransformComponent, forge::CameraComponent, forge::FreeCameraControllerComponent >([engineInstancePtr = &engineInstance, player]()
-				{
-					player->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition({ 0.0f, -5.0f, 0.0f });
-					auto* cameraComp = player->GetComponent< forge::CameraComponent >();
-					cameraComp->CreateImplementation< renderer::PerspectiveCamera >(forge::CameraComponent::GetDefaultPerspectiveCamera(engineInstancePtr->GetRenderingManager().GetWindow()));
+	{
+		player->AddComponents< forge::TransformComponent, forge::CameraComponent, forge::FreeCameraControllerComponent >();
+		player->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition({ 0.0f, -5.0f, 0.0f });
+		auto* cameraComp = player->GetComponent< forge::CameraComponent >();
+		cameraComp->CreateImplementation< renderer::PerspectiveCamera >(forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstance.GetRenderingManager().GetWindow() ) );
 
-					auto& camerasSystem = engineInstancePtr->GetSystemsManager().GetSystem< systems::CamerasSystem >();
-					camerasSystem.SetActiveCamera(cameraComp);
+		auto& camerasSystem = engineInstance.GetSystemsManager().GetSystem< systems::CamerasSystem >();
+		camerasSystem.SetActiveCamera(cameraComp);
 
-					auto* freeCameraController = player->GetComponent< forge::FreeCameraControllerComponent >();
-					engineInstancePtr->GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent(*freeCameraController);
+		auto* freeCameraController = player->GetComponent< forge::FreeCameraControllerComponent >();
+		engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent(*freeCameraController);
+	});
 
-				});
-		});
+	//CubeScene(engineInstance);
 
-	CubeScene(engineInstance);
-
-	m_panels.emplace_back(std::make_unique<editor::SceneEditor>(engineInstance));
+	m_panels.emplace_back( std::make_unique< editor::SceneEditor >( engineInstance ) );
 }
 
 void forge::EditorInstance::Update()
@@ -122,6 +115,6 @@ void forge::EditorInstance::Update()
 
 	for ( auto& panel : m_panels )
 	{
-		panel->Draw();
+		panel->Update();
 	}
 }

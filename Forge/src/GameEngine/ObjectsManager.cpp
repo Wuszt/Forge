@@ -53,13 +53,4 @@ void forge::ObjectsManager::HandleRequests()
 			request.m_creationFunc();
 		}
 	}
-
-	{
-		auto requests = std::move( m_componentCreationRequests );
-		m_componentCreationRequests.clear();
-		for ( const auto& request : requests )
-		{
-			request.m_creationFunc();
-		}
-	}
 }

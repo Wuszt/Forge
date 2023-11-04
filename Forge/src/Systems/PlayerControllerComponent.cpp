@@ -15,13 +15,10 @@ void forge::FreeCameraControllerComponent::OnAttached( EngineInstance& engineIns
 	m_input = engineInstance.GetRenderingManager().GetWindow().GetInput();
 	m_ownerTransform = GetOwner().GetComponent< forge::TransformComponent >();
 
-	GetOwner().RequestAddingComponents< forge::PhysicsDynamicComponent >( [ this ]()
-		{
-			m_physicsComponent = GetOwner().GetComponent< forge::PhysicsDynamicComponent >();
-
-			m_physicsComponent->AddShape( physics::PhysicsShape( GetOwner().GetEngineInstance().GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), 0.5f ) );
-			m_physicsComponent->GetActor().EnableGravity( false );
-		});
+	GetOwner().AddComponents< forge::PhysicsDynamicComponent >();
+	m_physicsComponent = GetOwner().GetComponent< forge::PhysicsDynamicComponent >();
+	m_physicsComponent->AddShape( physics::PhysicsShape( GetOwner().GetEngineInstance().GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), 0.5f ) );
+	m_physicsComponent->GetActor().EnableGravity( false );
 }
 
 void forge::FreeCameraControllerComponent::Update( bool isInputEnabled )

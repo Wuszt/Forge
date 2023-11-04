@@ -17,6 +17,7 @@ namespace forge
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		io.ConfigWindowsMoveFromTitleBarOnly = true;
 		ImGui::StyleColorsDark();
 
 #ifdef FORGE_PLATFORM_WINDOWS

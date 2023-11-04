@@ -78,8 +78,3 @@ void forge::Object::AttachComponents( std::vector< std::unique_ptr< IComponent >
 
 	queue.Execute( GetEngineInstance().GetECSManager() );
 }
-
-void forge::Object::RequestAddingComponentsInternal( const std::function< void() >& creationFunc )
-{
-	GetEngineInstance().GetObjectsManager().RequestAddingComponentsToObject( creationFunc );
-}

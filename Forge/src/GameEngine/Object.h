@@ -30,20 +30,12 @@ namespace forge
 		virtual void OnDetach();
 
 		template< class T, class... Ts >
-		void RequestAddingComponents( const std::function< void() >& initializeFunc = nullptr )
+		void AddComponents()
 		{
-			RequestAddingComponentsInternal( [ this, initializeFunc ]()
-			{
-				std::vector< std::unique_ptr< IComponent > > createdComponents;
+			std::vector< std::unique_ptr< IComponent > > createdComponents;
 
-				CreateComponents< T, Ts... >( createdComponents );
-				AttachComponents( std::move( createdComponents ) );
-
-				if( initializeFunc )
-				{
-					initializeFunc();
-				}
-			} );
+			CreateComponents< T, Ts... >( createdComponents );
+			AttachComponents( std::move( createdComponents ) );
 		}
 
 		template< class T >
@@ -52,15 +44,22 @@ namespace forge
 			return static_cast< T* >( m_components[ m_componentsLUT.at( &T::GetTypeStatic() ) ].get() ); 
 		}
 
+		template< class T >
+		const T* GetComponent() const
+		{
+			return static_cast< T* >( m_components[ m_componentsLUT.at( &T::GetTypeStatic() ) ].get() );
+		}
+
 		EngineInstance& GetEngineInstance() const
 		{
 			return *m_engineInstance;
 		}
 
-	private:
+	protected:
 		Object();
 		Object( Object&& );
 
+	private:
 		template< class T >
 		std::unique_ptr< T > CreateComponent()
 		{
@@ -79,8 +78,6 @@ namespace forge
 		}
 
 		void AttachComponents( std::vector< std::unique_ptr< IComponent > >&& components );
-
-		void RequestAddingComponentsInternal( const std::function< void() >& creationFunc );
 
 		ObjectID m_id;
 		EngineInstance* m_engineInstance = nullptr;

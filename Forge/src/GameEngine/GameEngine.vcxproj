@@ -322,6 +322,7 @@
   <ItemGroup>
     <ClCompile Include="ApplicationInstance.cpp" />
     <ClCompile Include="EngineInstance.cpp" />
+    <ClCompile Include="ObjectLifetimeToken.cpp" />
     <ClCompile Include="ObjectsManager.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectID.cpp" />
@@ -340,6 +341,7 @@
   <ItemGroup>
     <ClInclude Include="ApplicationInstance.h" />
     <ClInclude Include="EngineInstance.h" />
+    <ClInclude Include="ObjectLifetimeToken.h" />
     <ClInclude Include="ObjectsManager.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectID.h" />

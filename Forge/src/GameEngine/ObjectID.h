@@ -7,11 +7,12 @@ namespace forge
 		friend class ObjectsManager;
 
 	public:
-		ObjectID() = default;
+		static const Uint32 c_invalidID = std::numeric_limits< Uint32 >::max();
+
+		ObjectID() : ObjectID( c_invalidID )
+		{}
 
 		~ObjectID() = default;
-
-		static const Uint32 c_invalidID = std::numeric_limits< Uint32 >::max();
 
 		Bool IsValid()
 		{

@@ -31,10 +31,13 @@ namespace windows
 		virtual Bool GetKey( forge::IInput::Key key ) const override;
 		virtual Bool GetKeyDown( forge::IInput::Key key ) const override;
 		virtual Bool GetKeyUp( forge::IInput::Key key ) const override;
+		virtual KeyState GetKeyState( Key key ) const override;
+
 		virtual const Vector3& GetMouseDeltaAxises() const override;
 		virtual Bool GetMouseButton( MouseButton button ) const override;
 		virtual Bool GetMouseButtonDown( MouseButton button ) const override;
 		virtual Bool GetMouseButtonUp( MouseButton button ) const override;
+		virtual KeyState GetMouseButtonState( MouseButton button ) const override;
 		virtual const Vector2& GetMouseCurrentAxises() const override;
 
 		virtual void LockCursor( Bool lock ) override

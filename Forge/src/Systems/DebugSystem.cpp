@@ -186,7 +186,7 @@ void systems::DebugSystem::Update()
 			if ( requestsLastIndex >= 0 )
 			{
 				m_objectsCreationRequests[ requestsLastIndex ].m_initFunc( GetEngineInstance().GetObjectsManager().GetObject( it->m_objectId ) );
-				it->m_timestamp = m_objectsCreationRequests[ requestsLastIndex ].m_timestamp;
+				it->m_timestamp = forge::Time::GetTime() + m_objectsCreationRequests[ requestsLastIndex ].m_timestamp;
 				--requestsLastIndex;
 			}
 			else
@@ -204,11 +204,12 @@ void systems::DebugSystem::Update()
 
 	for ( auto&& request : std::move( m_objectsCreationRequests ) )
 	{
-		GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ request = std::move( request ), this ]( forge::Object* obj ) // a wez sprawdz tego move'a
-			{
-				obj->RequestAddingComponents< forge::TransformComponent, forge::RenderingComponent >( [ request = std::move( request ), obj ]() { request.m_initFunc( obj ); } );
-				m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + request.m_timestamp } );
-			} );
+		GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ request = std::move( request ), this ]( forge::Object* obj )
+		{
+			obj->AddComponents< forge::TransformComponent, forge::RenderingComponent >();
+			request.m_initFunc( obj );
+			m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + request.m_timestamp } );
+		} );
 	}
 
 	m_objectsCreationRequests.clear();
