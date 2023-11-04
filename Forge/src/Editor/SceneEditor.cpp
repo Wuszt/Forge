@@ -1,3 +1,4 @@
+#include "Fpch.h"
 #include "SceneEditor.h"
 #include "../../External/imgui/imgui.h"
 #include "../Systems/SceneRenderingSystem.h"
