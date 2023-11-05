@@ -57,7 +57,7 @@ void systems::PhysicsSystem::UpdateSimulation()
 	std::vector< std::pair< ecs::EntityID, Transform > > m_updatedEntities;
 	dynamicsQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
 		{
-			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
+			auto transformFragments = archetype.GetMutableFragments< forge::TransformFragment >();
 			auto physicsFragments = archetype.GetFragments< forge::PhysicsDynamicFragment >();
 
 			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
@@ -72,7 +72,7 @@ void systems::PhysicsSystem::UpdateSimulation()
 		if ( GetEngineInstance().GetECSManager().GetFragment< forge::PreviousFrameTransformFragment >( updatedEntity.first ) == nullptr )
 		{
 			GetEngineInstance().GetECSManager().AddFragmentToEntity< forge::PreviousFrameTransformFragment >( updatedEntity.first );
-			GetEngineInstance().GetECSManager().GetFragment< forge::PreviousFrameTransformFragment >( updatedEntity.first )->m_previousTransform = updatedEntity.second;
+			GetEngineInstance().GetECSManager().GetMutableFragment< forge::PreviousFrameTransformFragment >( updatedEntity.first )->m_previousTransform = updatedEntity.second;
 		}
 	}
 }
@@ -93,7 +93,7 @@ void systems::PhysicsSystem::UpdateScene()
 		auto updateScaleFunc = [ & ]< class T >( ecs::ArchetypeView archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-			auto physicsFragments = archetype.GetFragments< T >();
+			auto physicsFragments = archetype.GetMutableFragments< T >();
 			auto prevScaleFragments = archetype.GetFragments< forge::PreviousFrameScaleFragment >();
 
 			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
@@ -125,7 +125,7 @@ void systems::PhysicsSystem::UpdateScene()
 		auto updateTransformFunc = [ & ]< class T >( ecs::ArchetypeView archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-			auto physicsFragments = archetype.GetFragments< T >();
+			auto physicsFragments = archetype.GetMutableFragments< T >();
 
 			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
 			{

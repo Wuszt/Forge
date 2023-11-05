@@ -31,7 +31,7 @@ void systems::AnimationSystem::Update()
 
 	query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
 		{
-			auto animationFragments = archetype.GetFragments< forge::AnimationFragment >();
+			auto animationFragments = archetype.GetMutableFragments< forge::AnimationFragment >();
 			auto renderableFragments = archetype.GetFragments< forge::RenderableFragment >();
 
 			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )

@@ -96,7 +96,7 @@ void systems::SceneRenderingSystem::OnRenderDebug()
 									{
 										if ( m_debugForceWireFrame )
 										{
-											if ( !GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetArchetypeID().ContainsTag< renderer::WireFrameTag >() )
+											if ( !GetEngineInstance().GetECSManager().GetEntityArchetype( entityID ).GetArchetypeID().ContainsTag< renderer::WireFrameTag >() )
 											{
 												GetEngineInstance().GetECSManager().AddTagToEntity< renderer::WireFrameTag >( entityID );
 											}								
@@ -372,7 +372,7 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 							GetEngineInstance().GetECSManager().AddTagToEntity< renderer::WireFrameTag >( entityID );
 						} );
 				}
-				else if ( GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetArchetypeID().ContainsTag< renderer::WireFrameTag >() )
+				else if ( GetEngineInstance().GetECSManager().GetEntityArchetype( entityID ).GetArchetypeID().ContainsTag< renderer::WireFrameTag >() )
 				{
 					cmds.AddCommand( [ this, entityID ]()
 						{
@@ -382,7 +382,7 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 
 				cmds.AddCommand( [ this, entityID ]()
 				{
-					forge::RenderableFragment* renderableFragment = GetEngineInstance().GetECSManager().GetFragment< forge::RenderableFragment >( entityID );
+					const forge::RenderableFragment* renderableFragment = GetEngineInstance().GetECSManager().GetFragment< forge::RenderableFragment >( entityID );
 
 					Bool containsTransparentMaterials = false;
 					for ( auto& material : renderableFragment->m_renderable.GetMaterials() )
@@ -392,14 +392,14 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 
 					if ( containsTransparentMaterials )
 					{
-						if ( !GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetArchetypeID().ContainsTag< ContainsTransparentShapes >() )
+						if ( !GetEngineInstance().GetECSManager().GetEntityArchetype( entityID ).GetArchetypeID().ContainsTag< ContainsTransparentShapes >() )
 						{
 							GetEngineInstance().GetECSManager().AddTagToEntity< ContainsTransparentShapes >( entityID );
 						}
 					}
 					else
 					{
-						if ( GetEngineInstance().GetECSManager().GetEntityArchetype( entityID )->GetArchetypeID().ContainsTag< ContainsTransparentShapes >() )
+						if ( GetEngineInstance().GetECSManager().GetEntityArchetype( entityID ).GetArchetypeID().ContainsTag< ContainsTransparentShapes >() )
 						{
 							GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsTransparentShapes >( entityID );
 						}
@@ -427,7 +427,7 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 		auto func = [ & ]( ecs::ArchetypeView archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-			auto renderableFragments = archetype.GetFragments< forge::RenderableFragment >();
+			auto renderableFragments = archetype.GetMutableFragments< forge::RenderableFragment >();
 
 			for ( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
 			{

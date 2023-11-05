@@ -7,6 +7,8 @@ namespace ecs
 	class ECSManager
 	{
 	public:
+		ECSManager();
+
 		EntityID CreateEntity();
 
 		void RemoveEntity( EntityID id );
@@ -56,17 +58,20 @@ namespace ecs
 		void RemoveFragmentsAndTagsFromArchetype( const ecs::ArchetypeID& archetypeId, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags );
 		void RemoveFragmentsAndTagsFromArchetype( const ecs::ArchetypeID& archetypeId, FragmentsFlags fragments, TagsFlags tags );
 
-		Archetype* GetEntityArchetype( EntityID id );
+		ArchetypeView GetEntityArchetype( EntityID id );
 
 		template< class T >
-		T* GetFragment( EntityID id )
+		const T* GetFragment( EntityID id )
 		{
-			if ( Archetype* archetype = GetEntityArchetype( id ) )
-			{
-				return archetype->GetFragment< T >( id );
-			}
+			ArchetypeView archetype = GetEntityArchetype( id );
+			return archetype.GetFragment< T >( id );
+		}
 
-			return nullptr;
+		template< class T >
+		T* GetMutableFragment( EntityID id )
+		{
+			ArchetypeView archetype = GetEntityArchetype( id );
+			return archetype.GetMutableFragment< T >( id );
 		}
 
 		void RemoveTagFromEntity( EntityID entityID, const ecs::Tag::Type& type );
@@ -84,6 +89,7 @@ namespace ecs
 
 		std::unordered_map< EntityID, Archetype* > m_entityToArchetype;
 		std::vector< std::unique_ptr< Archetype > > m_archetypes;
+		Archetype* m_emptyArchetype = nullptr;
 		Uint32 m_nextEntityID = 0u;
 	};
 }

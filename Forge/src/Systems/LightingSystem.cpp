@@ -222,7 +222,7 @@ void systems::LightingSystem::OnRenderDebug()
 			query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
 			{
 				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-				auto lightFragments = archetype.GetFragments< forge::PointLightFragment >();
+				auto lightFragments = archetype.GetMutableFragments< forge::PointLightFragment >();
 				for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
 				{
 					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen) )
@@ -258,7 +258,7 @@ void systems::LightingSystem::OnRenderDebug()
 			query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
 			{
 				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-				auto lightFragments = archetype.GetFragments< forge::SpotLightFragment >();
+				auto lightFragments = archetype.GetMutableFragments< forge::SpotLightFragment >();
 				for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
 				{
 					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
@@ -296,7 +296,7 @@ void systems::LightingSystem::OnRenderDebug()
 			Uint32 lightsAmount = 0u;
 			query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
 			{
-				auto lightFragments = archetype.GetFragments< forge::DirectionalLightFragment >();
+				auto lightFragments = archetype.GetMutableFragments< forge::DirectionalLightFragment >();
 				for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
 				{
 					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )

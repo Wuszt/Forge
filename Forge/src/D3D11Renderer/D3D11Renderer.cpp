@@ -413,7 +413,7 @@ namespace d3d11
 	{
 		const auto& shapes = renderable.GetModel().GetShapes();
 
-		RawRenderableFragment* rawRenderable = ecsManager.GetFragment< RawRenderableFragment >( entityID );
+		RawRenderableFragment* rawRenderable = ecsManager.GetMutableFragment< RawRenderableFragment >( entityID );
 
 		*rawRenderable = RawRenderableFragment();
 

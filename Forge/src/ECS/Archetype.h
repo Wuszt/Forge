@@ -184,7 +184,7 @@ namespace ecs
 		}
 
 		template< class T >
-		const T* GetFragment( EntityID id ) const
+		T* GetFragment( EntityID id )
 		{
 			if ( !ContainsEntity( id ) || !m_id.ContainsFragment< T >() )
 			{
@@ -192,12 +192,6 @@ namespace ecs
 			}
 
 			return &GetFragments< T >()[ GetFragmentIndex( id ) ];
-		}
-
-		template< class T >
-		T* GetFragment( EntityID id )
-		{
-			return const_cast< T* >( static_cast< const Archetype* >( this )->GetFragment< T >( id ) );
 		}
 
 		void OnEntityCreated()
@@ -419,9 +413,21 @@ namespace ecs
 		}
 
 		template< class T >
-		forge::ArraySpan< T > GetFragments()
+		forge::ArraySpan< T > GetMutableFragments()
 		{
 			return m_archetype.GetFragments< T >();
+		}
+
+		template< class T >
+		const T* GetFragment( ecs::EntityID id ) const
+		{
+			return m_archetype.GetFragment< T >( id );
+		}
+
+		template< class T >
+		T* GetMutableFragment( ecs::EntityID id )
+		{
+			return m_archetype.GetFragment< T >( id );
 		}
 
 		Uint32 GetEntitiesAmount() const

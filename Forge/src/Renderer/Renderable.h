@@ -91,7 +91,7 @@ namespace renderer
 		}
 
 	private:
-		Renderer* m_renderer;
+		Renderer* m_renderer = nullptr;
 		std::shared_ptr< Model > m_model;
 		std::vector< std::unique_ptr< Material > > m_materials;
 		StaticConstantBuffer< cbMesh > m_cbMesh;

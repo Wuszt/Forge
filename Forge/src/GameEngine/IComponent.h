@@ -67,7 +67,11 @@ namespace forge
 
 		const TData& GetData() const
 		{
-			return const_cast< DataComponent< TData >* >( this )->GetMutableData();
+			auto& objectsManager = GetOwner().GetEngineInstance().GetObjectsManager();
+			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
+
+			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
+			return *ecsManager.GetFragment< TData >( id );
 		}
 
 	protected:
@@ -77,8 +81,7 @@ namespace forge
 			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
 
 			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
-			auto* archetype = ecsManager.GetEntityArchetype( id );
-			return *archetype->GetFragment< TData >( id );
+			return *ecsManager.GetMutableFragment< TData >( id );
 		}
 
 	private:
