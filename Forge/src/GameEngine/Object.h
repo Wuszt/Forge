@@ -10,6 +10,11 @@ namespace forge
 	{
 		RTTI_DECLARE_STRUCT( ObjectFragment, ecs::Fragment );
 
+		ObjectFragment() = default;
+		ObjectFragment( ObjectID objectId )
+			: m_objectID( objectId )
+		{}
+
 		ObjectID m_objectID;
 	};
 

@@ -22,8 +22,7 @@ void forge::Object::OnAttach()
 	auto& ecsManager = GetEngineInstance().GetECSManager();
 	auto& objectsManager = GetEngineInstance().GetObjectsManager();
 	ecs::EntityID entityID = objectsManager.GetOrCreateEntityId( GetObjectID() );
-	ecsManager.AddFragmentToEntity( entityID, forge::ObjectFragment::GetTypeStatic() );
-	ecsManager.GetMutableFragment< forge::ObjectFragment >( entityID )->m_objectID = GetObjectID();
+	ecsManager.AddFragmentDataToEntity( entityID, forge::ObjectFragment( GetObjectID() ) );
 }
 
 void forge::Object::OnDetach()

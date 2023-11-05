@@ -71,8 +71,7 @@ void systems::PhysicsSystem::UpdateSimulation()
 	{
 		if ( GetEngineInstance().GetECSManager().GetFragment< forge::PreviousFrameTransformFragment >( updatedEntity.first ) == nullptr )
 		{
-			GetEngineInstance().GetECSManager().AddFragmentToEntity< forge::PreviousFrameTransformFragment >( updatedEntity.first );
-			GetEngineInstance().GetECSManager().GetMutableFragment< forge::PreviousFrameTransformFragment >( updatedEntity.first )->m_previousTransform = updatedEntity.second;
+			GetEngineInstance().GetECSManager().AddFragmentDataToEntity( updatedEntity.first, forge::PreviousFrameTransformFragment( updatedEntity.second ) );
 		}
 	}
 }

@@ -17,15 +17,22 @@ namespace ecs
 
 		void AddFragmentsAndTagsToEntity( EntityID entityID, FragmentsFlags fragments, TagsFlags tags );
 
-		void AddFragmentToEntity( EntityID entityID, const ecs::Fragment::Type& fragment )
-		{
-			AddFragmentsAndTagsToEntity( entityID, { &fragment }, {});
-		}
-
 		template< class T >
 		void AddFragmentToEntity( EntityID entityID )
 		{
 			AddFragmentToEntity( entityID, T::GetTypeStatic() );
+		}
+
+		template< class T >
+		void AddFragmentDataToEntity( EntityID entityID, T fragmentData )
+		{
+			AddFragmentToEntity< T >( entityID );
+			*GetMutableFragment< T >( entityID ) = std::move( fragmentData );
+		}
+
+		void AddFragmentToEntity( EntityID entityID, const ecs::Fragment::Type& fragment )
+		{
+			AddFragmentsAndTagsToEntity( entityID, { &fragment }, {} );
 		}
 
 		void MoveEntityToNewArchetype( EntityID entityID, const ArchetypeID& newID );

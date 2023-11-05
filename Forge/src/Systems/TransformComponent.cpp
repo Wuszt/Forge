@@ -33,8 +33,7 @@ Transform& forge::TransformComponent::GetDirtyTransform()
 
 	if ( ecsManager.GetFragment< PreviousFrameTransformFragment >( entityID ) == nullptr )
 	{
-		ecsManager.AddFragmentToEntity< PreviousFrameTransformFragment >( entityID );
-		ecsManager.GetMutableFragment< PreviousFrameTransformFragment >( entityID )->m_previousTransform = GetData().m_transform;
+		ecsManager.AddFragmentDataToEntity( entityID, PreviousFrameTransformFragment{ GetData().m_transform } );
 	}
 
 	return GetMutableData().m_transform;
@@ -47,8 +46,7 @@ Vector3& forge::TransformComponent::GetDirtyScale()
 
 	if ( ecsManager.GetFragment< PreviousFrameScaleFragment >( entityID ) == nullptr )
 	{
-		ecsManager.AddFragmentToEntity< PreviousFrameScaleFragment >( entityID );
-		ecsManager.GetMutableFragment< PreviousFrameScaleFragment >( entityID )->m_previousScale = GetData().m_scale;
+		ecsManager.AddFragmentDataToEntity( entityID, PreviousFrameScaleFragment{ GetData().m_scale } );
 	}
 
 	return GetMutableData().m_scale.AsVector3();
