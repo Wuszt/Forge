@@ -46,7 +46,7 @@ renderer::ForwardRenderingPass::ForwardRenderingPass( Renderer& renderer )
 
 renderer::ForwardRenderingPass::~ForwardRenderingPass() = default;
 
-void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
+void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
 {
 	renderer::IRenderTargetView* views[] = { GetTargetTexture() ? GetTargetTexture()->GetRenderTargetView() : nullptr };
 	GetRenderer().SetRenderTargets( views, &GetDepthStencilView() );
@@ -68,12 +68,12 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 	ecs::Query wireFrameQuery = query;
 	wireFrameQuery.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Included );
 
-	auto drawFunc = [ this, &solidQuery, &wireFrameQuery, &ecsManager, &renderingPass ]( const renderer::ShaderDefine* sd, forge::ArraySpan< const renderer::IShaderResourceView* > srvs )
+	auto drawFunc = [ this, &solidQuery, &wireFrameQuery, &renderingPass ]( const renderer::ShaderDefine* sd, forge::ArraySpan< const renderer::IShaderResourceView* > srvs )
 	{
 		GetRenderer().ClearShaderResourceViews();
 
 		{
-			solidQuery.VisitArchetypes( ecsManager, [ & ]( ecs::ArchetypeView archetype )
+			solidQuery.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 				{
 					GetRenderer().Draw( archetype, renderingPass, sd, srvs );
 				} );
@@ -82,7 +82,7 @@ void renderer::ForwardRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 		{
 			GetRenderer().SetCullingMode( renderer::CullingMode::None );
 			GetRenderer().SetFillMode( FillMode::WireFrame );
-			wireFrameQuery.VisitArchetypes( ecsManager, [ & ]( ecs::ArchetypeView archetype )
+			wireFrameQuery.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 				{
 					GetRenderer().Draw( archetype, renderingPass, sd, srvs );
 				} );

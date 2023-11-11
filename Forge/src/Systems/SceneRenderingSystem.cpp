@@ -86,9 +86,9 @@ void systems::SceneRenderingSystem::OnRenderDebug()
 
 				if ( ImGui::Checkbox( "Wire Frame", &m_debugForceWireFrame ) )
 				{
-					ecs::Query renderablesQuery;
+					ecs::Query renderablesQuery( GetEngineInstance().GetECSManager() );
 					renderablesQuery.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
-					renderablesQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), [ this ]( ecs::ArchetypeView archetype, ecs::Query::DelayedCommands& cmds )
+					renderablesQuery.VisitArchetypes( [ this ]( ecs::ArchetypeView archetype, ecs::Query::DelayedCommands& cmds )
 						{
 							for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
 							{
@@ -344,12 +344,12 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 
 	{
 		PC_SCOPE( "SceneRenderingSystem::UpdatingRawRenderables" );
-		ecs::Query renderablesToUpdate;
+		ecs::Query renderablesToUpdate( GetEngineInstance().GetECSManager() );
 		renderablesToUpdate.AddTagRequirement< forge::DirtyRenderable >( ecs::Query::RequirementType::Included );
 		renderablesToUpdate.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
 		renderablesToUpdate.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 
-		renderablesToUpdate.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype, ecs::Query::DelayedCommands& cmds )
+		renderablesToUpdate.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype, ecs::Query::DelayedCommands& cmds )
 		{
 			auto renderables = archetype.GetFragments< forge::RenderableFragment >();
 			m_renderer->UpdateRenderableECSArchetype( GetEngineInstance().GetECSManager(), archetype, [&renderables]( Uint32 index ) -> const renderer::Renderable& { return renderables[ index ].m_renderable; } );
@@ -410,12 +410,12 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 		} );
 	}
 
-	ecs::Query modifiedTransformQuery;
+	ecs::Query modifiedTransformQuery( GetEngineInstance().GetECSManager() );
 	modifiedTransformQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 	modifiedTransformQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 	modifiedTransformQuery.AddFragmentRequirement< forge::PreviousFrameTransformFragment >( ecs::Query::RequirementType::Included );
 
-	ecs::Query modifiedScaleQuery;
+	ecs::Query modifiedScaleQuery( GetEngineInstance().GetECSManager() );
 	modifiedScaleQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 	modifiedScaleQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 	modifiedScaleQuery.AddFragmentRequirement< forge::PreviousFrameScaleFragment >( ecs::Query::RequirementType::Included );
@@ -436,8 +436,8 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 			}
 		};
 
-		modifiedTransformQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), func );
-		modifiedScaleQuery.VisitArchetypes( GetEngineInstance().GetECSManager(), func );
+		modifiedTransformQuery.VisitArchetypes( func );
+		modifiedScaleQuery.VisitArchetypes( func );
 	}
 }
 
@@ -468,7 +468,7 @@ void systems::SceneRenderingSystem::OnDraw()
 
 	{
 		PC_SCOPE( "SceneRenderingSystem::OnDraw::Opaque" );
-		ecs::Query opaqueQuery;
+		ecs::Query opaqueQuery( GetEngineInstance().GetECSManager() );
 		opaqueQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 		opaqueQuery.AddTagRequirement< forge::DrawAsOverlay >( ecs::Query::RequirementType::Excluded );
 		opaqueQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Excluded );
@@ -476,24 +476,24 @@ void systems::SceneRenderingSystem::OnDraw()
 		auto& lightingSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::LightingSystem >();
 		renderer::LightingData lightingData = lightingSystem.GetLightingData();
 
-		ecs::Query shadowsQuery;
+		ecs::Query shadowsQuery( GetEngineInstance().GetECSManager() );
 		shadowsQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 		shadowsQuery.AddTagRequirement< forge::IgnoresLights >( ecs::Query::RequirementType::Excluded );
 		shadowsQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Excluded );
 
-		m_shadowMapsGenerator->GenerateShadowMaps( GetEngineInstance().GetECSManager(), shadowsQuery, renderer::RenderingPass::Opaque, lightingData );
-		m_opaqueRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), opaqueQuery, renderer::RenderingPass::Opaque, &lightingData );
+		m_shadowMapsGenerator->GenerateShadowMaps( shadowsQuery, renderer::RenderingPass::Opaque, lightingData );
+		m_opaqueRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), opaqueQuery, renderer::RenderingPass::Opaque, &lightingData );
 	}
 
 	{
 		PC_SCOPE( "SceneRenderingSystem::OnDraw::Transparent" );
-		ecs::Query transparentQuery;
+		ecs::Query transparentQuery( GetEngineInstance().GetECSManager() );
 		transparentQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 		transparentQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Included );
 
 		m_transparencyBlendState->Set();
 		m_depthStencilState->EnableWrite( false );
-		m_transparentRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), transparentQuery, renderer::RenderingPass::Transparent, nullptr );
+		m_transparentRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), transparentQuery, renderer::RenderingPass::Transparent, nullptr );
 		m_depthStencilState->EnableWrite( true );
 		m_transparencyBlendState->Clear();
 	}
@@ -506,20 +506,20 @@ void systems::SceneRenderingSystem::OnDraw()
 		PC_SCOPE( "SceneRenderingSystem::OnDraw::Overlay" );
 		m_depthStencilBuffer->GetView().Clear();
 
-		ecs::Query opaqueOverlayQuery;
+		ecs::Query opaqueOverlayQuery( GetEngineInstance().GetECSManager() );
 		opaqueOverlayQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 		opaqueOverlayQuery.AddTagRequirement< forge::DrawAsOverlay >( ecs::Query::RequirementType::Included );
 		opaqueOverlayQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Excluded );
-		m_opaqueRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), opaqueOverlayQuery, renderer::RenderingPass::Opaque, nullptr );
+		m_opaqueRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), opaqueOverlayQuery, renderer::RenderingPass::Opaque, nullptr );
 
-		ecs::Query transparentOverlayQuery;
+		ecs::Query transparentOverlayQuery( GetEngineInstance().GetECSManager() );
 		transparentOverlayQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 		transparentOverlayQuery.AddTagRequirement< forge::DrawAsOverlay >( ecs::Query::RequirementType::Included );
 		transparentOverlayQuery.AddTagRequirement< ContainsTransparentShapes >( ecs::Query::RequirementType::Included );
 
 		m_transparencyBlendState->Set();
 		m_depthStencilState->EnableWrite( false );
-		m_transparentRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), GetEngineInstance().GetECSManager(), transparentOverlayQuery, renderer::RenderingPass::Transparent, nullptr );
+		m_transparentRenderingPass->Draw( m_camerasSystem->GetActiveCamera()->GetCamera(), transparentOverlayQuery, renderer::RenderingPass::Transparent, nullptr );
 		m_depthStencilState->EnableWrite( true );
 		m_transparencyBlendState->Clear();
 	}

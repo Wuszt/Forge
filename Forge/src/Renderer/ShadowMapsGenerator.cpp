@@ -9,7 +9,7 @@ renderer::ShadowMapsGenerator::ShadowMapsGenerator( Renderer& renderer )
 	: m_renderer( renderer )
 {}
 
-void renderer::ShadowMapsGenerator::GenerateShadowMaps( ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, LightingData& lightingData )
+void renderer::ShadowMapsGenerator::GenerateShadowMaps( const ecs::Query& query, renderer::RenderingPass renderingPass, LightingData& lightingData )
 {
 	PC_SCOPE_FUNC();
 
@@ -48,7 +48,7 @@ void renderer::ShadowMapsGenerator::GenerateShadowMaps( ecs::ECSManager& ecsMana
 				lightData.m_shadowMap->GetView( i ).Clear();
 				shadowsRenderingPass.SetDepthStencilBuffer( lightData.m_shadowMap.get(), i );
 				camera.SetOrientation( Quaternion::CreateFromDirection( directions[i] ) );
-				shadowsRenderingPass.Draw( camera, ecsManager, query, renderingPass, nullptr );
+				shadowsRenderingPass.Draw( camera, query, renderingPass, nullptr );
 			}
 		}
 	}
@@ -64,7 +64,7 @@ void renderer::ShadowMapsGenerator::GenerateShadowMaps( ecs::ECSManager& ecsMana
 			shadowsRenderingPass.ClearTargetTexture();
 
 			auto camera = renderer::CustomCamera( lightData.m_shaderData.VP, 0.0f, 0.0f );
-			shadowsRenderingPass.Draw( camera, ecsManager, query, renderingPass, nullptr );
+			shadowsRenderingPass.Draw( camera, query, renderingPass, nullptr );
 		}
 	}
 
@@ -82,7 +82,7 @@ void renderer::ShadowMapsGenerator::GenerateShadowMaps( ecs::ECSManager& ecsMana
 			camera.SetPosition( -lightData.m_shaderData.Direction * 3500.0f );
 			camera.SetOrientation( Quaternion::CreateFromDirection( lightData.m_shaderData.Direction ) );
 			lightData.m_shaderData.VP = camera.GetViewProjectionMatrix();
-			shadowsRenderingPass.Draw( camera, ecsManager, query, renderingPass, nullptr );
+			shadowsRenderingPass.Draw( camera, query, renderingPass, nullptr );
 		}
 	}
 

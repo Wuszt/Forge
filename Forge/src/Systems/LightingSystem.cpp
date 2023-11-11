@@ -48,12 +48,12 @@ void systems::LightingSystem::Update()
 	}
 
 	{
-		ecs::Query query;
+		ecs::Query query( GetEngineInstance().GetECSManager() );
 		query.AddFragmentRequirement< forge::PointLightFragment >( ecs::Query::RequirementType::Included );
 		query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 
 		Uint32 lightsAmount = 0u;
-		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
+		query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 		{
 			lightsAmount += archetype.GetEntitiesAmount();
 		} );
@@ -66,7 +66,7 @@ void systems::LightingSystem::Update()
 		}
 
 		Uint32 lightOffset = 0u;
-		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
+		query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
 			auto lightFragments = archetype.GetFragments< forge::PointLightFragment >();
@@ -80,12 +80,12 @@ void systems::LightingSystem::Update()
 	}
 
 	{
-		ecs::Query query;
+		ecs::Query query( GetEngineInstance().GetECSManager() );
 		query.AddFragmentRequirement< forge::SpotLightFragment >( ecs::Query::RequirementType::Included );
 		query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 
 		Uint32 lightsAmount = 0u;
-		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
+		query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 		{
 			lightsAmount += archetype.GetEntitiesAmount();
 		} );
@@ -98,7 +98,7 @@ void systems::LightingSystem::Update()
 		}
 
 		Uint32 lightOffset = 0u;
-		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
+		query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
 			auto lightFragments = archetype.GetFragments< forge::SpotLightFragment >();
@@ -115,11 +115,11 @@ void systems::LightingSystem::Update()
 	}
 
 	{
-		ecs::Query query;
+		ecs::Query query( GetEngineInstance().GetECSManager() );
 		query.AddFragmentRequirement< forge::DirectionalLightFragment >( ecs::Query::RequirementType::Included );
 
 		Uint32 lightsAmount = 0u;
-		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
+		query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 		{
 			lightsAmount += archetype.GetEntitiesAmount();
 		} );
@@ -132,7 +132,7 @@ void systems::LightingSystem::Update()
 		}
 
 		Uint32 lightOffset = 0u;
-		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
+		query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 		{
 			auto lightFragments = archetype.GetFragments< forge::DirectionalLightFragment >();
 			for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i, ++lightOffset )
@@ -215,11 +215,11 @@ void systems::LightingSystem::OnRenderDebug()
 
 		if( ImGui::TreeNodeEx( "Point Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
-			ecs::Query query;
+			ecs::Query query( GetEngineInstance().GetECSManager() );
 			query.AddFragmentRequirement< forge::PointLightFragment >( ecs::Query::RequirementType::Included );
 			query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 
-			query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
+			query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 			{
 				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
 				auto lightFragments = archetype.GetMutableFragments< forge::PointLightFragment >();
@@ -251,11 +251,11 @@ void systems::LightingSystem::OnRenderDebug()
 
 		if( ImGui::TreeNodeEx( "Spot Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
-			ecs::Query query;
+			ecs::Query query( GetEngineInstance().GetECSManager() );
 			query.AddFragmentRequirement< forge::SpotLightFragment >( ecs::Query::RequirementType::Included );
 			query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 
-			query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
+			query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 			{
 				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
 				auto lightFragments = archetype.GetMutableFragments< forge::SpotLightFragment >();
@@ -290,11 +290,11 @@ void systems::LightingSystem::OnRenderDebug()
 
 		if( ImGui::TreeNodeEx( "Directional Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
-			ecs::Query query;
+			ecs::Query query( GetEngineInstance().GetECSManager() );
 			query.AddFragmentRequirement< forge::DirectionalLightFragment >( ecs::Query::RequirementType::Included );
 
 			Uint32 lightsAmount = 0u;
-			query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
+			query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 			{
 				auto lightFragments = archetype.GetMutableFragments< forge::DirectionalLightFragment >();
 				for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )

@@ -8,6 +8,9 @@ namespace ecs
 	class Query
 	{
 	public:
+		Query( ECSManager& ecsManager )
+			: m_ecsManager( ecsManager )
+		{}
 
 		enum class RequirementType
 		{
@@ -117,10 +120,10 @@ namespace ecs
 		};
 
 		using VisitFunc = std::function< void( ecs::ArchetypeView ) >;
-		void VisitArchetypes( ECSManager& ecsManager, const VisitFunc& visitFunc ) const;
+		void VisitArchetypes( const VisitFunc& visitFunc ) const;
 		
 		using VisitFuncWithCommands = std::function< void( ecs::ArchetypeView, DelayedCommands& commands ) >;
-		void VisitArchetypes( ECSManager& ecsManager, const VisitFuncWithCommands& visitFunc ) const;
+		void VisitArchetypes( const VisitFuncWithCommands& visitFunc ) const;
 
 	private:
 		TagsFlags m_includedTags;
@@ -128,6 +131,8 @@ namespace ecs
 
 		FragmentsFlags m_includedFragments;
 		FragmentsFlags m_excludedFragments;
+
+		ECSManager& m_ecsManager;
 	};
 }
 

@@ -54,17 +54,17 @@ void ecs::CommandsQueue::RemoveEntity( EntityID entityID )
 	m_entitiesQueue[ entityID ].m_remove = true;
 }
 
-void ecs::CommandsQueue::Execute( ECSManager& ecsManager )
+void ecs::CommandsQueue::Execute()
 {
 	for ( const auto& [ entityID, commands ] : m_entitiesQueue )
 	{
 		if ( commands.m_remove )
 		{
-			ecsManager.RemoveEntity( entityID );
+			m_ecsManager.RemoveEntity( entityID );
 			continue;
 		}
 
-		ArchetypeView archetype = ecsManager.GetEntityArchetype( entityID );
+		ArchetypeView archetype = m_ecsManager.GetEntityArchetype( entityID );
 		const ArchetypeID originalID = archetype.GetArchetypeID();
 		ArchetypeID newID = originalID;
 
@@ -76,7 +76,7 @@ void ecs::CommandsQueue::Execute( ECSManager& ecsManager )
 
 		if ( newID != originalID )
 		{
-			ecsManager.MoveEntityToNewArchetype( entityID, newID );
+			m_ecsManager.MoveEntityToNewArchetype( entityID, newID );
 		}
 	}
 
@@ -87,7 +87,7 @@ void ecs::CommandsQueue::Execute( ECSManager& ecsManager )
 		FragmentsFlags fragments = ( archetypeId.GetFragmentsFlags() | commands.m_fragmentsToAdd ) & commands.m_fragmentsToRemove.Flipped();
 		TagsFlags tags = ( archetypeId.GetTagsFlags() | commands.m_tagsToAdd ) & commands.m_tagsToRemove.Flipped();
 
-		ecsManager.SetArchetypeFragmentsAndTags( archetypeId, fragments, tags );
+		m_ecsManager.SetArchetypeFragmentsAndTags( archetypeId, fragments, tags );
 	}
 
 	m_archetypesQueue.clear();

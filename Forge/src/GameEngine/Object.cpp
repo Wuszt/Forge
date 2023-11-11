@@ -27,7 +27,7 @@ void forge::Object::OnAttach()
 
 void forge::Object::OnDetach()
 {
-	ecs::CommandsQueue commandsQueue;
+	ecs::CommandsQueue commandsQueue( GetEngineInstance().GetECSManager() );
 
 	if ( GetEngineInstance().GetObjectsManager().HasEntity( GetObjectID() ) )
 	{
@@ -39,14 +39,14 @@ void forge::Object::OnDetach()
 		comp->Detach( *m_engineInstance, commandsQueue );
 	}
 
-	commandsQueue.Execute( GetEngineInstance().GetECSManager() );
+	commandsQueue.Execute();
 
 	for ( auto& comp : m_components )
 	{
 		comp->OnDetached( *m_engineInstance, commandsQueue );
 	}
 
-	commandsQueue.Execute( GetEngineInstance().GetECSManager() );
+	commandsQueue.Execute();
 
 	m_componentsLUT.clear();
 	m_components.clear();
@@ -57,7 +57,7 @@ void forge::Object::AttachComponents( std::vector< std::unique_ptr< IComponent >
 	std::vector< IComponent* > attachedComponents;
 	attachedComponents.reserve( components.size() );
 
-	ecs::CommandsQueue queue;
+	ecs::CommandsQueue queue( GetEngineInstance().GetECSManager() );
 
 	for ( auto& comp : components )
 	{
@@ -68,12 +68,12 @@ void forge::Object::AttachComponents( std::vector< std::unique_ptr< IComponent >
 		m_components.emplace_back( std::move(comp ) );
 	}
 
-	queue.Execute( GetEngineInstance().GetECSManager() );
+	queue.Execute();
 
 	for ( IComponent* comp : attachedComponents )
 	{
 		comp->OnAttached( *m_engineInstance, queue );
 	}
 
-	queue.Execute( GetEngineInstance().GetECSManager() );
+	queue.Execute();
 }

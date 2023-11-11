@@ -60,7 +60,7 @@ renderer::DeferredRenderingPass::DeferredRenderingPass( Renderer& renderer )
 		{ renderer::BlendOperand::BLEND_ONE, renderer::BlendOperation::BLEND_OP_ADD, renderer::BlendOperand::BLEND_ONE } );
 }
 
-void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
+void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
 {
 	renderer::IRenderTargetView* views[] = { GetTargetTexture()->GetRenderTargetView(), m_diffuseTexture->GetRenderTargetView(), m_normalsTexture->GetRenderTargetView() };
 	GetRenderer().SetRenderTargets( views, &GetDepthStencilView() );
@@ -80,7 +80,7 @@ void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, e
 	{
 		ecs::Query noWireFrameDrawing = query;
 		noWireFrameDrawing.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Excluded );
-		noWireFrameDrawing.VisitArchetypes( ecsManager, [ & ]( ecs::ArchetypeView archetype )
+		noWireFrameDrawing.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 			{
 				GetRenderer().Draw( archetype, renderingPass, &c_deferredDefine );
 			} );
@@ -91,7 +91,7 @@ void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, e
 		GetRenderer().SetCullingMode( renderer::CullingMode::None );
 		GetRenderer().SetFillMode( FillMode::WireFrame );
 		wireFrameDrawing.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Included );
-		wireFrameDrawing.VisitArchetypes( ecsManager, [ & ]( ecs::ArchetypeView archetype )
+		wireFrameDrawing.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 			{
 				GetRenderer().Draw( archetype, renderingPass, &c_deferredDefine );
 			} );

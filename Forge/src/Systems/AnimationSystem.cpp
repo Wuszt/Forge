@@ -25,11 +25,11 @@ void systems::AnimationSystem::Update()
 {
 	systems::TimeSystem& timeSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::TimeSystem >();
 
-	ecs::Query query;
+	ecs::Query query( GetEngineInstance().GetECSManager() );
 	query.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
 	query.AddFragmentRequirement< forge::AnimationFragment >( ecs::Query::RequirementType::Included );
 
-	query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
+	query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 		{
 			auto animationFragments = archetype.GetMutableFragments< forge::AnimationFragment >();
 			auto renderableFragments = archetype.GetFragments< forge::RenderableFragment >();
@@ -55,11 +55,11 @@ void systems::AnimationSystem::OnRenderDebug()
 {
 	if ( ImGui::Begin( "Animation System" ) )
 	{
-		ecs::Query query;
+		ecs::Query query( GetEngineInstance().GetECSManager() );
 		query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 		query.AddFragmentRequirement< forge::AnimationFragment >( ecs::Query::RequirementType::Included );
 
-		query.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype )
+		query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 		{
 		    auto animationFragments = archetype.GetFragments< forge::AnimationFragment >();
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();

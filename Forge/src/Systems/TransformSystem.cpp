@@ -12,25 +12,25 @@ void systems::TransformSystem::OnInitialize()
 void systems::TransformSystem::Update()
 {
 	auto& ecsManager = GetEngineInstance().GetECSManager();
-	ecs::CommandsQueue cmdsQueue;
+	ecs::CommandsQueue cmdsQueue( ecsManager );
 
 	{
-		ecs::Query previousFrameTransformToUpdateQuery;
+		ecs::Query previousFrameTransformToUpdateQuery( ecsManager );
 		previousFrameTransformToUpdateQuery.AddFragmentRequirement< forge::PreviousFrameTransformFragment >(ecs::Query::RequirementType::Included);
-		previousFrameTransformToUpdateQuery.VisitArchetypes( ecsManager, [ & ]( ecs::ArchetypeView archetype )
+		previousFrameTransformToUpdateQuery.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 			{
 				cmdsQueue.RemoveFragment( archetype.GetArchetypeID(), forge::PreviousFrameTransformFragment::GetTypeStatic() );
 			} );
 	}
 
 	{
-		ecs::Query previousFrameScaleToUpdateQuery;
+		ecs::Query previousFrameScaleToUpdateQuery( ecsManager );
 		previousFrameScaleToUpdateQuery.AddFragmentRequirement< forge::PreviousFrameScaleFragment >( ecs::Query::RequirementType::Included );
-		previousFrameScaleToUpdateQuery.VisitArchetypes( ecsManager, [ & ]( ecs::ArchetypeView archetype )
+		previousFrameScaleToUpdateQuery.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 			{
 				cmdsQueue.RemoveFragment( archetype.GetArchetypeID(), forge::PreviousFrameScaleFragment::GetTypeStatic() );
 			} );
 	}
 
-	cmdsQueue.Execute( ecsManager );
+	cmdsQueue.Execute();
 }

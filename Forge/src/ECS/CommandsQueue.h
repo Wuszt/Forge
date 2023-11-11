@@ -5,6 +5,10 @@ namespace ecs
 	class CommandsQueue
 	{
 	public:
+		CommandsQueue( ecs::ECSManager& ecsManager )
+			: m_ecsManager( ecsManager )
+		{}
+
 		void AddFragment( EntityID entityID, const ecs::Fragment::Type& type );
 		void AddTag( EntityID entityID, const ecs::Tag::Type& type );
 
@@ -19,7 +23,7 @@ namespace ecs
 		void RemoveFragment( ArchetypeID archetypeId, const ecs::Fragment::Type& type );
 		void RemoveTag( ArchetypeID archetypeId, const ecs::Tag::Type& type );
 
-		void Execute( ECSManager& ecsManager );
+		void Execute();
 
 	private:
 		struct EntityCommands
@@ -44,5 +48,7 @@ namespace ecs
 
 		std::unordered_map< EntityID, EntityCommands > m_entitiesQueue;
 		std::unordered_map< ArchetypeID, ArchetypeCommands > m_archetypesQueue;
+
+		ecs::ECSManager& m_ecsManager;
 	};
 }

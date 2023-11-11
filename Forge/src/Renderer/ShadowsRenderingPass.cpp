@@ -5,14 +5,14 @@
 
 const renderer::ShaderDefine renderer::ShadowsRenderingPass::c_shadowPassDefine{ "__SHADOW_PASS__" };
 
-void renderer::ShadowsRenderingPass::OnDraw( const renderer::ICamera& camera, ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
+void renderer::ShadowsRenderingPass::OnDraw( const renderer::ICamera& camera, const ecs::Query& query, renderer::RenderingPass renderingPass, const LightingData* lightingData )
 {
 	renderer::IRenderTargetView* views[] = { nullptr };
 	GetRenderer().SetRenderTargets( views, &GetDepthStencilView() );
 
 	ecs::Query queryCopy = query;
 	queryCopy.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Excluded );
-	queryCopy.VisitArchetypes( ecsManager, [ & ]( ecs::ArchetypeView archetype )
+	queryCopy.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 		{
 			GetRenderer().Draw( archetype, renderingPass, &c_shadowPassDefine );
 		} );
@@ -22,7 +22,7 @@ void renderer::ShadowsRenderingPass::OnDraw( const renderer::ICamera& camera, ec
 		GetRenderer().SetCullingMode( renderer::CullingMode::None );
 		queryCopy.RemoveTagRequirement< renderer::WireFrameTag >();
 		queryCopy.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Included );
-		queryCopy.VisitArchetypes( ecsManager, [ & ]( ecs::ArchetypeView archetype )
+		queryCopy.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 			{
 				GetRenderer().Draw( archetype, renderingPass, &c_shadowPassDefine );
 			} );

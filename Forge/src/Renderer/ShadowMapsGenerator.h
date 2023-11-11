@@ -12,7 +12,7 @@ namespace renderer
 	public:
 		ShadowMapsGenerator( Renderer& renderer );
 	
-		void GenerateShadowMaps( ecs::ECSManager& ecsManager, const ecs::Query& query, renderer::RenderingPass renderingPass, LightingData& lightingData );
+		void GenerateShadowMaps( const ecs::Query& query, renderer::RenderingPass renderingPass, LightingData& lightingData );
 
 	private:
 		Renderer& m_renderer;
