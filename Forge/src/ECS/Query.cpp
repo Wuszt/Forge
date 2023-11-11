@@ -3,9 +3,11 @@
 
 void ecs::Query::VisitArchetypes( const VisitFunc& visitFunc ) const
 {
-	m_ecsManager.VisitAllArchetypes( [ & ]( ecs::MutableArchetypeView view )
+	const FragmentsFlags combinedFragmentFlags = m_includedFragments | m_includedMutableFragments;
+
+	m_ecsManager.VisitAllMutableArchetypes( m_includedMutableFragments, m_includedFragments, [ & ]( ecs::MutableArchetypeView view )
 		{
-			if ( view.GetArchetypeID().ContainsAllTagsAndFragments( m_includedTags, m_includedFragments )
+			if ( view.GetArchetypeID().ContainsAllTagsAndFragments( m_includedTags, combinedFragmentFlags )
 				&& !view.GetArchetypeID().ContainsAnyTagsAndFragments( m_excludedTags, m_excludedFragments ) )
 			{
 				visitFunc( view );
@@ -16,10 +18,11 @@ void ecs::Query::VisitArchetypes( const VisitFunc& visitFunc ) const
 void ecs::Query::VisitArchetypes( const VisitFuncWithCommands& visitFunc ) const
 {
 	DelayedCommands commands;
+	const FragmentsFlags combinedFragmentFlags = m_includedFragments | m_includedMutableFragments;
 
-	m_ecsManager.VisitAllArchetypes( [ & ]( ecs::MutableArchetypeView view )
+	m_ecsManager.VisitAllMutableArchetypes( m_includedMutableFragments, m_includedFragments, [ & ]( ecs::MutableArchetypeView view )
 		{
-			if ( view.GetArchetypeID().ContainsAllTagsAndFragments( m_includedTags, m_includedFragments )
+			if ( view.GetArchetypeID().ContainsAllTagsAndFragments( m_includedTags, combinedFragmentFlags )
 				&& !view.GetArchetypeID().ContainsAnyTagsAndFragments( m_excludedTags, m_excludedFragments ) )
 			{
 				visitFunc( view, commands );

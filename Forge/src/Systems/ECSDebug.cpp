@@ -53,7 +53,7 @@ void ecs::ECSDebug::OnRenderDebug()
 	if ( ImGui::Begin( "ECS" ) )
 	{
 		Uint32 i = 0u;
-		m_engineInstance->GetECSManager().VisitAllArchetypes( [ & ]( ecs::ArchetypeView archetype )
+		m_engineInstance->GetECSManager().VisitAllArchetypes( FragmentsFlags(), [ & ]( ecs::ArchetypeView archetype )
 			{
 				DrawArchetype( archetype, i++ );
 			} );

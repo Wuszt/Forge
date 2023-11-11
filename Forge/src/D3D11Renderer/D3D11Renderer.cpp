@@ -409,7 +409,7 @@ namespace d3d11
 		}
 	}
 
-	void D3D11Renderer::UpdateRenderableECSArchetype( ecs::ECSManager& ecsManager, ecs::MutableArchetypeView archetype, std::function<const renderer::Renderable& ( Uint32 )> renderableGetter ) const
+	void D3D11Renderer::UpdateRenderableECSArchetype( ecs::MutableArchetypeView archetype, std::function<const renderer::Renderable& ( Uint32 )> renderableGetter ) const
 	{
 		auto rawRenderables = archetype.GetMutableFragments< RawRenderableFragment >();
 

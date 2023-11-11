@@ -7,6 +7,11 @@ namespace ecs
 	{
 		using MyType = TypeFlags< T, Size >;
 	public:
+		static TypeFlags All()
+		{
+			return TypeFlags().Flipped();
+		}
+
 		void Set( const typename T::Type& type, bool value )
 		{
 			m_flags.set( T::GetTypeIndex( type ), value );

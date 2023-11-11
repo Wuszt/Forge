@@ -184,7 +184,7 @@ namespace ecs
 		}
 
 		template< class T >
-		const T* GetFragment( EntityID id )
+		const T* GetFragment( EntityID id ) const
 		{
 			if ( !ContainsEntity( id ) || !m_id.ContainsFragment< T >() )
 			{
@@ -413,19 +413,22 @@ namespace ecs
 	class ArchetypeView
 	{
 	public:
-		ArchetypeView( const Archetype& archetype )
+		ArchetypeView( const Archetype& archetype, FragmentsFlags readableFragments )
 			: m_archetype( archetype )
+			, m_readableFragments( readableFragments )
 		{}
 
 		template< class T >
 		forge::ArraySpan< const T > GetFragments() const
 		{
+			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) );
 			return m_archetype.GetFragments< T >();
 		}
 
 		template< class T >
 		const T* GetFragment( ecs::EntityID id ) const
 		{
+			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) );
 			return m_archetype.GetFragment< T >( id );
 		}
 
@@ -445,42 +448,49 @@ namespace ecs
 		}
 
 	private:
+		FragmentsFlags m_readableFragments;
 		const Archetype& m_archetype;
 	};
 
 	class MutableArchetypeView
 	{
 	public:
-		MutableArchetypeView( Archetype& archetype )
+		MutableArchetypeView( Archetype& archetype, FragmentsFlags mutableFragments, FragmentsFlags readableFragments )
 			: m_archetype( archetype )
+			, m_mutableFragments( mutableFragments )
+			, m_readableFragments( readableFragments )
 		{}
 
 		operator ArchetypeView() const
 		{
-			return ArchetypeView( m_archetype );
+			return ArchetypeView( m_archetype, m_readableFragments );
 		}
 
 		template< class T >
 		forge::ArraySpan< const T > GetFragments() const
 		{
+			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) );
 			return m_archetype.GetFragments< T >();
 		}
 
 		template< class T >
 		forge::ArraySpan< T > GetMutableFragments()
 		{
+			FORGE_ASSERT( m_mutableFragments.Test( T::GetTypeStatic() ) );
 			return m_archetype.GetMutableFragments< T >();
 		}
 
 		template< class T >
 		const T* GetFragment( ecs::EntityID id ) const
 		{
+			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) );
 			return m_archetype.GetFragment< T >( id );
 		}
 
 		template< class T >
 		T* GetMutableFragment( ecs::EntityID id )
 		{
+			FORGE_ASSERT( m_mutableFragments.Test( T::GetTypeStatic() ) );
 			return m_archetype.GetMutableFragment< T >( id );
 		}
 
@@ -501,6 +511,8 @@ namespace ecs
 
 	private:
 		Archetype& m_archetype;
+		FragmentsFlags m_mutableFragments;
+		FragmentsFlags m_readableFragments;
 	};
 
 }

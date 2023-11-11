@@ -13,7 +13,6 @@ namespace forge
 
 namespace ecs
 {
-	class ECSManager;
 	class EntityID;
 	class ArchetypeView;
 	class MutableArchetypeView;
@@ -117,7 +116,7 @@ namespace renderer
 		void Draw( const renderer::Renderable& renderable );
 		virtual void Draw( ecs::ArchetypeView archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs = {} ) = 0;
 		virtual const ecs::Fragment::Type& GetECSFragmentType() const = 0;
-		virtual void UpdateRenderableECSArchetype( ecs::ECSManager& ecsManager, ecs::MutableArchetypeView archetype, std::function<const renderer::Renderable& ( Uint32 )> renderableGetter ) const = 0;
+		virtual void UpdateRenderableECSArchetype( ecs::MutableArchetypeView archetype, std::function<const renderer::Renderable& ( Uint32 )> renderableGetter ) const = 0;
 
 		template< class T >
 		std::unique_ptr< StaticConstantBuffer< T > > CreateStaticConstantBuffer() const

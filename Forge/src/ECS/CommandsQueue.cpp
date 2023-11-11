@@ -64,8 +64,7 @@ void ecs::CommandsQueue::Execute()
 			continue;
 		}
 
-		ArchetypeView archetype = m_ecsManager.GetEntityArchetype( entityID );
-		const ArchetypeID originalID = archetype.GetArchetypeID();
+		const ArchetypeID originalID = m_ecsManager.GetEntityArchetypeId( entityID );
 		ArchetypeID newID = originalID;
 
 		newID.AddFragments( commands.m_fragmentsToAdd );

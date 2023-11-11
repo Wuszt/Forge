@@ -26,13 +26,11 @@ void systems::AnimationSystem::Update()
 	systems::TimeSystem& timeSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::TimeSystem >();
 
 	ecs::Query query( GetEngineInstance().GetECSManager() );
-	query.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
-	query.AddFragmentRequirement< forge::AnimationFragment >( ecs::Query::RequirementType::Included );
+	query.AddMutableFragmentRequirement< forge::AnimationFragment >( ecs::Query::RequirementType::Included );
 
 	query.VisitArchetypes( [ & ]( ecs::MutableArchetypeView archetype )
 		{
 			auto animationFragments = archetype.GetMutableFragments< forge::AnimationFragment >();
-			auto renderableFragments = archetype.GetFragments< forge::RenderableFragment >();
 
 			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
 			{

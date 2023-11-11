@@ -96,7 +96,7 @@ void systems::SceneRenderingSystem::OnRenderDebug()
 									{
 										if ( m_debugForceWireFrame )
 										{
-											if ( !GetEngineInstance().GetECSManager().GetEntityArchetype( entityID ).GetArchetypeID().ContainsTag< renderer::WireFrameTag >() )
+											if ( !GetEngineInstance().GetECSManager().GetEntityArchetypeId( entityID ).ContainsTag< renderer::WireFrameTag >() )
 											{
 												GetEngineInstance().GetECSManager().AddTagToEntity< renderer::WireFrameTag >( entityID );
 											}								
@@ -347,12 +347,12 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 		ecs::Query renderablesToUpdate( GetEngineInstance().GetECSManager() );
 		renderablesToUpdate.AddTagRequirement< forge::DirtyRenderable >( ecs::Query::RequirementType::Included );
 		renderablesToUpdate.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
-		renderablesToUpdate.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
+		renderablesToUpdate.AddMutableFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 
 		renderablesToUpdate.VisitArchetypes( [ & ]( ecs::MutableArchetypeView archetype, ecs::Query::DelayedCommands& cmds )
 		{
 			auto renderables = archetype.GetFragments< forge::RenderableFragment >();
-			m_renderer->UpdateRenderableECSArchetype( GetEngineInstance().GetECSManager(), archetype, [&renderables]( Uint32 index ) -> const renderer::Renderable& { return renderables[ index ].m_renderable; } );
+			m_renderer->UpdateRenderableECSArchetype( archetype, [&renderables]( Uint32 index ) -> const renderer::Renderable& { return renderables[ index ].m_renderable; } );
 
 			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
 			{
@@ -371,7 +371,7 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 							GetEngineInstance().GetECSManager().AddTagToEntity< renderer::WireFrameTag >( entityID );
 						} );
 				}
-				else if ( GetEngineInstance().GetECSManager().GetEntityArchetype( entityID ).GetArchetypeID().ContainsTag< renderer::WireFrameTag >() )
+				else if ( GetEngineInstance().GetECSManager().GetEntityArchetypeId( entityID ).ContainsTag< renderer::WireFrameTag >() )
 				{
 					cmds.AddCommand( [ this, entityID ]()
 						{
@@ -391,14 +391,14 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 
 					if ( containsTransparentMaterials )
 					{
-						if ( !GetEngineInstance().GetECSManager().GetEntityArchetype( entityID ).GetArchetypeID().ContainsTag< ContainsTransparentShapes >() )
+						if ( !GetEngineInstance().GetECSManager().GetEntityArchetypeId( entityID ).ContainsTag< ContainsTransparentShapes >() )
 						{
 							GetEngineInstance().GetECSManager().AddTagToEntity< ContainsTransparentShapes >( entityID );
 						}
 					}
 					else
 					{
-						if ( GetEngineInstance().GetECSManager().GetEntityArchetype( entityID ).GetArchetypeID().ContainsTag< ContainsTransparentShapes >() )
+						if ( GetEngineInstance().GetECSManager().GetEntityArchetypeId( entityID ).ContainsTag< ContainsTransparentShapes >() )
 						{
 							GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsTransparentShapes >( entityID );
 						}
@@ -412,12 +412,12 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 
 	ecs::Query modifiedTransformQuery( GetEngineInstance().GetECSManager() );
 	modifiedTransformQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
-	modifiedTransformQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
+	modifiedTransformQuery.AddMutableFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
 	modifiedTransformQuery.AddFragmentRequirement< forge::PreviousFrameTransformFragment >( ecs::Query::RequirementType::Included );
 
 	ecs::Query modifiedScaleQuery( GetEngineInstance().GetECSManager() );
 	modifiedScaleQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
-	modifiedScaleQuery.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
+	modifiedScaleQuery.AddMutableFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
 	modifiedScaleQuery.AddFragmentRequirement< forge::PreviousFrameScaleFragment >( ecs::Query::RequirementType::Included );
 
 	{

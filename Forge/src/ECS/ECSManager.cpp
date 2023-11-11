@@ -214,10 +214,10 @@ void ecs::ECSManager::RemoveFragmentsAndTagsFromArchetype( const ecs::ArchetypeI
 	SetArchetypeFragmentsAndTags( archetypeId, archetypeId.GetFragmentsFlags() & fragmentsToRemove.Flipped(), archetypeId.GetTagsFlags() & tagsToRemove.Flipped() );
 }
 
-ecs::ArchetypeView ecs::ECSManager::GetEntityArchetype( EntityID id )
+ecs::ArchetypeID ecs::ECSManager::GetEntityArchetypeId( EntityID id )
 {
 	FORGE_ASSERT( id.IsValid() );
-	return *m_entityToArchetype.at( id );
+	return m_entityToArchetype.at( id )->GetArchetypeID();
 }
 
 void ecs::ECSManager::RemoveTagFromEntity( EntityID entityID, const ecs::Tag::Type& type )
@@ -239,10 +239,12 @@ void ecs::ECSManager::RemoveTagFromEntity( EntityID entityID, const ecs::Tag::Ty
 	MoveEntityToNewArchetype( entityID, id );
 }
 
-ecs::MutableArchetypeView ecs::ECSManager::GetEntityMutableArchetype( EntityID id )
+void ecs::ECSManager::VisitAllMutableArchetypes( FragmentsFlags mutableFragments, FragmentsFlags readableFragments, std::function< void( ecs::MutableArchetypeView ) > visitFunc )
 {
-	FORGE_ASSERT( id.IsValid() );
-	return *m_entityToArchetype.at( id );
+	for ( auto& archetype : m_archetypes )
+	{
+		visitFunc( { *archetype, mutableFragments, readableFragments } );
+	}
 }
 
 Bool ecs::ECSManager::TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex ) const
@@ -257,10 +259,10 @@ Bool ecs::ECSManager::TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex 
 	return it != m_archetypes.end();
 }
 
-void ecs::ECSManager::VisitAllArchetypes( std::function< void( ecs::MutableArchetypeView ) > visitFunc )
+void ecs::ECSManager::VisitAllArchetypes( FragmentsFlags readableFragments, std::function< void( ecs::ArchetypeView ) > visitFunc )
 {
 	for ( auto& archetype : m_archetypes )
 	{
-		visitFunc( { *archetype } );
+		visitFunc( { *archetype, readableFragments } );
 	}
 }

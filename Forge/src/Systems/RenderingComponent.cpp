@@ -49,7 +49,7 @@ static void AddOrRemoveTag( forge::Object& owner, Bool add )
 {
 	auto& ecsManager = owner.GetEngineInstance().GetECSManager();
 	auto entityId = owner.GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( owner.GetObjectID() );
-	Bool hasTag = ecsManager.GetEntityArchetype( entityId ).GetArchetypeID().ContainsTag< T >();
+	const Bool hasTag = ecsManager.GetEntityArchetypeId( entityId ).ContainsTag< T >();
 	if ( add && !hasTag )
 	{
 		ecsManager.AddTagToEntity< T >( entityId );

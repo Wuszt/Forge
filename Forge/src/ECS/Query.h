@@ -55,6 +55,7 @@ namespace ecs
 			if ( requirement == RequirementType::Included )
 			{
 				FORGE_ASSERT( !m_excludedFragments.Test( type ) );
+				FORGE_ASSERT( !m_includedMutableFragments.Test( type ) );
 				m_includedFragments.Set( type, true );
 			}
 			else
@@ -68,6 +69,27 @@ namespace ecs
 		void AddFragmentRequirement( ecs::Query::RequirementType requirement )
 		{
 			AddFragmentRequirement( T::GetTypeStatic(), requirement );
+		}
+
+		void AddMutableFragmentRequirement( const ecs::Fragment::Type& type, ecs::Query::RequirementType requirement )
+		{
+			if ( requirement == RequirementType::Included )
+			{
+				FORGE_ASSERT( !m_excludedFragments.Test( type ) );
+				FORGE_ASSERT( !m_includedFragments.Test( type ) );
+				m_includedMutableFragments.Set( type, true );
+			}
+			else
+			{
+				FORGE_ASSERT( !m_includedFragments.Test( type ) );
+				m_excludedFragments.Set( type, true );
+			}
+		}
+
+		template< class T >
+		void AddMutableFragmentRequirement( ecs::Query::RequirementType requirement )
+		{
+			AddMutableFragmentRequirement( T::GetTypeStatic(), requirement );
 		}
 
 		template< class T >
@@ -129,7 +151,9 @@ namespace ecs
 		TagsFlags m_includedTags;
 		TagsFlags m_excludedTags;
 
+
 		FragmentsFlags m_includedFragments;
+		FragmentsFlags m_includedMutableFragments;
 		FragmentsFlags m_excludedFragments;
 
 		ECSManager& m_ecsManager;

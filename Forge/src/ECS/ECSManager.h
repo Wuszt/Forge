@@ -4,8 +4,12 @@
 
 namespace ecs
 {
+	class Query;
+
 	class ECSManager
 	{
+		friend class Query;
+
 	public:
 		ECSManager();
 
@@ -65,20 +69,18 @@ namespace ecs
 		void RemoveFragmentsAndTagsFromArchetype( const ecs::ArchetypeID& archetypeId, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags );
 		void RemoveFragmentsAndTagsFromArchetype( const ecs::ArchetypeID& archetypeId, FragmentsFlags fragments, TagsFlags tags );
 
-		ArchetypeView GetEntityArchetype( EntityID id );
+		ArchetypeID GetEntityArchetypeId( EntityID id );
 
 		template< class T >
 		const T* GetFragment( EntityID id )
 		{
-			MutableArchetypeView archetype = GetEntityMutableArchetype( id );
-			return archetype.GetFragment< T >( id );
+			return m_entityToArchetype.at( id )->GetFragment< T >( id );
 		}
 
 		template< class T >
 		T* GetMutableFragment( EntityID id )
 		{
-			MutableArchetypeView archetype = GetEntityMutableArchetype( id );
-			return archetype.GetMutableFragment< T >( id );
+			return m_entityToArchetype.at( id )->GetMutableFragment< T >( id );
 		}
 
 		void RemoveTagFromEntity( EntityID entityID, const ecs::Tag::Type& type );
@@ -89,10 +91,10 @@ namespace ecs
 			RemoveTagFromEntity( entityID, T::GetTypeStatic() );
 		}
 
-		void VisitAllArchetypes( std::function< void( ecs::MutableArchetypeView ) > visitFunc );
+		void VisitAllArchetypes( FragmentsFlags readableFragments, std::function< void( ecs::ArchetypeView ) > visitFunc );
 
 	private:
-		MutableArchetypeView GetEntityMutableArchetype( EntityID id );
+		void VisitAllMutableArchetypes( FragmentsFlags mutableFragments, FragmentsFlags readableFragments, std::function< void( ecs::MutableArchetypeView ) > visitFunc );
 		Bool TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex ) const;
 
 		std::unordered_map< EntityID, Archetype* > m_entityToArchetype;
