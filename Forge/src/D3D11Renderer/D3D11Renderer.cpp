@@ -409,79 +409,83 @@ namespace d3d11
 		}
 	}
 
-	void D3D11Renderer::UpdateRenderableECSFragment( ecs::ECSManager& ecsManager, ecs::EntityID entityID, const renderer::Renderable& renderable ) const
+	void D3D11Renderer::UpdateRenderableECSArchetype( ecs::ECSManager& ecsManager, ecs::ArchetypeView archetype, std::function<const renderer::Renderable& ( Uint32 )> renderableGetter ) const
 	{
-		const auto& shapes = renderable.GetModel().GetShapes();
+		auto rawRenderables = archetype.GetMutableFragments< RawRenderableFragment >();
 
-		RawRenderableFragment* rawRenderable = ecsManager.GetMutableFragment< RawRenderableFragment >( entityID );
-
-		*rawRenderable = RawRenderableFragment();
-
-		for ( const auto& shape : shapes )
+		for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
 		{
-			const renderer::Material& material = *renderable.GetMaterials()[ shape.m_materialIndex ].get();
-			auto& rawShape = rawRenderable->m_shapes[ static_cast< Uint32 >( material.GetRenderingPass() ) ].emplace_back();
+			const renderer::Renderable& renderable = renderableGetter( i );
+			const auto& shapes = renderable.GetModel().GetShapes();
+			RawRenderableFragment& rawRenderable = rawRenderables[ i ];
+			rawRenderable = RawRenderableFragment();
 
-			const D3D11IndexBuffer* ib = static_cast< const D3D11IndexBuffer* >( shape.m_indexBuffer.get() );
-			rawShape.m_indexBuffer = ib->GetBuffer();
-			rawShape.m_indicesAmount = ib->GetIndicesAmount();
-
-			const D3D11ConstantBufferImpl* materialCBImpl = static_cast< const D3D11ConstantBufferImpl* >( material.GetConstantBuffer()->GetImpl() );
-			rawShape.m_materialCB = materialCBImpl->GetBuffer();
-
-			const D3D11InputLayout* il = static_cast< const D3D11InputLayout* >( material.GetInputLayout() );
-			rawShape.m_inputLayout = il->GetLayout();
-
+			for ( const auto& shape : shapes )
 			{
-				auto vertexShaderPack = material.GetVertexShader();
-				auto pixelShaderPack = material.GetPixelShader();
+				const renderer::Material& material = *renderable.GetMaterials()[ shape.m_materialIndex ].get();
+				auto& rawShape = rawRenderable.m_shapes[ static_cast< Uint32 >( material.GetRenderingPass() ) ].emplace_back();
 
-				const D3D11VertexShader* mainVs = static_cast< const D3D11VertexShader* >( vertexShaderPack->GetMainShader().get() );
-				const D3D11PixelShader* mainPs = static_cast< const D3D11PixelShader* >( pixelShaderPack->GetMainShader().get() );
+				const D3D11IndexBuffer* ib = static_cast< const D3D11IndexBuffer* >( shape.m_indexBuffer.get() );
+				rawShape.m_indexBuffer = ib->GetBuffer();
+				rawShape.m_indicesAmount = ib->GetIndicesAmount();
 
-				rawShape.m_shaders.push_back( { mainVs->GetShader(), mainPs->GetShader() } );
+				const D3D11ConstantBufferImpl* materialCBImpl = static_cast< const D3D11ConstantBufferImpl* >( material.GetConstantBuffer()->GetImpl() );
+				rawShape.m_materialCB = materialCBImpl->GetBuffer();
 
-				for ( const auto& define : GetShadersManager()->GetBaseShaderDefines() )
+				const D3D11InputLayout* il = static_cast< const D3D11InputLayout* >( material.GetInputLayout() );
+				rawShape.m_inputLayout = il->GetLayout();
+
 				{
-					const D3D11VertexShader* vs = static_cast< const D3D11VertexShader* >( vertexShaderPack->GetSubShaders().at( define ).get() );
-					const D3D11PixelShader* ps = static_cast< const D3D11PixelShader* >( pixelShaderPack->GetSubShaders().at( define ).get() );
+					auto vertexShaderPack = material.GetVertexShader();
+					auto pixelShaderPack = material.GetPixelShader();
 
-					rawShape.m_shaders.push_back( { vs->GetShader(), ps->GetShader() } );
+					const D3D11VertexShader* mainVs = static_cast< const D3D11VertexShader* >( vertexShaderPack->GetMainShader().get() );
+					const D3D11PixelShader* mainPs = static_cast< const D3D11PixelShader* >( pixelShaderPack->GetMainShader().get() );
+
+					rawShape.m_shaders.push_back( { mainVs->GetShader(), mainPs->GetShader() } );
+
+					for ( const auto& define : GetShadersManager()->GetBaseShaderDefines() )
+					{
+						const D3D11VertexShader* vs = static_cast< const D3D11VertexShader* >( vertexShaderPack->GetSubShaders().at( define ).get() );
+						const D3D11PixelShader* ps = static_cast< const D3D11PixelShader* >( pixelShaderPack->GetSubShaders().at( define ).get() );
+
+						rawShape.m_shaders.push_back( { vs->GetShader(), ps->GetShader() } );
+					}
+				}
+
+				auto materialResources = material.GetTextures();
+				Uint32 resourcesAmount = materialResources.GetSize();
+				for ( Uint32 i = 0u; i < resourcesAmount; ++i )
+				{
+					const D3D11Texture* texture = static_cast< const D3D11Texture* >( materialResources[ i ].get() );
+					rawShape.m_resourceViews.emplace_back( texture ? texture->GetShaderResourceView()->GetTypedSRV() : nullptr );
 				}
 			}
 
-			auto materialResources = material.GetTextures();
-			Uint32 resourcesAmount = materialResources.GetSize();
-			for ( Uint32 i = 0u; i < resourcesAmount; ++i )
+			const D3D11VertexBuffer* vb = static_cast< const D3D11VertexBuffer* >( renderable.GetModel().GetVertexBuffer() );
+			const D3D11ConstantBufferImpl* meshCBImpl = static_cast< const D3D11ConstantBufferImpl* >( renderable.GetCBMesh().GetImpl() );
+
+			rawRenderable.m_meshCB = meshCBImpl->GetBuffer();
+			rawRenderable.m_vertexBuffer = vb->GetBuffer();
+			rawRenderable.m_vbStride = vb->GetStride();
+
+			Uint32 psCBsAmount = 0u;
+			Uint32 vsCBsAmount = 0u;
+			for ( auto cb : renderable.GetAdditionalCBs() )
 			{
-				const D3D11Texture* texture = static_cast< const D3D11Texture* >( materialResources[ i ].get() );
-				rawShape.m_resourceViews.emplace_back( texture ? texture->GetShaderResourceView()->GetTypedSRV() : nullptr );
-			}
-		}
+				const D3D11ConstantBufferImpl* cbImpl = static_cast< const D3D11ConstantBufferImpl* >( cb.m_cbImpl );
 
-		const D3D11VertexBuffer* vb = static_cast< const D3D11VertexBuffer* >( renderable.GetModel().GetVertexBuffer() );
-		const D3D11ConstantBufferImpl* meshCBImpl = static_cast< const D3D11ConstantBufferImpl* >( renderable.GetCBMesh().GetImpl() );
+				if ( cb.m_psBufferType != renderer::PSConstantBufferType::Invalid )
+				{
+					FORGE_ASSERT( psCBsAmount < RawRenderableFragment::c_maxAdditionalCBsAmount );
+					rawRenderable.m_additionalPSCBs[ psCBsAmount++ ] = { cb.m_psBufferType, cbImpl->GetBuffer() };
+				}
 
-		rawRenderable->m_meshCB = meshCBImpl->GetBuffer();
-		rawRenderable->m_vertexBuffer = vb->GetBuffer();
-		rawRenderable->m_vbStride = vb->GetStride();
-
-		Uint32 psCBsAmount = 0u;
-		Uint32 vsCBsAmount = 0u;
-		for ( auto cb : renderable.GetAdditionalCBs() )
-		{
-			const D3D11ConstantBufferImpl* cbImpl = static_cast< const D3D11ConstantBufferImpl* >( cb.m_cbImpl );
-
-			if ( cb.m_psBufferType != renderer::PSConstantBufferType::Invalid )
-			{
-				FORGE_ASSERT( psCBsAmount < RawRenderableFragment::c_maxAdditionalCBsAmount );
-				rawRenderable->m_additionalPSCBs[ psCBsAmount++ ] = { cb.m_psBufferType, cbImpl->GetBuffer() };
-			}
-
-			if ( cb.m_vsBufferType != renderer::VSConstantBufferType::Invalid )
-			{
-				FORGE_ASSERT( vsCBsAmount < RawRenderableFragment::c_maxAdditionalCBsAmount );
-				rawRenderable->m_additionalVSCBs[ vsCBsAmount++ ] = { cb.m_vsBufferType, cbImpl->GetBuffer() };
+				if ( cb.m_vsBufferType != renderer::VSConstantBufferType::Invalid )
+				{
+					FORGE_ASSERT( vsCBsAmount < RawRenderableFragment::c_maxAdditionalCBsAmount );
+					rawRenderable.m_additionalVSCBs[ vsCBsAmount++ ] = { cb.m_vsBufferType, cbImpl->GetBuffer() };
+				}
 			}
 		}
 	}

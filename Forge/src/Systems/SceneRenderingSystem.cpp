@@ -351,12 +351,11 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 
 		renderablesToUpdate.VisitArchetypes( GetEngineInstance().GetECSManager(), [ & ]( ecs::ArchetypeView archetype, ecs::Query::DelayedCommands& cmds )
 		{
-		   auto renderables = archetype.GetFragments< forge::RenderableFragment >();
+			auto renderables = archetype.GetFragments< forge::RenderableFragment >();
+			m_renderer->UpdateRenderableECSArchetype( GetEngineInstance().GetECSManager(), archetype, [&renderables]( Uint32 index ) -> const renderer::Renderable& { return renderables[ index ].m_renderable; } );
 
 			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
 			{
-				m_renderer->UpdateRenderableECSFragment( GetEngineInstance().GetECSManager(), archetype.GetEntityIDWithIndex( i ), renderables[ i ].m_renderable );
-
 				Bool forcedWireFrame = false;
 
 #ifdef FORGE_IMGUI_ENABLED
