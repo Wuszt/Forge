@@ -3,7 +3,7 @@
 
 void ecs::Query::VisitArchetypes( const VisitFunc& visitFunc ) const
 {
-	m_ecsManager.VisitAllArchetypes( [ & ]( ecs::ArchetypeView view )
+	m_ecsManager.VisitAllArchetypes( [ & ]( ecs::MutableArchetypeView view )
 		{
 			if ( view.GetArchetypeID().ContainsAllTagsAndFragments( m_includedTags, m_includedFragments )
 				&& !view.GetArchetypeID().ContainsAnyTagsAndFragments( m_excludedTags, m_excludedFragments ) )
@@ -17,7 +17,7 @@ void ecs::Query::VisitArchetypes( const VisitFuncWithCommands& visitFunc ) const
 {
 	DelayedCommands commands;
 
-	m_ecsManager.VisitAllArchetypes( [ & ]( ecs::ArchetypeView view )
+	m_ecsManager.VisitAllArchetypes( [ & ]( ecs::MutableArchetypeView view )
 		{
 			if ( view.GetArchetypeID().ContainsAllTagsAndFragments( m_includedTags, m_includedFragments )
 				&& !view.GetArchetypeID().ContainsAnyTagsAndFragments( m_excludedTags, m_excludedFragments ) )

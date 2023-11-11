@@ -94,7 +94,7 @@ namespace d3d11
 		virtual void SetViewportSize( const Vector2& size ) override;
 
 		virtual const ecs::Fragment::Type& GetECSFragmentType() const override;
-		virtual void UpdateRenderableECSArchetype( ecs::ECSManager& ecsManager, ecs::ArchetypeView archetype, std::function<const renderer::Renderable&(Uint32)> renderableGetter) const override;
+		virtual void UpdateRenderableECSArchetype( ecs::ECSManager& ecsManager, ecs::MutableArchetypeView archetype, std::function<const renderer::Renderable&(Uint32)> renderableGetter) const override;
 
 		virtual void Draw( ecs::ArchetypeView archetype, renderer::RenderingPass renderingPass, const renderer::ShaderDefine* shaderDefine = nullptr, forge::ArraySpan< const renderer::IShaderResourceView* > additionalSRVs = {} ) override;
 		virtual void DrawRawVertices( Uint32 amount ) override;

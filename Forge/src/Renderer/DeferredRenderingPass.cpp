@@ -80,7 +80,7 @@ void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, c
 	{
 		ecs::Query noWireFrameDrawing = query;
 		noWireFrameDrawing.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Excluded );
-		noWireFrameDrawing.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
+		noWireFrameDrawing.VisitArchetypes( [ & ]( ecs::MutableArchetypeView archetype )
 			{
 				GetRenderer().Draw( archetype, renderingPass, &c_deferredDefine );
 			} );
@@ -91,7 +91,7 @@ void renderer::DeferredRenderingPass::OnDraw( const renderer::ICamera& camera, c
 		GetRenderer().SetCullingMode( renderer::CullingMode::None );
 		GetRenderer().SetFillMode( FillMode::WireFrame );
 		wireFrameDrawing.AddTagRequirement< renderer::WireFrameTag >( ecs::Query::RequirementType::Included );
-		wireFrameDrawing.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
+		wireFrameDrawing.VisitArchetypes( [ & ]( ecs::MutableArchetypeView archetype )
 			{
 				GetRenderer().Draw( archetype, renderingPass, &c_deferredDefine );
 			} );

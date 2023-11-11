@@ -349,7 +349,7 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 		renderablesToUpdate.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
 		renderablesToUpdate.AddFragmentRequirement( m_renderer->GetECSFragmentType(), ecs::Query::RequirementType::Included );
 
-		renderablesToUpdate.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype, ecs::Query::DelayedCommands& cmds )
+		renderablesToUpdate.VisitArchetypes( [ & ]( ecs::MutableArchetypeView archetype, ecs::Query::DelayedCommands& cmds )
 		{
 			auto renderables = archetype.GetFragments< forge::RenderableFragment >();
 			m_renderer->UpdateRenderableECSArchetype( GetEngineInstance().GetECSManager(), archetype, [&renderables]( Uint32 index ) -> const renderer::Renderable& { return renderables[ index ].m_renderable; } );
@@ -423,7 +423,7 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 	{
 		PC_SCOPE( "SceneRenderingSystem::OnDraw::UpdatingBuffers" );
 
-		auto func = [ & ]( ecs::ArchetypeView archetype )
+		auto func = [ & ]( ecs::MutableArchetypeView archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
 			auto renderableFragments = archetype.GetMutableFragments< forge::RenderableFragment >();

@@ -219,7 +219,7 @@ void systems::LightingSystem::OnRenderDebug()
 			query.AddFragmentRequirement< forge::PointLightFragment >( ecs::Query::RequirementType::Included );
 			query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 
-			query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
+			query.VisitArchetypes( [ & ]( ecs::MutableArchetypeView archetype )
 			{
 				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
 				auto lightFragments = archetype.GetMutableFragments< forge::PointLightFragment >();
@@ -255,7 +255,7 @@ void systems::LightingSystem::OnRenderDebug()
 			query.AddFragmentRequirement< forge::SpotLightFragment >( ecs::Query::RequirementType::Included );
 			query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 
-			query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
+			query.VisitArchetypes( [ & ]( ecs::MutableArchetypeView archetype )
 			{
 				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
 				auto lightFragments = archetype.GetMutableFragments< forge::SpotLightFragment >();
@@ -294,7 +294,7 @@ void systems::LightingSystem::OnRenderDebug()
 			query.AddFragmentRequirement< forge::DirectionalLightFragment >( ecs::Query::RequirementType::Included );
 
 			Uint32 lightsAmount = 0u;
-			query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
+			query.VisitArchetypes( [ & ]( ecs::MutableArchetypeView archetype )
 			{
 				auto lightFragments = archetype.GetMutableFragments< forge::DirectionalLightFragment >();
 				for( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )

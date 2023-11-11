@@ -29,7 +29,7 @@ void systems::AnimationSystem::Update()
 	query.AddFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
 	query.AddFragmentRequirement< forge::AnimationFragment >( ecs::Query::RequirementType::Included );
 
-	query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
+	query.VisitArchetypes( [ & ]( ecs::MutableArchetypeView archetype )
 		{
 			auto animationFragments = archetype.GetMutableFragments< forge::AnimationFragment >();
 			auto renderableFragments = archetype.GetFragments< forge::RenderableFragment >();
@@ -59,7 +59,7 @@ void systems::AnimationSystem::OnRenderDebug()
 		query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 		query.AddFragmentRequirement< forge::AnimationFragment >( ecs::Query::RequirementType::Included );
 
-		query.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
+		query.VisitArchetypes( [ & ]( ecs::MutableArchetypeView archetype )
 		{
 		    auto animationFragments = archetype.GetFragments< forge::AnimationFragment >();
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();

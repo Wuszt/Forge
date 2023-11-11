@@ -119,10 +119,10 @@ namespace ecs
 			std::vector< CommandFunc > m_commands;
 		};
 
-		using VisitFunc = std::function< void( ecs::ArchetypeView ) >;
+		using VisitFunc = std::function< void( ecs::MutableArchetypeView ) >;
 		void VisitArchetypes( const VisitFunc& visitFunc ) const;
 		
-		using VisitFuncWithCommands = std::function< void( ecs::ArchetypeView, DelayedCommands& commands ) >;
+		using VisitFuncWithCommands = std::function< void( ecs::MutableArchetypeView, DelayedCommands& commands ) >;
 		void VisitArchetypes( const VisitFuncWithCommands& visitFunc ) const;
 
 	private:

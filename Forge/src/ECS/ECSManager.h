@@ -70,14 +70,14 @@ namespace ecs
 		template< class T >
 		const T* GetFragment( EntityID id )
 		{
-			ArchetypeView archetype = GetEntityArchetype( id );
+			MutableArchetypeView archetype = GetEntityMutableArchetype( id );
 			return archetype.GetFragment< T >( id );
 		}
 
 		template< class T >
 		T* GetMutableFragment( EntityID id )
 		{
-			ArchetypeView archetype = GetEntityArchetype( id );
+			MutableArchetypeView archetype = GetEntityMutableArchetype( id );
 			return archetype.GetMutableFragment< T >( id );
 		}
 
@@ -89,9 +89,10 @@ namespace ecs
 			RemoveTagFromEntity( entityID, T::GetTypeStatic() );
 		}
 
-		void VisitAllArchetypes( std::function< void( ecs::ArchetypeView ) > visitFunc );
+		void VisitAllArchetypes( std::function< void( ecs::MutableArchetypeView ) > visitFunc );
 
 	private:
+		MutableArchetypeView GetEntityMutableArchetype( EntityID id );
 		Bool TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex ) const;
 
 		std::unordered_map< EntityID, Archetype* > m_entityToArchetype;

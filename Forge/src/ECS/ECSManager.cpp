@@ -239,6 +239,12 @@ void ecs::ECSManager::RemoveTagFromEntity( EntityID entityID, const ecs::Tag::Ty
 	MoveEntityToNewArchetype( entityID, id );
 }
 
+ecs::MutableArchetypeView ecs::ECSManager::GetEntityMutableArchetype( EntityID id )
+{
+	FORGE_ASSERT( id.IsValid() );
+	return *m_entityToArchetype.at( id );
+}
+
 Bool ecs::ECSManager::TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex ) const
 {
 	auto it = std::find_if( m_archetypes.begin(), m_archetypes.end(), [ &Id ]( const std::unique_ptr< Archetype >& archetype )
@@ -251,7 +257,7 @@ Bool ecs::ECSManager::TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex 
 	return it != m_archetypes.end();
 }
 
-void ecs::ECSManager::VisitAllArchetypes( std::function< void( ecs::ArchetypeView ) > visitFunc )
+void ecs::ECSManager::VisitAllArchetypes( std::function< void( ecs::MutableArchetypeView ) > visitFunc )
 {
 	for ( auto& archetype : m_archetypes )
 	{

@@ -413,9 +413,52 @@ namespace ecs
 	class ArchetypeView
 	{
 	public:
-		ArchetypeView( Archetype& archetype )
+		ArchetypeView( const Archetype& archetype )
 			: m_archetype( archetype )
 		{}
+
+		template< class T >
+		forge::ArraySpan< const T > GetFragments() const
+		{
+			return m_archetype.GetFragments< T >();
+		}
+
+		template< class T >
+		const T* GetFragment( ecs::EntityID id ) const
+		{
+			return m_archetype.GetFragment< T >( id );
+		}
+
+		Uint32 GetEntitiesAmount() const
+		{
+			return m_archetype.GetEntitiesAmount();
+		}
+
+		EntityID GetEntityIDWithIndex( Uint32 index ) const
+		{
+			return m_archetype.GetEntityIDWithIndex( index );
+		}
+
+		const ArchetypeID& GetArchetypeID() const
+		{
+			return m_archetype.GetArchetypeID();
+		}
+
+	private:
+		const Archetype& m_archetype;
+	};
+
+	class MutableArchetypeView
+	{
+	public:
+		MutableArchetypeView( Archetype& archetype )
+			: m_archetype( archetype )
+		{}
+
+		operator ArchetypeView() const
+		{
+			return ArchetypeView( m_archetype );
+		}
 
 		template< class T >
 		forge::ArraySpan< const T > GetFragments() const
@@ -459,6 +502,7 @@ namespace ecs
 	private:
 		Archetype& m_archetype;
 	};
+
 }
 
 namespace std
