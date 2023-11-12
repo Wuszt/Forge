@@ -90,4 +90,11 @@ void ecs::CommandsQueue::Execute()
 	}
 
 	m_archetypesQueue.clear();
+
+	m_postExecutionCallback.Invoke();
+}
+
+forge::CallbackToken ecs::CommandsQueue::AddPostExecutionCallback( std::function< void() > callback )
+{
+	return m_postExecutionCallback.AddListener( std::move( callback ) );
 }

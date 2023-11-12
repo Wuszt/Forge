@@ -5,6 +5,8 @@
 namespace ecs
 {
 	class Query;
+	class MutableArchetypeView;
+	class CommandsQueue;
 
 	class ECSManager
 	{
@@ -36,14 +38,14 @@ namespace ecs
 
 		void AddFragmentToEntity( EntityID entityID, const ecs::Fragment::Type& fragment )
 		{
-			AddFragmentsAndTagsToEntity( entityID, { &fragment }, {} );
+			AddFragmentsAndTagsToEntity( entityID, forge::ArraySpan< const ecs::Fragment::Type* >{ &fragment }, {} );
 		}
 
 		void MoveEntityToNewArchetype( EntityID entityID, const ArchetypeID& newID );
 
 		void AddTagToEntity( EntityID entityID, const ecs::Tag::Type& type )
 		{
-			AddFragmentsAndTagsToEntity( entityID, {}, { &type } );
+			AddFragmentsAndTagsToEntity( entityID, {}, forge::ArraySpan< const ecs::Tag::Type* >{ &type } );
 		}
 
 		template< class T >
@@ -60,13 +62,8 @@ namespace ecs
 			RemoveFragmentFromEntity( entityID, T::GetTypeStatic() );
 		}
 
-		void SetArchetypeFragmentsAndTags( const ecs::ArchetypeID& archetypeId, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags );
 		void SetArchetypeFragmentsAndTags( const ecs::ArchetypeID& archetypeId, FragmentsFlags fragments, TagsFlags tags );
-
-		void AddFragmentsAndTagsToArchetype( const ecs::ArchetypeID& archetypeId, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags );
 		void AddFragmentsAndTagsToArchetype( const ecs::ArchetypeID& archetypeId, FragmentsFlags fragments, TagsFlags tags );
-
-		void RemoveFragmentsAndTagsFromArchetype( const ecs::ArchetypeID& archetypeId, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags );
 		void RemoveFragmentsAndTagsFromArchetype( const ecs::ArchetypeID& archetypeId, FragmentsFlags fragments, TagsFlags tags );
 
 		ArchetypeID GetEntityArchetypeId( EntityID id );
@@ -74,12 +71,14 @@ namespace ecs
 		template< class T >
 		const T* GetFragment( EntityID id )
 		{
+			m_onBeforeReadingFragmentCallbacks[ ecs::Fragment::GetTypeIndex( T::GetTypeStatic() ) ].Invoke( id );
 			return m_entityToArchetype.at( id )->GetFragment< T >( id );
 		}
 
 		template< class T >
 		T* GetMutableFragment( EntityID id )
 		{
+			m_onBeforeModifyingFragmentCallbacks[ ecs::Fragment::GetTypeIndex( T::GetTypeStatic() ) ].Invoke( id );
 			return m_entityToArchetype.at( id )->GetMutableFragment< T >( id );
 		}
 
@@ -93,13 +92,26 @@ namespace ecs
 
 		void VisitAllArchetypes( FragmentsFlags readableFragments, std::function< void( ecs::ArchetypeView ) > visitFunc );
 
+		[[nodiscard]] forge::CallbackToken RegisterReadFragmentObserver( const ecs::Fragment::Type& observedFragmentType, std::function< void( ecs::EntityID ) > callback );
+		[[nodiscard]] forge::CallbackToken RegisterModifyingFragmentObserver( const ecs::Fragment::Type& observedFragmentType, std::function< void( ecs::EntityID ) > callback );
+
+		[[nodiscard]] forge::CallbackToken RegisterReadArchetypeObserver( const ecs::Fragment::Type& observedFragmentType, std::function< void( const MutableArchetypeView&, CommandsQueue& ) > callback, FragmentsFlags readableFragments, FragmentsFlags mutableFragments );
+		[[nodiscard]] forge::CallbackToken RegisterModifyingArchetypeObserver( const ecs::Fragment::Type& observedFragmentType, std::function< void( const MutableArchetypeView&, CommandsQueue& ) > callback, FragmentsFlags readableFragments, FragmentsFlags mutableFragments );
+
 	private:
-		void VisitAllMutableArchetypes( FragmentsFlags mutableFragments, FragmentsFlags readableFragments, std::function< void( ecs::MutableArchetypeView ) > visitFunc );
 		Bool TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex ) const;
+
+		void TriggerOnBeforeReadingArchetype( ecs::Archetype& archetype, ecs::FragmentsFlags fragments );
+		void TriggerOnBeforeModifyingArchetype( ecs::Archetype& archetype, ecs::FragmentsFlags fragments );
 
 		std::unordered_map< EntityID, Archetype* > m_entityToArchetype;
 		std::vector< std::unique_ptr< Archetype > > m_archetypes;
 		Archetype* m_emptyArchetype = nullptr;
 		Uint32 m_nextEntityID = 0u;
+
+		std::array< forge::Callback< ecs::EntityID >, ecs::FragmentsFlags::GetSize() > m_onBeforeReadingFragmentCallbacks;
+		std::array< forge::Callback< ecs::EntityID >, ecs::FragmentsFlags::GetSize() > m_onBeforeModifyingFragmentCallbacks;
+		std::array< forge::Callback< Archetype&, CommandsQueue& >, ecs::FragmentsFlags::GetSize() > m_onBeforeReadingArchetypeCallbacks;
+		std::array< forge::Callback< Archetype&, CommandsQueue& >, ecs::FragmentsFlags::GetSize() > m_onBeforeModifyingArchetypeCallbacks;
 	};
 }

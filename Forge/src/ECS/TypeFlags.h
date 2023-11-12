@@ -7,6 +7,15 @@ namespace ecs
 	{
 		using MyType = TypeFlags< T, Size >;
 	public:
+		TypeFlags() = default;
+		TypeFlags( std::initializer_list< const typename T::Type* > types )
+		{
+			for ( const T::Type* type : types )
+			{
+				Set( *type, true );
+			}
+		}
+
 		static TypeFlags All()
 		{
 			return TypeFlags().Flipped();
@@ -88,22 +97,42 @@ namespace ecs
 			return m_flags != rawBits;
 		}
 
-		Uint32 GetSize() const
+		MyType& operator|=( const MyType& rTags ) const
+		{
+			m_flags |= rTags.m_flags;
+			return *this;
+		}
+
+		MyType& operator&=( const MyType& rTags ) const
+		{
+			m_flags &= rTags.m_flags;
+			return *this;
+		}
+
+		static constexpr Uint32 GetSize()
 		{
 			return Size;
 		}
 
-		void VisitSetTypes( std::function< void( const typename T::Type& ) > func ) const
+		void VisitSetTypes( std::function< void( Uint32 index ) > func ) const
 		{
 			Uint64 raw = m_flags.to_ullong();
 
 			while ( raw != 0u )
 			{
-				Uint64 tmp = raw - 1u;		
+				Uint64 tmp = raw - 1u;
 				Uint32 index = static_cast< Uint32 >( Math::Log2( raw & ~tmp ) );
-				func( *T::GetTypeWithIndex( index ) );
+				func( index );
 				raw = raw & tmp;
 			}
+		}
+
+		void VisitSetTypes( std::function< void( const typename T::Type& ) > func ) const
+		{
+			VisitSetTypes( [ & ]( Uint32 index )
+				{
+					func( *T::GetTypeWithIndex( index ) );
+				} );
 		}
 
 	private:

@@ -469,12 +469,12 @@ namespace ecs
 		template< class T >
 		forge::ArraySpan< const T > GetFragments() const
 		{
-			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) );
+			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) || m_mutableFragments.Test( T::GetTypeStatic() ) );
 			return m_archetype.GetFragments< T >();
 		}
 
 		template< class T >
-		forge::ArraySpan< T > GetMutableFragments()
+		forge::ArraySpan< T > GetMutableFragments() const
 		{
 			FORGE_ASSERT( m_mutableFragments.Test( T::GetTypeStatic() ) );
 			return m_archetype.GetMutableFragments< T >();
@@ -483,12 +483,12 @@ namespace ecs
 		template< class T >
 		const T* GetFragment( ecs::EntityID id ) const
 		{
-			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) );
+			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) || m_mutableFragments.Test( T::GetTypeStatic() ) );
 			return m_archetype.GetFragment< T >( id );
 		}
 
 		template< class T >
-		T* GetMutableFragment( ecs::EntityID id )
+		T* GetMutableFragment( ecs::EntityID id ) const
 		{
 			FORGE_ASSERT( m_mutableFragments.Test( T::GetTypeStatic() ) );
 			return m_archetype.GetMutableFragment< T >( id );

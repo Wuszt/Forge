@@ -415,11 +415,6 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 	modifiedTransformQuery.AddMutableFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
 	modifiedTransformQuery.AddFragmentRequirement< forge::PreviousFrameTransformFragment >( ecs::Query::RequirementType::Included );
 
-	ecs::Query modifiedScaleQuery( GetEngineInstance().GetECSManager() );
-	modifiedScaleQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
-	modifiedScaleQuery.AddMutableFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
-	modifiedScaleQuery.AddFragmentRequirement< forge::PreviousFrameScaleFragment >( ecs::Query::RequirementType::Included );
-
 	{
 		PC_SCOPE( "SceneRenderingSystem::OnDraw::UpdatingBuffers" );
 
@@ -437,7 +432,6 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 		};
 
 		modifiedTransformQuery.VisitArchetypes( func );
-		modifiedScaleQuery.VisitArchetypes( func );
 	}
 }
 

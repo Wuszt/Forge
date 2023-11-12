@@ -147,11 +147,6 @@ void ecs::ECSManager::RemoveFragmentFromEntity( EntityID entityID, const ecs::Fr
 	MoveEntityToNewArchetype( entityID, id );
 }
 
-void ecs::ECSManager::SetArchetypeFragmentsAndTags( const ecs::ArchetypeID& archetypeId, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags )
-{
-	SetArchetypeFragmentsAndTags( archetypeId, ArraySpanToFragments( fragments ), ArraySpanToTags( tags ) );
-}
-
 void ecs::ECSManager::SetArchetypeFragmentsAndTags( const ecs::ArchetypeID& archetypeId, FragmentsFlags fragments, TagsFlags tags )
 {
 	Uint32 oldArchetypeIndex = 0u;
@@ -199,16 +194,6 @@ void ecs::ECSManager::AddFragmentsAndTagsToArchetype( const ecs::ArchetypeID& ar
 	SetArchetypeFragmentsAndTags( archetypeId, archetypeId.GetFragmentsFlags() | newFragments, archetypeId.GetTagsFlags() | newTags );
 }
 
-void ecs::ECSManager::AddFragmentsAndTagsToArchetype( const ecs::ArchetypeID& archetypeId, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags )
-{
-	AddFragmentsAndTagsToArchetype( archetypeId, ArraySpanToFragments( fragments ), ArraySpanToTags( tags ) );
-}
-
-void ecs::ECSManager::RemoveFragmentsAndTagsFromArchetype( const ecs::ArchetypeID& archetypeId, forge::ArraySpan< const ecs::Fragment::Type* > fragments, forge::ArraySpan< const ecs::Tag::Type* > tags )
-{
-	RemoveFragmentsAndTagsFromArchetype( archetypeId, ArraySpanToFragments( fragments ), ArraySpanToTags( tags ) );
-}
-
 void ecs::ECSManager::RemoveFragmentsAndTagsFromArchetype( const ecs::ArchetypeID& archetypeId, FragmentsFlags fragmentsToRemove, TagsFlags tagsToRemove )
 {
 	SetArchetypeFragmentsAndTags( archetypeId, archetypeId.GetFragmentsFlags() & fragmentsToRemove.Flipped(), archetypeId.GetTagsFlags() & tagsToRemove.Flipped() );
@@ -239,14 +224,6 @@ void ecs::ECSManager::RemoveTagFromEntity( EntityID entityID, const ecs::Tag::Ty
 	MoveEntityToNewArchetype( entityID, id );
 }
 
-void ecs::ECSManager::VisitAllMutableArchetypes( FragmentsFlags mutableFragments, FragmentsFlags readableFragments, std::function< void( ecs::MutableArchetypeView ) > visitFunc )
-{
-	for ( auto& archetype : m_archetypes )
-	{
-		visitFunc( { *archetype, mutableFragments, readableFragments } );
-	}
-}
-
 Bool ecs::ECSManager::TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex ) const
 {
 	auto it = std::find_if( m_archetypes.begin(), m_archetypes.end(), [ &Id ]( const std::unique_ptr< Archetype >& archetype )
@@ -259,10 +236,60 @@ Bool ecs::ECSManager::TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex 
 	return it != m_archetypes.end();
 }
 
+void ecs::ECSManager::TriggerOnBeforeReadingArchetype( ecs::Archetype& archetype, ecs::FragmentsFlags fragments )
+{
+	ecs::CommandsQueue commandsQueue( *this );
+	fragments.VisitSetTypes( [ & ]( Uint32 index )
+		{
+			m_onBeforeReadingArchetypeCallbacks[ index ].Invoke( archetype, commandsQueue );
+		} );
+
+	commandsQueue.Execute();
+}
+
+void ecs::ECSManager::TriggerOnBeforeModifyingArchetype( ecs::Archetype& archetype, ecs::FragmentsFlags fragments )
+{
+	ecs::CommandsQueue commandsQueue( *this );
+	fragments.VisitSetTypes( [ & ]( Uint32 index )
+		{
+			m_onBeforeModifyingArchetypeCallbacks[ index ].Invoke( archetype, commandsQueue );
+		} );
+
+	commandsQueue.Execute();
+}
+
 void ecs::ECSManager::VisitAllArchetypes( FragmentsFlags readableFragments, std::function< void( ecs::ArchetypeView ) > visitFunc )
 {
 	for ( auto& archetype : m_archetypes )
 	{
 		visitFunc( { *archetype, readableFragments } );
 	}
+}
+
+forge::CallbackToken ecs::ECSManager::RegisterReadFragmentObserver( const ecs::Fragment::Type& observedFragmentType, std::function< void( ecs::EntityID ) > callback )
+{
+	return m_onBeforeReadingFragmentCallbacks[ ecs::Fragment::GetTypeIndex( observedFragmentType ) ].AddListener( callback );
+}
+
+forge::CallbackToken ecs::ECSManager::RegisterModifyingFragmentObserver( const ecs::Fragment::Type& observedFragmentType, std::function< void( ecs::EntityID ) > callback )
+{
+	return m_onBeforeModifyingFragmentCallbacks[ ecs::Fragment::GetTypeIndex( observedFragmentType ) ].AddListener( callback );
+}
+
+forge::CallbackToken ecs::ECSManager::RegisterReadArchetypeObserver( const ecs::Fragment::Type& observedFragmentType, std::function< void( const MutableArchetypeView&, CommandsQueue& ) > callback, FragmentsFlags readableFragments, FragmentsFlags mutableFragments )
+{
+	return m_onBeforeReadingArchetypeCallbacks[ ecs::Fragment::GetTypeIndex( observedFragmentType ) ].AddListener(
+		[ callback = std::move( callback ), readableFragments, mutableFragments ]( Archetype& archetype, CommandsQueue& commandsQueue )
+		{
+			callback( ecs::MutableArchetypeView( archetype, mutableFragments, readableFragments ), commandsQueue );
+		});
+}
+
+forge::CallbackToken ecs::ECSManager::RegisterModifyingArchetypeObserver( const ecs::Fragment::Type& observedFragmentType, std::function< void( const MutableArchetypeView&, CommandsQueue& ) > callback, FragmentsFlags readableFragments, FragmentsFlags mutableFragments )
+{
+	return m_onBeforeModifyingArchetypeCallbacks[ ecs::Fragment::GetTypeIndex( observedFragmentType ) ].AddListener(
+		[ callback = std::move( callback ), readableFragments, mutableFragments ]( Archetype& archetype, CommandsQueue& commandsQueue )
+		{
+			callback( ecs::MutableArchetypeView( archetype, mutableFragments, readableFragments ), commandsQueue );
+		} );
 }

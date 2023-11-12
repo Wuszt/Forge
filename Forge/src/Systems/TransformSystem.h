@@ -10,7 +10,12 @@ namespace systems
 	private:
 		virtual void OnInitialize();
 		void Update();
+		void OnBeforeModifyingTransforms( const ecs::MutableArchetypeView& archetypeView, ecs::CommandsQueue& commandsQueue );
+		void OnBeforeModifyingTransform( ecs::EntityID id );
 
 		forge::CallbackToken m_updateToken;
+		forge::CallbackToken m_modifyingArchetypeToken;
+		forge::CallbackToken m_modifyingEntityToken;
+		forge::CallbackToken m_postCommandQueueExecutionToken;
 	};
 }

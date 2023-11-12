@@ -9,6 +9,12 @@ namespace ecs
 			: m_ecsManager( ecsManager )
 		{}
 
+		~CommandsQueue()
+		{
+			FORGE_ASSERT( m_entitiesQueue.empty() );
+			FORGE_ASSERT( m_archetypesQueue.empty() );
+		}
+
 		void AddFragment( EntityID entityID, const ecs::Fragment::Type& type );
 		void AddTag( EntityID entityID, const ecs::Tag::Type& type );
 
@@ -24,6 +30,8 @@ namespace ecs
 		void RemoveTag( ArchetypeID archetypeId, const ecs::Tag::Type& type );
 
 		void Execute();
+
+		[[nodiscard]] forge::CallbackToken AddPostExecutionCallback( std::function< void() > callback );
 
 	private:
 		struct EntityCommands
@@ -48,6 +56,8 @@ namespace ecs
 
 		std::unordered_map< EntityID, EntityCommands > m_entitiesQueue;
 		std::unordered_map< ArchetypeID, ArchetypeCommands > m_archetypesQueue;
+
+		forge::Callback<> m_postExecutionCallback;
 
 		ecs::ECSManager& m_ecsManager;
 	};

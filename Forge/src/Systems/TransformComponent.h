@@ -24,23 +24,13 @@ namespace forge
 		RTTI_DECLARE_STRUCT( PreviousFrameTransformFragment, ecs::Fragment );
 
 		PreviousFrameTransformFragment() = default;
-		PreviousFrameTransformFragment( const Transform& previousTransform )
-			: m_previousTransform( previousTransform )
+		PreviousFrameTransformFragment( const Transform& previousTransform, const Vector3& previousScale )
+			: m_transform( previousTransform )
+			, m_scale( previousScale )
 		{}
 
-		Transform m_previousTransform;
-	};
-
-	struct PreviousFrameScaleFragment : public ecs::Fragment
-	{
-		RTTI_DECLARE_STRUCT( PreviousFrameScaleFragment, ecs::Fragment );
-
-		PreviousFrameScaleFragment() = default;
-		PreviousFrameScaleFragment( const Vector3& previousScale )
-			: m_previousScale( previousScale )
-		{}
-
-		Vector3 m_previousScale;
+		Transform m_transform;
+		Vector3 m_scale;
 	};
 
 	class TransformComponent : public DataComponent< TransformFragment >
