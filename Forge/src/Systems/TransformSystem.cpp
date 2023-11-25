@@ -4,8 +4,6 @@
 
 RTTI_IMPLEMENT_TYPE( systems::TransformSystem );
 
-// TODO: SetParent kiedy parent jest juz dirty
-
 template< class Callable >
 static void CallWithCachedCommandsQueue( const Callable& func, ecs::ECSManager& ecsManager, ecs::CommandsQueue* &currentCommandsQueue)
 {
@@ -323,9 +321,9 @@ void systems::TransformSystem::MakeDirty( ecs::EntityID id, ecs::CommandsQueue& 
 	{
 		for ( ecs::EntityID childId : parentFragment->m_children )
 		{
-			if ( GetEngineInstance().GetECSManager().GetEntityArchetypeId( childId ).ContainsTag< forge::ChildRequiringRecalculatingLocalTransform >() )
+			if ( ecsManager.GetEntityArchetypeId( childId ).ContainsTag< forge::ChildRequiringRecalculatingLocalTransform >() )
 			{
-				GetEngineInstance().GetECSManager().GetFragmentView< forge::TransformChildFragment >( childId );
+				ecsManager.GetFragmentView< forge::TransformChildFragment >( childId ); // Triggers recalculating local transform
 			}
 
 			commandsQueue.AddTag( childId, forge::ChildRequiringRecalculatingWorldTransform::GetTypeStatic() );
