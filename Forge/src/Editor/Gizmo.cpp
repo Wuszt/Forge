@@ -27,32 +27,35 @@ void editor::Gizmo::OnAttach()
 	forge::Object::OnAttach();
 
 	AddComponents< forge::TransformComponent >();
+
 	GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::GizmoArrow >( [ this ]( editor::GizmoArrow* arrow )
 		{
 			m_xAxisArrow = std::move( forge::ObjectLifetimeToken( *arrow ) );
 			arrow->SetColor( c_xAxisColor );
-			arrow->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetOrientation( Quaternion::CreateFromDirection( Vector3::EX() ) );
+			arrow->GetComponent< forge::TransformComponent >()->SetWorldOrientation( Quaternion::CreateFromDirection( Vector3::EX() ) );
+			arrow->GetComponent< forge::TransformComponent >()->SetParent( *GetComponent< forge::TransformComponent >(), true );
 		} );
 
 	GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::GizmoArrow >( [ this ]( editor::GizmoArrow* arrow )
 		{
 			m_yAxisArrow = std::move( forge::ObjectLifetimeToken( *arrow ) );
 			arrow->SetColor( c_yAxisColor );
-			arrow->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetOrientation( Quaternion::CreateFromDirection( Vector3::EY() ) );
+			arrow->GetComponent< forge::TransformComponent >()->SetWorldOrientation( Quaternion::CreateFromDirection( Vector3::EY() ) );
+			arrow->GetComponent< forge::TransformComponent >()->SetParent( *GetComponent< forge::TransformComponent >(), true );
 		} );
 
 	GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::GizmoArrow >( [ this ]( editor::GizmoArrow* arrow )
 		{
 			m_zAxisArrow = std::move( forge::ObjectLifetimeToken( *arrow ) );
 			arrow->SetColor( c_zAxisColor );
-			arrow->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetOrientation( Quaternion::CreateFromDirection( Vector3::EZ() ) );
+			arrow->GetComponent< forge::TransformComponent >()->SetWorldOrientation( Quaternion::CreateFromDirection( Vector3::EZ() ) );
+			arrow->GetComponent< forge::TransformComponent >()->SetParent( *GetComponent< forge::TransformComponent >(), true );
 		} );
 }
 
 void editor::Gizmo::Update( forge::ObjectID hoveredObject, const Vector3& cursorRayDir )
 {
 	auto mouseState = GetEngineInstance().GetRenderingManager().GetWindow().GetInput()->GetMouseButtonState( forge::IInput::MouseButton::LeftButton );
-
 	switch ( mouseState )
 	{
 	case forge::IInput::KeyState::Clicked:
@@ -84,10 +87,7 @@ void editor::Gizmo::Update( forge::ObjectID hoveredObject, const Vector3& cursor
 		if ( m_activeArrow )
 		{
 			const Vector3 pos = m_activeArrow->GetDesiredPosition( cursorRayDir );
-			GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition( pos );
-			m_xAxisArrow.GetObject< editor::GizmoArrow >()->SetPosition( pos );
-			m_yAxisArrow.GetObject< editor::GizmoArrow >()->SetPosition( pos );
-			m_zAxisArrow.GetObject< editor::GizmoArrow >()->SetPosition( pos );
+			GetComponent< forge::TransformComponent >()->SetWorldPosition( pos );
 		}
 		break;
 
@@ -139,19 +139,19 @@ void editor::GizmoArrow::OnAttach()
 
 void editor::GizmoArrow::SetColor( const Vector4& color )
 {
-	renderer::ConstantBuffer* materialBuffer = GetComponent< forge::RenderingComponent >()->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer();
+	renderer::ConstantBuffer* materialBuffer = GetComponent< forge::RenderingComponent >()->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer();
 	materialBuffer->SetData( "diffuseColor", color );
 	materialBuffer->UpdateBuffer();
 }
 
 void editor::GizmoArrow::SetPosition( const Vector3& pos )
 {
-	GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition( pos );
+	GetComponent< forge::TransformComponent >()->SetWorldPosition( pos );
 }
 
 void editor::GizmoArrow::OnSelected( const Vector3& cursorRayDir )
 {
-	m_movementOffset = CastRayDirOnArrowAxis( cursorRayDir ) - GetComponent< forge::TransformComponent >()->GetTransform().GetPosition3();
+	m_movementOffset = CastRayDirOnArrowAxis( cursorRayDir ) - GetComponent< forge::TransformComponent >()->GetWorldPosition();
 }
 
 Vector3 editor::GizmoArrow::GetDesiredPosition( const Vector3& cursorRayDir ) const
@@ -161,7 +161,7 @@ Vector3 editor::GizmoArrow::GetDesiredPosition( const Vector3& cursorRayDir ) co
 
 Vector3 editor::GizmoArrow::CastRayDirOnArrowAxis( const Vector3& cursorRayDir ) const
 {
-	const Transform& transform = GetComponent< forge::TransformComponent >()->GetTransform();
+	const Transform& transform = GetComponent< forge::TransformComponent >()->GetWorldTransform();
 	const Vector3& arrowPos = transform.GetPosition3();
 
 	const Transform& cameraTransform = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera().GetTransform();

@@ -65,23 +65,23 @@ namespace forge
 			commandsQueue.RemoveFragment( id, TData::GetTypeStatic() );
 		}
 
-		const TData& GetData() const
+		ecs::FragmentView< TData > GetData() const
 		{
 			auto& objectsManager = GetOwner().GetEngineInstance().GetObjectsManager();
 			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
 
 			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
-			return *ecsManager.GetFragment< TData >( id );
+			return ecsManager.GetFragmentView< TData >( id );
 		}
 
 	protected:
-		TData& GetMutableData()
+		ecs::MutableFragmentView< TData > GetMutableData()
 		{
 			auto& objectsManager = GetOwner().GetEngineInstance().GetObjectsManager();
 			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
 
 			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
-			return *ecsManager.GetMutableFragment< TData >( id );
+			return ecsManager.GetMutableFragmentView< TData >( id );
 		}
 
 	private:

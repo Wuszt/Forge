@@ -20,7 +20,7 @@ namespace forge
 	public:
 		using DataComponent::DataComponent;
 
-		DirectionalLightFragment& GetData()
+		ecs::MutableFragmentView< DirectionalLightFragment > GetData()
 		{
 			return GetMutableData();
 		}

@@ -24,12 +24,21 @@ namespace physics
 		void SetTransform( const Transform& transform );
 		Transform GetTransform() const;
 
-		void AddShape( const physics::PhysicsShape& shape );
+		void AddShape( physics::PhysicsShape&& shape );
 
-		virtual void ChangeScale( const Vector3& prevScale, const Vector3& newScale );
+		virtual void ChangeScale( const Vector3& newScale );
 
 		virtual const physx::PxRigidActor& GetActor() const = 0;
 		virtual physx::PxRigidActor& GetActor() = 0;
+
+	protected:
+		float GetCurrentScale() const
+		{
+			return m_currentScale;
+		}
+
+	private:
+		float m_currentScale = 1.0f;
 	};
 
 	class PhysicsDynamicActor : public PhysicsActor
@@ -51,7 +60,7 @@ namespace physics
 
 		virtual void Initialize( PhysxProxy& proxy, Transform transform = Transform(), void* userData = nullptr ) override;
 
-		void UpdateDensity( Float density );
+		void SetDensity( Float density );
 
 		void AddForce( const Vector3& force, ForceMode forceMode );
 		void AddTorque( const Vector3& torque, ForceMode forceMode );
@@ -67,8 +76,9 @@ namespace physics
 		Vector3 GetAngularVelocity() const;
 		void SetAngularVelocity( const Vector3& velocity );
 
-		virtual void ChangeScale( const Vector3& prevScale, const Vector3& newScale ) override;
+		virtual void ChangeScale( const Vector3& newScale ) override;
 
+		// TODO: don't return actor, implement API instead
 		virtual const physx::PxRigidActor& GetActor() const override;
 		virtual physx::PxRigidActor& GetActor() override;
 

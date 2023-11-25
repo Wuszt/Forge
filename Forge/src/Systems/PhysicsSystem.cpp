@@ -72,25 +72,24 @@ void systems::PhysicsSystem::UpdateScene()
 {
 	{
 		ecs::Query dynamicsQuery( GetEngineInstance().GetECSManager() );
-		dynamicsQuery.AddFragmentRequirement< forge::PreviousFrameTransformFragment >( ecs::Query::RequirementType::Included );
+		dynamicsQuery.AddTagRequirement< forge::TransformWasModifiedThisFrame >( ecs::Query::RequirementType::Included );
 		dynamicsQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 		dynamicsQuery.AddMutableFragmentRequirement< forge::PhysicsDynamicFragment >( ecs::Query::RequirementType::Included );
 
 		ecs::Query staticsQuery( GetEngineInstance().GetECSManager() );
-		staticsQuery.AddFragmentRequirement< forge::PreviousFrameTransformFragment >( ecs::Query::RequirementType::Included );
+		staticsQuery.AddTagRequirement< forge::TransformWasModifiedThisFrame >( ecs::Query::RequirementType::Included );
 		staticsQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 		staticsQuery.AddMutableFragmentRequirement< forge::PhysicsStaticFragment >( ecs::Query::RequirementType::Included );
 
 		auto updateTransformFunc = [ & ]< class T >( ecs::MutableArchetypeView archetype )
 		{
 			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-			auto prevTransformFragments = archetype.GetFragments< forge::PreviousFrameTransformFragment >();
 			auto physicsFragments = archetype.GetMutableFragments< T >();
 
 			for ( Uint32 i = 0u; i < archetype.GetEntitiesAmount(); ++i )
 			{
 				physicsFragments[ i ].m_actor.SetTransform( transformFragments[ i ].m_transform );
-				physicsFragments[ i ].m_actor.ChangeScale( prevTransformFragments[ i ].m_scale, transformFragments[ i ].m_scale );
+				physicsFragments[ i ].m_actor.ChangeScale( transformFragments[ i ].m_scale );
 			}
 		};
 

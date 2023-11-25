@@ -24,7 +24,7 @@ void forge::RenderingComponent::OnAttached( EngineInstance& engineInstance, ecs:
 	PC_SCOPE_FUNC();
 
 	DataComponent< forge::RenderableFragment >::OnAttached( engineInstance, commandsQueue );
-	GetDirtyRenderable() = renderer::Renderable( engineInstance.GetRenderingManager().GetRenderer() );
+	GetDirtyData()->m_renderable = renderer::Renderable(engineInstance.GetRenderingManager().GetRenderer());
 	m_onShadersClearCache = engineInstance.GetRenderingManager().GetRenderer().GetShadersManager()->RegisterCacheClearingListener(
 		[ this ]()
 		{
@@ -36,7 +36,7 @@ void forge::RenderingComponent::LoadMeshAndMaterial( const std::string& path )
 {
 	PC_SCOPE_FUNC();
 
-	GetDirtyRenderable().SetModel( GetOwner().GetEngineInstance().GetAssetsManager(), path );
+	GetDirtyData()->m_renderable.SetModel( GetOwner().GetEngineInstance().GetAssetsManager(), path );
 }
 
 void forge::RenderingComponent::SetDirty()

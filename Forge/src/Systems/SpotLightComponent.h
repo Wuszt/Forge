@@ -19,7 +19,7 @@ namespace forge
 	public:
 		using DataComponent::DataComponent;
 
-		SpotLightFragment& GetData()
+		ecs::MutableFragmentView< SpotLightFragment > GetData()
 		{
 			return GetMutableData();
 		}

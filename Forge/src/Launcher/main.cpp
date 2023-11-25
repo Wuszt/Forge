@@ -65,7 +65,7 @@ void SkeletalMesh( forge::EngineInstance& engineInstance, const Vector3& pos )
 		animComponent->SetSkeleton( *skeleton );
 		animComponent->SetAnimation( animation->GetAnimations()[ 0 ] );
 
-		transformComponent->GetDirtyTransform() = pos;
+		transformComponent->SetWorldPosition( pos );
 	} );
 }
 
@@ -80,8 +80,8 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 
 		renderingComponent->LoadMeshAndMaterial( "Models\\sponza\\sponza.obj" );
 
-		transformComponent->GetDirtyTransform().SetPosition( Vector3::ZEROS() );
-		transformComponent->GetDirtyScale() = Vector3::ONES() * 0.01f;
+		transformComponent->SetWorldPosition( Vector3::ZEROS() );
+		transformComponent->SetWorldScale( Vector3::ONES() * 0.01f );
 
 		auto* physicsComponent = obj->GetComponent< forge::PhysicsStaticComponent >();
 		auto modelAsset = engineInstance.GetAssetsManager().GetAsset< renderer::ModelAsset >( "Models\\sponza\\sponza.obj" );
@@ -110,25 +110,25 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
 	{
 		light->AddComponents< forge::TransformComponent, forge::PointLightComponent >();
-		light->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition( { 0.0f, -11.0f, 2.5f } );
-		light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 1.0f, 0.0f, 0.0f };
-		light->GetComponent< forge::PointLightComponent >()->GetData().m_power = 0.1f;
+		light->GetComponent< forge::TransformComponent >()->SetWorldPosition( { 0.0f, -11.0f, 2.5f } );
+		light->GetComponent< forge::PointLightComponent >()->GetData()->m_color = { 1.0f, 0.0f, 0.0f };
+		light->GetComponent< forge::PointLightComponent >()->GetData()->m_power = 0.1f;
 	} );
 
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
 	{
 		light->AddComponents< forge::TransformComponent, forge::SpotLightComponent >();
-		light->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition( { 0.0f, 0.0f, 25.0f } );
-		light->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, 0.0f ) );
-		light->GetComponent< forge::SpotLightComponent >()->GetData().m_color = { 0.5f, 0.5f, 0.5f };
+		light->GetComponent< forge::TransformComponent >()->SetWorldPosition( { 0.0f, 0.0f, 25.0f } );
+		light->GetComponent< forge::TransformComponent >()->SetWorldOrientation( Quaternion( -FORGE_PI_HALF, 0.0f, 0.0f ) );
+		light->GetComponent< forge::SpotLightComponent >()->GetData()->m_color = { 0.5f, 0.5f, 0.5f };
 	} );
 
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* light )
 	{
 		light->AddComponents< forge::TransformComponent, forge::PointLightComponent >();
-		light->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition( { 0.0f, 11.0f, 2.5f } );
-		light->GetComponent< forge::PointLightComponent >()->GetData().m_color = { 0.0f, 0.0f, 1.0f };
-		light->GetComponent< forge::PointLightComponent >()->GetData().m_power = 0.1f;
+		light->GetComponent< forge::TransformComponent >()->SetWorldPosition( { 0.0f, 11.0f, 2.5f } );
+		light->GetComponent< forge::PointLightComponent >()->GetData()->m_color = { 0.0f, 0.0f, 1.0f };
+		light->GetComponent< forge::PointLightComponent >()->GetData()->m_power = 0.1f;
 	} );
 }
 
@@ -167,7 +167,7 @@ Int32 main()
 			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* player )
 			{
 				player->AddComponents< forge::TransformComponent, forge::CameraComponent, forge::FreeCameraControllerComponent >();
-				player->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition( { 0.0f, 0.0f, 2.0f } );
+				player->GetComponent< forge::TransformComponent >()->SetWorldPosition( { 0.0f, 0.0f, 2.0f } );
 				auto* cameraComp = player->GetComponent< forge::CameraComponent >();
 				cameraComp->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstance.GetRenderingManager().GetWindow() ));
 
@@ -199,27 +199,27 @@ Int32 main()
 					auto* transformComponent = sphere->GetComponent< forge::TransformComponent >();
 					auto* player = engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().GetCurrentPlayerObject();
 
-					auto playerTransform = player->GetComponent< forge::TransformComponent >()->GetData().m_transform;
+					auto playerTransform = player->GetComponent< forge::TransformComponent >()->GetWorldTransform();
 
-					transformComponent->GetDirtyTransform().SetPosition( playerTransform.GetPosition3() + playerTransform.GetForward() );
-					transformComponent->GetDirtyScale() = Vector3::ONES() * 0.5f;
+					transformComponent->SetWorldPosition( playerTransform.GetPosition3() + playerTransform.GetForward() );
+					transformComponent->SetWorldScale( Vector3::ONES() * 0.5f );
 
 					auto* renderingComponent = sphere->GetComponent< forge::RenderingComponent >();
 
 					renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
-					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ Math::Random::GetRNG().GetFloat(), Math::Random::GetRNG().GetFloat(), Math::Random::GetRNG().GetFloat(), 1.0f } );
-					renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+					renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ Math::Random::GetRNG().GetFloat(), Math::Random::GetRNG().GetFloat(), Math::Random::GetRNG().GetFloat(), 1.0f } );
+					renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 
 					auto* physicsComponent = sphere->GetComponent< forge::PhysicsDynamicComponent >();
 					physicsComponent->AddShape( physics::PhysicsShape( engineInstance.GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), 0.5f ) );
 					physicsComponent->GetActor().AddForce( playerTransform.GetForward() * 25.0f, physics::PhysicsDynamicActor::ForceMode::VelocityChange );
-					physicsComponent->GetActor().UpdateDensity( 100.0f );
+					physicsComponent->GetActor().SetDensity( 100.0f );
 				} );
 			}
 
 			if ( auto* player = engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().GetCurrentPlayerObject() )
 			{
-				auto playerTransform = player->GetComponent< forge::TransformComponent >()->GetData().m_transform;
+				auto playerTransform = player->GetComponent< forge::TransformComponent >()->GetData()->m_transform;
 
 				physics::RaycastResult result;
 				if ( engineInstance.GetSystemsManager().GetSystem< systems::PhysicsSystem >().PerformRaycast( playerTransform.GetPosition3() + playerTransform.GetForward(), playerTransform.GetForward(), 100.0f, result ) )

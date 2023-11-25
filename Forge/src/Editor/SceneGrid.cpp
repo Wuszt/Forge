@@ -21,13 +21,13 @@ editor::SceneGrid::SceneGrid( forge::EngineInstance& engineInstance )
 		const Vector3 end = { static_cast< Float >( xEnd ), static_cast< Float >( yEnd ), 0.0f };
 		const Float thickness = 0.01f;
 
-		transformComponent->GetDirtyTransform().SetPosition( start + ( end - start ) * 0.5f );
-		transformComponent->GetDirtyScale() = { thickness, thickness, ( end - start ).Mag() };
-		transformComponent->GetDirtyTransform().SetOrientation( Quaternion::GetRotationBetweenVectors( Vector3::EZ(), end - start ) );
+		transformComponent->SetWorldPosition( start + ( end - start ) * 0.5f );
+		transformComponent->SetWorldScale( { thickness, thickness, ( end - start ).Mag() } );
+		transformComponent->SetWorldOrientation( Quaternion::GetRotationBetweenVectors( Vector3::EZ(), end - start ) );
 
 		renderingComponent->SetInteractingWithLight( false );
 		renderingComponent->SetDrawAsOverlayEnabled( false );
-		auto& material = *renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ];
+		auto& material = *renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ];
 		auto* materialBuffer = material.GetConstantBuffer();
 		materialBuffer->SetData( "diffuseColor", c_gridColor );
 		materialBuffer->UpdateBuffer();

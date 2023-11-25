@@ -11,7 +11,7 @@ namespace ecs
 
 		static const Uint32 c_invalidID = std::numeric_limits< Uint32 >::max();
 
-		Bool IsValid()
+		Bool IsValid() const
 		{
 			return m_id != c_invalidID;
 		}

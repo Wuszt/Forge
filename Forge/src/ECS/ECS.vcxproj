@@ -325,6 +325,7 @@
     </ClCompile>
     <ClCompile Include="Fragment.cpp" />
     <ClCompile Include="FragmentsPackage.cpp" />
+    <ClCompile Include="FragmentViews.cpp" />
     <ClCompile Include="Query.cpp" />
     <ClCompile Include="Tag.cpp" />
     <ClCompile Include="TypeFlags.cpp" />
@@ -337,6 +338,7 @@
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="Fragment.h" />
     <ClInclude Include="FragmentsPackage.h" />
+    <ClInclude Include="FragmentViews.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="PublicDefaults.h" />
     <ClInclude Include="Query.h" />

@@ -48,7 +48,7 @@ void CubeScene(forge::EngineInstance& engineInstance)
 
 		renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
 
-		transformComponent->GetDirtyTransform().SetPosition( Vector3::ZEROS() );
+		transformComponent->SetWorldPosition( Vector3::ZEROS() );
 	});
 }
 
@@ -88,7 +88,7 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([&](forge::Object* player)
 	{
 		player->AddComponents< forge::TransformComponent, forge::CameraComponent, forge::FreeCameraControllerComponent >();
-		player->GetComponent< forge::TransformComponent >()->GetDirtyTransform().SetPosition({ 0.0f, -5.0f, 0.0f });
+		player->GetComponent< forge::TransformComponent >()->SetWorldPosition({ 0.0f, -5.0f, 0.0f });
 		auto* cameraComp = player->GetComponent< forge::CameraComponent >();
 		cameraComp->CreateImplementation< renderer::PerspectiveCamera >(forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstance.GetRenderingManager().GetWindow() ) );
 

@@ -14,7 +14,6 @@ physics::PhysicsShape::PhysicsShape( PhysxProxy& proxy, const Vector3& cubeHalfE
 	m_shape = proxy.GetPhysics().createShape( physx::PxBoxGeometry( { cubeHalfExtents.X, cubeHalfExtents.Y, cubeHalfExtents.Z } ), material->GetPhysxMaterial() );
 }
 
-#pragma optimize( "", off )
 physics::PhysicsShape::PhysicsShape( PhysxProxy& proxy, forge::ArraySpan<Vector3> vertices, forge::ArraySpan<Uint32> indices, const physics::PhysicsMaterial* material /*= nullptr */ )
 {
 	if ( material == nullptr )
@@ -38,7 +37,6 @@ physics::PhysicsShape::PhysicsShape( PhysxProxy& proxy, forge::ArraySpan<Vector3
 	physx::PxDefaultMemoryInputData readBuffer( writeBuffer.getData(), writeBuffer.getSize() );
 	m_shape = proxy.GetPhysics().createShape( physx::PxTriangleMeshGeometry{ proxy.GetPhysics().createTriangleMesh( readBuffer ) }, material->GetPhysxMaterial(), true );
 }
-#pragma optimize( "", on )
 
 physics::PhysicsShape::PhysicsShape( physx::PxShape& rawShape )
 	: m_shape( &rawShape )

@@ -31,9 +31,12 @@ namespace ecs
 
 		void Execute();
 
+		void Reset();
+
 		[[nodiscard]] forge::CallbackToken AddPostExecutionCallback( std::function< void() > callback );
 
-	private:
+		void Merge( CommandsQueue&& other );
+
 		struct EntityCommands
 		{
 			FragmentsFlags m_fragmentsToAdd;
@@ -54,6 +57,7 @@ namespace ecs
 			TagsFlags m_tagsToRemove;
 		};
 
+	private:
 		std::unordered_map< EntityID, EntityCommands > m_entitiesQueue;
 		std::unordered_map< ArchetypeID, ArchetypeCommands > m_archetypesQueue;
 

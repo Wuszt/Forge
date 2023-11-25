@@ -75,16 +75,16 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 
 		if ( wireFrame )
 		{
-			renderingComponent->GetDirtyRenderable().SetFillMode( renderer::FillMode::WireFrame );
+			renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
 		}
 
-		transformComponent->GetDirtyTransform().SetPosition( position );
-		transformComponent->GetDirtyScale() = { radius, radius, radius };
+		transformComponent->SetWorldPosition( position );
+		transformComponent->SetWorldScale( { radius, radius, radius } );
 
 		renderingComponent->SetInteractingWithLight( false );
 		renderingComponent->SetDrawAsOverlayEnabled( overlay );
-		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
-		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 	};
 
 	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
@@ -101,16 +101,16 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 
 		if ( wireFrame )
 		{
-			renderingComponent->GetDirtyRenderable().SetFillMode( renderer::FillMode::WireFrame );
+			renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
 		}
 
-		transformComponent->GetDirtyTransform().SetPosition( position );
-		transformComponent->GetDirtyScale() = extension;
+		transformComponent->SetWorldPosition( position );
+		transformComponent->SetWorldScale( extension );
 
 		renderingComponent->SetInteractingWithLight( false );
 		renderingComponent->SetDrawAsOverlayEnabled( overlay );
-		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
-		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 	};
 
 	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
@@ -125,14 +125,14 @@ void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, F
 
 		renderingComponent->LoadMeshAndMaterial( "Models\\cylinder.obj" );
 
-		transformComponent->GetDirtyTransform().SetPosition( start + ( end - start ) * 0.5f );
-		transformComponent->GetDirtyScale() = { thickness, thickness, ( end - start ).Mag() };
-		transformComponent->GetDirtyTransform().SetOrientation( Quaternion::GetRotationBetweenVectors( Vector3::EZ(), end - start ) );
+		transformComponent->SetWorldPosition( start + ( end - start ) * 0.5f );
+		transformComponent->SetWorldScale( { thickness, thickness, ( end - start ).Mag() } );
+		transformComponent->SetWorldOrientation( Quaternion::GetRotationBetweenVectors( Vector3::EZ(), end - start ) );
 
 		renderingComponent->SetInteractingWithLight( false );
 		renderingComponent->SetDrawAsOverlayEnabled( overlay );
-		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
-		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 	};
 
 	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
@@ -149,7 +149,7 @@ void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Fl
 
 		if ( wireFrame )
 		{
-			renderingComponent->GetDirtyRenderable().SetFillMode( renderer::FillMode::WireFrame );
+			renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
 		}
 
 		Vector3 direction = base - top;
@@ -160,16 +160,16 @@ void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Fl
 		transform = transform * Quaternion::CreateFromDirection( direction );
 		transform = transform * Matrix( top );
 
-		transformComponent->GetDirtyTransform().SetOrientation( transform.GetRotation() );
-		transformComponent->GetDirtyTransform().SetPosition( transform.GetTranslation() );
+		transformComponent->SetWorldOrientation( transform.GetRotation() );
+		transformComponent->SetWorldPosition( transform.GetTranslation() );
 
 		const Float size = length * Math::Tg( angle );
-		transformComponent->GetDirtyScale() = Vector3{ size, size, length };
+		transformComponent->SetWorldScale( { size, size, length } );
 
 		renderingComponent->SetInteractingWithLight( false );
 		renderingComponent->SetDrawAsOverlayEnabled( overlay );
-		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
-		renderingComponent->GetDirtyRenderable().GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 	};
 
 	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );

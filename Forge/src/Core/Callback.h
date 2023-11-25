@@ -85,14 +85,21 @@ namespace forge
 		Callback& operator=( const Callback& callback ) = delete;
 		Callback& operator=( Callback&& callback ) = default;
 
-		void Invoke( TParams... params ) const
+		template< class ...UParams >
+		void Invoke( UParams&&... params ) const
 		{
-			m_implementation->Invoke( params... );
+			m_implementation->Invoke( std::forward< UParams >( params )... );
 		}
 
 		[[nodiscard]] CallbackToken AddListener( TFunc func )
 		{
 			return CallbackToken( m_implementation->AddListener( std::move( func ) ), m_implementation );
+		}
+
+		void AddCallback( Callback&& callback )
+		{
+			// workaround for std::function which has to be copyable...
+			m_implementation->AddListener( [ sharedCallback = std::make_shared< Callback >( std::move( callback ) ) ]( TParams... params ) { sharedCallback->Invoke( std::forward< TParams >(params)... ); } );
 		}
 
 		void RemoveListener( CallbackID id )
@@ -109,11 +116,12 @@ namespace forge
 		class CallbackImpl : public CallbackToken::ICallbackImpl
 		{
 		public:
-			void Invoke( TParams... params ) const
+			template< class ...UParams >
+			void Invoke( UParams&&... params ) const
 			{
 				for( const auto& func : m_funcs )
 				{
-					func( std::forward< TParams >( params )... );
+					func( std::forward< UParams >( params )... );
 				}
 			}
 

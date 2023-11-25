@@ -4,6 +4,7 @@
 #include "Fragment.h"
 #include "EntityID.h"
 #include "../Math/Math.h"
+#include "FragmentViews.h"
 
 namespace ecs
 {
@@ -217,11 +218,12 @@ namespace ecs
 
 		Bool ContainsEntity( EntityID id ) const
 		{
-			return m_sparseSet.at( static_cast< Uint32 >( id ) ) >= 0;
+			return m_sparseSet.at( static_cast< Uint32 >( id ) ) != c_invalidIndex;
 		}
 
 		void AddFragmentType( const ecs::Fragment::Type& type )
 		{
+			FORGE_ASSERT( !IsInUse() );
 			FORGE_ASSERT( m_fragments.count( &type ) == 0 );
 			FORGE_ASSERT( !m_id.ContainsFragment( type ) );
 
@@ -237,6 +239,7 @@ namespace ecs
 
 		void RemoveFragmentType( const ecs::Fragment::Type& type )
 		{
+			FORGE_ASSERT( !IsInUse() );
 			FORGE_ASSERT( m_fragments.count( &type ) > 0 );
 			FORGE_ASSERT( m_id.ContainsFragment( type ) );
 
@@ -252,38 +255,45 @@ namespace ecs
 
 		void AddTags( TagsFlags tags )
 		{
+			FORGE_ASSERT( !IsInUse() );
 			m_id.AddTags( tags );
 		}
 
 		void AddTag( const ecs::Tag::Type& type )
 		{
+			FORGE_ASSERT( !IsInUse() );
 			m_id.AddTag( type );
 		}
 
 		template< class T >
 		void AddTag()
 		{
+			FORGE_ASSERT( !IsInUse() );
 			m_id.AddTag< T >();
 		}
 
 		void RemoveTag( const ecs::Tag::Type& type )
 		{
+			FORGE_ASSERT( !IsInUse() );
 			m_id.RemoveTag( type );
 		}
 
 		template< class T >
 		void RemoveTag()
 		{
+			FORGE_ASSERT( !IsInUse() );
 			m_id.RemoveTag< T >();
 		}
 
 		void RemoveTags( TagsFlags tags )
 		{
+			FORGE_ASSERT( !IsInUse() );
 			m_id.RemoveTags( tags );
 		}
 
 		void ClearTags()
 		{
+			FORGE_ASSERT( !IsInUse() );
 			m_id.ClearTags();
 		}
 
@@ -299,6 +309,8 @@ namespace ecs
 
 		void StealEntityFrom( EntityID id, Archetype& source )
 		{
+			FORGE_ASSERT( !IsInUse() );
+			FORGE_ASSERT( !source.IsInUse() );
 			for ( auto& fragmentsPackage : m_fragments )
 			{
 				if ( source.ContainsFragment( *fragmentsPackage.first ) )
@@ -318,6 +330,9 @@ namespace ecs
 
 		void StealEntitiesFrom( Archetype& source )
 		{
+			FORGE_ASSERT( !IsInUse() );
+			FORGE_ASSERT( !source.IsInUse() );
+
 			for ( auto& fragmentsPackage : m_fragments )
 			{
 				if ( source.ContainsFragment( *fragmentsPackage.first ) )
@@ -346,6 +361,8 @@ namespace ecs
 
 		void AddEntity( EntityID id )
 		{
+			FORGE_ASSERT( !IsInUse() );
+
 			for ( auto& fragmentsPackage : m_fragments )
 			{
 				fragmentsPackage.second.AddEmptyFragment();
@@ -357,6 +374,8 @@ namespace ecs
 
 		void RemoveEntity( EntityID id )
 		{
+			FORGE_ASSERT( !IsInUse() );
+
 			*std::find( m_sparseSet.begin(), m_sparseSet.end(), GetEntitiesAmount() - 1u ) = GetFragmentIndex( id );
 
 			for ( auto& fragmentsPackage : m_fragments )
@@ -386,6 +405,16 @@ namespace ecs
 			return m_id;
 		}
 
+		void MarkAsInUse()
+		{
+			++m_inUseCounter;
+		}
+
+		void CancelInUse()
+		{
+			FORGE_ASSURE( m_inUseCounter-- > 0 );
+		}
+
 	private:
 		Uint32 GetFragmentIndex( EntityID id ) const
 		{
@@ -402,119 +431,193 @@ namespace ecs
 			return m_fragments.at( &type );
 		}
 
+		Bool IsInUse() const
+		{
+			return m_inUseCounter > 0;
+		}
+
 		static const Uint32 c_invalidIndex = std::numeric_limits< Uint32 >::max();
 		std::vector< EntityID > m_indexToEntity;
 		std::unordered_map< const Fragment::Type*, FragmentsPackage > m_fragments;
 		std::vector< Uint32 > m_sparseSet;
 		Uint32 m_entitiesAmount = 0u;
 		ArchetypeID m_id;
+		Uint32 m_inUseCounter = 0u;
 	};
 
 	class ArchetypeView
 	{
 	public:
-		ArchetypeView( const Archetype& archetype, FragmentsFlags readableFragments )
-			: m_archetype( archetype )
+		ArchetypeView( Archetype& archetype, FragmentsFlags readableFragments )
+			: m_archetype( &archetype )
 			, m_readableFragments( readableFragments )
-		{}
+		{
+			m_archetype->MarkAsInUse();
+		}
+
+		ArchetypeView( const ArchetypeView& view ) : ArchetypeView( *view.m_archetype, view.m_readableFragments ) {}
+		ArchetypeView( ArchetypeView&& view ) : ArchetypeView( *view.m_archetype, view.m_readableFragments ) 
+		{
+			view.Release();
+		}
+
+		~ArchetypeView()
+		{
+			if ( m_archetype )
+			{
+				Release();
+			}
+		}
+
+		void Release()
+		{
+			m_archetype->CancelInUse();
+			m_archetype = nullptr;
+		}
 
 		template< class T >
 		forge::ArraySpan< const T > GetFragments() const
 		{
 			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) );
-			return m_archetype.GetFragments< T >();
+			return m_archetype->GetFragments< T >();
 		}
 
 		template< class T >
 		const T* GetFragment( ecs::EntityID id ) const
 		{
 			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) );
-			return m_archetype.GetFragment< T >( id );
+			return m_archetype->GetFragment< T >( id );
 		}
 
 		Uint32 GetEntitiesAmount() const
 		{
-			return m_archetype.GetEntitiesAmount();
+			return m_archetype->GetEntitiesAmount();
 		}
 
 		EntityID GetEntityIDWithIndex( Uint32 index ) const
 		{
-			return m_archetype.GetEntityIDWithIndex( index );
+			return m_archetype->GetEntityIDWithIndex( index );
 		}
 
 		const ArchetypeID& GetArchetypeID() const
 		{
-			return m_archetype.GetArchetypeID();
+			return m_archetype->GetArchetypeID();
+		}
+
+		Bool ContainsEntity( EntityID id ) const
+		{
+			return m_archetype->ContainsEntity( id );
 		}
 
 	private:
 		FragmentsFlags m_readableFragments;
-		const Archetype& m_archetype;
+		Archetype* m_archetype = nullptr;
 	};
 
 	class MutableArchetypeView
 	{
 	public:
 		MutableArchetypeView( Archetype& archetype, FragmentsFlags mutableFragments, FragmentsFlags readableFragments )
-			: m_archetype( archetype )
+			: m_archetype( &archetype )
 			, m_mutableFragments( mutableFragments )
 			, m_readableFragments( readableFragments )
-		{}
+		{
+			m_archetype->MarkAsInUse();
+		}
+
+		MutableArchetypeView( const MutableArchetypeView& view ) : MutableArchetypeView( *view.m_archetype, view.m_mutableFragments, view.m_readableFragments ) {}
+		MutableArchetypeView( MutableArchetypeView&& view ) : MutableArchetypeView( *view.m_archetype, view.m_mutableFragments, view.m_readableFragments ) 
+		{
+			view.Release();
+		}
+
+		~MutableArchetypeView()
+		{
+			if ( m_archetype )
+			{
+				Release();
+			}
+		}
+
+		void Release()
+		{
+			m_archetype->CancelInUse();
+			m_archetype = nullptr;
+		}
 
 		operator ArchetypeView() const
 		{
-			return ArchetypeView( m_archetype, m_readableFragments );
+			return ArchetypeView( *m_archetype, m_readableFragments );
 		}
 
 		template< class T >
 		forge::ArraySpan< const T > GetFragments() const
 		{
 			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) || m_mutableFragments.Test( T::GetTypeStatic() ) );
-			return m_archetype.GetFragments< T >();
+			return m_archetype->GetFragments< T >();
 		}
 
 		template< class T >
 		forge::ArraySpan< T > GetMutableFragments() const
 		{
 			FORGE_ASSERT( m_mutableFragments.Test( T::GetTypeStatic() ) );
-			return m_archetype.GetMutableFragments< T >();
+			return m_archetype->GetMutableFragments< T >();
 		}
 
 		template< class T >
 		const T* GetFragment( ecs::EntityID id ) const
 		{
 			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) || m_mutableFragments.Test( T::GetTypeStatic() ) );
-			return m_archetype.GetFragment< T >( id );
+			return m_archetype->GetFragment< T >( id );
+		}
+
+		template< class T >
+		FragmentView< T > GetFragmentView( ecs::EntityID id ) const
+		{
+			FORGE_ASSERT( m_readableFragments.Test( T::GetTypeStatic() ) || m_mutableFragments.Test( T::GetTypeStatic() ) );
+			return FragmentView< T >( *m_archetype, m_archetype->GetFragment< T >( id ) );
 		}
 
 		template< class T >
 		T* GetMutableFragment( ecs::EntityID id ) const
 		{
 			FORGE_ASSERT( m_mutableFragments.Test( T::GetTypeStatic() ) );
-			return m_archetype.GetMutableFragment< T >( id );
+			return m_archetype->GetMutableFragment< T >( id );
+		}
+
+		template< class T >
+		MutableFragmentView< T > GetMutableFragmentView( ecs::EntityID id ) const
+		{
+			FORGE_ASSERT( m_mutableFragments.Test( T::GetTypeStatic() ) );
+			return MutableFragmentView< T >( *m_archetype, m_archetype->GetMutableFragment< T >( id ) );
 		}
 
 		Uint32 GetEntitiesAmount() const
 		{
-			return m_archetype.GetEntitiesAmount();
+			return m_archetype->GetEntitiesAmount();
 		}
 
 		EntityID GetEntityIDWithIndex( Uint32 index ) const
 		{
-			return m_archetype.GetEntityIDWithIndex( index );
+			return m_archetype->GetEntityIDWithIndex( index );
 		}
 
 		const ArchetypeID& GetArchetypeID() const
 		{
-			return m_archetype.GetArchetypeID();
+			return m_archetype->GetArchetypeID();
+		}
+
+
+		Bool ContainsEntity( EntityID id ) const
+		{
+			return m_archetype->ContainsEntity( id );
 		}
 
 	private:
-		Archetype& m_archetype;
+		Archetype* m_archetype = nullptr;
 		FragmentsFlags m_mutableFragments;
 		FragmentsFlags m_readableFragments;
 	};
-
 }
 
 namespace std

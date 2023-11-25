@@ -17,7 +17,7 @@ namespace forge
 	public:
 		using DataComponent::DataComponent;
 
-		PointLightFragment& GetData()
+		ecs::MutableFragmentView< PointLightFragment > GetData()
 		{
 			return GetMutableData();
 		}

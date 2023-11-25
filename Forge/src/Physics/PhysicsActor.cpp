@@ -47,21 +47,26 @@ Transform physics::PhysicsActor::GetTransform() const
 	return { pos, rot };
 }
 
-void physics::PhysicsActor::AddShape( const physics::PhysicsShape& shape )
+void physics::PhysicsActor::AddShape( physics::PhysicsShape&& shape )
 {
+	shape.ChangeScale( Vector3::ONES(), Vector3::ONES() * m_currentScale );
 	GetActor().attachShape( shape.GetShape() );
 }
 
-void physics::PhysicsActor::ChangeScale( const Vector3& prevScale, const Vector3& newScale )
+void physics::PhysicsActor::ChangeScale( const Vector3& newScale )
 {
+	FORGE_ASSERT( Math::IsAlmostZero( newScale.X - newScale.Y, 0.0001f ) && Math::IsAlmostZero( newScale.Y - newScale.Z, 0.0001f ) );
+
 	std::vector< physx::PxShape* > shapes;
 	shapes.resize( GetActor().getNbShapes() );
 	GetActor().getShapes( shapes.data(), static_cast< Uint32 >( shapes.size() ) );
 
 	for ( auto* shape : shapes )
 	{
-		physics::PhysicsShape::ChangeScale( *shape, prevScale, newScale );
+		physics::PhysicsShape::ChangeScale( *shape, Vector3::ONES() * m_currentScale, newScale);
 	}
+
+	m_currentScale = newScale.X;
 }
 
 physics::PhysicsDynamicActor::PhysicsDynamicActor( PhysicsDynamicActor&& other )
@@ -84,9 +89,9 @@ void physics::PhysicsDynamicActor::Initialize( PhysxProxy& proxy, Transform tran
 	Super::Initialize( proxy, transform, userData );
 }
 
-void physics::PhysicsDynamicActor::UpdateDensity( Float density )
+void physics::PhysicsDynamicActor::SetDensity( Float density )
 {
-	physx::PxRigidBodyExt::updateMassAndInertia( *m_actor, density );
+	physx::PxRigidBodyExt::updateMassAndInertia( *m_actor, density * GetCurrentScale() );
 }
 
 void physics::PhysicsDynamicActor::AddForce( const Vector3& force, ForceMode forceMode )
@@ -141,17 +146,14 @@ void physics::PhysicsDynamicActor::SetAngularVelocity( const Vector3& velocity )
 	GetDynamicActor().setAngularVelocity( physics::helpers::Convert( velocity ) );
 }
 
-void physics::PhysicsDynamicActor::ChangeScale( const Vector3& prevScale, const Vector3& newScale )
+void physics::PhysicsDynamicActor::ChangeScale( const Vector3& newScale )
 {
-	Super::ChangeScale( prevScale, newScale );
+	Super::ChangeScale( newScale );
 
-	FORGE_ASSERT( prevScale.X == prevScale.Y && prevScale.Y == prevScale.Z );
-	FORGE_ASSERT( newScale.X == newScale.Y && newScale.Y == newScale.Z );
-
-	const Float scale = newScale.X / prevScale.X;
+	const Float scale = newScale.X / GetCurrentScale();
 	const Float scale3 = scale * scale * scale;
 	GetDynamicActor().setMass( GetDynamicActor().getMass() * scale3 );
-	GetDynamicActor().setMassSpaceInertiaTensor( GetDynamicActor().getMassSpaceInertiaTensor() * scale3 * scale * scale );
+	GetDynamicActor().setMassSpaceInertiaTensor( GetDynamicActor().getMassSpaceInertiaTensor() * scale3 );
 	physx::PxTransform cMassTransform = GetDynamicActor().getCMassLocalPose();
 	GetDynamicActor().setCMassLocalPose( physx::PxTransform( cMassTransform.p * scale, cMassTransform.q ) );
 }

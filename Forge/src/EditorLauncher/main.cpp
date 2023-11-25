@@ -28,7 +28,7 @@ Int32 main()
 
 		renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
 
-		transformComponent->GetDirtyTransform().SetPosition( Vector3::ZEROS() );
+		transformComponent->SetWorldPosition( Vector3::ZEROS() );
 
 		auto* physicsComponent = obj->GetComponent< forge::PhysicsStaticComponent >();
 		auto modelAsset = engineInstance.GetAssetsManager().GetAsset< renderer::ModelAsset >( "Models\\cube.obj" );

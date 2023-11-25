@@ -153,6 +153,12 @@ void ecs::ECSManager::SetArchetypeFragmentsAndTags( const ecs::ArchetypeID& arch
 	FORGE_ASSURE( TryToFindArchetypeIndex( archetypeId, oldArchetypeIndex ) );
 
 	ArchetypeID newId( fragments, tags );
+
+	if ( newId == archetypeId )
+	{
+		return;
+	}
+
 	Uint32 newArchetypeIndex = 0u;
 	if ( TryToFindArchetypeIndex( newId, newArchetypeIndex ) )
 	{
@@ -264,32 +270,4 @@ void ecs::ECSManager::VisitAllArchetypes( FragmentsFlags readableFragments, std:
 	{
 		visitFunc( { *archetype, readableFragments } );
 	}
-}
-
-forge::CallbackToken ecs::ECSManager::RegisterReadFragmentObserver( const ecs::Fragment::Type& observedFragmentType, std::function< void( ecs::EntityID ) > callback )
-{
-	return m_onBeforeReadingFragmentCallbacks[ ecs::Fragment::GetTypeIndex( observedFragmentType ) ].AddListener( callback );
-}
-
-forge::CallbackToken ecs::ECSManager::RegisterModifyingFragmentObserver( const ecs::Fragment::Type& observedFragmentType, std::function< void( ecs::EntityID ) > callback )
-{
-	return m_onBeforeModifyingFragmentCallbacks[ ecs::Fragment::GetTypeIndex( observedFragmentType ) ].AddListener( callback );
-}
-
-forge::CallbackToken ecs::ECSManager::RegisterReadArchetypeObserver( const ecs::Fragment::Type& observedFragmentType, std::function< void( const MutableArchetypeView&, CommandsQueue& ) > callback, FragmentsFlags readableFragments, FragmentsFlags mutableFragments )
-{
-	return m_onBeforeReadingArchetypeCallbacks[ ecs::Fragment::GetTypeIndex( observedFragmentType ) ].AddListener(
-		[ callback = std::move( callback ), readableFragments, mutableFragments ]( Archetype& archetype, CommandsQueue& commandsQueue )
-		{
-			callback( ecs::MutableArchetypeView( archetype, mutableFragments, readableFragments ), commandsQueue );
-		});
-}
-
-forge::CallbackToken ecs::ECSManager::RegisterModifyingArchetypeObserver( const ecs::Fragment::Type& observedFragmentType, std::function< void( const MutableArchetypeView&, CommandsQueue& ) > callback, FragmentsFlags readableFragments, FragmentsFlags mutableFragments )
-{
-	return m_onBeforeModifyingArchetypeCallbacks[ ecs::Fragment::GetTypeIndex( observedFragmentType ) ].AddListener(
-		[ callback = std::move( callback ), readableFragments, mutableFragments ]( Archetype& archetype, CommandsQueue& commandsQueue )
-		{
-			callback( ecs::MutableArchetypeView( archetype, mutableFragments, readableFragments ), commandsQueue );
-		} );
 }

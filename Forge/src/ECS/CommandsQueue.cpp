@@ -79,8 +79,6 @@ void ecs::CommandsQueue::Execute()
 		}
 	}
 
-	m_entitiesQueue.clear();
-
 	for ( const auto& [ archetypeId, commands ] : m_archetypesQueue )
 	{
 		FragmentsFlags fragments = ( archetypeId.GetFragmentsFlags() | commands.m_fragmentsToAdd ) & commands.m_fragmentsToRemove.Flipped();
@@ -89,12 +87,72 @@ void ecs::CommandsQueue::Execute()
 		m_ecsManager.SetArchetypeFragmentsAndTags( archetypeId, fragments, tags );
 	}
 
-	m_archetypesQueue.clear();
+	Reset();
+}
 
-	m_postExecutionCallback.Invoke();
+void ecs::CommandsQueue::Reset()
+{
+	m_entitiesQueue.clear();
+	m_archetypesQueue.clear();
+	m_postExecutionCallback = forge::Callback<>();
 }
 
 forge::CallbackToken ecs::CommandsQueue::AddPostExecutionCallback( std::function< void() > callback )
 {
 	return m_postExecutionCallback.AddListener( std::move( callback ) );
+}
+
+void ecs::CommandsQueue::Merge( CommandsQueue&& other )
+{
+	for ( auto&& it : std::move( other.m_archetypesQueue ) )
+	{
+		auto found = m_archetypesQueue.find( it.first );
+		if ( found != m_archetypesQueue.end() )
+		{
+			found->second.m_fragmentsToAdd |= it.second.m_fragmentsToAdd;
+			found->second.m_fragmentsToRemove &= it.second.m_fragmentsToAdd.Flipped();
+
+			found->second.m_fragmentsToRemove |= it.second.m_fragmentsToRemove;
+			found->second.m_fragmentsToAdd &= it.second.m_fragmentsToRemove;
+
+			found->second.m_tagsToAdd |= it.second.m_tagsToAdd;
+			found->second.m_tagsToRemove &= it.second.m_tagsToAdd.Flipped();
+
+			found->second.m_tagsToRemove |= it.second.m_tagsToRemove;
+			found->second.m_tagsToAdd &= it.second.m_tagsToRemove;
+		}
+		else
+		{
+			m_archetypesQueue.emplace( it );
+		}
+	}
+
+	for ( auto&& it : std::move( other.m_entitiesQueue ) )
+	{
+		auto found = m_entitiesQueue.find( it.first );
+		if ( found != m_entitiesQueue.end() )
+		{
+			found->second.m_fragmentsToAdd |= it.second.m_fragmentsToAdd;
+			found->second.m_fragmentsToRemove &= it.second.m_fragmentsToAdd.Flipped();
+
+			found->second.m_fragmentsToRemove |= it.second.m_fragmentsToRemove;
+			found->second.m_fragmentsToAdd &= it.second.m_fragmentsToRemove;
+
+			found->second.m_tagsToAdd |= it.second.m_tagsToAdd;
+			found->second.m_tagsToRemove &= it.second.m_tagsToAdd.Flipped();
+
+			found->second.m_tagsToRemove |= it.second.m_tagsToRemove;
+			found->second.m_tagsToAdd &= it.second.m_tagsToRemove;
+
+			found->second.m_remove |= it.second.m_remove;
+		}
+		else
+		{
+			m_entitiesQueue.emplace( it );
+		}
+	}
+
+	m_postExecutionCallback.AddCallback( std::move( other.m_postExecutionCallback ) );
+
+	other.Reset();
 }

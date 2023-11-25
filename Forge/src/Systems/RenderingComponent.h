@@ -52,15 +52,10 @@ namespace forge
 		void SetInteractingWithLight( bool enabled );
 		void SetDrawAsOverlayEnabled( bool enabled );
 
-		const renderer::Renderable& GetRenderable() const
-		{
-			return GetData().m_renderable;
-		}
-
-		renderer::Renderable& GetDirtyRenderable()
+		ecs::MutableFragmentView< forge::RenderableFragment > GetDirtyData()
 		{
 			SetDirty();
-			return GetMutableData().m_renderable;
+			return GetMutableData();
 		}
 	private:
 		CallbackToken m_onShadersClearCache;

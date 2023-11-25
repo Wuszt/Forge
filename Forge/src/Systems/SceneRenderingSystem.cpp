@@ -381,26 +381,30 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 
 				cmds.AddCommand( [ this, entityID ]()
 				{
-					const forge::RenderableFragment* renderableFragment = GetEngineInstance().GetECSManager().GetFragment< forge::RenderableFragment >( entityID );
-
-					Bool containsTransparentMaterials = false;
-					for ( auto& material : renderableFragment->m_renderable.GetMaterials() )
 					{
-						containsTransparentMaterials |= material->GetRenderingPass() == renderer::RenderingPass::Transparent;
-					}
-
-					if ( containsTransparentMaterials )
-					{
-						if ( !GetEngineInstance().GetECSManager().GetEntityArchetypeId( entityID ).ContainsTag< ContainsTransparentShapes >() )
+						Bool containsTransparentMaterials = false;
 						{
-							GetEngineInstance().GetECSManager().AddTagToEntity< ContainsTransparentShapes >( entityID );
+							auto renderableFragment = GetEngineInstance().GetECSManager().GetFragmentView< forge::RenderableFragment >( entityID );
+
+							for ( auto& material : renderableFragment->m_renderable.GetMaterials() )
+							{
+								containsTransparentMaterials |= material->GetRenderingPass() == renderer::RenderingPass::Transparent;
+							}
 						}
-					}
-					else
-					{
-						if ( GetEngineInstance().GetECSManager().GetEntityArchetypeId( entityID ).ContainsTag< ContainsTransparentShapes >() )
+
+						if ( containsTransparentMaterials )
 						{
-							GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsTransparentShapes >( entityID );
+							if ( !GetEngineInstance().GetECSManager().GetEntityArchetypeId( entityID ).ContainsTag< ContainsTransparentShapes >() )
+							{
+								GetEngineInstance().GetECSManager().AddTagToEntity< ContainsTransparentShapes >( entityID );
+							}
+						}
+						else
+						{
+							if ( GetEngineInstance().GetECSManager().GetEntityArchetypeId( entityID ).ContainsTag< ContainsTransparentShapes >() )
+							{
+								GetEngineInstance().GetECSManager().RemoveTagFromEntity< ContainsTransparentShapes >( entityID );
+							}
 						}
 					}
 
@@ -413,7 +417,7 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 	ecs::Query modifiedTransformQuery( GetEngineInstance().GetECSManager() );
 	modifiedTransformQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 	modifiedTransformQuery.AddMutableFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
-	modifiedTransformQuery.AddFragmentRequirement< forge::PreviousFrameTransformFragment >( ecs::Query::RequirementType::Included );
+	modifiedTransformQuery.AddTagRequirement< forge::TransformWasModifiedThisFrame >( ecs::Query::RequirementType::Included );
 
 	{
 		PC_SCOPE( "SceneRenderingSystem::OnDraw::UpdatingBuffers" );

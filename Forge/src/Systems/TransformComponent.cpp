@@ -2,35 +2,74 @@
 #include "TransformComponent.h"
 
 RTTI_IMPLEMENT_TYPE( forge::TransformFragment );
-RTTI_IMPLEMENT_TYPE( forge::PreviousFrameTransformFragment );
+RTTI_IMPLEMENT_TYPE( forge::ChildRequiringRecalculatingLocalTransform );
+RTTI_IMPLEMENT_TYPE( forge::TransformWasModifiedThisFrame );
+RTTI_IMPLEMENT_TYPE( forge::TransformParentFragment );
+RTTI_IMPLEMENT_TYPE( forge::TransformChildFragment );
+RTTI_IMPLEMENT_TYPE( forge::ChildRequiringRecalculatingWorldTransform );
 RTTI_IMPLEMENT_TYPE( forge::TransformComponent );
 
 void forge::TransformComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	DataComponent< TransformFragment >::OnAttached( engineInstance, commandsQueue );
-	GetDirtyTransform() = Transform::IDENTITY();
-	GetDirtyScale() = Vector3::ONES();
+	SetWorldTransform( Transform::IDENTITY() );
+	SetWorldScale( Vector3::ONES() );
 }
 
-const Vector3* forge::TransformComponent::GetPrevFrameScale() const
+void forge::TransformComponent::SetParent( TransformComponent& parent, bool keepWorldTransform )
 {
 	auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
-	auto entityID = GetOwner().GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() );
+	auto& objectManager = GetOwner().GetEngineInstance().GetObjectsManager();
 
-	if ( const PreviousFrameTransformFragment* prevFrameScaleFragment = ecsManager.GetFragment< PreviousFrameTransformFragment >( entityID ) )
+	ecs::EntityID myId = objectManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
+	ecs::EntityID parentId = objectManager.GetOrCreateEntityId( parent.GetOwner().GetObjectID() );
+	
+	auto parentTransform = *ecsManager.GetFragmentView< forge::TransformFragment >( parentId );
+	auto myTransform = *ecsManager.GetFragmentView< forge::TransformFragment >( myId );
+
 	{
-		return &prevFrameScaleFragment->m_scale;
+		auto childFragment = ecsManager.GetMutableFragmentView< forge::TransformChildFragment >( myId );
+		{
+			if ( childFragment )
+			{
+				auto parentTransform = ecsManager.GetMutableFragmentView< forge::TransformParentFragment >( childFragment->m_parentId );
+				forge::utils::RemoveValueReorder( parentTransform->m_children, myId );
+				if ( parentTransform->m_children.empty() )
+				{
+					ecsManager.RemoveFragmentFromEntity< forge::TransformParentFragment >( childFragment->m_parentId );
+				}
+			}
+			else
+			{
+				ecsManager.AddFragmentDataToEntity< forge::TransformChildFragment >( myId, { parentId } );
+				childFragment = ecsManager.GetMutableFragmentView< forge::TransformChildFragment >( myId );
+			}
+			childFragment->m_parentId = parentId;
+		}
+
+		{
+			if ( keepWorldTransform )
+			{
+				const Matrix localMatrix = myTransform.ToMatrix() * parentTransform.ToMatrix().OrthonormInverted();
+
+				Vector3 localPos;
+				Quaternion localRot;
+
+				Vector3 local = localMatrix.TransformVector( Vector3::EY() );
+
+				localMatrix.Decompose( childFragment->m_scale, localRot, localPos );
+				ecsManager.GetMutableFragmentView< forge::TransformChildFragment >( myId )->m_transform = Transform( localPos, localRot );
+			}
+		}
 	}
 
-	return nullptr;
-}
-
-Transform& forge::TransformComponent::GetDirtyTransform()
-{
-	return GetMutableData().m_transform;
-}
-
-Vector3& forge::TransformComponent::GetDirtyScale()
-{
-	return GetMutableData().m_scale.AsVector3();
+	{
+		auto transformParent = ecsManager.GetMutableFragmentView< forge::TransformParentFragment >( parentId );
+		if ( !transformParent )
+		{
+			ecsManager.AddFragmentToEntity< forge::TransformParentFragment >( parentId );
+			transformParent = ecsManager.GetMutableFragmentView< forge::TransformParentFragment >( parentId );
+		}
+		transformParent->m_children.emplace_back( myId );
+	}
 }

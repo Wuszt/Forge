@@ -97,13 +97,13 @@ namespace ecs
 			return m_flags != rawBits;
 		}
 
-		MyType& operator|=( const MyType& rTags ) const
+		MyType& operator|=( const MyType& rTags )
 		{
 			m_flags |= rTags.m_flags;
 			return *this;
 		}
 
-		MyType& operator&=( const MyType& rTags ) const
+		MyType& operator&=( const MyType& rTags )
 		{
 			m_flags &= rTags.m_flags;
 			return *this;
