@@ -8,7 +8,12 @@ void forge::ObjectsManager::RemoveObject( const ObjectID& id )
 	auto foundEntityId = m_objectsToEntities.find( id );
 	if ( foundEntityId != m_objectsToEntities.end() )
 	{
-		m_ecsManager.RemoveEntity( foundEntityId->second );
+		if ( m_ecsManager.DoesEntityExist( foundEntityId->second ) )
+		{
+			m_ecsManager.RemoveEntity( foundEntityId->second );
+		}
+		
+		m_objectsToEntities.erase( foundEntityId );
 	}
 
 	m_onObjectDestructed.Invoke( id );

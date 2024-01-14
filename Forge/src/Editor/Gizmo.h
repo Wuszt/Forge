@@ -36,6 +36,8 @@ namespace editor
 
 		void Update( forge::ObjectID hoveredObject, const Vector3& cursorRayDir );
 
+		void Initialize( forge::ObjectID modifiedObject );
+
 	private:
 		Gizmo() = default;
 		Gizmo( Gizmo&& ) = default;
@@ -43,6 +45,8 @@ namespace editor
 		forge::ObjectLifetimeToken m_xAxisArrow;
 		forge::ObjectLifetimeToken m_yAxisArrow;
 		forge::ObjectLifetimeToken m_zAxisArrow;
+
+		forge::ObjectID m_modifiedObject;
 
 		GizmoArrow* m_activeArrow = nullptr;
 	};

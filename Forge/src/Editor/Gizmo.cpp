@@ -32,29 +32,43 @@ void editor::Gizmo::OnAttach()
 		{
 			m_xAxisArrow = std::move( forge::ObjectLifetimeToken( *arrow ) );
 			arrow->SetColor( c_xAxisColor );
-			arrow->GetComponent< forge::TransformComponent >()->SetWorldOrientation( Quaternion::CreateFromDirection( Vector3::EX() ) );
-			arrow->GetComponent< forge::TransformComponent >()->SetParent( *GetComponent< forge::TransformComponent >(), true );
+
+			arrow->GetComponent< forge::TransformComponent >()->SetParent( *GetComponent< forge::TransformComponent >(), false );
+			arrow->GetComponent< forge::TransformComponent >()->SetRelativeOrientation( Quaternion::CreateFromDirection( Vector3::EX() ) );
 		} );
 
 	GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::GizmoArrow >( [ this ]( editor::GizmoArrow* arrow )
 		{
 			m_yAxisArrow = std::move( forge::ObjectLifetimeToken( *arrow ) );
 			arrow->SetColor( c_yAxisColor );
-			arrow->GetComponent< forge::TransformComponent >()->SetWorldOrientation( Quaternion::CreateFromDirection( Vector3::EY() ) );
-			arrow->GetComponent< forge::TransformComponent >()->SetParent( *GetComponent< forge::TransformComponent >(), true );
+
+			arrow->GetComponent< forge::TransformComponent >()->SetParent( *GetComponent< forge::TransformComponent >(), false );
+			arrow->GetComponent< forge::TransformComponent >()->SetRelativeOrientation( Quaternion::CreateFromDirection( Vector3::EY() ) );
 		} );
 
 	GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::GizmoArrow >( [ this ]( editor::GizmoArrow* arrow )
 		{
 			m_zAxisArrow = std::move( forge::ObjectLifetimeToken( *arrow ) );
 			arrow->SetColor( c_zAxisColor );
-			arrow->GetComponent< forge::TransformComponent >()->SetWorldOrientation( Quaternion::CreateFromDirection( Vector3::EZ() ) );
-			arrow->GetComponent< forge::TransformComponent >()->SetParent( *GetComponent< forge::TransformComponent >(), true );
+
+			arrow->GetComponent< forge::TransformComponent >()->SetParent( *GetComponent< forge::TransformComponent >(), false );
+			arrow->GetComponent< forge::TransformComponent >()->SetRelativeOrientation( Quaternion::CreateFromDirection( Vector3::EZ() ) );
 		} );
 }
 
 void editor::Gizmo::Update( forge::ObjectID hoveredObject, const Vector3& cursorRayDir )
 {
+	forge::TransformComponent* gizmoTransformComp = GetComponent< forge::TransformComponent >();
+	const auto& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
+	const Vector3 cameraPos = currentCamera.GetPosition();
+	const Vector3 cameraToGizmo = gizmoTransformComp->GetWorldPosition() - cameraPos;
+	const Float distToCamera = cameraToGizmo.Dot( currentCamera.GetTransform().GetForward() );
+
+	constexpr Float distToScaleFactor = 0.15f;
+	gizmoTransformComp->SetWorldScale( Vector3::ONES() * distToCamera * distToScaleFactor );
+
+	forge::TransformComponent* modifiedTransformComp = GetEngineInstance().GetObjectsManager().GetObject( m_modifiedObject )->GetComponent< forge::TransformComponent >();
+
 	auto mouseState = GetEngineInstance().GetRenderingManager().GetWindow().GetInput()->GetMouseButtonState( forge::IInput::MouseButton::LeftButton );
 	switch ( mouseState )
 	{
@@ -87,7 +101,7 @@ void editor::Gizmo::Update( forge::ObjectID hoveredObject, const Vector3& cursor
 		if ( m_activeArrow )
 		{
 			const Vector3 pos = m_activeArrow->GetDesiredPosition( cursorRayDir );
-			GetComponent< forge::TransformComponent >()->SetWorldPosition( pos );
+			modifiedTransformComp->SetWorldPosition( pos );
 		}
 		break;
 
@@ -95,6 +109,16 @@ void editor::Gizmo::Update( forge::ObjectID hoveredObject, const Vector3& cursor
 		m_activeArrow = nullptr;
 		break;
 	}
+
+	gizmoTransformComp->SetWorldPosition( modifiedTransformComp->GetWorldPosition() );
+}
+
+void editor::Gizmo::Initialize( forge::ObjectID modifiedObject )
+{
+	m_modifiedObject = modifiedObject;
+
+	const forge::TransformComponent* modifiedTransformComp = GetEngineInstance().GetObjectsManager().GetObject( m_modifiedObject )->GetComponent< forge::TransformComponent >();
+	GetComponent< forge::TransformComponent >()->SetWorldPosition( modifiedTransformComp->GetWorldPosition() );
 }
 
 editor::Gizmo::Gizmo( forge::EngineInstance& engineInstance, forge::ObjectID id )

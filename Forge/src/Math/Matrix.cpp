@@ -108,13 +108,7 @@ void Matrix::Decompose( Vector3& scale, Quaternion& rotation, Vector3& translati
 	translation = W;
 
 	scale = { X.Mag3(), Y.Mag3(), Z.Mag3() };
-
-	Matrix m = *this;
-	m.X /= scale.X;
-	m.Y /= scale.Y;
-	m.Z /= scale.Z;
-
-	rotation = m.GetRotation();
+	rotation = GetRotation();
 }
 
 Vector3 Matrix::ToEulerAngles() const

@@ -150,9 +150,11 @@ struct Matrix
 
 	Quaternion GetRotation() const
 	{
+		Matrix temp( X.Normalized3(), Y.Normalized3(), Z.Normalized3(), W );
+
 		Quaternion result;
 
-		Float trace = X[ 0 ] + Y[ 1 ] + Z[ 2 ];
+		Float trace = temp.X[ 0 ] + temp.Y[ 1 ] + temp.Z[ 2 ];
 
 		if( trace > 0 )
 		{
@@ -160,42 +162,42 @@ struct Matrix
 			Float invS = 1.0f / s;
 			result.r = 0.25f * s;
 
-			result.i = ( Y[ 2 ] - Z[ 1 ] ) * invS;
-			result.j = ( Z[ 0 ] - X[ 2 ] ) * invS;
-			result.k = ( X[ 1 ] - Y[ 0 ] ) * invS;
+			result.i = ( temp.Y[ 2 ] - temp.Z[ 1 ] ) * invS;
+			result.j = ( temp.Z[ 0 ] - temp.X[ 2 ] ) * invS;
+			result.k = ( temp.X[ 1 ] - temp.Y[ 0 ] ) * invS;
 		}
-		else if( X[ 0 ] > Y[ 1 ] && X[ 0 ] > Z[ 2 ] )
+		else if( temp.X[ 0 ] > temp.Y[ 1 ] && temp.X[ 0 ] > temp.Z[ 2 ] )
 		{
-			Float s = std::sqrtf( X[ 0 ] - Y[ 1 ] - Z[ 2 ] + 1.0f ) * 2.0f;
+			Float s = std::sqrtf( temp.X[ 0 ] - temp.Y[ 1 ] - temp.Z[ 2 ] + 1.0f ) * 2.0f;
 			Float invS = 1.0f / s;
 
 			result.i = 0.25f * s;
 
-			result.r = ( Y[ 2 ] - Z[ 1 ] ) * invS;
-			result.j = ( Y[ 0 ] + X[ 1 ] ) * invS;
-			result.k = ( Z[ 0 ] + X[ 2 ] ) * invS;
+			result.r = ( temp.Y[ 2 ] - temp.Z[ 1 ] ) * invS;
+			result.j = ( temp.Y[ 0 ] + temp.X[ 1 ] ) * invS;
+			result.k = ( temp.Z[ 0 ] + temp.X[ 2 ] ) * invS;
 		}
-		else if( Y[ 1 ] > Z[ 2 ] )
+		else if( temp.Y[ 1 ] > temp.Z[ 2 ] )
 		{
-			Float s = std::sqrtf( Y[ 1 ] - X[ 0 ] - Z[ 2 ] + 1.0f ) * 2.0f;
+			Float s = std::sqrtf( temp.Y[ 1 ] - temp.X[ 0 ] - temp.Z[ 2 ] + 1.0f ) * 2.0f;
 			Float invS = 1.0f / s;
 
 			result.j = 0.25f * s;
 
-			result.r = ( Z[ 0 ] - X[ 2 ] ) * invS;
-			result.i = ( Y[ 0 ] + X[ 1 ] ) * invS;
-			result.k = ( Z[ 1 ] + Y[ 2 ] ) * invS;
+			result.r = ( temp.Z[ 0 ] - temp.X[ 2 ] ) * invS;
+			result.i = ( temp.Y[ 0 ] + temp.X[ 1 ] ) * invS;
+			result.k = ( temp.Z[ 1 ] + temp.Y[ 2 ] ) * invS;
 		}
 		else
 		{
-			Float s = std::sqrtf( Z[ 2 ] - X[ 0 ] - Y[ 1 ] + 1.0f ) * 2.0f;
+			Float s = std::sqrtf( temp.Z[ 2 ] - temp.X[ 0 ] - temp.Y[ 1 ] + 1.0f ) * 2.0f;
 			Float invS = 1.0f / s;
 
 			result.k = 0.25f * s;
 
-			result.r = ( X[ 1 ] - Y[ 0 ] ) * invS;
-			result.i = ( Z[ 0 ] + X[ 2 ] ) * invS;
-			result.j = ( Z[ 1 ] + Y[ 2 ] ) * invS;
+			result.r = ( temp.X[ 1 ] - temp.Y[ 0 ] ) * invS;
+			result.i = ( temp.Z[ 0 ] + temp.X[ 2 ] ) * invS;
+			result.j = ( temp.Z[ 1 ] + temp.Y[ 2 ] ) * invS;
 		}
 
 		result.Normalize();

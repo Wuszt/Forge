@@ -14,6 +14,21 @@ namespace physics
 		Editor = 1u << 1,
 		All = std::numeric_limits< Uint32 >::max(),
 	};
+
+	constexpr PhysicsGroupFlags operator&( PhysicsGroupFlags x, PhysicsGroupFlags y )
+	{
+		return static_cast< PhysicsGroupFlags >( static_cast< Uint32 >( x ) & static_cast< Uint32 >( y ) );
+	}
+
+	constexpr PhysicsGroupFlags operator~( PhysicsGroupFlags x )
+	{
+		return static_cast< PhysicsGroupFlags >( ~static_cast< Uint32 >( x ) );
+	}
+
+	constexpr PhysicsGroupFlags operator|( PhysicsGroupFlags x, PhysicsGroupFlags y )
+	{
+		return static_cast< PhysicsGroupFlags >( static_cast< Uint32 >( x ) | static_cast< Uint32 >( y ) );
+	}
 }
 
 namespace systems

@@ -2,6 +2,11 @@
 #include "PanelBase.h"
 #include "../GameEngine/ObjectLifetimeToken.h"
 
+namespace physics
+{
+	enum class PhysicsGroupFlags : Uint32;
+}
+
 namespace forge
 {
 	class EngineInstance;
@@ -31,7 +36,7 @@ namespace editor
 		}
 
 	private:
-		bool FindHoveredObject( const Vector2& cursorPos, forge::ObjectID& outObjectId, Vector3& outRayDir ) const;
+		bool FindHoveredObject( const Vector2& cursorPos, physics::PhysicsGroupFlags group, forge::ObjectID& outObjectId, Vector3& outRayDir ) const;
 
 		std::unique_ptr< renderer::ITexture > m_targetTexture;
 		std::unique_ptr< editor::SceneGrid > m_sceneGrid;

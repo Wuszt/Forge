@@ -25,7 +25,7 @@ void forge::PhysicsComponent::OnAttached( EngineInstance& engineInstance, ecs::C
 	physicsSystem.RegisterActor( GetActor() );
 }
 
-void forge::PhysicsComponent::OnDetached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
+void forge::PhysicsComponent::OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	auto& physicsSystem = engineInstance.GetSystemsManager().GetSystem < systems::PhysicsSystem >();
 	physicsSystem.UnregisterActor( GetActor() );

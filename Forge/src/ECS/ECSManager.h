@@ -144,6 +144,11 @@ namespace ecs
 		void AddFragmentsAndTagsToArchetype( const ecs::ArchetypeID& archetypeId, FragmentsFlags fragments, TagsFlags tags );
 		void RemoveFragmentsAndTagsFromArchetype( const ecs::ArchetypeID& archetypeId, FragmentsFlags fragments, TagsFlags tags );
 
+		Bool DoesEntityExist( EntityID id ) const
+		{
+			return m_entityToArchetype.contains( id );
+		}
+
 		ArchetypeID GetEntityArchetypeId( EntityID id );
 
 		template< class T >

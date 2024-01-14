@@ -23,16 +23,15 @@ namespace forge
 			return m_objectId;
 		}
 
-		template< class T >
+		template< class T = forge::Object >
 		T* GetObject() const
 		{
-			return dynamic_cast< T* >( m_objectsManager->GetObject( m_objectId ) );
-		}
+			if ( !m_objectId.IsValid() )
+			{
+				return nullptr;
+			}
 
-		template<>
-		forge::Object* GetObject< forge::Object >() const
-		{
-			return m_objectsManager->GetObject( m_objectId );
+			return dynamic_cast< T* >( m_objectsManager->GetObject( m_objectId ) );
 		}
 
 	private:

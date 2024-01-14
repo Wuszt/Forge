@@ -14,7 +14,7 @@ namespace forge
 
 		~ObjectID() = default;
 
-		Bool IsValid()
+		Bool IsValid() const
 		{
 			return m_id != c_invalidID;
 		}

@@ -12,6 +12,8 @@
 #include "../Systems/CameraComponent.h"
 #include "../Physics/RaycastResult.h"
 #include "../Systems/PhysicsUserData.h"
+#include "../Core/IInput.h"
+#include "../Core/IWindow.h"
 
 editor::SceneEditor::SceneEditor( forge::EngineInstance& engineInstance )
 	: PanelBase( engineInstance )
@@ -23,10 +25,6 @@ editor::SceneEditor::SceneEditor( forge::EngineInstance& engineInstance )
 	sceneRenderingSystem.SetTargetTexture( m_targetTexture.get() );
 
 	m_sceneGrid = std::make_unique< editor::SceneGrid >( engineInstance );
-	engineInstance.GetObjectsManager().RequestCreatingObject< editor::Gizmo >( [ this ]( editor::Gizmo* gizmo )
-		{
-			m_gizmoToken = forge::ObjectLifetimeToken( *gizmo );
-		} );
 }
 
 editor::SceneEditor::~SceneEditor() = default;
@@ -51,13 +49,36 @@ void editor::SceneEditor::Draw()
 
 	forge::ObjectID objectId;
 	Vector3 rayDir;
-	FindHoveredObject( forge::imgui::CastToForge( ImGui::GetMousePos() ) - imageDrawPos, objectId, rayDir );
+	const Vector2 cursorPos = forge::imgui::CastToForge( ImGui::GetMousePos() ) - imageDrawPos;
+	Bool clickedThisFrame = GetEngineInstance().GetRenderingManager().GetWindow().GetInput()->GetMouseButtonState( forge::IInput::MouseButton::LeftButton ) == forge::IInput::KeyState::Clicked;
 
-	editor::Gizmo& gizmo = *m_gizmoToken.GetObject< editor::Gizmo >();
-	gizmo.Update( objectId, rayDir );
+	if( m_gizmoToken.GetObject() )
+	{
+		const Bool hoveringOverSomething = FindHoveredObject( cursorPos, physics::PhysicsGroupFlags::Editor, objectId, rayDir );
+
+		editor::Gizmo& gizmo = *m_gizmoToken.GetObject< editor::Gizmo >();
+		gizmo.Update( objectId, rayDir );
+
+		if ( clickedThisFrame && !hoveringOverSomething )
+		{
+			m_gizmoToken = forge::ObjectLifetimeToken();
+		}
+	}
+
+	if ( clickedThisFrame && m_gizmoToken.GetObject() == nullptr )
+	{
+		if ( FindHoveredObject( cursorPos, ~physics::PhysicsGroupFlags::Editor, objectId, rayDir ) )
+		{
+			GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::Gizmo >( [ this, objectId ]( editor::Gizmo* gizmo )
+			{
+				m_gizmoToken = forge::ObjectLifetimeToken( *gizmo );
+				gizmo->Initialize( objectId );
+			} );
+		}
+	}
 }
 
-bool editor::SceneEditor::FindHoveredObject( const Vector2& cursorPos, forge::ObjectID& outObjectId, Vector3& outRayDir ) const
+bool editor::SceneEditor::FindHoveredObject( const Vector2& cursorPos, physics::PhysicsGroupFlags group, forge::ObjectID& outObjectId, Vector3& outRayDir ) const
 {
 	auto& camerasSystem = GetEngineInstance().GetSystemsManager().GetSystem<systems::CamerasSystem>();
 
@@ -72,7 +93,7 @@ bool editor::SceneEditor::FindHoveredObject( const Vector2& cursorPos, forge::Ob
 
 	auto& physicsSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::PhysicsSystem >();
 	physics::RaycastResult result;
-	if ( physicsSystem.PerformRaycast( cameraPos, outRayDir, std::numeric_limits< Float >::max(), result, physics::PhysicsGroupFlags::Editor ) )
+	if ( physicsSystem.PerformRaycast( cameraPos, outRayDir, std::numeric_limits< Float >::max(), result, group ) )
 	{
 		auto userData = physics::UserData( result.m_actorData );
 		outObjectId = userData.m_objectId;

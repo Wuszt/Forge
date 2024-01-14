@@ -17,17 +17,12 @@ void forge::FreeCameraControllerComponent::OnAttached( EngineInstance& engineIns
 
 	GetOwner().AddComponents< forge::PhysicsDynamicComponent >();
 	m_physicsComponent = GetOwner().GetComponent< forge::PhysicsDynamicComponent >();
-	m_physicsComponent->AddShape( physics::PhysicsShape( GetOwner().GetEngineInstance().GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), 0.5f ) );
+	//m_physicsComponent->AddShape( physics::PhysicsShape( GetOwner().GetEngineInstance().GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), 0.5f ) );
 	m_physicsComponent->GetActor().EnableGravity( false );
 }
 
 void forge::FreeCameraControllerComponent::Update( bool isInputEnabled )
 {
-	if ( m_physicsComponent == nullptr )
-	{
-		return;
-	}
-
 	m_physicsComponent->GetActor().ClearForce( physics::PhysicsDynamicActor::ForceMode::Impulse );
 	m_physicsComponent->GetActor().ClearTorque( physics::PhysicsDynamicActor::ForceMode::Impulse );
 
