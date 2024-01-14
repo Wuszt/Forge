@@ -4,6 +4,7 @@
 namespace physics
 {
 	class PhysicsShape;
+	enum class PhysicsGroupFlags : Uint32;
 }
 
 namespace systems
@@ -25,9 +26,9 @@ namespace forge
 		physics::PhysicsDynamicActor m_actor;
 	};
 
-	class IPhysicsComponent : public IComponent
+	class PhysicsComponent : public IComponent
 	{
-		RTTI_DECLARE_ABSTRACT_CLASS( IPhysicsComponent, forge::IComponent );
+		RTTI_DECLARE_ABSTRACT_CLASS( PhysicsComponent, forge::IComponent );
 
 		friend class systems::PhysicsSystem;
 
@@ -37,20 +38,22 @@ namespace forge
 
 		virtual void AddShape( physics::PhysicsShape&& shape );
 
+		void SetGroup( physics::PhysicsGroupFlags group );
+
 		virtual physics::PhysicsActor& GetActor() = 0;
 	};
 
-	class PhysicsStaticComponent : public DataComponent< PhysicsStaticFragment, IPhysicsComponent >
+	class PhysicsStaticComponent : public DataComponent< PhysicsStaticFragment, PhysicsComponent >
 	{
-		RTTI_DECLARE_POLYMORPHIC_CLASS( PhysicsStaticComponent, forge::IPhysicsComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( PhysicsStaticComponent, forge::PhysicsComponent );
 
 	public:
 		virtual physics::PhysicsStaticActor& GetActor() override;
 	};
 
-	class PhysicsDynamicComponent : public DataComponent< PhysicsDynamicFragment, IPhysicsComponent >
+	class PhysicsDynamicComponent : public DataComponent< PhysicsDynamicFragment, PhysicsComponent >
 	{
-		RTTI_DECLARE_POLYMORPHIC_CLASS( PhysicsDynamicComponent, forge::IPhysicsComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( PhysicsDynamicComponent, forge::PhysicsComponent );
 
 	public:
 		virtual physics::PhysicsDynamicActor& GetActor() override;

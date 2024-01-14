@@ -37,11 +37,11 @@ void systems::PhysicsSystem::UnregisterActor( physics::PhysicsActor& actor )
 	m_scene->RemoveActor( actor );
 }
 
-bool systems::PhysicsSystem::PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult )
+bool systems::PhysicsSystem::PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult, physics::PhysicsGroupFlags flags )
 {
 	UpdateScene();
 
-	return m_scene->PerformRaycast( start, direction, length, outResult );
+	return m_scene->PerformRaycast( start, direction, length, static_cast< Uint32 >( flags ), outResult );
 }
 
 void systems::PhysicsSystem::UpdateSimulation()
@@ -103,12 +103,4 @@ void systems::PhysicsSystem::UpdateScene()
 				updateTransformFunc.operator() < forge::PhysicsStaticFragment > ( archetype );
 			} );
 	}
-}
-
-physics::UserData physics::UserData::GetFromRaycastResult( const RaycastResult& raycastResult )
-{
-	physics::UserData userData;
-	static_assert( sizeof( userData ) == sizeof( raycastResult.m_userData ) );
-	std::memcpy( &userData, &raycastResult.m_userData, sizeof( raycastResult.m_userData ) );
-	return userData;
 }

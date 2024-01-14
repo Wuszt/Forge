@@ -111,6 +111,7 @@ void editor::GizmoArrow::OnAttach()
 	renderingComponent->SetDrawAsOverlayEnabled( true );
 
 	auto* physicsComponent = GetComponent< forge::PhysicsStaticComponent >();
+	physicsComponent->SetGroup( physics::PhysicsGroupFlags::Editor );
 
 	{
 		auto modelAsset = GetEngineInstance().GetAssetsManager().GetAsset< renderer::ModelAsset >( "Models/arrow.fbx" );

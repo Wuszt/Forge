@@ -3,6 +3,7 @@
 namespace physx
 {
 	struct PxRaycastHit;
+	class PxActor;
 }
 
 namespace physics
@@ -13,7 +14,7 @@ namespace physics
 		RaycastResult( const physx::PxRaycastHit& hit );
 
 		Vector3 m_position;
-		void* m_userData = nullptr;
+		void* m_actorData = nullptr;
 	};
 }
 

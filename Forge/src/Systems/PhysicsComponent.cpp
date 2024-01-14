@@ -3,8 +3,9 @@
 #include "PhysicsSystem.h"
 #include "TransformComponent.h"
 #include "../Physics/PhysicsShape.h"
+#include "PhysicsUserData.h"
 
-RTTI_IMPLEMENT_TYPE( forge::IPhysicsComponent );
+RTTI_IMPLEMENT_TYPE( forge::PhysicsComponent );
 
 RTTI_IMPLEMENT_TYPE( forge::PhysicsStaticFragment );
 RTTI_IMPLEMENT_TYPE( forge::PhysicsStaticComponent );
@@ -12,31 +13,32 @@ RTTI_IMPLEMENT_TYPE( forge::PhysicsStaticComponent );
 RTTI_IMPLEMENT_TYPE( forge::PhysicsDynamicFragment );
 RTTI_IMPLEMENT_TYPE( forge::PhysicsDynamicComponent );
 
-void forge::IPhysicsComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
+void forge::PhysicsComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	auto& physicsSystem = engineInstance.GetSystemsManager().GetSystem < systems::PhysicsSystem >();
 	const forge::ObjectID objectId = GetOwner().GetObjectID();
 	const ecs::EntityID entityId = engineInstance.GetObjectsManager().GetOrCreateEntityId( objectId );
 
-	void* rawUserData = nullptr;
 	physics::UserData userData{ entityId, objectId };
-	static_assert( sizeof( rawUserData) == sizeof( userData ) );
-
-	std::memcpy( &rawUserData, &userData, sizeof( userData ) );
-	GetActor().Initialize( physicsSystem.GetPhysicsProxy(), GetOwner().GetComponent< forge::TransformComponent >()->GetWorldTransform(), rawUserData );
+	GetActor().Initialize( physicsSystem.GetPhysicsProxy(), static_cast< Uint32 >( physics::PhysicsGroupFlags::Default ), GetOwner().GetComponent< forge::TransformComponent >()->GetWorldTransform(), userData.GetAsPointerSizeType() );
 
 	physicsSystem.RegisterActor( GetActor() );
 }
 
-void forge::IPhysicsComponent::OnDetached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
+void forge::PhysicsComponent::OnDetached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	auto& physicsSystem = engineInstance.GetSystemsManager().GetSystem < systems::PhysicsSystem >();
 	physicsSystem.UnregisterActor( GetActor() );
 }
 
-void forge::IPhysicsComponent::AddShape( physics::PhysicsShape&& shape )
+void forge::PhysicsComponent::AddShape( physics::PhysicsShape&& shape )
 {
 	GetActor().AddShape( std::move( shape ) );
+}
+
+void forge::PhysicsComponent::SetGroup( physics::PhysicsGroupFlags group )
+{
+	GetActor().SetGroup( static_cast< Uint32 >( group ) );
 }
 
 physics::PhysicsStaticActor& forge::PhysicsStaticComponent::GetActor()

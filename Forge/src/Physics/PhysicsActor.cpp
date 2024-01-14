@@ -28,8 +28,9 @@ static physx::PxForceMode::Enum Convert( physics::PhysicsDynamicActor::ForceMode
 	return physx::PxForceMode::eFORCE;
 }
 
-void physics::PhysicsActor::Initialize( PhysxProxy& proxy, Transform transform /*= Transform()*/, void* userData /*= nullptr */ )
+void physics::PhysicsActor::Initialize( PhysxProxy& proxy, Uint32 group, Transform transform /*= Transform()*/, void* userData /*= nullptr */ )
 {
+	m_group = group;
 	GetActor().userData = userData;
 }
 
@@ -47,8 +48,30 @@ Transform physics::PhysicsActor::GetTransform() const
 	return { pos, rot };
 }
 
+void physics::PhysicsActor::SetGroup( Uint32 group )
+{
+	m_group = group;
+	std::vector< physx::PxShape* > shapes;
+	shapes.resize( GetActor().getNbShapes() );
+	GetActor().getShapes( shapes.data(), static_cast< Uint32 >( shapes.size() ) );
+
+	physx::PxFilterData filterData;
+	filterData.word0 = group;
+
+	for ( physx::PxShape* shape : shapes )
+	{
+		shape->setQueryFilterData(filterData);
+		shape->setSimulationFilterData(filterData);
+	}
+}
+
 void physics::PhysicsActor::AddShape( physics::PhysicsShape&& shape )
 {
+	physx::PxFilterData filterData;
+	filterData.word0 = m_group;
+
+	shape.GetShape().setQueryFilterData( filterData );
+	shape.GetShape().setSimulationFilterData( filterData );
 	shape.ChangeScale( Vector3::ONES(), Vector3::ONES() * m_currentScale );
 	GetActor().attachShape( shape.GetShape() );
 }
@@ -69,7 +92,7 @@ void physics::PhysicsActor::ChangeScale( const Vector3& newScale )
 	m_currentScale = newScale.X;
 }
 
-physics::PhysicsDynamicActor::PhysicsDynamicActor( PhysicsDynamicActor&& other )
+physics::PhysicsDynamicActor::PhysicsDynamicActor( PhysicsDynamicActor&& other ) : Super( std::move( other ) )
 {
 	m_actor = other.m_actor;
 	other.m_actor = nullptr;
@@ -83,10 +106,10 @@ physics::PhysicsDynamicActor::~PhysicsDynamicActor()
 	}
 }
 
-void physics::PhysicsDynamicActor::Initialize( PhysxProxy& proxy, Transform transform /*= Transform() */, void* userData /*= nullptr */ )
+void physics::PhysicsDynamicActor::Initialize( PhysxProxy& proxy, Uint32 group, Transform transform /*= Transform() */, void* userData /*= nullptr */ )
 {
 	m_actor = proxy.GetPhysics().createRigidDynamic( physics::helpers::Convert( transform ) );
-	Super::Initialize( proxy, transform, userData );
+	Super::Initialize( proxy, group, transform, userData );
 }
 
 void physics::PhysicsDynamicActor::SetDensity( Float density )
@@ -168,7 +191,7 @@ physx::PxRigidActor& physics::PhysicsDynamicActor::GetActor()
 	return GetDynamicActor();
 }
 
-physics::PhysicsStaticActor::PhysicsStaticActor( PhysicsStaticActor&& other )
+physics::PhysicsStaticActor::PhysicsStaticActor( PhysicsStaticActor&& other ) : Super( std::move( other ) )
 {
 	m_actor = other.m_actor;
 	other.m_actor = nullptr;
@@ -182,10 +205,10 @@ physics::PhysicsStaticActor::~PhysicsStaticActor()
 	}
 }
 
-void physics::PhysicsStaticActor::Initialize( PhysxProxy& proxy, Transform transform /*= Transform() */, void* userData /*= nullptr */ )
+void physics::PhysicsStaticActor::Initialize( PhysxProxy& proxy, Uint32 group, Transform transform /*= Transform() */, void* userData /*= nullptr */ )
 {
 	m_actor = proxy.GetPhysics().createRigidStatic( physics::helpers::Convert( transform ) );
-	Super::Initialize( proxy, transform, userData );
+	Super::Initialize( proxy, group, transform, userData );
 }
 
 const physx::PxRigidActor& physics::PhysicsStaticActor::GetActor() const

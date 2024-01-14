@@ -18,11 +18,18 @@ namespace physics
 
 	public:
 		virtual ~PhysicsActor() = default;
+		PhysicsActor() = default;
 
-		virtual void Initialize( PhysxProxy& proxy, Transform transform = Transform(), void* userData = nullptr ) = 0;
+		virtual void Initialize( PhysxProxy& proxy, Uint32 group, Transform transform = Transform(), void* userData = nullptr ) = 0;
 
 		void SetTransform( const Transform& transform );
 		Transform GetTransform() const;
+
+		void SetGroup( Uint32 group );
+		Uint32 GetGroup() const
+		{
+			return m_group;
+		}
 
 		void AddShape( physics::PhysicsShape&& shape );
 
@@ -38,6 +45,7 @@ namespace physics
 		}
 
 	private:
+		Uint32 m_group = 0u;
 		float m_currentScale = 1.0f;
 	};
 
@@ -58,7 +66,7 @@ namespace physics
 		PhysicsDynamicActor( PhysicsDynamicActor&& other );
 		~PhysicsDynamicActor();
 
-		virtual void Initialize( PhysxProxy& proxy, Transform transform = Transform(), void* userData = nullptr ) override;
+		virtual void Initialize( PhysxProxy& proxy, Uint32 group, Transform transform = Transform(), void* userData = nullptr ) override;
 
 		void SetDensity( Float density );
 
@@ -105,7 +113,7 @@ namespace physics
 		PhysicsStaticActor( PhysicsStaticActor&& other );
 		~PhysicsStaticActor();
 
-		virtual void Initialize( PhysxProxy& proxy, Transform transform = Transform(), void* userData = nullptr ) override;
+		virtual void Initialize( PhysxProxy& proxy, Uint32 group, Transform transform = Transform(), void* userData = nullptr ) override;
 
 		virtual const physx::PxRigidActor& GetActor() const override;
 		virtual physx::PxRigidActor& GetActor() override;

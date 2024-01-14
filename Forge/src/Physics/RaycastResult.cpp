@@ -5,5 +5,5 @@
 physics::RaycastResult::RaycastResult( const physx::PxRaycastHit& hit )
 {
 	m_position = physics::helpers::Convert( hit.position );
-	m_userData = hit.actor->userData;
+	m_actorData = hit.actor->userData;
 }

@@ -38,10 +38,13 @@ void physics::PhysicsScene::RemoveActor( physics::PhysicsActor& actor )
 	m_pxScene->removeActor( actor.GetActor() );
 }
 
-bool physics::PhysicsScene::PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult )
+bool physics::PhysicsScene::PerformRaycast( const Vector3& start, const Vector3& direction, Float length, Uint32 flags, physics::RaycastResult& outResult )
 {
 	physx::PxRaycastBuffer hit;
-	bool anyHit = m_pxScene->raycast( physics::helpers::Convert( start ), physics::helpers::Convert( direction ), length, hit );
+	physx::PxQueryFilterData filterData;
+	filterData.data.word0 = flags;
+
+	bool anyHit = m_pxScene->raycast( physics::helpers::Convert( start ), physics::helpers::Convert( direction ), length, hit, physx::PxHitFlag::eDEFAULT, filterData );
 	
 	if ( anyHit )
 	{

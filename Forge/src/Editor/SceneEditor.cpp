@@ -11,6 +11,7 @@
 #include "../Systems/CamerasSystem.h"
 #include "../Systems/CameraComponent.h"
 #include "../Physics/RaycastResult.h"
+#include "../Systems/PhysicsUserData.h"
 
 editor::SceneEditor::SceneEditor( forge::EngineInstance& engineInstance )
 	: PanelBase( engineInstance )
@@ -71,10 +72,10 @@ bool editor::SceneEditor::FindHoveredObject( const Vector2& cursorPos, forge::Ob
 
 	auto& physicsSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::PhysicsSystem >();
 	physics::RaycastResult result;
-	if ( physicsSystem.PerformRaycast( cameraPos + outRayDir * 5.0f, outRayDir, std::numeric_limits< Float >::max(), result ) )
+	if ( physicsSystem.PerformRaycast( cameraPos, outRayDir, std::numeric_limits< Float >::max(), result, physics::PhysicsGroupFlags::Editor ) )
 	{
-		physics::UserData userData = physics::UserData::GetFromRaycastResult( result );
-		outObjectId = userData.objectId;
+		auto userData = physics::UserData( result.m_actorData );
+		outObjectId = userData.m_objectId;
 
 		return true;
 	}

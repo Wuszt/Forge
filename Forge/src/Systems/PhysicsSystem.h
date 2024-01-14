@@ -7,6 +7,13 @@ namespace physics
 	class PhysicsScene;
 	class PhysicsActor;
 	struct RaycastResult;
+
+	enum class PhysicsGroupFlags : Uint32
+	{
+		Default = 1u << 0,
+		Editor = 1u << 1,
+		All = std::numeric_limits< Uint32 >::max(),
+	};
 }
 
 namespace systems
@@ -26,7 +33,7 @@ namespace systems
 		void RegisterActor( physics::PhysicsActor& actor );
 		void UnregisterActor( physics::PhysicsActor& actor );
 
-		bool PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult );
+		bool PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult, physics::PhysicsGroupFlags flags = physics::PhysicsGroupFlags::All );
 
 		physics::PhysxProxy& GetPhysicsProxy()
 		{
@@ -39,16 +46,5 @@ namespace systems
 		std::unique_ptr< physics::PhysxProxy > m_physicsProxy;
 		std::unique_ptr< physics::PhysicsScene > m_scene;
 		forge::CallbackToken m_updateToken;
-	};
-}
-
-namespace physics
-{
-	struct UserData
-	{
-		ecs::EntityID entityId;
-		forge::ObjectID objectId;
-
-		static UserData GetFromRaycastResult( const RaycastResult& raycastResult );
 	};
 }
