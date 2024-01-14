@@ -91,12 +91,12 @@ void physics::PhysicsShape::ChangeScale( physx::PxShape& shape, const Vector3& p
 		break;
 	}
 	case physx::PxGeometryType::eCAPSULE:
-		holder.capsule().halfHeight = newScale.Z / prevScale.Z;
+		holder.capsule().halfHeight *= newScale.Z / prevScale.Z;
 
 		FORGE_ASSERT( prevScale.X == prevScale.Y );
 		FORGE_ASSERT( newScale.X == newScale.Y );
 
-		holder.capsule().radius = newScale.X / prevScale.X;
+		holder.capsule().radius *= newScale.X / prevScale.X;
 		break;
 	case physx::PxGeometryType::eBOX:
 		holder.box().halfExtents.x *= newScale.X / prevScale.X;
@@ -104,14 +104,14 @@ void physics::PhysicsShape::ChangeScale( physx::PxShape& shape, const Vector3& p
 		holder.box().halfExtents.z *= newScale.Z / prevScale.Z;
 		break;
 	case physx::PxGeometryType::eCONVEXMESH:
-		holder.convexMesh().scale.scale.x = newScale.X / prevScale.X;
-		holder.convexMesh().scale.scale.y = newScale.Y / prevScale.Y;
-		holder.convexMesh().scale.scale.z = newScale.Z / prevScale.Z;
+		holder.convexMesh().scale.scale.x *= newScale.X / prevScale.X;
+		holder.convexMesh().scale.scale.y *= newScale.Y / prevScale.Y;
+		holder.convexMesh().scale.scale.z *= newScale.Z / prevScale.Z;
 		break;
 	case physx::PxGeometryType::eTRIANGLEMESH:
-		holder.triangleMesh().scale.scale.x = newScale.X / prevScale.X;
-		holder.triangleMesh().scale.scale.y = newScale.Y / prevScale.Y;
-		holder.triangleMesh().scale.scale.z = newScale.Z / prevScale.Z;
+		holder.triangleMesh().scale.scale.x *= newScale.X / prevScale.X;
+		holder.triangleMesh().scale.scale.y *= newScale.Y / prevScale.Y;
+		holder.triangleMesh().scale.scale.z *= newScale.Z / prevScale.Z;
 		break;
 	default:
 		FORGE_ASSERT( false );
