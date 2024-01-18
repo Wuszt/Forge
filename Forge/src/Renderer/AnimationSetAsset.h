@@ -1,6 +1,8 @@
 #pragma once
 #include "../Core/IAsset.h"
 
+// TODO: Better data locality - https://peyman-mass.blogspot.com/2023/12/parallel-traversal-of-skeleton-tree.html?m=1
+
 namespace renderer
 {
 	struct Animation

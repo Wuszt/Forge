@@ -104,6 +104,12 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 	m_panels.emplace_back( std::make_unique< editor::SceneEditor >( engineInstance ) );
 }
 
+void forge::EditorInstance::Deinitialize( EngineInstance& engineInstance )
+{
+	m_updateToken.Unregister();
+	m_panels.clear();
+}
+
 void forge::EditorInstance::Update()
 {
 	if ( m_engineInstance->GetRenderingManager().GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )

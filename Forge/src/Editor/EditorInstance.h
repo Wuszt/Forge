@@ -15,6 +15,8 @@ namespace forge
 		~EditorInstance();
 
 		virtual void Initialize(forge::EngineInstance& engineInstance) override;
+		virtual void Deinitialize( EngineInstance& engineInstance ) override;
+
 		virtual Bool WithRendering() const override
 		{
 			return true;
