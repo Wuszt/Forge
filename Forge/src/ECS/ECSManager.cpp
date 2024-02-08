@@ -242,26 +242,20 @@ Bool ecs::ECSManager::TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex 
 	return it != m_archetypes.end();
 }
 
-void ecs::ECSManager::TriggerOnBeforeReadingArchetype( ecs::Archetype& archetype, ecs::FragmentsFlags fragments )
+void ecs::ECSManager::TriggerOnBeforeReadingArchetype( ecs::Archetype& archetype, ecs::FragmentsFlags fragments, ecs::CommandsQueue& commandsQueue )
 {
-	ecs::CommandsQueue commandsQueue( *this );
 	fragments.VisitSetTypes( [ & ]( Uint32 index )
 		{
 			m_onBeforeReadingArchetypeCallbacks[ index ].Invoke( archetype, commandsQueue );
 		} );
-
-	commandsQueue.Execute();
 }
 
-void ecs::ECSManager::TriggerOnBeforeModifyingArchetype( ecs::Archetype& archetype, ecs::FragmentsFlags fragments )
+void ecs::ECSManager::TriggerOnBeforeModifyingArchetype( ecs::Archetype& archetype, ecs::FragmentsFlags fragments, ecs::CommandsQueue& commandsQueue )
 {
-	ecs::CommandsQueue commandsQueue( *this );
 	fragments.VisitSetTypes( [ & ]( Uint32 index )
 		{
 			m_onBeforeModifyingArchetypeCallbacks[ index ].Invoke( archetype, commandsQueue );
 		} );
-
-	commandsQueue.Execute();
 }
 
 void ecs::ECSManager::VisitAllArchetypes( FragmentsFlags readableFragments, std::function< void( ecs::ArchetypeView ) > visitFunc )

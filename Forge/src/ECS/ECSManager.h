@@ -230,8 +230,8 @@ namespace ecs
 	private:
 		Bool TryToFindArchetypeIndex( ArchetypeID Id, Uint32& outIndex ) const;
 
-		void TriggerOnBeforeReadingArchetype( ecs::Archetype& archetype, ecs::FragmentsFlags fragments );
-		void TriggerOnBeforeModifyingArchetype( ecs::Archetype& archetype, ecs::FragmentsFlags fragments );
+		void TriggerOnBeforeReadingArchetype( ecs::Archetype& archetype, ecs::FragmentsFlags fragments, ecs::CommandsQueue& commandsQueue );
+		void TriggerOnBeforeModifyingArchetype( ecs::Archetype& archetype, ecs::FragmentsFlags fragments, ecs::CommandsQueue& commandsQueue );
 
 		std::unordered_map< EntityID, Archetype* > m_entityToArchetype;
 		std::vector< std::unique_ptr< Archetype > > m_archetypes;
