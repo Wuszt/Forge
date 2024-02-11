@@ -42,6 +42,16 @@ namespace Math
 		return std::copysign( 1.0f, value );
 	}
 
+	FORGE_INLINE Float Atan( Float rad )
+	{
+		return std::atan( rad );
+	}
+
+	FORGE_INLINE Float Atan2( Float y, Float x )
+	{
+		return std::atan2( y, x );
+	}
+
 	template< class T >
 	FORGE_INLINE void Swap( T& l, T& r )
 	{

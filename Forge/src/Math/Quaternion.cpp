@@ -17,7 +17,7 @@ Quaternion Quaternion::GetRotationBetweenVectors( const Vector3& first, const Ve
 
 Quaternion Quaternion::Lerp( const Quaternion& from, const Quaternion& to, Float t )
 {
-	const float dot = from.vec4.Dot4( to.vec4 );
+	const Float dot = from.vec4.Dot4( to.vec4 );
 	const Float sign = Math::Sign( dot );
 
 	return Math::Lerp( from, to * sign, t );
@@ -194,12 +194,12 @@ Vector3 Quaternion::ToEulerAngles() const
 	euler.X = std::asin( y2 );
 	if ( Math::Abs( y2 ) < 1.0f )
 	{
-		euler.Y = std::atan2( 2.0f * ( r * j - i * k ), 1.0f - 2.0f * ( i * i + j * j ) );
-		euler.Z = std::atan2( 2.0f * ( r * k - i * j ), 1.0f - 2.0f * ( i * i + k * k ) );
+		euler.Y = Math::Atan2( 2.0f * ( r * j - i * k ), 1.0f - 2.0f * ( i * i + j * j ) );
+		euler.Z = Math::Atan2( 2.0f * ( r * k - i * j ), 1.0f - 2.0f * ( i * i + k * k ) );
 	}
 	else
 	{
-		euler.Z = std::atan2( 2.0f * ( i * j + r * k ), 1.0f - 2.0f * ( j * j + k * k ) );
+		euler.Z = Math::Atan2( 2.0f * ( i * j + r * k ), 1.0f - 2.0f * ( j * j + k * k ) );
 	}
 
 	return euler;

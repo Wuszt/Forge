@@ -33,9 +33,9 @@ struct Quaternion
 	static Quaternion Lerp( const Quaternion& from, const Quaternion& to, float t );
 	static Quaternion Slerp( const Quaternion& from, const Quaternion& to, float t );
 
-	static Quaternion CreateFromDirection( const Vector3& direction, const Vector3& up = Vector3::EZ() )
+	static Quaternion CreateFromDirection( const Vector3& direction, const Vector3& forward = Vector3::EY(), const Vector3& up = Vector3::EZ() )
 	{
-		return GetRotationBetweenVectors( Vector3::EY(), direction );
+		return GetRotationBetweenVectors( forward, direction, up );
 	}
 
 	Vector4 Transform( const Vector4& vec ) const;

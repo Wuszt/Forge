@@ -117,12 +117,12 @@ Vector3 Matrix::ToEulerAngles() const
 	euler.X = std::asin( Math::Clamp( -1.0f, 1.0f, Y[ 2 ] ) );
 	if ( Math::Abs( Y[ 2 ] ) < 1.0f )
 	{
-		euler.Y = std::atan2( -X[ 2 ], Z[ 2 ] );
-		euler.Z = std::atan2( -Y[ 0 ], Y[ 1 ] );
+		euler.Y = Math::Atan2( -X[ 2 ], Z[ 2 ] );
+		euler.Z = Math::Atan2( -Y[ 0 ], Y[ 1 ] );
 	}
 	else
 	{
-		euler.Z = std::atan2( X[ 1 ], X[ 0 ] );
+		euler.Z = Math::Atan2( X[ 1 ], X[ 0 ] );
 	}
 
 	return euler;

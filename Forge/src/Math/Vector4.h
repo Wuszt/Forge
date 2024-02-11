@@ -68,7 +68,7 @@ struct Vector4
 
 	~Vector4() {}
 
-	Vector4 operator-()
+	Vector4 operator-() const
 	{
 		return Vector4( -X, -Y, -Z, -W );
 	}

@@ -90,6 +90,17 @@ public:
 		*this = Transform();
 	}
 
+	void Invert()
+	{
+		m_position = -m_position;
+		m_orientation.Invert();
+	}
+
+	Transform Inverted() const
+	{
+		return Transform( Vector4( -m_position.AsVector3(), m_position.W ), m_orientation.Inverted() );
+	}
+
 private:
 	Vector4 m_position = Vector4::EW();
 	Quaternion m_orientation = Quaternion::IDENTITY();
