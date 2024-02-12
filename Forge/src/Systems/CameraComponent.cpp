@@ -69,7 +69,7 @@ void forge::CameraComponent::OnAttached( EngineInstance& engineInstance, ecs::Co
 
 void forge::CameraComponent::Update()
 {
-	m_implementation->SetTransform( m_transformComponent->GetData()->m_transform );
+	m_implementation->SetTransform( m_transformComponent->GetWorldTransform() );
 }
 
 renderer::PerspectiveCamera forge::CameraComponent::GetDefaultPerspectiveCamera( const forge::IWindow& window )

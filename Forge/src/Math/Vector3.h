@@ -171,6 +171,16 @@ struct Vector3
 		   X * vec.Y - Y * vec.X );
    }
 
+   Float DistTo( const Vector3& vec ) const
+   {
+	   return ( *this - vec ).Mag();
+   }
+
+   Float SquareDistTo( const Vector3& vec ) const
+   {
+	   return ( *this - vec ).SquareMag();
+   }
+
    const Vector2& AsVector2() const
    {
 	   return vec2;

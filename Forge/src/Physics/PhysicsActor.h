@@ -39,14 +39,14 @@ namespace physics
 		virtual physx::PxRigidActor& GetActor() = 0;
 
 	protected:
-		float GetCurrentScale() const
+		const Vector3& GetCurrentScale() const
 		{
 			return m_currentScale;
 		}
 
 	private:
 		Uint32 m_group = 0u;
-		float m_currentScale = 1.0f;
+		Vector3 m_currentScale = Vector3::ONES();
 	};
 
 	class PhysicsDynamicActor : public PhysicsActor

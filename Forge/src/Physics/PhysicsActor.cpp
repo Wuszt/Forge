@@ -78,8 +78,6 @@ void physics::PhysicsActor::AddShape( physics::PhysicsShape&& shape )
 
 void physics::PhysicsActor::ChangeScale( const Vector3& newScale )
 {
-	FORGE_ASSERT( Math::IsAlmostZero( newScale.X - newScale.Y, 0.0001f ) && Math::IsAlmostZero( newScale.Y - newScale.Z, 0.0001f ) );
-
 	std::vector< physx::PxShape* > shapes;
 	shapes.resize( GetActor().getNbShapes() );
 	GetActor().getShapes( shapes.data(), static_cast< Uint32 >( shapes.size() ) );
@@ -89,7 +87,7 @@ void physics::PhysicsActor::ChangeScale( const Vector3& newScale )
 		physics::PhysicsShape::ChangeScale( *shape, Vector3::ONES() * m_currentScale, newScale);
 	}
 
-	m_currentScale = newScale.X;
+	m_currentScale = newScale;
 }
 
 physics::PhysicsDynamicActor::PhysicsDynamicActor( PhysicsDynamicActor&& other ) : Super( std::move( other ) )
@@ -114,7 +112,8 @@ void physics::PhysicsDynamicActor::Initialize( PhysxProxy& proxy, Uint32 group, 
 
 void physics::PhysicsDynamicActor::SetDensity( Float density )
 {
-	physx::PxRigidBodyExt::updateMassAndInertia( *m_actor, density * GetCurrentScale() );
+	const Float scale3 = GetCurrentScale().X * GetCurrentScale().Y * GetCurrentScale().Z;
+	physx::PxRigidBodyExt::updateMassAndInertia( *m_actor, density * scale3 );
 }
 
 void physics::PhysicsDynamicActor::AddForce( const Vector3& force, ForceMode forceMode )
@@ -173,12 +172,12 @@ void physics::PhysicsDynamicActor::ChangeScale( const Vector3& newScale )
 {
 	Super::ChangeScale( newScale );
 
-	const Float scale = newScale.X / GetCurrentScale();
-	const Float scale3 = scale * scale * scale;
+	const Vector3 scale = { newScale.X / GetCurrentScale().X, newScale.Y / GetCurrentScale().Y, newScale.Z / GetCurrentScale().Z };
+	const Float scale3 = scale.X * scale.Y * scale.Z;
 	GetDynamicActor().setMass( GetDynamicActor().getMass() * scale3 );
 	GetDynamicActor().setMassSpaceInertiaTensor( GetDynamicActor().getMassSpaceInertiaTensor() * scale3 );
 	physx::PxTransform cMassTransform = GetDynamicActor().getCMassLocalPose();
-	GetDynamicActor().setCMassLocalPose( physx::PxTransform( cMassTransform.p * scale, cMassTransform.q ) );
+	GetDynamicActor().setCMassLocalPose( physx::PxTransform( cMassTransform.p * scale3, cMassTransform.q ) );
 }
 
 const physx::PxRigidActor& physics::PhysicsDynamicActor::GetActor() const

@@ -34,6 +34,8 @@ namespace forge
 		virtual void OnAttach();
 		virtual void OnDetach();
 
+		virtual void PostInit() {}
+
 		template< class T, class... Ts >
 		void AddComponents()
 		{

@@ -23,21 +23,21 @@ namespace editor
 	public:
 		using forge::Object::Object;
 		virtual void OnAttach() override;
-		virtual void OnSelected( const Vector3& cursorRayDir ) {}
+		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) {}
 		void SetColor( const Vector4& color );
-		virtual Transform GetDesiredTransform( const Vector3& cursorRayDir ) const = 0;
+		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3 & cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const = 0;
 
 	protected:
 		virtual const char* GetModelPath() const = 0;
 		Vector3 GetRayIntersectionWithPlane( const Vector3& cursorRayDir, const Vector3& planeNormal ) const;
 	};
 
-	class GizmoArrow : public GizmoElement
+	class GizmoTranslationArrow : public GizmoElement
 	{
 	public:
 		using GizmoElement::GizmoElement;
-		virtual void OnSelected( const Vector3& cursorRayDir ) override;
-		virtual Transform GetDesiredTransform( const Vector3& cursorRayDir ) const override;
+		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) override;
+		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3& cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const override;
 
 	protected:
 		virtual const char* GetModelPath() const override
@@ -49,12 +49,12 @@ namespace editor
 		Float m_movementOffset = 0.0f;
 	};
 
-	class GizmoRing : public GizmoElement
+	class GizmoOrientationRing : public GizmoElement
 	{
 	public:
 		using GizmoElement::GizmoElement;
-		virtual void OnSelected( const Vector3& cursorRayDir ) override;
-		virtual Transform GetDesiredTransform( const Vector3& cursorRayDir ) const override;
+		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) override;
+		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3& cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const override;
 
 	protected:
 		virtual const char* GetModelPath() const override
@@ -65,6 +65,45 @@ namespace editor
 	private:
 		Transform m_initialTransform;
 		Quaternion m_rotationOffset;
+	};
+
+	class GizmoUniformScaleCube : public GizmoElement
+	{
+	public:
+		using GizmoElement::GizmoElement;
+		virtual void PostInit() override;
+		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) override;
+		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3& cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const override;
+
+	protected:
+		virtual const char* GetModelPath() const override
+		{
+			return "Models/Cube.obj";
+		}
+
+	private:
+		Vector3 m_initialScale;
+		Vector3 m_initialCursorPos;
+	};
+
+	class GizmoAxisScaleCube : public GizmoElement
+	{
+	public:
+		using GizmoElement::GizmoElement;
+
+		virtual void PostInit() override;
+		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) override;
+		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3& cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const override;
+
+	protected:
+		virtual const char* GetModelPath() const override
+		{
+			return "Models/Cube.obj";
+		}
+
+	private:
+		Vector3 m_initialScale;
+		Vector3 m_initialCursorPos;
 	};
 }
 
@@ -94,13 +133,19 @@ void editor::Gizmo::OnAttach()
 	const Vector4 c_yAxisColor( 0.0f, 1.0f, 0.0f, 1.0f );
 	const Vector4 c_zAxisColor( 0.0f, 0.0f, 1.0f, 1.0f );
 
-	CreateGizmoElement.template operator()< editor::GizmoArrow > ( Vector3::EX(), c_xAxisColor );
-	CreateGizmoElement.template operator()< editor::GizmoArrow > ( Vector3::EY(), c_yAxisColor );
-	CreateGizmoElement.template operator()< editor::GizmoArrow > ( Vector3::EZ(), c_zAxisColor );
+	CreateGizmoElement.template operator()< editor::GizmoTranslationArrow > ( Vector3::EX(), c_xAxisColor );
+	CreateGizmoElement.template operator()< editor::GizmoTranslationArrow > ( Vector3::EY(), c_yAxisColor );
+	CreateGizmoElement.template operator()< editor::GizmoTranslationArrow > ( Vector3::EZ(), c_zAxisColor );
 
-	CreateGizmoElement.template operator() < editor::GizmoRing > ( Vector3::EX(), c_xAxisColor );
-	CreateGizmoElement.template operator() < editor::GizmoRing > ( Vector3::EY(), c_yAxisColor );
-	CreateGizmoElement.template operator() < editor::GizmoRing > ( Vector3::EZ(), c_zAxisColor );
+	CreateGizmoElement.template operator() < editor::GizmoOrientationRing > ( Vector3::EX(), c_xAxisColor );
+	CreateGizmoElement.template operator() < editor::GizmoOrientationRing > ( Vector3::EY(), c_yAxisColor );
+	CreateGizmoElement.template operator() < editor::GizmoOrientationRing > ( Vector3::EZ(), c_zAxisColor );
+
+	CreateGizmoElement.template operator() < editor::GizmoAxisScaleCube > ( Vector3::EX(), c_xAxisColor );
+	CreateGizmoElement.template operator() < editor::GizmoAxisScaleCube > ( Vector3::EY(), c_yAxisColor );
+	CreateGizmoElement.template operator() < editor::GizmoAxisScaleCube > ( Vector3::EZ(), c_zAxisColor );
+
+	CreateGizmoElement.template operator() < editor::GizmoUniformScaleCube >( Vector3::EY(), Vector4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 }
 
 void editor::Gizmo::Update( forge::ObjectID hoveredObject, const Vector3& cursorRayDir )
@@ -124,7 +169,7 @@ void editor::Gizmo::Update( forge::ObjectID hoveredObject, const Vector3& cursor
 
 		if ( anyClicked )
 		{
-			m_activeElement->OnSelected( cursorRayDir );
+			m_activeElement->OnSelected( cursorRayDir, modifiedTransformComp->GetWorldScale() );
 		}
 		else
 		{
@@ -137,7 +182,9 @@ void editor::Gizmo::Update( forge::ObjectID hoveredObject, const Vector3& cursor
 	case forge::IInput::KeyState::Held:
 		if ( m_activeElement )
 		{
-			modifiedTransformComp->SetWorldTransform( m_activeElement->GetDesiredTransform( cursorRayDir ) );
+			auto [desiredTransform, desiredScale] = m_activeElement->GetDesiredTransformAndScale( cursorRayDir, modifiedTransformComp->GetWorldTransform(), modifiedTransformComp->GetWorldScale() );
+			modifiedTransformComp->SetWorldTransform( desiredTransform );
+			modifiedTransformComp->SetWorldScale( desiredScale );
 		}
 		break;
 
@@ -211,7 +258,7 @@ void editor::GizmoElement::SetColor( const Vector4& color )
 	materialBuffer->UpdateBuffer();
 }
 
-void editor::GizmoArrow::OnSelected( const Vector3& cursorRayDir )
+void editor::GizmoTranslationArrow::OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale )
 {
 	const forge::TransformComponent* transformComponent = GetComponent< forge::TransformComponent >();
 	const Transform& arrowTransform = transformComponent->GetWorldTransform();
@@ -219,7 +266,7 @@ void editor::GizmoArrow::OnSelected( const Vector3& cursorRayDir )
 	m_movementOffset = ( GetRayIntersectionWithPlane( cursorRayDir, -cameraTransform.GetForward() ) - arrowTransform.GetPosition() ).Dot( arrowTransform.GetForward() );
 }
 
-Transform editor::GizmoArrow::GetDesiredTransform( const Vector3& cursorRayDir ) const
+std::pair< Transform, Vector3 > editor::GizmoTranslationArrow::GetDesiredTransformAndScale( const Vector3& cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const
 {
 	const forge::TransformComponent* arrowTransformComponent = GetComponent< forge::TransformComponent >();
 	const Transform& arrowTransform = arrowTransformComponent->GetWorldTransform();
@@ -228,7 +275,7 @@ Transform editor::GizmoArrow::GetDesiredTransform( const Vector3& cursorRayDir )
 	const Float distanceFromArrowOrigin = ( GetRayIntersectionWithPlane( cursorRayDir, -cameraTransform.GetForward() ) - arrowTransform.GetPosition() ).Dot( arrowTransform.GetForward() ) - m_movementOffset;
 	const Vector3 rayIntersectionWithArrow = arrowTransform.GetPosition() + arrowTransform.GetForward() * distanceFromArrowOrigin;
 	const Quaternion currentOrientation = arrowTransform.GetOrientation() * arrowTransformComponent->GetRelativeOrientation().Inverted();
-	return Transform( rayIntersectionWithArrow, currentOrientation );
+	return { Transform( rayIntersectionWithArrow, currentOrientation ), currentScale };
 }
 
 Vector3 editor::GizmoElement::GetRayIntersectionWithPlane( const Vector3& cursorRayDir, const Vector3& planeNormal ) const
@@ -248,19 +295,72 @@ Vector3 editor::GizmoElement::GetRayIntersectionWithPlane( const Vector3& cursor
 	return cameraPos + cursorRayDir * t;
 }
 
-Transform editor::GizmoRing::GetDesiredTransform( const Vector3& cursorRayDir ) const
+std::pair< Transform, Vector3 > editor::GizmoOrientationRing::GetDesiredTransformAndScale( const Vector3& cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const
 {
 	const auto* transformComponent = GetComponent< forge::TransformComponent >();
 	const Vector3 cursorOnPlane = ( GetRayIntersectionWithPlane( cursorRayDir, -m_initialTransform.GetForward() ) - m_initialTransform.GetPosition() ).Normalized();
 	const Quaternion cursorRotation = Quaternion::CreateFromDirection( cursorOnPlane, m_initialTransform.GetRight(), m_initialTransform.GetForward() );
 	const Quaternion desiredOrientation = cursorRotation * m_rotationOffset * m_initialTransform.GetOrientation() * transformComponent->GetRelativeOrientation().Inverted();
 
-	return Transform( transformComponent->GetWorldPosition(), desiredOrientation );
+	return { { transformComponent->GetWorldPosition(), desiredOrientation }, currentScale };
 }
 
-void editor::GizmoRing::OnSelected( const Vector3& cursorRayDir )
+void editor::GizmoOrientationRing::OnSelected( const Vector3& cursorRayDir , const Vector3& currentScale )
 {
 	m_initialTransform = GetComponent< forge::TransformComponent >()->GetWorldTransform();
 	const Vector3 rayDirOnPlane = ( GetRayIntersectionWithPlane( cursorRayDir, -m_initialTransform.GetForward() ) - m_initialTransform.GetPosition() ).Normalized();
 	m_rotationOffset = Quaternion::GetRotationBetweenVectors( rayDirOnPlane, m_initialTransform.GetRight(), m_initialTransform.GetForward() );
+}
+
+void editor::GizmoUniformScaleCube::PostInit()
+{
+	GetComponent< forge::TransformComponent >()->SetRelativeScale( Vector3( 0.15f ) );
+}
+
+void editor::GizmoUniformScaleCube::OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale )
+{
+	m_initialScale = currentScale;
+	const Transform& cameraTransform = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera().GetTransform();
+	m_initialCursorPos = GetRayIntersectionWithPlane( cursorRayDir, -cameraTransform.GetForward() );
+}
+
+std::pair< Transform, Vector3 > editor::GizmoUniformScaleCube::GetDesiredTransformAndScale( const Vector3& cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const
+{
+	auto* transformComp = GetComponent< forge::TransformComponent >();
+	const Transform& cameraTransform = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera().GetTransform();
+	const Vector3 currentCursorPos = GetRayIntersectionWithPlane( cursorRayDir, -cameraTransform.GetForward() );
+
+	const Vector3 dir = transformComp->GetWorldOrientation() * Vector3::ONES();
+	Vector3 desiredScale = m_initialScale + Vector3( currentCursorPos.Dot( dir ) - m_initialCursorPos.Dot( dir ) );
+	desiredScale = { Math::Abs( desiredScale.X ), Math::Abs( desiredScale.Y ), Math::Abs( desiredScale.Z ) };
+
+	return { currentTransform, desiredScale };
+}
+
+
+void editor::GizmoAxisScaleCube::PostInit()
+{
+	auto* transformComp = GetComponent< forge::TransformComponent >();
+	transformComp->SetRelativePosition( transformComp->GetRelativeTransform().GetForward() * 0.25f );
+	transformComp->SetRelativeScale( Vector3( 1.0f, 3.0f, 1.0f ) * 0.075f );
+}
+
+void editor::GizmoAxisScaleCube::OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale )
+{
+	m_initialScale = currentScale;
+	const Transform& cameraTransform = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera().GetTransform();
+	m_initialCursorPos = GetRayIntersectionWithPlane( cursorRayDir, -cameraTransform.GetForward() );
+}
+
+std::pair< Transform, Vector3 > editor::GizmoAxisScaleCube::GetDesiredTransformAndScale( const Vector3& cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const
+{
+	auto* transformComp = GetComponent< forge::TransformComponent >();
+	const Transform& cameraTransform = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera().GetTransform();
+	const Vector3 currentCursorPos = GetRayIntersectionWithPlane( cursorRayDir, -cameraTransform.GetForward() );
+
+	const Vector3 axisDir = transformComp->GetWorldTransform().GetForward();
+	Vector3 desiredScale = m_initialScale + transformComp->GetRelativeTransform().GetForward() * ( currentCursorPos.Dot( axisDir ) - m_initialCursorPos.Dot( axisDir ) );
+	desiredScale = { Math::Abs( desiredScale.X ), Math::Abs( desiredScale.Y ), Math::Abs( desiredScale.Z ) };
+
+	return { currentTransform, desiredScale };
 }

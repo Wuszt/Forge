@@ -84,20 +84,32 @@ void physics::PhysicsShape::ChangeScale( physx::PxShape& shape, const Vector3& p
 	{
 	case physx::PxGeometryType::eSPHERE:
 	{
-		FORGE_ASSERT( prevScale.X == prevScale.Y && prevScale.Y == prevScale.Z );
-		FORGE_ASSERT( newScale.X == newScale.Y && newScale.Y == newScale.Z );
+		Float newScaleUnified = newScale.X;
 
-		holder.sphere().radius *= newScale.X / prevScale.X;
+		if ( newScale.X != newScale.Y || newScale.Y != newScale.Z )
+		{
+			FORGE_LOG_WARNING( "Non-uniform scale is not supported by sphere collider. Rounding to the highest component." );
+			newScaleUnified = Math::Max( newScale.X, newScale.Y, newScale.Z );
+		}
+
+		holder.sphere().radius *= newScale.X / Math::Max( prevScale.X, prevScale.Y, prevScale.Z );
 		break;
 	}
 	case physx::PxGeometryType::eCAPSULE:
+	{
 		holder.capsule().halfHeight *= newScale.Z / prevScale.Z;
 
-		FORGE_ASSERT( prevScale.X == prevScale.Y );
-		FORGE_ASSERT( newScale.X == newScale.Y );
+		Float newScaleXUnified = newScale.X;
 
-		holder.capsule().radius *= newScale.X / prevScale.X;
+		if ( newScale.X != newScale.Y )
+		{
+			FORGE_LOG_WARNING( "Non-uniform scale X and Y is not supported by capsule collider. Rounding to the highest component." );
+			newScaleXUnified = Math::Max( newScale.X, newScale.Y );
+		}
+
+		holder.capsule().radius *= newScaleXUnified / Math::Max( prevScale.X, prevScale.Y );
 		break;
+	}
 	case physx::PxGeometryType::eBOX:
 		holder.box().halfExtents.x *= newScale.X / prevScale.X;
 		holder.box().halfExtents.y *= newScale.Y / prevScale.Y;

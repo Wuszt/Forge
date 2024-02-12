@@ -20,12 +20,14 @@ namespace forge
 			ObjectCreationRequest req;
 			req.m_creationFunc = [ this, initializeFunc ]()
 			{
-				auto* rawEnt = CreateObject< T >();
+				auto* rawObj = CreateObject< T >();
 
 				if( initializeFunc )
 				{
-					initializeFunc( rawEnt );
+					initializeFunc( rawObj );
 				}
+
+				rawObj->PostInit();
 			};
 
 			m_objectCreationRequests.emplace_back( req );
