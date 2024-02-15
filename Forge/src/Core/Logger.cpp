@@ -1,6 +1,10 @@
 #include "fpch.h"
+
+#define SPDLOG_USE_STD_FORMAT
 #include "spdlog/spdlog.h"
+
 #include "Logger.h"
+#include <cstdarg>
 
 namespace forge
 {
