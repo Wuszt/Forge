@@ -399,3 +399,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 imgui.ini
+Forge/src/EditorLauncher/Depots
+Forge/src/Launcher/Depots
