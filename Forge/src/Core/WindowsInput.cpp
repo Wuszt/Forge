@@ -15,18 +15,14 @@ namespace windows
 {
 	WindowsInput::WindowsInput( HINSTANCE hInstance, const WindowsWindow& window )
 		: m_window( window )
-	{
-		memset( m_keys.data(), 0, sizeof( Bool ) * 256 );
-		memset( m_keysPressed.data(), 0, sizeof( Bool ) * 256 );
-		memset( m_keysReleased.data(), 0, sizeof( Bool ) * 256 );
-	}
+	{}
 
 	WindowsInput::~WindowsInput() = default;
 
 	void WindowsInput::OnBeforeUpdate()
 	{
-		memset( m_keysPressed.data(), 0, sizeof( Bool ) * 256 );
-		memset( m_keysReleased.data(), 0, sizeof( Bool ) * 256 );
+		m_keysPressed.reset();
+		m_keysReleased.reset();
 
 		POINT tmp;
 		GetCursorPos( &tmp );

@@ -57,11 +57,11 @@ namespace windows
 
 		Bool m_lockCursor = false;
 
-		static const Uint32 c_keysAmount = 256;
+		static constexpr Uint32 c_keysAmount = 256;
 
-		std::array< Bool, c_keysAmount > m_keys;
-		std::array< Bool, c_keysAmount > m_keysPressed;
-		std::array< Bool, c_keysAmount > m_keysReleased;
+		std::bitset< c_keysAmount > m_keys;
+		std::bitset< c_keysAmount > m_keysPressed;
+		std::bitset< c_keysAmount > m_keysReleased;
 
 		Vector2 m_mouseCurrentAxises;
 		Vector3 m_mouseDeltaAxises;
