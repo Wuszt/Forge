@@ -8,20 +8,20 @@
 #include "../Physics/PhysicsShape.h"
 #include "../GameEngine/RenderingManager.h"
 
-RTTI_IMPLEMENT_TYPE( forge::PlayerControllerComponent);
+RTTI_IMPLEMENT_TYPE( forge::IPlayerControllerComponent);
 
-void forge::FreeCameraControllerComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
+void forge::PhysicsFreeCameraControllerComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	m_input = engineInstance.GetRenderingManager().GetWindow().GetInput();
 	m_ownerTransform = GetOwner().GetComponent< forge::TransformComponent >();
 
 	GetOwner().AddComponents< forge::PhysicsDynamicComponent >();
 	m_physicsComponent = GetOwner().GetComponent< forge::PhysicsDynamicComponent >();
-	//m_physicsComponent->AddShape( physics::PhysicsShape( GetOwner().GetEngineInstance().GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), 0.5f ) );
+	m_physicsComponent->AddShape( physics::PhysicsShape( GetOwner().GetEngineInstance().GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), 0.5f ) );
 	m_physicsComponent->GetActor().EnableGravity( false );
 }
 
-void forge::FreeCameraControllerComponent::Update( bool isInputEnabled )
+void forge::PhysicsFreeCameraControllerComponent::Update( Bool isInputEnabled )
 {
 	m_physicsComponent->GetActor().ClearForce( physics::PhysicsDynamicActor::ForceMode::Impulse );
 	m_physicsComponent->GetActor().ClearTorque( physics::PhysicsDynamicActor::ForceMode::Impulse );

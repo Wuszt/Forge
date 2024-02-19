@@ -166,7 +166,7 @@ Int32 main()
 
 			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* player )
 			{
-				player->AddComponents< forge::TransformComponent, forge::CameraComponent, forge::FreeCameraControllerComponent >();
+				player->AddComponents< forge::TransformComponent, forge::CameraComponent, forge::PhysicsFreeCameraControllerComponent >();
 				player->GetComponent< forge::TransformComponent >()->SetWorldPosition( { 0.0f, 0.0f, 2.0f } );
 				auto* cameraComp = player->GetComponent< forge::CameraComponent >();
 				cameraComp->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstance.GetRenderingManager().GetWindow() ));
@@ -174,7 +174,7 @@ Int32 main()
 				auto& camerasSystem = engineInstance.GetSystemsManager().GetSystem< systems::CamerasSystem >();
 				camerasSystem.SetActiveCamera( cameraComp );
 
-				auto* freeCameraController = player->GetComponent< forge::FreeCameraControllerComponent >();
+				auto* freeCameraController = player->GetComponent< forge::PhysicsFreeCameraControllerComponent >();
 				engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent( *freeCameraController );
 			} );
 

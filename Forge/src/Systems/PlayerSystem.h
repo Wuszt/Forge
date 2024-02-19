@@ -3,7 +3,7 @@
 
 namespace forge
 {
-	class PlayerControllerComponent;
+	class IPlayerControllerComponent;
 }
 
 namespace systems
@@ -17,12 +17,12 @@ namespace systems
 
 		virtual void OnInitialize();
 
-		void SetActivePlayerComponent( forge::PlayerControllerComponent& comp )
+		void SetActivePlayerComponent( forge::IPlayerControllerComponent& comp )
 		{
 			m_activeController = &comp;
 		}
 
-		forge::PlayerControllerComponent* GetCurrentActiveController() const
+		forge::IPlayerControllerComponent* GetCurrentActiveController() const
 		{
 			return m_activeController;
 		}
@@ -32,7 +32,7 @@ namespace systems
 	private:
 		void Update();
 
-		forge::PlayerControllerComponent* m_activeController = nullptr;
+		forge::IPlayerControllerComponent* m_activeController = nullptr;
 		forge::CallbackToken m_updateToken;
 
 		Bool m_wasShiftAndWheelPressed = false;

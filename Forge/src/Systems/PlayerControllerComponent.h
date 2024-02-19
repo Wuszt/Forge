@@ -5,21 +5,21 @@ namespace forge
 	class TransformComponent;
 	class PhysicsDynamicComponent;
 
-	class PlayerControllerComponent : public IComponent
+	class IPlayerControllerComponent : public IComponent
 	{
-		RTTI_DECLARE_POLYMORPHIC_CLASS( PlayerControllerComponent, forge::IComponent );
+		RTTI_DECLARE_ABSTRACT_CLASS( IPlayerControllerComponent, forge::IComponent );
 	public:
 		using IComponent::IComponent;
 
-		virtual void Update( bool isInputEnabled ) {}
+		virtual void Update( Bool isInputEnabled ) = 0;
 	};
 
-	class FreeCameraControllerComponent : public PlayerControllerComponent
+	class PhysicsFreeCameraControllerComponent : public IPlayerControllerComponent
 	{
 	public:
-		using PlayerControllerComponent::PlayerControllerComponent;
+		using IPlayerControllerComponent::IPlayerControllerComponent;
 
-		virtual void Update( bool isInputEnabled ) override;
+		virtual void Update( Bool isInputEnabled ) override;
 
 	protected:
 		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
