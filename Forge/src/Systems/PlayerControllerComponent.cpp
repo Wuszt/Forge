@@ -65,7 +65,7 @@ void forge::PhysicsFreeCameraControllerComponent::Update( Bool isInputEnabled )
 
 		{
 			const Float acceleration = 0.003f;
-			m_currentSpeed += static_cast< Float >( m_input->GetMouseDeltaAxises().Z ) * acceleration;
+			m_currentSpeed += static_cast< Float >( m_input->GetMouseScrollDelta() ) * acceleration;
 			m_currentSpeed = Math::Max( 0.1f, m_currentSpeed );
 
 			delta *= Math::Pow( 2.0f, m_currentSpeed );
@@ -81,7 +81,8 @@ void forge::PhysicsFreeCameraControllerComponent::Update( Bool isInputEnabled )
 
 		{
 			const Float rotationSpeed = 0.001f;
-			Vector3 deltaRot = m_input->GetMouseDeltaAxises() * rotationSpeed;
+			auto mouseDelta = m_input->GetMouseDeltaPos();
+			Vector3 deltaRot = Vector3{mouseDelta.m_x, mouseDelta.m_y, 0.0f} * rotationSpeed;
 
 			deltaRot.Z = -deltaRot.X;
 			deltaRot.X = deltaRot.Y;

@@ -32,7 +32,7 @@ forge::Object* systems::PlayerSystem::GetCurrentPlayerObject() const
 void systems::PlayerSystem::Update()
 {
 	auto input = GetEngineInstance().GetRenderingManager().GetWindow().GetInput();
-	if( input->GetKey( forge::IInput::Key::Shift ) && input->GetMouseButton( forge::IInput::MouseButton::MiddleButton ) )
+	if( input->GetKey( forge::IInput::Key::Shift ) /*&& input->GetMouseButton( forge::IInput::MouseButton::MiddleButton )*/ )
 	{
 		if( !m_wasShiftAndWheelPressed )
 		{

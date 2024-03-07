@@ -1,8 +1,5 @@
 #pragma once
 
-struct Vector3;
-struct Vector2;
-
 namespace forge
 {
 	class IWindow;
@@ -10,7 +7,7 @@ namespace forge
 	class IInput
 	{
 	public:
-		enum class Key
+		enum class Key : Uint8
 		{
 			LeftMouseBtn = 0x01,
 			RightMouseBtn = 0x02,
@@ -144,21 +141,69 @@ namespace forge
 			RightCtrl = 0xA3,
 			LeftMenu = 0xA4,
 			RightMenu = 0xA5,
+			Count,
+			Invalid = Count
 		};
 
-		enum class MouseButton
+		enum class MouseButton : Uint8
 		{
-			LeftButton = static_cast<Uint32>( Key::LeftMouseBtn ),
-			RightButton = static_cast<Uint32>( Key::RightMouseBtn ),
-			MiddleButton = static_cast<Uint32>( Key::MidMouseBtn ),
+			LeftButton = static_cast< Uint8 >( Key::LeftMouseBtn ),
+			RightButton = static_cast< Uint8 >( Key::RightMouseBtn ),
+			MiddleButton = static_cast< Uint8 >( Key::MidMouseBtn ),
 		};
 
-		enum class KeyState
+		static Key ConvertMouseButtonToKey( MouseButton button )
+		{
+			return static_cast< Key >( static_cast< Uint8 >( button ) );
+		}
+
+		struct Coords2D
+		{
+			Float m_x = 0.0f;
+			Float m_y = 0.0f;
+		};
+
+		enum class KeyState : Uint8
 		{
 			None,
-			Clicked,
+			Pressed,
 			Held,
 			Released,
+		};
+
+		struct KeyEvent
+		{
+			enum class Type : Uint8
+			{
+				None,
+				Press,
+				Release
+			};
+
+			Key m_key = Key::Invalid;
+			Type m_type = Type::None;
+		};
+
+		class InputEvent
+		{
+		public:
+			const Coords2D* GetMousePosChange() const
+			{
+				return std::get_if< Coords2D >( &m_event );
+			}
+
+			const Float* GetMouseScrollChange() const
+			{
+				return std::get_if< Float >( &m_event );
+			}
+
+			const KeyEvent* GetKeyEvent() const
+			{
+				return std::get_if< KeyEvent >( &m_event );
+			}
+
+		private:
+			std::variant<Float, Coords2D, KeyEvent> m_event;
 		};
 
 		virtual ~IInput() = default;
@@ -167,12 +212,13 @@ namespace forge
 		virtual Bool GetKeyDown( Key key ) const = 0;
 		virtual Bool GetKeyUp( Key key ) const = 0;
 		virtual KeyState GetKeyState( Key key ) const = 0;
-		virtual const Vector3& GetMouseDeltaAxises() const = 0;
 		virtual Bool GetMouseButton( MouseButton button ) const = 0;
 		virtual Bool GetMouseButtonDown( MouseButton button ) const = 0;
 		virtual Bool GetMouseButtonUp( MouseButton button ) const = 0;
 		virtual KeyState GetMouseButtonState( MouseButton button ) const = 0;
-		virtual const Vector2& GetMouseCurrentAxises() const = 0;
+		virtual Coords2D GetMouseCurrentPos() const = 0;
+		virtual Coords2D GetMouseDeltaPos() const = 0;
+		virtual Float GetMouseScrollDelta() const = 0;
 		virtual void LockCursor( Bool lock ) = 0;
 		virtual Bool IsCursorLocked() const = 0;
 	};

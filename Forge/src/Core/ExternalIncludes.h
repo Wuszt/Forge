@@ -13,3 +13,4 @@
 #include <typeindex>
 #include <bitset>
 #include <bit>
+#include <variant>

@@ -19,29 +19,30 @@ namespace windows
 
 	WindowsInput::~WindowsInput() = default;
 
-	void WindowsInput::OnBeforeUpdate()
+	void WindowsInput::Update()
 	{
 		m_keysPressed.reset();
 		m_keysReleased.reset();
+		m_scrollDelta = 0.0f;
 
 		POINT tmp;
 		GetCursorPos( &tmp );
 		ScreenToClient( m_window.GetHWND(), &tmp );
 
-		Vector2 prevPos = m_mouseCurrentAxises;
+		Vector2 prevPos = m_mouseCurrentPos;
 
-		m_mouseCurrentAxises = Vector2( static_cast< Float >( tmp.x ), static_cast< Float >( tmp.y ) );
-		m_mouseCurrentAxises.X = Math::Clamp( 0.0f, static_cast< Float >( m_window.GetWidth() ), m_mouseCurrentAxises.X ) - static_cast< Float >( m_window.GetWidth() / 2u );
-		m_mouseCurrentAxises.Y = -( Math::Clamp( 0.0f, static_cast< Float >( m_window.GetHeight() ), m_mouseCurrentAxises.Y ) - static_cast< Float >( m_window.GetHeight() / 2u ) );
+		m_mouseCurrentPos = Vector2( static_cast< Float >( tmp.x ), static_cast< Float >( tmp.y ) );
+		m_mouseCurrentPos.X = Math::Clamp( 0.0f, static_cast< Float >( m_window.GetWidth() ), m_mouseCurrentPos.X ) - static_cast< Float >( m_window.GetWidth() / 2u );
+		m_mouseCurrentPos.Y = -( Math::Clamp( 0.0f, static_cast< Float >( m_window.GetHeight() ), m_mouseCurrentPos.Y ) - static_cast< Float >( m_window.GetHeight() / 2u ) );
 
-		m_mouseDeltaAxises = Vector3( m_mouseCurrentAxises - prevPos, 0.0f );
+		m_mouseDeltaPos = Vector2( m_mouseCurrentPos - prevPos );
 
 		if ( m_lockCursor )
 		{
-			m_mouseCurrentAxises = Vector2::ZEROS();
+			m_mouseCurrentPos = Vector2::ZEROS();
 
-			Uint32 x = m_window.GetPosX() + m_window.GetWidth() / 2u;
-			Uint32 y = m_window.GetPosY() + m_window.GetHeight() / 2u;
+			const Uint32 x = m_window.GetPosX() + m_window.GetWidth() / 2u;
+			const Uint32 y = m_window.GetPosY() + m_window.GetHeight() / 2u;
 
 			SetCursorPos( x, y );
 			while ( ShowCursor( false ) >= 0 );
@@ -58,36 +59,36 @@ namespace windows
 		{
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
-			OnKeyboardUpdate( static_cast< IInput::Key >( msg.wParam ), true );
+			OnKeyEvent( { static_cast< IInput::Key >( msg.wParam ), IInput::KeyEvent::Type::Press } );
 			break;
 
 		case WM_SYSKEYUP:
 		case WM_KEYUP:
-			OnKeyboardUpdate( static_cast< IInput::Key >( msg.wParam ), false );
+			OnKeyEvent( { static_cast< IInput::Key >( msg.wParam ), IInput::KeyEvent::Type::Release } );
 			break;
 
 		case WM_LBUTTONDOWN:
-			OnMouseUpdate( IInput::Key::LeftMouseBtn, true );
+			OnKeyEvent( { IInput::Key::LeftMouseBtn, IInput::KeyEvent::Type::Press } );
 			break;
 
 		case WM_RBUTTONDOWN:
-			OnMouseUpdate( IInput::Key::RightMouseBtn, true );
+			OnKeyEvent( { IInput::Key::RightMouseBtn, IInput::KeyEvent::Type::Press } );
 			break;
 
 		case WM_MBUTTONDOWN:
-			OnMouseUpdate( IInput::Key::MidMouseBtn, true );
+			OnKeyEvent( { IInput::Key::MidMouseBtn, IInput::KeyEvent::Type::Press } );
 			break;
 
 		case WM_LBUTTONUP:
-			OnMouseUpdate( IInput::Key::LeftMouseBtn, false );
+			OnKeyEvent( { IInput::Key::LeftMouseBtn, IInput::KeyEvent::Type::Release } );
 			break;
 
 		case WM_RBUTTONUP:
-			OnMouseUpdate( IInput::Key::RightMouseBtn, false );
+			OnKeyEvent( { IInput::Key::RightMouseBtn, IInput::KeyEvent::Type::Release } );
 			break;
 
 		case WM_MBUTTONUP:
-			OnMouseUpdate( IInput::Key::MidMouseBtn, false );
+			OnKeyEvent( { IInput::Key::MidMouseBtn, IInput::KeyEvent::Type::Release } );
 			break;
 
 		case WM_MOUSEWHEEL:
@@ -96,51 +97,21 @@ namespace windows
 		}
 	}
 
-	void WindowsInput::OnKeyboardUpdate( IInput::Key key, Bool pressed )
+	void WindowsInput::OnKeyEvent( IInput::KeyEvent event )
 	{
-		FORGE_ASSERT( key != IInput::Key::LeftMouseBtn && key != IInput::Key::MidMouseBtn && key != IInput::Key::RightMouseBtn );
+		const bool isPress = event.m_type == KeyEvent::Type::Press;
 
-		m_keysPressed[ static_cast< Uint32 >( key ) ] = !m_keys[ static_cast< Uint32 >( key ) ] && pressed;
-		m_keysReleased[ static_cast< Uint32 >( key ) ] = m_keys[ static_cast< Uint32 >( key ) ] && !pressed;
+		m_keysPressed[ static_cast< Uint8 >( event.m_key ) ] = !m_keysHeld[ static_cast< Uint8 >( event.m_key ) ] && isPress;
+		m_keysReleased[ static_cast< Uint8 >( event.m_key ) ] = m_keysHeld[ static_cast< Uint8 >( event.m_key ) ] && !isPress;
 
-		m_keys[ static_cast< Uint32 >( key ) ] = pressed;
+		m_keysHeld[ static_cast< Uint8 >( event.m_key ) ] = isPress;
 	}
 
-	void WindowsInput::OnMouseUpdate( IInput::Key key, Bool pressed )
-	{
-		FORGE_ASSERT( key == IInput::Key::LeftMouseBtn || key == IInput::Key::MidMouseBtn || key == IInput::Key::RightMouseBtn );
-
-		m_keysPressed[ static_cast< Uint32 >( key ) ] = !m_keys[ static_cast< Uint32 >( key ) ] && pressed;
-		m_keysReleased[ static_cast< Uint32 >( key ) ] = m_keys[ static_cast< Uint32 >( key ) ] && !pressed;
-
-		m_keys[ static_cast< Uint32 >( key ) ] = pressed;
-	}
-
-	void WindowsInput::OnMouseWheelUpdate( Int32 delta )
-	{
-		m_mouseDeltaAxises.Z += static_cast< Float >( delta );
-	}
-
-	Bool WindowsInput::GetKey( IInput::Key key ) const
-	{
-		return m_keys[ static_cast< Uint32 >( key ) ];
-	}
-
-	Bool WindowsInput::GetKeyDown( IInput::Key key ) const
-	{
-		return m_keysPressed[ static_cast< Uint32 >( key ) ];
-	}
-
-	Bool WindowsInput::GetKeyUp( IInput::Key key ) const
-	{
-		return m_keysReleased[ static_cast< Uint32 >( key ) ];
-	}
-
-	forge::IInput::KeyState WindowsInput::GetKeyState( Key key ) const
+	IInput::KeyState WindowsInput::GetKeyState( Key key ) const
 	{
 		if ( GetKeyDown( key ) )
 		{
-			return IInput::KeyState::Clicked;
+			return IInput::KeyState::Pressed;
 		}
 		else if ( GetKeyUp( key ) )
 		{
@@ -152,48 +123,5 @@ namespace windows
 		}
 
 		return IInput::KeyState::None;
-	}
-
-	const Vector3& WindowsInput::GetMouseDeltaAxises() const
-	{
-		return m_mouseDeltaAxises;
-	}
-
-	Bool WindowsInput::GetMouseButton( MouseButton button ) const
-	{
-		return m_keys[ static_cast< Uint32 >( button ) ];
-	}
-
-	Bool WindowsInput::GetMouseButtonDown( MouseButton button ) const
-	{
-		return m_keysPressed[ static_cast< Uint32 >( button ) ];
-	}
-
-	Bool WindowsInput::GetMouseButtonUp( MouseButton button ) const
-	{
-		return m_keysReleased[ static_cast< Uint32 >( button ) ];
-	}
-
-	forge::IInput::KeyState WindowsInput::GetMouseButtonState( MouseButton button ) const
-	{
-		if ( GetMouseButtonDown( button ) )
-		{
-			return IInput::KeyState::Clicked;
-		}
-		else if ( GetMouseButtonUp( button ) )
-		{
-			return IInput::KeyState::Released;
-		}
-		else if ( GetMouseButton( button ) )
-		{
-			return IInput::KeyState::Held;
-		}
-
-		return IInput::KeyState::None;
-	}
-
-	const Vector2& WindowsInput::GetMouseCurrentAxises() const
-	{
-		return m_mouseCurrentAxises;
 	}
 }

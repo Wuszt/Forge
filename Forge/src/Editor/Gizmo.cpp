@@ -155,7 +155,7 @@ void editor::Gizmo::Update( forge::ObjectID hoveredObject, const Vector3& cursor
 	auto mouseState = GetEngineInstance().GetRenderingManager().GetWindow().GetInput()->GetMouseButtonState( forge::IInput::MouseButton::LeftButton );
 	switch ( mouseState )
 	{
-	case forge::IInput::KeyState::Clicked:
+	case forge::IInput::KeyState::Pressed:
 	{
 		Bool anyClicked = false;
 		for ( const forge::ObjectLifetimeToken& element : m_elements )

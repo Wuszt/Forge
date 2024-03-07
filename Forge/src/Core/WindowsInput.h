@@ -4,8 +4,6 @@
 #include "../Math/Vector3.h"
 
 struct IDirectInputDevice8;
-struct Vector2;
-struct Vector3;
 
 struct HINSTANCE__;
 typedef HINSTANCE__* HINSTANCE;
@@ -25,20 +23,21 @@ namespace windows
 		WindowsInput( HINSTANCE hInstance, const WindowsWindow& window );
 		~WindowsInput();
 
-		void OnBeforeUpdate();
+		void Update();
 
 		void OnEvent( const tagMSG& msg );
-		virtual Bool GetKey( forge::IInput::Key key ) const override;
-		virtual Bool GetKeyDown( forge::IInput::Key key ) const override;
-		virtual Bool GetKeyUp( forge::IInput::Key key ) const override;
+		virtual Bool GetKey( forge::IInput::Key key ) const override { return m_keysHeld[ static_cast< Uint8 >( key ) ]; }
+		virtual Bool GetKeyDown( forge::IInput::Key key ) const override { return m_keysPressed[ static_cast< Uint8 >( key ) ]; }
+		virtual Bool GetKeyUp( forge::IInput::Key key ) const override { return m_keysReleased[ static_cast< Uint8 >( key ) ]; }
 		virtual KeyState GetKeyState( Key key ) const override;
 
-		virtual const Vector3& GetMouseDeltaAxises() const override;
-		virtual Bool GetMouseButton( MouseButton button ) const override;
-		virtual Bool GetMouseButtonDown( MouseButton button ) const override;
-		virtual Bool GetMouseButtonUp( MouseButton button ) const override;
-		virtual KeyState GetMouseButtonState( MouseButton button ) const override;
-		virtual const Vector2& GetMouseCurrentAxises() const override;
+		virtual Bool GetMouseButton( MouseButton button ) const override { return GetKey( forge::IInput::ConvertMouseButtonToKey( button ) ); }
+		virtual Bool GetMouseButtonDown( MouseButton button ) const override { return GetKeyDown( forge::IInput::ConvertMouseButtonToKey( button ) ); }
+		virtual Bool GetMouseButtonUp( MouseButton button ) const override { return GetKeyUp( forge::IInput::ConvertMouseButtonToKey( button ) ); }
+		virtual KeyState GetMouseButtonState( MouseButton button ) const override { return GetKeyState( forge::IInput::ConvertMouseButtonToKey( button ) ); }
+		virtual Coords2D GetMouseCurrentPos() const override { return { m_mouseCurrentPos.X, m_mouseCurrentPos.Y }; };
+		virtual Coords2D GetMouseDeltaPos() const override { return { m_mouseDeltaPos.X, m_mouseDeltaPos.Y }; }
+		virtual Float GetMouseScrollDelta() const override { return m_scrollDelta; }
 
 		virtual void LockCursor( Bool lock ) override
 		{
@@ -51,20 +50,20 @@ namespace windows
 		}
 
 	private:
-		void OnKeyboardUpdate( forge::IInput::Key key, Bool pressed );
-		void OnMouseUpdate( forge::IInput::Key key, Bool pressed );
-		void OnMouseWheelUpdate( Int32 delta );
+		void OnKeyEvent( forge::IInput::KeyEvent event );
+		void OnMouseWheelUpdate( Int32 delta ) { m_scrollDelta += static_cast< Float >( delta ); }
 
 		Bool m_lockCursor = false;
 
-		static constexpr Uint32 c_keysAmount = 256;
-
-		std::bitset< c_keysAmount > m_keys;
+		constexpr static Uint8 c_keysAmount = static_cast< Uint8 >( forge::IInput::Key::Count );
 		std::bitset< c_keysAmount > m_keysPressed;
+		std::bitset< c_keysAmount > m_keysHeld;
 		std::bitset< c_keysAmount > m_keysReleased;
 
-		Vector2 m_mouseCurrentAxises;
-		Vector3 m_mouseDeltaAxises;
+		Vector2 m_mouseCurrentPos;
+		Vector2 m_mouseDeltaPos;
+		
+		Float m_scrollDelta = 0.0f;
 
 		const WindowsWindow& m_window;
 	};

@@ -145,7 +145,7 @@ namespace windows
 
 	void WindowsWindow::Update()
 	{
-		m_input->OnBeforeUpdate();
+		m_input->Update();
 
 		while( true )
 		{

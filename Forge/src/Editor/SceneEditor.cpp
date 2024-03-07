@@ -50,7 +50,7 @@ void editor::SceneEditor::Draw()
 	forge::ObjectID objectId;
 	Vector3 rayDir;
 	const Vector2 cursorPos = forge::imgui::CastToForge( ImGui::GetMousePos() ) - imageDrawPos;
-	Bool clickedThisFrame = GetEngineInstance().GetRenderingManager().GetWindow().GetInput()->GetMouseButtonState( forge::IInput::MouseButton::LeftButton ) == forge::IInput::KeyState::Clicked;
+	Bool clickedThisFrame = GetEngineInstance().GetRenderingManager().GetWindow().GetInput()->GetMouseButtonState( forge::IInput::MouseButton::LeftButton ) == forge::IInput::KeyState::Pressed;
 
 	if( m_gizmoToken.GetObject() )
 	{
