@@ -152,7 +152,7 @@ void editor::Gizmo::Update( forge::ObjectID hoveredObject, const Vector3& cursor
 {
 	forge::TransformComponent* modifiedTransformComp = GetEngineInstance().GetObjectsManager().GetObject( m_modifiedObject )->GetComponent< forge::TransformComponent >();
 
-	auto mouseState = GetEngineInstance().GetRenderingManager().GetWindow().GetInput()->GetMouseButtonState( forge::IInput::MouseButton::LeftButton );
+	auto mouseState = GetEngineInstance().GetRenderingManager().GetWindow().GetInput().GetMouseButtonState( forge::IInput::MouseButton::LeftButton );
 	switch ( mouseState )
 	{
 	case forge::IInput::KeyState::Pressed:

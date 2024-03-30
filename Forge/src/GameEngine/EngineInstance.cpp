@@ -21,7 +21,7 @@ forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 	m_systemManager = std::make_unique< systems::SystemsManager >( *this );
 	m_objectsManager = std::make_unique< forge::ObjectsManager >( *this, *m_updateManager, *m_ecsManager );
 
-	if( m_appInstance.WithRendering() )
+	if( m_appInstance.WithWindow() )
 	{
 		m_renderingManager = std::make_unique< renderer::RenderingManager >( GetDepotsContainer(), GetAssetsManager(), GetUpdateManager() );
 

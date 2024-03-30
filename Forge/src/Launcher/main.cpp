@@ -1,7 +1,6 @@
 #include "../Core/PublicDefaults.h"
 #include "../Math/PublicDefaults.h"
 #include "../GameEngine/PublicDefaults.h"
-#include "../Systems/PublicDefaults.h"
 
 #include "../Core/IWindow.h"
 #include "../Systems/CamerasSystem.h"
@@ -9,26 +8,16 @@
 #include "../Systems/PlayerSystem.h"
 #include "../Systems/CameraComponent.h"
 #include "../Systems/SceneRenderingSystem.h"
-#include "../Renderer/Renderer.h"
-#include "../Core/IInput.h"
 #include "../Systems/LightingSystem.h"
-#include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/PerspectiveCamera.h"
-#include "../Core/Time.h"
 #include "../Systems/TimeSystem.h"
 #include "../Renderer/TextureAsset.h"
 #include "../Core/AssetsManager.h"
-#include "../Renderer/FBXLoader.h"
-#include "../../External/imgui/imgui.h"
-#include "../Renderer/AnimationSetAsset.h"
 #include "../Renderer/SkeletonAsset.h"
-#include "../GameEngine/ISystem.h"
-#include "../Core/ArraySpan.h"
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/AnimationComponent.h"
 #include "../Systems/TransformSystem.h"
-#include "../Physics/PhysxProxy.h"
 #include "../Systems/PhysicsSystem.h"
 #include "../Systems/PhysicsComponent.h"
 #include "../Physics/PhysicsShape.h"
@@ -37,13 +26,13 @@
 #include "../Physics/RaycastResult.h"
 #include "../GameEngine/RenderingManager.h"
 #include "../Renderer/ISwapchain.h"
+#include "../Systems/InputSystem.h"
 
 #ifdef FORGE_DEBUGGING
 #include "../Systems/DebugSystem.h"
 #endif
 
 #ifdef FORGE_IMGUI_ENABLED
-#include "../Systems/IMGUISystem.h"
 #endif
 
 void SkeletalMesh( forge::EngineInstance& engineInstance, const Vector3& pos )
@@ -151,6 +140,7 @@ Int32 main()
 				&systems::AnimationSystem::GetTypeStatic(),
 				&systems::TransformSystem::GetTypeStatic(),
 				&systems::PhysicsSystem::GetTypeStatic(),
+				&systems::InputSystem::GetTypeStatic(),
 #ifdef FORGE_DEBUGGING
 				&systems::DebugSystem::GetTypeStatic(),
 #endif
@@ -186,12 +176,12 @@ Int32 main()
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
 		{		
-			if( engineInstance.GetRenderingManager().GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
+			if( engineInstance.GetRenderingManager().GetWindow().GetInput().GetKeyDown( forge::IInput::Key::Escape ) )
 			{
 				Shutdown();
 			}
 
-			if ( engineInstance.GetRenderingManager().GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Space ) )
+			if ( engineInstance.GetRenderingManager().GetWindow().GetInput().GetKeyDown( forge::IInput::Key::Space ) )
 			{
 				engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ & ]( forge::Object* sphere )
 				{
@@ -231,7 +221,7 @@ Int32 main()
 
 		}
 
-		virtual Bool WithRendering() const override
+		virtual Bool WithWindow() const override
 		{
 			return true;
 		}

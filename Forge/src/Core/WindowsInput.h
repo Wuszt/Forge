@@ -49,13 +49,18 @@ namespace windows
 			return m_lockCursor;
 		}
 
+		virtual [[nodiscard]] forge::CallbackToken RegisterOnInputEvent( forge::Callback< InputEvent >::TFunc callback ) override
+		{
+			return m_onInputEvent.AddListener( std::move( callback ) );
+		}
+
 	private:
 		void OnKeyEvent( forge::IInput::KeyEvent event );
-		void OnMouseWheelUpdate( Int32 delta ) { m_scrollDelta += static_cast< Float >( delta ); }
+		void OnMouseWheelUpdate( Int32 delta );
 
 		Bool m_lockCursor = false;
 
-		constexpr static Uint8 c_keysAmount = static_cast< Uint8 >( forge::IInput::Key::Count );
+		constexpr static Uint8 c_keysAmount = std::numeric_limits< std::underlying_type_t< IInput::Key > >::max();
 		std::bitset< c_keysAmount > m_keysPressed;
 		std::bitset< c_keysAmount > m_keysHeld;
 		std::bitset< c_keysAmount > m_keysReleased;
@@ -64,6 +69,8 @@ namespace windows
 		Vector2 m_mouseDeltaPos;
 		
 		Float m_scrollDelta = 0.0f;
+
+		forge::Callback< InputEvent > m_onInputEvent;
 
 		const WindowsWindow& m_window;
 	};

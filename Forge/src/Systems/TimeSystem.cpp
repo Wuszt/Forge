@@ -9,7 +9,7 @@
 
 RTTI_IMPLEMENT_TYPE( systems::TimeSystem );
 
-void systems::TimeSystem::OnInitialize()
+void systems::TimeSystem::OnPostInit()
 {
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::FrameStart, [ this ]() { Update(); } );
 	

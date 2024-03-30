@@ -15,6 +15,7 @@ namespace systems
 		using ISystem::ISystem;
 
 		virtual void OnInitialize() override;
+		virtual void OnPostInit() override;
 
 		void SetActiveCamera( forge::CameraComponent* camera )
 		{

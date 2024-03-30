@@ -325,6 +325,7 @@
     </ClCompile>
     <ClCompile Include="IDebuggable.cpp" />
     <ClCompile Include="IMGUISystem.cpp" />
+    <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="PhysicsComponent.cpp" />
     <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="PhysicsUserData.cpp" />
@@ -350,6 +351,7 @@
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="IDebuggable.h" />
     <ClInclude Include="IMGUISystem.h" />
+    <ClInclude Include="InputSystem.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="PhysicsSystem.h" />

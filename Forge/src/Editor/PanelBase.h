@@ -18,7 +18,6 @@ namespace editor
 	protected:
 		virtual void Draw() = 0;
 		virtual const Char* GetName() const = 0;
-		virtual void OnClicked( const Vector2& pos ) {}
 
 		Vector2 GetSize() const;
 

@@ -1,7 +1,7 @@
 #include "Fpch.h"
 #include "WindowsWindow.h"
-#include <Windows.h>
 #include "WindowsInput.h"
+#include "Windows.h"
 
 namespace
 {
@@ -205,8 +205,9 @@ namespace windows
 		return false;
 	}
 
-	forge::IInput* WindowsWindow::GetInput() const
+	forge::IInput& WindowsWindow::GetInput() const
 	{
-		return m_input.get();
+		FORGE_ASSERT( m_input );
+		return *m_input;
 	}
 }

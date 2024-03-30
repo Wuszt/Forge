@@ -21,7 +21,7 @@ systems::DebugSystem::DebugSystem() = default;
 systems::DebugSystem::DebugSystem( DebugSystem&& ) = default;
 systems::DebugSystem::~DebugSystem() = default;
 
-void systems::DebugSystem::OnInitialize()
+void systems::DebugSystem::OnPostInit()
 {
 #ifdef FORGE_IMGUI_ENABLED
 	m_fpsCounterDrawingToken = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( []()

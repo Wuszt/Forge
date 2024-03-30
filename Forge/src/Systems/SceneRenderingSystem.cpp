@@ -31,7 +31,7 @@ systems::SceneRenderingSystem::SceneRenderingSystem() = default;
 systems::SceneRenderingSystem::SceneRenderingSystem( SceneRenderingSystem&& ) = default;
 systems::SceneRenderingSystem::~SceneRenderingSystem() = default;
 
-void systems::SceneRenderingSystem::OnInitialize()
+void systems::SceneRenderingSystem::OnPostInit()
 {
 #ifdef FORGE_IMGUI_ENABLED
 	InitializeDebuggable< systems::SceneRenderingSystem >( GetEngineInstance() );

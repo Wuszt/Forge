@@ -26,6 +26,11 @@ forge::ObjectsManager::ObjectsManager( EngineInstance& engineInstance, UpdateMan
 	m_tickToken = updateManager.RegisterUpdateFunction( UpdateManager::BucketType::PreUpdate, std::bind( &forge::ObjectsManager::HandleRequests, this ) );
 }
 
+forge::ObjectsManager::~ObjectsManager()
+{
+	m_objects.clear();
+}
+
 ecs::EntityID forge::ObjectsManager::GetOrCreateEntityId( ObjectID id )
 {
 	ecs::EntityID& entity = m_objectsToEntities[ id ];

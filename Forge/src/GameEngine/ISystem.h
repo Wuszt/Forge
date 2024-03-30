@@ -23,9 +23,17 @@ namespace systems
 		virtual void OnInitialize() {}
 		virtual void OnDeinitialize() {}
 
+		virtual void OnPostInit() {}
+
 	private:
 		void Initialize( forge::EngineInstance& engineInstance );
 		void Deinitialize();
+
+		void PostInit() 
+		{
+			OnPostInit();
+		}
+
 		forge::EngineInstance* m_engineInstance;
 	};
 }

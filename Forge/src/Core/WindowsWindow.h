@@ -73,7 +73,7 @@ namespace windows
 			return m_rawEventCallback.AddListener( callback );
 		}
 
-		virtual forge::IInput* GetInput() const override;
+		virtual forge::IInput& GetInput() const override;
 
 	private:
 

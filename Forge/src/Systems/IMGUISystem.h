@@ -1,10 +1,12 @@
 #pragma once
+#include "../GameEngine/ISystem.h"
 
 #ifdef FORGE_IMGUI_ENABLED
 
 namespace forge
 {
 	class IMGUIInstance;
+	class InputHandler;
 }
 
 namespace imgui
@@ -101,10 +103,11 @@ namespace systems
 		RTTI_DECLARE_POLYMORPHIC_CLASS( IMGUISystem, systems::ISystem );
 	public:
 		IMGUISystem();
-		IMGUISystem(IMGUISystem&&);
+		IMGUISystem( IMGUISystem&& );
 		~IMGUISystem();
 
-		virtual void OnInitialize() override;
+		virtual void OnPostInit() override;
+		virtual void OnDeinitialize() override;
 
 		forge::CallbackToken AddOverlayListener( const forge::Callback<>::TFunc& func )
 		{
@@ -120,6 +123,7 @@ namespace systems
 		void DrawOverlay();
 
 		std::unique_ptr< forge::IMGUIInstance > m_imguiInstance;
+		std::unique_ptr< forge::InputHandler > m_inputHandler;
 
 		forge::CallbackToken m_preUpdateToken;
 		forge::CallbackToken m_updateToken;
@@ -129,6 +133,7 @@ namespace systems
 
 		imgui::TopBar m_topBar;
 
+		Bool m_isInputActive = false;
 		Bool m_imguiDemoEnabled = false;
 	};
 }

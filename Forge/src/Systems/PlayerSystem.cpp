@@ -4,6 +4,7 @@
 #include "../Core/IInput.h"
 #include "../Core/IWindow.h"
 #include "../GameEngine/RenderingManager.h"
+#include "../Systems/InputSystem.h"
 
 #ifdef FORGE_IMGUI_ENABLED
 #include "../IMGUI/PublicDefaults.h"
@@ -15,13 +16,27 @@
 
 RTTI_IMPLEMENT_TYPE( systems::PlayerSystem );
 
-void systems::PlayerSystem::OnInitialize()
+systems::PlayerSystem::PlayerSystem() = default;
+
+systems::PlayerSystem::PlayerSystem( PlayerSystem&& ) = default;
+
+systems::PlayerSystem::~PlayerSystem() = default;
+
+void systems::PlayerSystem::OnPostInit()
 {
 #ifdef FORGE_IMGUI_ENABLED
 	InitializeDebuggable< systems::PlayerSystem >( GetEngineInstance() );
 #endif
 
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, std::bind( &systems::PlayerSystem::Update, this ) );
+	auto& inputSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::InputSystem >();
+	m_inputHandler = std::make_unique< forge::InputHandler >( inputSystem.RegisterHandler( false, InputSystem::CursorStateRequest::Disabled, InputSystem::HandlerSource::Game ) );
+}
+
+void systems::PlayerSystem::OnDeinitialize()
+{
+	auto& inputSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::InputSystem >();
+	inputSystem.UnregisterHandler( *m_inputHandler );
 }
 
 forge::Object* systems::PlayerSystem::GetCurrentPlayerObject() const
@@ -31,22 +46,7 @@ forge::Object* systems::PlayerSystem::GetCurrentPlayerObject() const
 
 void systems::PlayerSystem::Update()
 {
-	auto input = GetEngineInstance().GetRenderingManager().GetWindow().GetInput();
-	if( input->GetKey( forge::IInput::Key::Shift ) /*&& input->GetMouseButton( forge::IInput::MouseButton::MiddleButton )*/ )
-	{
-		if( !m_wasShiftAndWheelPressed )
-		{
-			input->LockCursor( !input->IsCursorLocked() );
-		}
-
-		m_wasShiftAndWheelPressed = true;
-	}
-	else
-	{
-		m_wasShiftAndWheelPressed = false;
-	}
-
-	m_activeController->Update( input->IsCursorLocked() );
+	m_activeController->Update();
 }
 
 #ifdef FORGE_IMGUI_ENABLED

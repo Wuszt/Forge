@@ -12,8 +12,8 @@
 #include "../Systems/CameraComponent.h"
 #include "../Physics/RaycastResult.h"
 #include "../Systems/PhysicsUserData.h"
-#include "../Core/IInput.h"
 #include "../Core/IWindow.h"
+#include "../Systems/InputSystem.h"
 
 editor::SceneEditor::SceneEditor( forge::EngineInstance& engineInstance )
 	: PanelBase( engineInstance )
@@ -42,15 +42,20 @@ void editor::SceneEditor::Draw()
 	const Vector2 imageDrawPos = forge::imgui::CastToForge( ImGui::GetCursorScreenPos() );
 	ImGui::Image( m_targetTexture->GetShaderResourceView()->GetRawSRV(), forge::imgui::CastToImGui( m_targetTexture->GetSize() ) );
 
-	if ( !ImGui::IsItemHovered( ImGuiHoveredFlags_None ) )
+	const Bool shouldProcessInput = ImGui::IsWindowFocused() && ImGui::IsItemHovered();
+	GetEngineInstance().GetSystemsManager().GetSystem< systems::InputSystem >().Enable( false );
+
+	if ( !shouldProcessInput )
 	{
 		return;
 	}
 
+	GetEngineInstance().GetSystemsManager().GetSystem< systems::InputSystem >().Enable( ImGui::IsMouseDown( ImGuiMouseButton_Right ) );
+
 	forge::ObjectID objectId;
 	Vector3 rayDir;
 	const Vector2 cursorPos = forge::imgui::CastToForge( ImGui::GetMousePos() ) - imageDrawPos;
-	Bool clickedThisFrame = GetEngineInstance().GetRenderingManager().GetWindow().GetInput()->GetMouseButtonState( forge::IInput::MouseButton::LeftButton ) == forge::IInput::KeyState::Pressed;
+	Bool clickedThisFrame = GetEngineInstance().GetRenderingManager().GetWindow().GetInput().GetMouseButtonState( forge::IInput::MouseButton::LeftButton ) == forge::IInput::KeyState::Pressed;
 
 	if( m_gizmoToken.GetObject() )
 	{

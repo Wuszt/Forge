@@ -11,7 +11,7 @@ namespace forge
 	public:
 		using IComponent::IComponent;
 
-		virtual void Update( Bool isInputEnabled ) = 0;
+		virtual void Update() = 0;
 	};
 
 	class PhysicsFreeCameraControllerComponent : public IPlayerControllerComponent
@@ -19,13 +19,12 @@ namespace forge
 	public:
 		using IPlayerControllerComponent::IPlayerControllerComponent;
 
-		virtual void Update( Bool isInputEnabled ) override;
+		virtual void Update() override;
 
 	protected:
 		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 
 	private:
-		IInput* m_input = nullptr;
 		TransformComponent* m_ownerTransform = nullptr;
 		PhysicsDynamicComponent* m_physicsComponent = nullptr;
 

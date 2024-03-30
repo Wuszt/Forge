@@ -1,4 +1,6 @@
 #pragma once
+#include <limits>
+#include <algorithm>
 
 namespace forge
 {
@@ -141,8 +143,7 @@ namespace forge
 			RightCtrl = 0xA3,
 			LeftMenu = 0xA4,
 			RightMenu = 0xA5,
-			Count,
-			Invalid = Count
+			Invalid = 255
 		};
 
 		enum class MouseButton : Uint8
@@ -187,6 +188,18 @@ namespace forge
 		class InputEvent
 		{
 		public:
+			InputEvent( Float mouseScrollChange )
+				: m_event( mouseScrollChange )
+			{}
+
+			InputEvent( const Coords2D& cursorDelta )
+				: m_event( cursorDelta )
+			{}
+
+			InputEvent( KeyEvent keyEvent )
+				: m_event( keyEvent )
+			{}
+
 			const Coords2D* GetMousePosChange() const
 			{
 				return std::get_if< Coords2D >( &m_event );
@@ -203,7 +216,7 @@ namespace forge
 			}
 
 		private:
-			std::variant<Float, Coords2D, KeyEvent> m_event;
+			std::variant< Float, Coords2D, KeyEvent > m_event;
 		};
 
 		virtual ~IInput() = default;
@@ -221,5 +234,7 @@ namespace forge
 		virtual Float GetMouseScrollDelta() const = 0;
 		virtual void LockCursor( Bool lock ) = 0;
 		virtual Bool IsCursorLocked() const = 0;
+
+		virtual [[nodiscard]] forge::CallbackToken RegisterOnInputEvent( forge::Callback< InputEvent >::TFunc callback ) = 0;
 	};
 }

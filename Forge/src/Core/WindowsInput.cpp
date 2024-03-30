@@ -1,7 +1,7 @@
 #include "Fpch.h"
+#include "WindowsInput.h"
 #include "../Math/PublicDefaults.h"
 #include <dinput.h>
-#include "WindowsInput.h"
 #include "WindowsWindow.h"
 #include <iostream>
 #include <winuser.h>
@@ -36,6 +36,11 @@ namespace windows
 		m_mouseCurrentPos.Y = -( Math::Clamp( 0.0f, static_cast< Float >( m_window.GetHeight() ), m_mouseCurrentPos.Y ) - static_cast< Float >( m_window.GetHeight() / 2u ) );
 
 		m_mouseDeltaPos = Vector2( m_mouseCurrentPos - prevPos );
+
+		if ( m_mouseDeltaPos.SquareMag() > 0 )
+		{
+			m_onInputEvent.Invoke( InputEvent{ { m_mouseDeltaPos.X, m_mouseDeltaPos.Y } } );
+		}
 
 		if ( m_lockCursor )
 		{
@@ -105,6 +110,14 @@ namespace windows
 		m_keysReleased[ static_cast< Uint8 >( event.m_key ) ] = m_keysHeld[ static_cast< Uint8 >( event.m_key ) ] && !isPress;
 
 		m_keysHeld[ static_cast< Uint8 >( event.m_key ) ] = isPress;
+
+		m_onInputEvent.Invoke( event );
+	}
+
+	void WindowsInput::OnMouseWheelUpdate( Int32 delta )
+	{
+		m_scrollDelta += static_cast< Float >( delta );
+		m_onInputEvent.Invoke( static_cast< Float >( delta ) );
 	}
 
 	IInput::KeyState WindowsInput::GetKeyState( Key key ) const

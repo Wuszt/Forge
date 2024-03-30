@@ -9,14 +9,6 @@
 #include "../Systems/RenderingComponent.h"
 #include "../Systems/PhysicsComponent.h"
 #include "../GameEngine/Object.h"
-
-#ifdef FORGE_DEBUGGING
-#include "../Systems/DebugSystem.h"
-#endif
-
-#ifdef FORGE_IMGUI_ENABLED
-#include "../Systems/IMGUISystem.h"
-#endif
 #include "../GameEngine/ISystem.h"
 #include "../Systems/CamerasSystem.h"
 #include "../Systems/PlayerSystem.h"
@@ -34,9 +26,17 @@
 #include "../Renderer/ISwapchain.h"
 #include "../GameEngine/UpdateManager.h"
 #include "../../External/imgui/imgui.h"
-
 #include "SceneEditor.h"
 #include "PanelBase.h"
+#include "../Systems/InputSystem.h"
+
+#ifdef FORGE_DEBUGGING
+#include "../Systems/DebugSystem.h"
+#endif
+
+#ifdef FORGE_IMGUI_ENABLED
+#include "../Systems/IMGUISystem.h"
+#endif
 
 void CubeScene(forge::EngineInstance& engineInstance)
 {
@@ -73,6 +73,7 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 		&systems::AnimationSystem::GetTypeStatic(),
 		&systems::TransformSystem::GetTypeStatic(),
 		&systems::PhysicsSystem::GetTypeStatic(),
+		&systems::InputSystem::GetTypeStatic(),
 #ifdef FORGE_DEBUGGING
 		&systems::DebugSystem::GetTypeStatic(),
 #endif
@@ -82,7 +83,7 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 #endif
 	};
 
-	engineInstance.GetSystemsManager().AddSystems(systems);
+	engineInstance.GetSystemsManager().AddSystems( systems );
 	engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor({ 0.55f, 0.55f, 0.55f });
 
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([&](forge::Object* player)
@@ -112,7 +113,7 @@ void forge::EditorInstance::Deinitialize( EngineInstance& engineInstance )
 
 void forge::EditorInstance::Update()
 {
-	if ( m_engineInstance->GetRenderingManager().GetWindow().GetInput()->GetKeyDown( forge::IInput::Key::Escape ) )
+	if ( m_engineInstance->GetRenderingManager().GetWindow().GetInput().GetKeyDown( forge::IInput::Key::Escape ) )
 	{
 		Shutdown();
 	}

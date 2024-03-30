@@ -13,6 +13,7 @@ namespace forge
 		friend class Object;
 	public:
 		ObjectsManager( EngineInstance& engineInstance, UpdateManager& updateManager, ecs::ECSManager& ecsManager );
+		~ObjectsManager();
 
 		template< class T = forge::Object >
 		void RequestCreatingObject( const std::function< void( T* ) >& initializeFunc = nullptr )

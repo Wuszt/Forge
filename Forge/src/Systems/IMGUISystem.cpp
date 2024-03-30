@@ -6,6 +6,7 @@
 #include "../IMGUI/IMGUIInstance.h"
 #include "../Core/IWindow.h"
 #include "../GameEngine/RenderingManager.h"
+#include "../Systems/InputSystem.h"
 
 RTTI_IMPLEMENT_TYPE( systems::IMGUISystem );
 
@@ -15,8 +16,11 @@ systems::IMGUISystem::IMGUISystem( IMGUISystem&& ) = default;
 
 systems::IMGUISystem::~IMGUISystem() = default;
 
-void systems::IMGUISystem::OnInitialize()
+void systems::IMGUISystem::OnPostInit()
 {
+	auto& inputSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::InputSystem >();
+	m_inputHandler = std::make_unique< forge::InputHandler >( inputSystem.RegisterHandler( false, systems::InputSystem::CursorStateRequest::None, systems::InputSystem::HandlerSource::Overlay ) );
+
 	m_imguiInstance = std::make_unique< forge::IMGUIInstance >( GetEngineInstance().GetRenderingManager().GetWindow(), GetEngineInstance().GetRenderingManager().GetRenderer());
 	m_preUpdateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::FrameStart, [ & ]()
 	{
@@ -25,6 +29,25 @@ void systems::IMGUISystem::OnInitialize()
 
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, [ & ]()
 	{
+		auto& inputSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::InputSystem >();
+		if ( ( m_inputHandler->GetKeyDown( forge::IInput::Key::Control )
+			|| m_inputHandler->GetKeyDown( forge::IInput::Key::Shift )
+			|| m_inputHandler->GetKeyDown( forge::IInput::Key::Z ) )
+			&& m_inputHandler->GetKeys( { forge::IInput::Key::Control, forge::IInput::Key::Shift, forge::IInput::Key::Z } ) )
+		{
+			m_isInputActive = !m_isInputActive;
+			inputSystem.UnregisterHandler( *m_inputHandler );
+
+			if ( m_isInputActive )
+			{
+				m_inputHandler = std::make_unique< forge::InputHandler >( inputSystem.RegisterHandler( true, systems::InputSystem::CursorStateRequest::Enabled, systems::InputSystem::HandlerSource::Overlay ) );
+			}
+			else
+			{
+				m_inputHandler = std::make_unique< forge::InputHandler >( inputSystem.RegisterHandler( false, systems::InputSystem::CursorStateRequest::None, systems::InputSystem::HandlerSource::Overlay ) );
+			}
+		}
+
 		//DrawOverlay();
 		m_topBar.Draw();
 	} );
@@ -33,6 +56,12 @@ void systems::IMGUISystem::OnInitialize()
 	{
 		m_imguiInstance->Render();
 	} );
+}
+
+void systems::IMGUISystem::OnDeinitialize()
+{
+	auto& inputSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::InputSystem >();
+	inputSystem.UnregisterHandler( *m_inputHandler );
 }
 
 void systems::IMGUISystem::DrawOverlay()

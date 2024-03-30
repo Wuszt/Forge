@@ -8,7 +8,7 @@ namespace systems
 	public:
 		using ISystem::ISystem;
 
-		virtual void OnInitialize();
+		virtual void OnPostInit();
 		
 		Float GetCurrentTime() const
 		{

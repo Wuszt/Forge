@@ -85,7 +85,7 @@ namespace forge
 
 		virtual void Update() = 0;
 
-		virtual IInput* GetInput() const = 0;
+		virtual IInput& GetInput() const = 0;
 
 		typedef forge::Callback< const IEvent& > CallbackType;
 

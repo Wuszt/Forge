@@ -1,9 +1,11 @@
 #pragma once
 #include "IDebuggable.h"
+#include "../Core/IInput.h"
 
 namespace forge
 {
 	class IPlayerControllerComponent;
+	class InputHandler;
 }
 
 namespace systems
@@ -13,9 +15,12 @@ namespace systems
 		RTTI_DECLARE_POLYMORPHIC_CLASS( PlayerSystem, systems::ISystem );
 
 	public:
-		using ISystem::ISystem;
+		PlayerSystem();
+		PlayerSystem( PlayerSystem&& );
+		~PlayerSystem();
 
-		virtual void OnInitialize();
+		virtual void OnPostInit() override;
+		virtual void OnDeinitialize() override;
 
 		void SetActivePlayerComponent( forge::IPlayerControllerComponent& comp )
 		{
@@ -27,6 +32,12 @@ namespace systems
 			return m_activeController;
 		}
 
+		const forge::InputHandler& GetInputHandler() const
+		{
+			FORGE_ASSERT( m_inputHandler );
+			return *m_inputHandler;
+		}
+
 		forge::Object* GetCurrentPlayerObject() const;
 
 	private:
@@ -35,7 +46,7 @@ namespace systems
 		forge::IPlayerControllerComponent* m_activeController = nullptr;
 		forge::CallbackToken m_updateToken;
 
-		Bool m_wasShiftAndWheelPressed = false;
+		std::unique_ptr< forge::InputHandler > m_inputHandler;
 
 #ifdef FORGE_IMGUI_ENABLED
 		virtual void OnRenderDebug() override;

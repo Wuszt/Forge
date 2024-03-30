@@ -23,7 +23,7 @@ namespace forge
 			m_shutdownRequested = true;
 		}
 
-		virtual Bool WithRendering() const
+		virtual Bool WithWindow() const
 		{
 			return false;
 		}

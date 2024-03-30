@@ -2,8 +2,6 @@
 #include "../Math/PublicDefaults.h"
 #include "../GameEngine/PublicDefaults.h"
 #include "../Editor/EditorInstance.h"
-
-
 #include "../Systems/TransformComponent.h"
 #include "../Systems/RenderingComponent.h"
 #include "../Systems/PhysicsComponent.h"

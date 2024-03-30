@@ -52,7 +52,7 @@ namespace systems
 		SceneRenderingSystem( SceneRenderingSystem&& );
 		~SceneRenderingSystem();
 
-		virtual void OnInitialize() override;
+		virtual void OnPostInit() override;
 
 		void OnBeforeDraw();
 

@@ -27,4 +27,9 @@ void systems::SystemsManager::AddSystems( forge::ArraySpan< const ISystem::Class
 	{
 		m_systems[ i ]->Initialize( m_engineInstance );
 	}
+
+	for ( Uint32 i = prevCount; i < static_cast< Uint32 >( m_systems.size() ); ++i )
+	{
+		m_systems[ i ]->PostInit();
+	}
 }

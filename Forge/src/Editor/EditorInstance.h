@@ -17,7 +17,7 @@ namespace forge
 		virtual void Initialize(forge::EngineInstance& engineInstance) override;
 		virtual void Deinitialize( EngineInstance& engineInstance ) override;
 
-		virtual Bool WithRendering() const override
+		virtual Bool WithWindow() const override
 		{
 			return true;
 		}
@@ -28,6 +28,6 @@ namespace forge
 		forge::CallbackToken m_updateToken;
 		forge::EngineInstance* m_engineInstance = nullptr;
 
-		std::vector<std::unique_ptr<editor::PanelBase>> m_panels;
+		std::vector< std::unique_ptr< editor::PanelBase > > m_panels;
 	};
 }
