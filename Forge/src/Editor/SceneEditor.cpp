@@ -39,6 +39,11 @@ void editor::SceneEditor::Draw()
 		}
 	}
 
+	if ( ImGui::IsWindowHovered() && ImGui::IsMouseClicked( ImGuiMouseButton_Right ) )
+	{
+		ImGui::SetWindowFocus();
+	}
+
 	const Vector2 imageDrawPos = forge::imgui::CastToForge( ImGui::GetCursorScreenPos() );
 	ImGui::Image( m_targetTexture->GetShaderResourceView()->GetRawSRV(), forge::imgui::CastToImGui( m_targetTexture->GetSize() ) );
 
