@@ -25,13 +25,13 @@ namespace windows
 		m_keysReleased.reset();
 		m_scrollDelta = 0.0f;
 
-		POINT tmp;
-		GetCursorPos( &tmp );
-		ScreenToClient( m_window.GetHWND(), &tmp );
+		POINT rawCursorPos;
+		GetCursorPos( &rawCursorPos );
+		ScreenToClient( m_window.GetHWND(), &rawCursorPos );
 
 		Vector2 prevPos = m_mouseCurrentPos;
 
-		m_mouseCurrentPos = Vector2( static_cast< Float >( tmp.x ), static_cast< Float >( tmp.y ) );
+		m_mouseCurrentPos = Vector2( static_cast< Float >( rawCursorPos.x ), static_cast< Float >( rawCursorPos.y ) );
 		m_mouseCurrentPos.X = Math::Clamp( 0.0f, static_cast< Float >( m_window.GetWidth() ), m_mouseCurrentPos.X ) - static_cast< Float >( m_window.GetWidth() / 2u );
 		m_mouseCurrentPos.Y = -( Math::Clamp( 0.0f, static_cast< Float >( m_window.GetHeight() ), m_mouseCurrentPos.Y ) - static_cast< Float >( m_window.GetHeight() / 2u ) );
 
@@ -44,12 +44,12 @@ namespace windows
 
 		if ( m_lockCursor )
 		{
-			m_mouseCurrentPos = Vector2::ZEROS();
+			m_mouseCurrentPos = prevPos;
+			rawCursorPos.x = prevPos.X + m_window.GetWidth() / 2;
+			rawCursorPos.y = -prevPos.Y + m_window.GetHeight() / 2;
 
-			const Uint32 x = m_window.GetPosX() + m_window.GetWidth() / 2u;
-			const Uint32 y = m_window.GetPosY() + m_window.GetHeight() / 2u;
-
-			SetCursorPos( x, y );
+			ClientToScreen( m_window.GetHWND(), &rawCursorPos );
+			SetCursorPos( rawCursorPos.x, rawCursorPos.y );
 			while ( ShowCursor( false ) >= 0 );
 		}
 		else
