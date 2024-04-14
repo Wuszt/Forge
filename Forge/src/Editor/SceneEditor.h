@@ -35,10 +35,15 @@ namespace editor
 		}
 
 	private:
-		bool FindHoveredObject( const Vector2& cursorPos, physics::PhysicsGroupFlags group, forge::ObjectID& outObjectId, Vector3& outRayDir ) const;
+		void UpdateSelectedObject( const Vector2& cursorPos );
+		void OnSelectionChange();
+		void UpdateGizmo( const Vector2& cursorPos );
+		bool FindHoveredObject( const Vector2& cursorPos, physics::PhysicsGroupFlags group, forge::ObjectID& outObjectId ) const;
+		Vector3 GetMouseRayDir( const Vector2& cursorPos ) const;
 
 		std::unique_ptr< renderer::ITexture > m_targetTexture;
 		std::unique_ptr< editor::SceneGrid > m_sceneGrid;
 		forge::ObjectLifetimeToken m_gizmoToken;
+		forge::ObjectID m_selectedObjectID;
 	};
 }

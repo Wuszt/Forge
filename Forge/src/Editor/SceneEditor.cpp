@@ -44,66 +44,81 @@ void editor::SceneEditor::Draw()
 		ImGui::SetWindowFocus();
 	}
 
-	const Vector2 imageDrawPos = forge::imgui::CastToForge( ImGui::GetCursorScreenPos() );
+	const Vector2 cursorPos = forge::imgui::CastToForge( ImGui::GetMousePos() ) - forge::imgui::CastToForge( ImGui::GetCursorScreenPos() );
 	ImGui::Image( m_targetTexture->GetShaderResourceView()->GetRawSRV(), forge::imgui::CastToImGui( m_targetTexture->GetSize() ) );
 
+	auto& inputSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::InputSystem >();
+	inputSystem.Enable( ImGui::IsMouseDown( ImGuiMouseButton_Right ) );
+
 	const Bool shouldProcessInput = ImGui::IsWindowFocused() && ImGui::IsItemHovered();
-	GetEngineInstance().GetSystemsManager().GetSystem< systems::InputSystem >().Enable( false );
-
-	if ( !shouldProcessInput )
+	if ( shouldProcessInput )
 	{
-		return;
+		UpdateSelectedObject( cursorPos );
+		UpdateGizmo( cursorPos );
 	}
+}
 
-	GetEngineInstance().GetSystemsManager().GetSystem< systems::InputSystem >().Enable( ImGui::IsMouseDown( ImGuiMouseButton_Right ) );
-
+void editor::SceneEditor::UpdateSelectedObject( const Vector2& cursorPos )
+{
 	forge::ObjectID objectId;
-	Vector3 rayDir;
-	const Vector2 cursorPos = forge::imgui::CastToForge( ImGui::GetMousePos() ) - imageDrawPos;
-	Bool clickedThisFrame = GetEngineInstance().GetRenderingManager().GetWindow().GetInput().GetMouseButtonState( forge::IInput::MouseButton::LeftButton ) == forge::IInput::KeyState::Pressed;
-
-	if( m_gizmoToken.GetObject() )
+	const Bool clickedThisFrame = GetEngineInstance().GetRenderingManager().GetWindow().GetInput().GetMouseButtonState( forge::IInput::MouseButton::LeftButton ) == forge::IInput::KeyState::Pressed;
+	if ( clickedThisFrame )
 	{
-		const Bool hoveringOverSomething = FindHoveredObject( cursorPos, physics::PhysicsGroupFlags::Editor, objectId, rayDir );
-
-		editor::Gizmo& gizmo = *m_gizmoToken.GetObject< editor::Gizmo >();
-		gizmo.Update( objectId, rayDir );
-
-		if ( clickedThisFrame && !hoveringOverSomething )
+		const Bool hoveringOverEditorObject = FindHoveredObject( cursorPos, physics::PhysicsGroupFlags::Editor, objectId );
+		if ( !hoveringOverEditorObject )
 		{
-			m_gizmoToken = forge::ObjectLifetimeToken();
-		}
-	}
+			const Bool hoveringOverSceneObject = FindHoveredObject( cursorPos, ~physics::PhysicsGroupFlags::Editor, objectId );
 
-	if ( clickedThisFrame && m_gizmoToken.GetObject() == nullptr )
-	{
-		if ( FindHoveredObject( cursorPos, ~physics::PhysicsGroupFlags::Editor, objectId, rayDir ) )
-		{
-			GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::Gizmo >( [ this, objectId ]( editor::Gizmo* gizmo )
+			if ( hoveringOverSceneObject )
 			{
-				m_gizmoToken = forge::ObjectLifetimeToken( *gizmo );
-				gizmo->Initialize( objectId );
-			} );
+				m_selectedObjectID = objectId;
+				OnSelectionChange();
+			}
+			else
+			{
+				m_selectedObjectID = forge::ObjectID();
+				OnSelectionChange();
+			}
 		}
 	}
 }
 
-bool editor::SceneEditor::FindHoveredObject( const Vector2& cursorPos, physics::PhysicsGroupFlags group, forge::ObjectID& outObjectId, Vector3& outRayDir ) const
+void editor::SceneEditor::OnSelectionChange()
+{
+	m_gizmoToken.Reset();
+	if ( m_selectedObjectID.IsValid() )
+	{
+		GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::Gizmo >( [ this ]( editor::Gizmo* gizmo )
+			{
+				m_gizmoToken = forge::ObjectLifetimeToken( *gizmo );
+				gizmo->Initialize( m_selectedObjectID );
+			} );
+	}
+}
+
+void editor::SceneEditor::UpdateGizmo( const Vector2& cursorPos )
+{
+	if ( m_gizmoToken.IsValid() )
+	{
+		forge::ObjectID hoveredObjectId;
+		FindHoveredObject( cursorPos, physics::PhysicsGroupFlags::Editor, hoveredObjectId );
+		m_gizmoToken.GetObject< editor::Gizmo >()->Update( hoveredObjectId, GetMouseRayDir( cursorPos ) );
+	}
+}
+
+bool editor::SceneEditor::FindHoveredObject( const Vector2& cursorPos, physics::PhysicsGroupFlags group, forge::ObjectID& outObjectId ) const
 {
 	auto& camerasSystem = GetEngineInstance().GetSystemsManager().GetSystem<systems::CamerasSystem>();
 
 	const auto& currentCamera = camerasSystem.GetActiveCamera()->GetCamera();
 	const Vector3 cameraPos = currentCamera.GetPosition();
 
-	const Vector2 resolution = GetSize();
-	const Vector2 viewSpacePos = { 2.0f * ( cursorPos.X / resolution.X - 0.5f ), -2.0f * ( cursorPos.Y / resolution.Y - 0.5f ) };
-
-	const Vector4 rayClip = { viewSpacePos.X, viewSpacePos.Y, 1.0f, 1.0f };
-	outRayDir = currentCamera.GetInvViewMatrix().TransformVector( currentCamera.GetInvProjectionMatrix().TransformVector( rayClip ) ).Normalized3();
-
 	auto& physicsSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::PhysicsSystem >();
 	physics::RaycastResult result;
-	if ( physicsSystem.PerformRaycast( cameraPos, outRayDir, std::numeric_limits< Float >::max(), result, group ) )
+
+	const Vector4 rayDir = GetMouseRayDir( cursorPos );
+
+	if ( physicsSystem.PerformRaycast( cameraPos, rayDir, std::numeric_limits< Float >::max(), result, group ) )
 	{
 		auto userData = physics::UserData( result.m_actorData );
 		outObjectId = userData.m_objectId;
@@ -112,4 +127,14 @@ bool editor::SceneEditor::FindHoveredObject( const Vector2& cursorPos, physics::
 	}
 
 	return false;
+}
+
+Vector3 editor::SceneEditor::GetMouseRayDir( const Vector2& cursorPos ) const
+{
+	auto& camerasSystem = GetEngineInstance().GetSystemsManager().GetSystem<systems::CamerasSystem>();
+	const auto& currentCamera = camerasSystem.GetActiveCamera()->GetCamera();
+	const Vector2 resolution = GetSize();
+	const Vector2 viewSpacePos = { 2.0f * ( cursorPos.X / resolution.X - 0.5f ), -2.0f * ( cursorPos.Y / resolution.Y - 0.5f ) };
+	const Vector4 rayClip = { viewSpacePos.X, viewSpacePos.Y, 1.0f, 1.0f };
+	return currentCamera.GetInvViewMatrix().TransformVector( currentCamera.GetInvProjectionMatrix().TransformVector( rayClip ) ).Normalized3();
 }

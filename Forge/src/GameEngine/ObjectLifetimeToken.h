@@ -18,9 +18,19 @@ namespace forge
 
 		ObjectLifetimeToken& operator=( ObjectLifetimeToken&& other );
 
+		void Reset()
+		{
+			*this = ObjectLifetimeToken();
+		}
+
 		forge::ObjectID GetObjectId() const
 		{
 			return m_objectId;
+		}
+
+		Bool IsValid() const
+		{
+			return m_objectId.IsValid();
 		}
 
 		template< class T = forge::Object >
