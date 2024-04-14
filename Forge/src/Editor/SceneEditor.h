@@ -1,6 +1,5 @@
 #pragma once
 #include "PanelBase.h"
-#include "../GameEngine/ObjectLifetimeToken.h"
 
 namespace physics
 {

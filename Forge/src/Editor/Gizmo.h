@@ -1,6 +1,5 @@
 #pragma once
 #include "../GameEngine/Object.h"
-#include "../GameEngine/ObjectLifetimeToken.h"
 
 namespace editor
 {
