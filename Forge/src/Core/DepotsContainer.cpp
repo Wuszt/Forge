@@ -3,12 +3,13 @@
 #include <filesystem>
 
 forge::DepotsContainer::DepotsContainer( const std::string& appDepotName )
-	: m_appDepot( appDepotName )
-	, m_engineDepot( "Engine" )
+	: m_appDepot( GetDepotsPath(), appDepotName )
+	, m_engineDepot( GetDepotsPath(), "Engine" )
+	, m_depotsPath( std::filesystem::current_path().parent_path().parent_path().string() + "\\Depots" )
 {}
 
-forge::Depot::Depot( const std::string& rootPath )
-	: m_rootPath( std::filesystem::current_path().string() + "\\Depots\\" + rootPath + "\\" )
+forge::Depot::Depot( const std::string& depotsAbsolutePath, const std::string& rootPath )
+	: m_rootPath( depotsAbsolutePath + "\\" + rootPath + "\\")
 {}
 
 std::string forge::Depot::GetAbsolutePath( const std::string& localPath ) const

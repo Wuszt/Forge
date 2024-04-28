@@ -5,7 +5,7 @@ namespace forge
 	class Depot
 	{
 	public:
-		Depot( const std::string& rootPath );
+		Depot( const std::string& depotsAbsolutePath, const std::string& rootPath );
 		std::string GetAbsolutePath( const std::string& localPath ) const;
 		bool ContainsFile( const std::string& localPath ) const;
 
@@ -28,6 +28,11 @@ namespace forge
 			return m_engineDepot;
 		}
 
+		const std::string& GetDepotsPath() const
+		{
+			return m_depotsPath;
+		}
+
 		bool TryToGetExistingFilePath( const std::string& localPath, std::string& outAbsolutePath ) const
 		{
 			if( m_appDepot.ContainsFile( localPath ) )
@@ -46,6 +51,8 @@ namespace forge
 		}
 
 	private:
+		std::string m_depotsPath;
+
 		const Depot m_appDepot;
 		const Depot m_engineDepot;
 	};
