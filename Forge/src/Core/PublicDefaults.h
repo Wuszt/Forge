@@ -13,3 +13,4 @@
 #include "StringUtils.h"
 #include "ArraySpan.h"
 #include "RawVector.h"
+#include "OnScopeExit.h"

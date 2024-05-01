@@ -23,6 +23,7 @@
 #ifdef FORGE_IMGUI_ENABLED
 #include "../IMGUI/PublicDefaults.h"
 #include "../Renderer/ICamera.h"
+#include "../IMGUI/IMGUIMenuBar.h"
 #endif
 
 RTTI_IMPLEMENT_TYPE( systems::SceneRenderingSystem );
@@ -41,8 +42,8 @@ void systems::SceneRenderingSystem::OnPostInit()
 	m_camerasSystem = &GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >();
 
 #ifdef FORGE_IMGUI_ENABLED
-	m_topBarButton = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().GetTopBar().AddButton( { "Reload shaders" }, false );
-	m_topBarButtonToken = m_topBarButton->GetCallback().AddListener( [ this ]()
+	m_menuBarButton = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().GetMenuBar().AddButton( { "Reload shaders" }, false );
+	m_menuBarButtonToken = m_menuBarButton->GetCallback().AddListener( [ this ]()
 		{
 			GetEngineInstance().GetRenderingManager().GetRenderer().GetShadersManager()->ClearCache();
 		} );

@@ -3,7 +3,7 @@
 #ifdef FORGE_IMGUI_ENABLED
 namespace imgui
 {
-	class TopBarItem;
+	class MenuBarItem;
 }
 #endif
 
@@ -48,7 +48,7 @@ namespace forge
 	private:
 		void InitializeDebuggable( EngineInstance& engineInstance, const char* categoryName, const char* name );
 
-		std::shared_ptr< ::imgui::TopBarItem > m_topBarHandle;
+		std::shared_ptr< ::imgui::MenuBarItem > m_menuBarHandle;
 		forge::CallbackToken m_onClickedTopBarItemToken;
 		forge::CallbackToken m_onRenderDebugToken;
 #endif

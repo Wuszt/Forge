@@ -5,12 +5,17 @@ namespace forge
 	class EngineInstance;
 }
 
+namespace imgui
+{
+	class MenuBar;
+}
+
 namespace editor
 {
 	class PanelBase
 	{
 	public:
-		PanelBase( forge::EngineInstance& engineIntance );
+		PanelBase( Bool withMenuBar, forge::EngineInstance& engineIntance );
 		virtual ~PanelBase() = default;
 
 		void Update();
@@ -20,6 +25,10 @@ namespace editor
 		virtual const Char* GetName() const = 0;
 
 		Vector2 GetSize() const;
+		imgui::MenuBar* GetMenuBar()
+		{
+			return m_menuBar.get();
+		}
 
 		forge::EngineInstance& GetEngineInstance() const
 		{
@@ -29,5 +38,6 @@ namespace editor
 	private:
 		forge::EngineInstance& m_engineInstance;
 		Vector2 m_currentSize;
+		std::unique_ptr< imgui::MenuBar > m_menuBar;
 	};
 }

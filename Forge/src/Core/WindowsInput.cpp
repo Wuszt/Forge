@@ -45,8 +45,8 @@ namespace windows
 		if ( m_lockCursor )
 		{
 			m_mouseCurrentPos = prevPos;
-			rawCursorPos.x = prevPos.X + m_window.GetWidth() / 2;
-			rawCursorPos.y = -prevPos.Y + m_window.GetHeight() / 2;
+			rawCursorPos.x = static_cast< Int32 >( prevPos.X ) + m_window.GetWidth() / 2;
+			rawCursorPos.y = static_cast< Int32 >( -prevPos.Y ) + m_window.GetHeight() / 2;
 
 			ClientToScreen( m_window.GetHWND(), &rawCursorPos );
 			SetCursorPos( rawCursorPos.x, rawCursorPos.y );

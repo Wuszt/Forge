@@ -116,8 +116,8 @@ namespace systems
 
 #ifdef FORGE_IMGUI_ENABLED
 		void CacheDepthBufferForDebug();
-		std::shared_ptr< imgui::TopBarItem > m_topBarButton;
-		forge::CallbackToken m_topBarButtonToken;
+		std::shared_ptr< imgui::MenuBarItem > m_menuBarButton;
+		forge::CallbackToken m_menuBarButtonToken;
 		forge::CallbackToken m_overlayDebugToken;
 		std::unique_ptr< renderer::ITexture > m_depthBufferDebugTexture;
 		Float m_depthBufferDenominator = std::numeric_limits< Float >::infinity();
