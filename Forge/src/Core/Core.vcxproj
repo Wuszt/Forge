@@ -48,6 +48,7 @@
     <ClInclude Include="IInput.h" />
     <ClInclude Include="IWindow.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="OnScopeExit.h" />
     <ClInclude Include="Profiling.h" />
     <ClInclude Include="RawVector.h" />
     <ClInclude Include="Serializer.h" />
@@ -229,6 +230,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -250,6 +252,7 @@
       <PrecompiledHeaderFile>fpch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)/External/spdlog/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -272,6 +275,7 @@
       <PrecompiledHeaderFile>fpch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)/External/spdlog/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -296,6 +300,7 @@
       <PrecompiledHeaderFile>fpch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)/External/spdlog/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -320,6 +325,7 @@
       <PrecompiledHeaderFile>fpch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)/External/spdlog/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -344,6 +350,7 @@
       <PrecompiledHeaderFile>fpch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)/External/spdlog/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -368,6 +375,7 @@
       <PrecompiledHeaderFile>fpch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)/External/spdlog/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -392,6 +400,7 @@
       <PrecompiledHeaderFile>fpch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)/External/spdlog/include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

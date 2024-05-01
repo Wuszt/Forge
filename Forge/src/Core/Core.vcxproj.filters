@@ -98,6 +98,9 @@
     <ClInclude Include="Streams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OnScopeExit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fpch.cpp">
