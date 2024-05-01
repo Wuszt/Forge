@@ -68,6 +68,8 @@ namespace windows
 			return m_positionY;
 		}
 
+		virtual std::string CreateFileDialog( forge::ArraySpan< std::string > extensions = {}, std::string defaultPath = std::string() ) const override;
+
 		forge::CallbackToken RegisterWindowRawEventListener( const WindowRawEventCallback::TFunc& callback )
 		{
 			return m_rawEventCallback.AddListener( callback );

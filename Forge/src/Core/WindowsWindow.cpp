@@ -2,6 +2,8 @@
 #include "WindowsWindow.h"
 #include "WindowsInput.h"
 #include "Windows.h"
+#include "shobjidl_core.h"
+#include "stdlib.h"
 
 namespace
 {
@@ -14,7 +16,7 @@ namespace
 
 		Bool eventHandled = false;
 
-		if( ptr != NULL )
+		if ( ptr != NULL )
 		{
 			windows::WindowsWindow* windowPtr = reinterpret_cast< windows::WindowsWindow* >( ptr );
 			eventHandled = windowPtr->OnWindowEvent( msg, wParam, lParam );
@@ -22,7 +24,7 @@ namespace
 
 		LRESULT result = NULL;
 
-		if( !eventHandled )
+		if ( !eventHandled )
 		{
 			result = DefWindowProc( hwnd,
 				msg,
@@ -64,17 +66,17 @@ namespace windows
 		wc.hInstance = hInstance;
 		wc.hIcon = LoadIcon( NULL, IDI_APPLICATION );
 		wc.hCursor = LoadCursor( NULL, IDC_ARROW );
-		wc.hbrBackground = (HBRUSH)( COLOR_WINDOW + 2 );
+		wc.hbrBackground = ( HBRUSH )( COLOR_WINDOW + 2 );
 		wc.lpszMenuName = NULL;
 		wc.lpszClassName = c_windowClassName;
 		wc.hIconSm = LoadIcon( NULL, IDI_APPLICATION );
 
-		if( !RegisterClassEx( &wc ) )
+		if ( !RegisterClassEx( &wc ) )
 		{
 			return WindowsWindow::InitializationState::Error_Registering_Class;
 		}
 
-		RECT wr = { 0, 0, static_cast<Int32>( width ), static_cast<Int32>( height ) };
+		RECT wr = { 0, 0, static_cast< Int32 >( width ), static_cast< Int32 >( height ) };
 		AdjustWindowRect( &wr, WS_OVERLAPPEDWINDOW, false );
 
 		outHWND = CreateWindowEx(
@@ -90,7 +92,7 @@ namespace windows
 			NULL
 		);
 
-		if( !outHWND )
+		if ( !outHWND )
 		{
 			return WindowsWindow::InitializationState::Error_Creating_Window;
 		}
@@ -110,7 +112,7 @@ namespace windows
 		Initialize( hInstance );
 		FORGE_ASSERT( IsInitialized() );
 
-		SetWindowLongPtr( m_hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( this ) );
+		SetWindowLongPtr( m_hwnd, GWLP_USERDATA, reinterpret_cast< LONG_PTR >( this ) );
 
 		m_input = std::make_unique< WindowsInput >( hInstance, *this );
 	}
@@ -139,15 +141,15 @@ namespace windows
 		Uint32 xDiff = windowWidth - m_width;
 		Uint32 yDiff = windowHeight - m_height;
 
-		m_positionX = rect.left + static_cast<Int32>( xDiff / 2 );
-		m_positionY = rect.top + static_cast<Int32>( yDiff - xDiff / 2 );
+		m_positionX = rect.left + static_cast< Int32 >( xDiff / 2 );
+		m_positionY = rect.top + static_cast< Int32 >( yDiff - xDiff / 2 );
 	}
 
 	void WindowsWindow::Update()
 	{
 		m_input->Update();
 
-		while( true )
+		while ( true )
 		{
 			MSG msg;
 			ZeroMemory( &msg, sizeof( MSG ) );
@@ -160,7 +162,7 @@ namespace windows
 				Uint32 wRemoveMsg
 			);
 
-			if( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+			if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
 			{
 				m_input->OnEvent( msg );
 
@@ -178,18 +180,18 @@ namespace windows
 
 	Bool WindowsWindow::OnWindowEvent( Uint32 msg, Uint64 wParam, Uint64 lParam )
 	{
-		switch( msg )
+		switch ( msg )
 		{
 		case WM_CLOSE:
 			DispatchEvent( forge::IWindow::OnCloseRequestedEvent( *this ) );
 			return true;
 
-		case WM_DESTROY:			
+		case WM_DESTROY:
 			PostQuitMessage( 0 );
 			return false;
 
 		case WM_SIZE:
-			if( wParam != SIZE_MINIMIZED )
+			if ( wParam != SIZE_MINIMIZED )
 			{
 				UpdatePositionAndSize();
 				DispatchEvent( forge::IWindow::OnResizedEvent( *this, m_width, m_height ) );
@@ -203,6 +205,63 @@ namespace windows
 		}
 
 		return false;
+	}
+
+	std::string WindowsWindow::CreateFileDialog( forge::ArraySpan< std::string > extensions, std::string defaultPath ) const
+	{
+		std::string result;
+		if ( SUCCEEDED( CoInitializeEx( nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE ) ) )
+		{
+			IFileOpenDialog* fileDialog = nullptr;
+			if ( SUCCEEDED( CoCreateInstance( CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast< void** >( &fileDialog ) ) ) )
+			{
+				ON_SCOPE_EXIT( fileDialog->Release(); );
+
+				IShellItem* currentFolder = NULL;
+				if ( !defaultPath.empty() )
+				{
+					if ( !SUCCEEDED( SHCreateItemFromParsingName( std::wstring( defaultPath.begin(), defaultPath.end() ).c_str(), NULL, IID_PPV_ARGS( &currentFolder ) ) ) )
+					{
+						return "";
+					}
+
+					ON_SCOPE_EXIT( currentFolder->Release(); );
+					fileDialog->SetFolder( currentFolder );
+				}
+
+				if ( !extensions.IsEmpty() )
+				{
+					std::wstring combinedExtentionsAsWide = std::wstring( TEXT( "*." ) ) + std::wstring( extensions[ 0 ].begin(), extensions[ 0 ].end() );
+					for ( const auto& extension : extensions.Mid( 1u ) )
+					{
+						combinedExtentionsAsWide += std::wstring( TEXT( ";*." ) ) + std::wstring( extension.begin(), extension.end() );
+					}
+
+					COMDLG_FILTERSPEC filterSpec = { TEXT( "" ), combinedExtentionsAsWide.c_str() };
+					if ( !SUCCEEDED( fileDialog->SetFileTypes( 1, &filterSpec ) ) )
+					{
+						return "";
+					}
+				}
+
+				if ( SUCCEEDED( fileDialog->Show( nullptr ) ) )
+				{
+					IShellItem* item = nullptr;
+					if ( SUCCEEDED( fileDialog->GetResult( &item ) ) )
+					{
+						ON_SCOPE_EXIT( item->Release(); );
+						LPWSTR filePath;
+						if ( SUCCEEDED( item->GetDisplayName( SIGDN_FILESYSPATH, &filePath ) ) )
+						{
+							result.resize( std::wcslen( filePath ) );
+							wcstombs( result.data(), filePath, result.size() );
+						}
+					}
+				}
+			}
+		}
+
+		return result;
 	}
 
 	forge::IInput& WindowsWindow::GetInput() const
