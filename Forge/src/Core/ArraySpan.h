@@ -100,6 +100,25 @@ namespace forge
 			return m_begin + GetSize() - 1u;
 		}
 
+		ArraySpan< T > Left( Uint32 count ) const
+		{
+			count = count < GetSize() ? count : GetSize();
+			return ArraySpan< T >( m_begin, count );
+		}
+
+		ArraySpan< T > Right( Uint32 count ) const
+		{
+			count = count < GetSize() ? count : GetSize();
+			return ArraySpan< T >( m_begin + ( GetSize() - count ), m_end );
+		}
+
+		ArraySpan< T > Mid( Uint32 index, Uint32 count = std::numeric_limits< Uint32 >::max() ) const
+		{
+			FORGE_ASSERT( index < GetSize() );
+			count = count < GetSize() - index ? count : GetSize() - index;
+			return ArraySpan< T >( m_begin + index, count );
+		}
+
 	private:
 		T* m_begin;
 		T* m_end;
