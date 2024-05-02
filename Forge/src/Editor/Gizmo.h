@@ -7,8 +7,9 @@ namespace editor
 
 	class Gizmo : public forge::Object
 	{
+		RTTI_DECLARE_CLASS( Gizmo, forge::Object );
+
 	public:
-		Gizmo( forge::EngineInstance& engineInstance, forge::ObjectID id );
 		virtual void OnAttach() override;
 
 		void Update( forge::ObjectID hoveredObject, const Vector3& cursorRayDir );

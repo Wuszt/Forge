@@ -14,9 +14,11 @@
 #include "../Systems/PhysicsUserData.h"
 #include "../Core/IWindow.h"
 #include "../Systems/InputSystem.h"
+#include "../IMGUI/IMGUIMenuBar.h"
+#include "../Core/DepotsContainer.h"
 
 editor::SceneEditor::SceneEditor( forge::EngineInstance& engineInstance )
-	: PanelBase( engineInstance )
+	: PanelBase( true, engineInstance )
 {
 	m_targetTexture = GetEngineInstance().GetRenderingManager().GetRenderer().CreateTexture( 512u, 512u,
 		renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE, renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
@@ -25,6 +27,26 @@ editor::SceneEditor::SceneEditor( forge::EngineInstance& engineInstance )
 	sceneRenderingSystem.SetTargetTexture( m_targetTexture.get() );
 
 	m_sceneGrid = std::make_unique< editor::SceneGrid >( engineInstance );
+
+	rtti::RTTI::Get().VisitTypes( [ & ]( const rtti::Type& type )
+		{
+			if ( type.IsA< forge::Object >() || type.InheritsFrom< forge::Object >() )
+			{
+				const char editorNamespace[] = "editor::";
+				constexpr Uint32 editorNamespaceLength = sizeof( editorNamespace ) - 1;
+
+				if ( std::strncmp( type.GetName(), editorNamespace, editorNamespaceLength ) != 0 )
+				{
+					auto buttonHandle = GetMenuBar()->AddButton( { "Create Object", type.GetName() }, false );
+					auto onCreationHandle = buttonHandle->GetCallback().AddListener( [ & ]()
+						{
+							const forge::Object::Type& asObjectType = static_cast< const forge::Object::Type& >( type );
+							GetEngineInstance().GetObjectsManager().RequestCreatingObject( asObjectType );
+						});
+					m_objectCreationHandles.push_back( { buttonHandle, std::move( onCreationHandle ) } );
+				}
+			}
+		} );
 }
 
 editor::SceneEditor::~SceneEditor() = default;

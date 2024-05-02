@@ -8,11 +8,6 @@ RTTI_IMPLEMENT_TYPE( forge::Object,
 	RTTI_REGISTER_PROPERTY( m_components )
 );
 
-forge::Object::Object( EngineInstance& engineInstance, ObjectID id )
-	: m_engineInstance( &engineInstance )
-	, m_id( id )
-{}
-
 forge::Object::Object() = default;
 forge::Object::Object( Object&& ) = default;
 forge::Object::~Object() = default;

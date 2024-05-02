@@ -23,7 +23,6 @@ namespace forge
 		RTTI_DECLARE_POLYMORPHIC_CLASS( Object );
 
 	public:
-		Object( EngineInstance& engineInstance, ObjectID id );
 		virtual ~Object();
 
 		ObjectID GetObjectID() const
@@ -67,6 +66,12 @@ namespace forge
 		Object( Object&& );
 
 	private:
+		void Initialize( EngineInstance& engineInstance, ObjectID id )
+		{
+			m_engineInstance = &engineInstance;
+			m_id = id;
+		}
+
 		template< class T >
 		std::unique_ptr< T > CreateComponent()
 		{
@@ -91,6 +96,8 @@ namespace forge
 
 		std::vector< std::unique_ptr< IComponent > > m_components;
 		std::unordered_map< const rtti::Type*, Uint32 > m_componentsLUT;
+
+		friend class forge::ObjectsManager;
 	};
 }
 

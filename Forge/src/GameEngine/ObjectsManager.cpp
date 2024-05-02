@@ -1,5 +1,22 @@
 #include "Fpch.h"
 #include "ObjectsManager.h"
+
+forge::Object& forge::ObjectsManager::CreateObject( const forge::Object::Type& objectType )
+{
+	ObjectID id = ObjectID( m_nextObjectID++ );
+	std::unique_ptr< forge::Object > obj = objectType.Construct();
+	obj->forge::Object::Initialize( m_engineInstance, id );
+	auto* rawObj = obj.get();
+
+	m_objects.emplace( id, std::move( obj ) );
+
+	m_onObjectAdded.Invoke( id );
+
+	rawObj->OnAttach();
+
+	return *rawObj;
+}
+
 void forge::ObjectsManager::RemoveObject( const ObjectID& id )
 {
 	m_objects[ id ]->OnDetach();

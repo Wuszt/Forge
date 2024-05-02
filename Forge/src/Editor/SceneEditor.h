@@ -16,6 +16,12 @@ namespace renderer
 	class ITexture;
 }
 
+namespace imgui
+{
+	class MenuBar;
+	class MenuBarItem;
+}
+
 namespace editor
 {
 	class SceneGrid;
@@ -45,5 +51,13 @@ namespace editor
 		std::unique_ptr< editor::SceneGrid > m_sceneGrid;
 		forge::ObjectLifetimeToken m_gizmoToken;
 		forge::ObjectID m_selectedObjectID;
+		
+		struct ObjectCreationEntry
+		{
+			std::shared_ptr< imgui::MenuBarItem > m_createObjectButtonHandle;
+			forge::CallbackToken m_onCreateObjectToken;
+		};
+
+		std::vector< ObjectCreationEntry > m_objectCreationHandles;
 	};
 }

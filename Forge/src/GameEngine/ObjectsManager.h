@@ -2,6 +2,7 @@
 #include "EngineInstance.h"
 #include "../ECS/EntityID.h"
 #include "ObjectID.h"
+#include "Object.h"
 
 namespace forge
 {
@@ -15,21 +16,24 @@ namespace forge
 		ObjectsManager( EngineInstance& engineInstance, UpdateManager& updateManager, ecs::ECSManager& ecsManager );
 		~ObjectsManager();
 
-		template< class T = forge::Object >
-		void RequestCreatingObject( const std::function< void( T* ) >& initializeFunc = nullptr )
+		template< class T = forge::Object, class TFunc >
+		void RequestCreatingObject( TFunc initializeFunc = []( T* ){} )
+		{
+			static_assert( std::is_base_of_v< forge::Object, T > );
+			RequestCreatingObject( T::GetTypeStatic(), [ initializeFunc = std::move( initializeFunc ) ]( forge::Object* obj ){ initializeFunc( static_cast< T* >( obj ) ); } );
+		}
+
+		template< class TFunc = decltype( []( forge::Object* ){} ) >
+		void RequestCreatingObject( const forge::Object::Type& objectType, TFunc initializeFunc = {} )
 		{
 			ObjectCreationRequest req;
-			req.m_creationFunc = [ this, initializeFunc ]()
-			{
-				auto* rawObj = CreateObject< T >();
-
-				if( initializeFunc )
+			req.m_creationFunc = [ this, &objectType, initializeFunc = std::move( initializeFunc ) ]()
 				{
-					initializeFunc( rawObj );
-				}
+					auto& rawObj =  CreateObject( objectType );
+					initializeFunc( &rawObj );
 
-				rawObj->PostInit();
-			};
+					rawObj.PostInit();
+				};
 
 			m_objectCreationRequests.emplace_back( req );
 		}
@@ -76,20 +80,12 @@ namespace forge
 
 	private:
 		template< class T = forge::Object >
-		T* CreateObject()
+		T& CreateObject()
 		{
-			ObjectID id = ObjectID( m_nextObjectID++ );
-			auto obj = std::make_unique< T >( m_engineInstance, id );
-			auto* rawObj = obj.get();
-
-			m_objects.emplace( id, std::move( obj ) );
-
-			m_onObjectAdded.Invoke( id );
-
-			rawObj->OnAttach();
-
-			return rawObj;
+			return static_cast< T& >( CreateObject( T::GetTypeStatic() ) );
 		}
+
+		forge::Object& CreateObject( const forge::Object::Type& objectType );
 
 		void RemoveObject( const ObjectID& id );
 

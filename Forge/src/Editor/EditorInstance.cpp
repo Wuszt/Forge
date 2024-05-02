@@ -40,7 +40,7 @@
 
 void CubeScene(forge::EngineInstance& engineInstance)
 {
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([&](forge::Object* obj)
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([ & ]( forge::Object* obj )
 	{
 		obj->AddComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsStaticComponent >();
 		auto* transformComponent = obj->GetComponent< forge::TransformComponent >();

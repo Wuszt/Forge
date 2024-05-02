@@ -16,30 +16,37 @@
 #include "../Systems/CamerasSystem.h"
 #include "../Systems/CameraComponent.h"
 
+RTTI_IMPLEMENT_TYPE( editor::Gizmo );
+
 namespace editor
 {
 	class GizmoElement : public forge::Object
 	{
+		RTTI_DECLARE_ABSTRACT_CLASS( GizmoElement, forge::Object );
+
 	public:
-		using forge::Object::Object;
 		virtual void OnAttach() override;
 		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) {}
 		void SetColor( const Vector4& color );
 		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3 & cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const = 0;
 
 	protected:
+		using forge::Object::Object;
 		virtual const char* GetModelPath() const = 0;
 		Vector3 GetRayIntersectionWithPlane( const Vector3& cursorRayDir, const Vector3& planeNormal ) const;
 	};
+	RTTI_IMPLEMENT_TYPE( editor::GizmoElement );
 
 	class GizmoTranslationArrow : public GizmoElement
 	{
+		RTTI_DECLARE_CLASS( GizmoTranslationArrow, editor::GizmoElement );
+
 	public:
-		using GizmoElement::GizmoElement;
 		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) override;
 		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3& cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const override;
 
 	protected:
+		using GizmoElement::GizmoElement;
 		virtual const char* GetModelPath() const override
 		{
 			return "Models/Gizmo/gizmoArrow.fbx";
@@ -48,15 +55,18 @@ namespace editor
 	private:
 		Float m_movementOffset = 0.0f;
 	};
+	RTTI_IMPLEMENT_TYPE( editor::GizmoTranslationArrow );
 
 	class GizmoOrientationRing : public GizmoElement
 	{
+		RTTI_DECLARE_CLASS( GizmoOrientationRing, editor::GizmoElement );
+
 	public:
-		using GizmoElement::GizmoElement;
 		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) override;
 		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3& cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const override;
 
 	protected:
+		using GizmoElement::GizmoElement;
 		virtual const char* GetModelPath() const override
 		{
 			return "Models/Gizmo/gizmoRing.fbx";
@@ -66,16 +76,19 @@ namespace editor
 		Transform m_initialTransform;
 		Quaternion m_rotationOffset;
 	};
+	RTTI_IMPLEMENT_TYPE( editor::GizmoOrientationRing );
 
 	class GizmoUniformScaleCube : public GizmoElement
 	{
+		RTTI_DECLARE_CLASS( GizmoUniformScaleCube, editor::GizmoElement );
+
 	public:
-		using GizmoElement::GizmoElement;
 		virtual void PostInit() override;
 		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) override;
 		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3& cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const override;
 
 	protected:
+		using GizmoElement::GizmoElement;
 		virtual const char* GetModelPath() const override
 		{
 			return "Models/Cube.obj";
@@ -85,17 +98,19 @@ namespace editor
 		Vector3 m_initialScale;
 		Vector3 m_initialCursorPos;
 	};
+	RTTI_IMPLEMENT_TYPE( editor::GizmoUniformScaleCube );
 
 	class GizmoAxisScaleCube : public GizmoElement
 	{
-	public:
-		using GizmoElement::GizmoElement;
+		RTTI_DECLARE_CLASS( GizmoAxisScaleCube, editor::GizmoElement );
 
+	public:
 		virtual void PostInit() override;
 		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) override;
 		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3& cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const override;
 
 	protected:
+		using GizmoElement::GizmoElement;
 		virtual const char* GetModelPath() const override
 		{
 			return "Models/Cube.obj";
@@ -105,11 +120,8 @@ namespace editor
 		Vector3 m_initialScale;
 		Vector3 m_initialCursorPos;
 	};
+	RTTI_IMPLEMENT_TYPE( editor::GizmoAxisScaleCube );
 }
-
-editor::Gizmo::Gizmo( forge::EngineInstance& engineInstance, forge::ObjectID id )
-	: forge::Object( engineInstance, id )
-{}
 
 void editor::Gizmo::OnAttach()
 {
