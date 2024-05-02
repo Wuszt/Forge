@@ -16,7 +16,7 @@ namespace editor
 	{
 	public:
 		PanelBase( Bool withMenuBar, forge::EngineInstance& engineIntance );
-		virtual ~PanelBase() = default;
+		virtual ~PanelBase();
 
 		void Update();
 

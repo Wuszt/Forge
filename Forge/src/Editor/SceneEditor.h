@@ -26,12 +26,19 @@ namespace editor
 {
 	class SceneGrid;
 	class Gizmo;
+	class HierarchyView;
 
 	class SceneEditor : public PanelBase
 	{
 	public:
 		SceneEditor( forge::EngineInstance& engineInstance );
 		~SceneEditor();
+
+		void SelectObject( forge::ObjectID objectID );
+		forge::ObjectID GetSelectedObject() const
+		{
+			return m_selectedObjectID;
+		}
 
 	protected:
 		virtual void Draw() override;
@@ -42,7 +49,6 @@ namespace editor
 
 	private:
 		void UpdateSelectedObject( const Vector2& cursorPos );
-		void OnSelectionChange();
 		void UpdateGizmo( const Vector2& cursorPos );
 		bool FindHoveredObject( const Vector2& cursorPos, physics::PhysicsGroupFlags group, forge::ObjectID& outObjectId ) const;
 		Vector3 GetMouseRayDir( const Vector2& cursorPos ) const;
@@ -59,5 +65,6 @@ namespace editor
 		};
 
 		std::vector< ObjectCreationEntry > m_objectCreationHandles;
+		std::unique_ptr< HierarchyView > m_hierarchyView;
 	};
 }

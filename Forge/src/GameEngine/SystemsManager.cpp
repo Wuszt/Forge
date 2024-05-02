@@ -14,7 +14,7 @@ systems::SystemsManager::~SystemsManager()
 	}
 }
 
-void systems::SystemsManager::AddSystems( forge::ArraySpan< const ISystem::ClassType* > systemsClasses )
+void systems::SystemsManager::AddSystems( forge::ArraySpan< const ISystem::Type* > systemsClasses )
 {
 	Uint32 prevCount = static_cast< Uint32 >( m_systems.size() );
 	for ( const auto* type : systemsClasses )

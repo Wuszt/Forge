@@ -63,7 +63,7 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 	m_engineInstance = &engineInstance;
 	m_updateToken = engineInstance.GetUpdateManager().RegisterUpdateFunction(forge::UpdateManager::BucketType::Update, [this](){ Update(); });
 
-	const systems::ISystem::ClassType* systems[]
+	const systems::ISystem::Type* systems[]
 	{
 		&systems::CamerasSystem::GetTypeStatic(),
 		&systems::PlayerSystem::GetTypeStatic(),

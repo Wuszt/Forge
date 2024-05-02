@@ -16,7 +16,7 @@ namespace systems
 		SystemsManager( forge::EngineInstance& engineInstance );
 		~SystemsManager();
 
-		void AddSystems( forge::ArraySpan< const ISystem::ClassType* > systemsClasses );
+		void AddSystems( forge::ArraySpan< const ISystem::Type* > systemsClasses );
 
 		template< class T >
 		T& GetSystem() const
@@ -41,7 +41,7 @@ namespace systems
 		void Shutdown();
 
 	private:
-		std::unordered_map< const ISystem::ClassType*, ISystem* > m_systemsLUT;
+		std::unordered_map< const ISystem::Type*, ISystem* > m_systemsLUT;
 		std::vector< std::unique_ptr< ISystem > > m_systems;
 
 		forge::EngineInstance& m_engineInstance;

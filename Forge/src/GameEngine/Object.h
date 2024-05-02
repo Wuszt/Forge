@@ -47,18 +47,29 @@ namespace forge
 		template< class T >
 		T* GetComponent()
 		{
-			return static_cast< T* >( m_components[ m_componentsLUT.at( &T::GetTypeStatic() ) ].get() ); 
+			auto it = m_componentsLUT.find( &T::GetTypeStatic() );
+			if ( it == m_componentsLUT.end() )
+			{
+				return nullptr;
+			}
+
+			return static_cast< T* >( m_components[ it->second ].get() ); 
 		}
 
 		template< class T >
 		const T* GetComponent() const
 		{
-			return static_cast< T* >( m_components[ m_componentsLUT.at( &T::GetTypeStatic() ) ].get() );
+			return const_cast< This* >( this )->GetComponent< T >();
 		}
 
 		EngineInstance& GetEngineInstance() const
 		{
 			return *m_engineInstance;
+		}
+
+		const char* GetName() const
+		{
+			return m_name.c_str();
 		}
 
 	protected:
@@ -70,6 +81,7 @@ namespace forge
 		{
 			m_engineInstance = &engineInstance;
 			m_id = id;
+			m_name = forge::String::Printf( "_%lu_", static_cast< Uint32 >( id ) );
 		}
 
 		template< class T >
@@ -91,11 +103,11 @@ namespace forge
 
 		void AttachComponents( std::vector< std::unique_ptr< IComponent > >&& components );
 
-		ObjectID m_id;
-		EngineInstance* m_engineInstance = nullptr;
-
+		std::string m_name;
 		std::vector< std::unique_ptr< IComponent > > m_components;
 		std::unordered_map< const rtti::Type*, Uint32 > m_componentsLUT;
+		EngineInstance* m_engineInstance = nullptr;
+		ObjectID m_id;
 
 		friend class forge::ObjectsManager;
 	};

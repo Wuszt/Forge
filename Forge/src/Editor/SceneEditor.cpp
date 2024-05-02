@@ -16,6 +16,7 @@
 #include "../Systems/InputSystem.h"
 #include "../IMGUI/IMGUIMenuBar.h"
 #include "../Core/DepotsContainer.h"
+#include "HierarchyView.h"
 
 editor::SceneEditor::SceneEditor( forge::EngineInstance& engineInstance )
 	: PanelBase( true, engineInstance )
@@ -27,8 +28,9 @@ editor::SceneEditor::SceneEditor( forge::EngineInstance& engineInstance )
 	sceneRenderingSystem.SetTargetTexture( m_targetTexture.get() );
 
 	m_sceneGrid = std::make_unique< editor::SceneGrid >( engineInstance );
+	m_hierarchyView = std::make_unique< HierarchyView >( false, engineInstance, [ this ]( forge::ObjectID id ){ SelectObject( id ); }, [ this ]() { return GetSelectedObject(); } );
 
-	rtti::RTTI::Get().VisitTypes( [ & ]( const rtti::Type& type )
+	rtti::Get().VisitTypes( [ & ]( const rtti::Type& type )
 		{
 			if ( type.IsA< forge::Object >() || type.InheritsFrom< forge::Object >() )
 			{
@@ -51,8 +53,27 @@ editor::SceneEditor::SceneEditor( forge::EngineInstance& engineInstance )
 
 editor::SceneEditor::~SceneEditor() = default;
 
+void editor::SceneEditor::SelectObject( forge::ObjectID objectID )
+{
+	m_selectedObjectID = objectID;
+	m_gizmoToken.Reset();
+	if ( m_selectedObjectID.IsValid() )
+	{
+		if ( GetEngineInstance().GetObjectsManager().GetObject( m_selectedObjectID )->GetComponent< forge::TransformComponent >() )
+		{
+			GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::Gizmo >( [ this ]( editor::Gizmo* gizmo )
+				{
+					m_gizmoToken = forge::ObjectLifetimeToken( *gizmo );
+					gizmo->Initialize( m_selectedObjectID );
+				} );
+		}
+	}
+}
+
 void editor::SceneEditor::Draw()
 {
+	m_hierarchyView->Update();
+
 	if ( m_targetTexture->GetSize() != GetSize() )
 	{
 		if ( GetSize().X != 0.0f && GetSize().Y != 0.0f )
@@ -93,28 +114,13 @@ void editor::SceneEditor::UpdateSelectedObject( const Vector2& cursorPos )
 
 			if ( hoveringOverSceneObject )
 			{
-				m_selectedObjectID = objectId;
-				OnSelectionChange();
+				SelectObject( objectId );
 			}
 			else
 			{
-				m_selectedObjectID = forge::ObjectID();
-				OnSelectionChange();
+				SelectObject( forge::ObjectID() );
 			}
 		}
-	}
-}
-
-void editor::SceneEditor::OnSelectionChange()
-{
-	m_gizmoToken.Reset();
-	if ( m_selectedObjectID.IsValid() )
-	{
-		GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::Gizmo >( [ this ]( editor::Gizmo* gizmo )
-			{
-				m_gizmoToken = forge::ObjectLifetimeToken( *gizmo );
-				gizmo->Initialize( m_selectedObjectID );
-			} );
 	}
 }
 

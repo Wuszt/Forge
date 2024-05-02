@@ -13,6 +13,8 @@ editor::PanelBase::PanelBase( Bool withMenuBar, forge::EngineInstance& engineInt
 	}
 }
 
+editor::PanelBase::~PanelBase() = default;
+
 void editor::PanelBase::Update()
 {
 	ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f } );

@@ -8,6 +8,15 @@
 
 const Vector4 c_gridColor = Vector4( 1.0f, 1.0f, 1.0f, 0.5f );
 
+namespace editor
+{
+	class SceneGridLine : public forge::Object
+	{
+		RTTI_DECLARE_CLASS( SceneGridLine, forge::Object );
+	};
+}
+RTTI_IMPLEMENT_TYPE( editor::SceneGridLine );
+
 editor::SceneGrid::SceneGrid( forge::EngineInstance& engineInstance )
 {
 	auto drawFunc = [ this ]( Int32 xStart, Int32 xEnd, Int32 yStart, Int32 yEnd, forge::Object& obj )
@@ -36,7 +45,7 @@ editor::SceneGrid::SceneGrid( forge::EngineInstance& engineInstance )
 
 	for ( Int32 x = -100; x < 100; ++x )
 	{
-		engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ this, x, drawFunc ]( forge::Object* obj )
+		engineInstance.GetObjectsManager().RequestCreatingObject< SceneGridLine >( [ this, x, drawFunc ]( SceneGridLine* obj )
 			{
 				m_linesTokens.emplace_back( *obj );
 
@@ -47,7 +56,7 @@ editor::SceneGrid::SceneGrid( forge::EngineInstance& engineInstance )
 
 	for ( Int32 y = -100; y < 100; ++y )
 	{
-		engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ this, y, drawFunc ]( forge::Object* obj )
+		engineInstance.GetObjectsManager().RequestCreatingObject< SceneGridLine >( [ this, y, drawFunc ]( SceneGridLine* obj )
 			{
 				m_linesTokens.emplace_back( *obj );
 
