@@ -38,20 +38,6 @@
 #include "../Systems/IMGUISystem.h"
 #endif
 
-void CubeScene(forge::EngineInstance& engineInstance)
-{
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([ & ]( forge::Object* obj )
-	{
-		obj->AddComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsStaticComponent >();
-		auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-		auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
-
-		renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
-
-		transformComponent->SetWorldPosition( Vector3::ZEROS() );
-	});
-}
-
 forge::EditorInstance::EditorInstance( const std::string& applicationName )
 	: forge::ApplicationInstance( applicationName )
 {}
@@ -100,8 +86,6 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 		auto* freeCameraController = player->GetComponent< forge::PhysicsFreeCameraControllerComponent >();
 		engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent( *freeCameraController);
 	});
-
-	//CubeScene(engineInstance);
 
 	m_windows.emplace_back( std::make_unique< editor::SceneEditor >( nullptr, engineInstance ) );
 }

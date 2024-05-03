@@ -67,6 +67,8 @@ namespace forge
 			GetMutableData()->m_transform = transform;
 		}
 
+		std::vector< forge::ObjectID > GetChildren() const;
+
 		const Transform& GetWorldTransform() const
 		{
 			return GetData()->m_transform;

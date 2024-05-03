@@ -16,6 +16,25 @@ void forge::TransformComponent::OnAttached( EngineInstance& engineInstance, ecs:
 	SetWorldScale( Vector3::ONES() );
 }
 
+std::vector< forge::ObjectID > forge::TransformComponent::GetChildren() const
+{
+	std::vector< forge::ObjectID > result;
+
+	auto& objectsManager = GetOwner().GetEngineInstance().GetObjectsManager();
+	ecs::EntityID entityID = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
+	auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
+	if ( auto fragmentView = ecsManager.GetFragmentView< forge::TransformParentFragment >( entityID ) )
+	{
+		result.reserve( fragmentView->m_children.size() );
+		for ( auto child : fragmentView->m_children )
+		{
+			result.emplace_back( ecsManager.GetFragmentView< forge::ObjectFragment >( child )->m_objectID );
+		}
+	}
+	
+	return result;
+}
+
 void forge::TransformComponent::SetParent( TransformComponent& parent, bool keepWorldTransform )
 {
 	auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();

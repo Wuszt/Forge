@@ -17,11 +17,19 @@ Int32 main()
 	forge::EditorInstance editorInstance( "Editor" );
 	forge::EngineInstance engineInstance( editorInstance );
 
-	for( Uint32 i = 0u; i < 10; ++i )
+	std::shared_ptr< std::vector< forge::Object* > > objs = std::make_shared< std::vector< forge::Object* > >();
+	for( Uint32 i = 0u; i < 3; ++i )
 	{
-		engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ &, i ]( forge::Object* obj )
+		engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ &, i, objs ]( forge::Object* obj )
 		{
 			obj->AddComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsStaticComponent >();
+
+			if ( !objs->empty() )
+			{
+				forge::TransformComponent* parent = ( *objs )[ 0u /*Math::Random::GetRNG().GetUnsigned( 0u, static_cast< Uint32 >( objs->size() - 1 ) )*/ ]->GetComponent< forge::TransformComponent >();
+				obj->GetComponent< forge::TransformComponent >()->SetParent( *parent, true );
+			}
+			objs->emplace_back( obj );
 
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
