@@ -3,7 +3,7 @@
 
 namespace editor
 {
-	class PanelBase;
+	class WindowBase;
 }
 
 namespace forge
@@ -28,6 +28,6 @@ namespace forge
 		forge::CallbackToken m_updateToken;
 		forge::EngineInstance* m_engineInstance = nullptr;
 
-		std::vector< std::unique_ptr< editor::PanelBase > > m_panels;
+		std::vector< std::unique_ptr< editor::WindowBase > > m_windows;
 	};
 }

@@ -52,7 +52,6 @@ namespace systems
 		std::unique_ptr< imgui::MenuBar > m_menuBar;
 
 		Bool m_isInputActive = false;
-		Bool m_imguiDemoEnabled = false;
 	};
 }
 

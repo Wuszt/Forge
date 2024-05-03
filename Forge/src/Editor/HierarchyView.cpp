@@ -3,6 +3,16 @@
 #include "../ECS/Query.h"
 #include "../GameEngine/Object.h"
 #include "../../External/imgui/imgui.h"
+#include "SceneEditor.h"
+
+editor::HierarchyView::HierarchyView( editor::SceneEditor& sceneEditor )
+	: WindowBase( sceneEditor.GetEngineInstance(), &sceneEditor, false )
+{}
+
+editor::SceneEditor& editor::HierarchyView::GetSceneEditor()
+{
+	return static_cast< editor::SceneEditor& >( *GetParent() );
+}
 
 void editor::HierarchyView::Draw()
 {
@@ -24,9 +34,9 @@ void editor::HierarchyView::Draw()
 				if ( std::strncmp( typeName, editorNamespace, editorNamespaceLength ) != 0 )
 				{
 					const char* name = obj->GetName();
-					if ( ImGui::Selectable( forge::String::Printf( "[%s] %s", typeName, name ).c_str(), objectFragment.m_objectID == m_getSelectedObjectFunc() ) )
+					if ( ImGui::Selectable( forge::String::Printf( "[%s] %s", typeName, name ).c_str(), objectFragment.m_objectID == GetSceneEditor().GetSelectedObject() ) )
 					{
-						m_selectObjectFunc( objectFragment.m_objectID );
+						GetSceneEditor().SelectObject( objectFragment.m_objectID );
 					}
 				}
 			}

@@ -1,5 +1,5 @@
 #pragma once
-#include "PanelBase.h"
+#include "WindowBase.h"
 
 namespace forge
 {
@@ -8,25 +8,20 @@ namespace forge
 
 namespace editor
 {
-	class HierarchyView : public PanelBase
+	class SceneEditor;
+	class HierarchyView : public WindowBase
 	{
 	public:
 		using SelectObjectFunc = std::function< void( forge::ObjectID ) >;
 		using GetSelectedFunc = std::function< forge::ObjectID() >;
 
-		HierarchyView( Bool withMenuBar, forge::EngineInstance& engineInstance, SelectObjectFunc selectObjectFunc, GetSelectedFunc getSelectedFunc )
-			: PanelBase( withMenuBar, engineInstance )
-			, m_selectObjectFunc( std::move( selectObjectFunc ) )
-			, m_getSelectedObjectFunc( std::move( getSelectedFunc ) )
-		{}
+		HierarchyView( editor::SceneEditor& sceneEditor );
 
 	protected:
+		SceneEditor& GetSceneEditor();
+
 		void Draw() override;
 		const Char* GetName() const override { return "Hierarchy"; }
-
-	private:
-		SelectObjectFunc m_selectObjectFunc;
-		GetSelectedFunc m_getSelectedObjectFunc;
 	};
 }
 

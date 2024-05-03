@@ -18,8 +18,8 @@
 #include "../Core/DepotsContainer.h"
 #include "HierarchyView.h"
 
-editor::SceneEditor::SceneEditor( forge::EngineInstance& engineInstance )
-	: PanelBase( true, engineInstance )
+editor::SceneEditor::SceneEditor( editor::WindowBase* parent, forge::EngineInstance& engineInstance )
+	: WindowBase( engineInstance, parent, true )
 {
 	m_targetTexture = GetEngineInstance().GetRenderingManager().GetRenderer().CreateTexture( 512u, 512u,
 		renderer::ITexture::Flags::BIND_RENDER_TARGET | renderer::ITexture::Flags::BIND_SHADER_RESOURCE, renderer::ITexture::Format::R8G8B8A8_UNORM, renderer::ITexture::Type::Texture2D, renderer::ITexture::Format::R8G8B8A8_UNORM );
@@ -28,7 +28,7 @@ editor::SceneEditor::SceneEditor( forge::EngineInstance& engineInstance )
 	sceneRenderingSystem.SetTargetTexture( m_targetTexture.get() );
 
 	m_sceneGrid = std::make_unique< editor::SceneGrid >( engineInstance );
-	m_hierarchyView = std::make_unique< HierarchyView >( false, engineInstance, [ this ]( forge::ObjectID id ){ SelectObject( id ); }, [ this ]() { return GetSelectedObject(); } );
+	AddChild( std::make_unique< HierarchyView >( *this ) );
 
 	rtti::Get().VisitTypes( [ & ]( const rtti::Type& type )
 		{
@@ -72,8 +72,6 @@ void editor::SceneEditor::SelectObject( forge::ObjectID objectID )
 
 void editor::SceneEditor::Draw()
 {
-	m_hierarchyView->Update();
-
 	if ( m_targetTexture->GetSize() != GetSize() )
 	{
 		if ( GetSize().X != 0.0f && GetSize().Y != 0.0f )

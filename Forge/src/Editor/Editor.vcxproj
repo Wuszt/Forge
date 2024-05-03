@@ -329,7 +329,7 @@
     </ClCompile>
     <ClCompile Include="Gizmo.cpp" />
     <ClCompile Include="HierarchyView.cpp" />
-    <ClCompile Include="PanelBase.cpp" />
+    <ClCompile Include="WindowBase.cpp" />
     <ClCompile Include="SceneEditor.cpp" />
     <ClCompile Include="SceneGrid.cpp" />
   </ItemGroup>
@@ -339,7 +339,7 @@
     <ClInclude Include="Gizmo.h" />
     <ClInclude Include="HierarchyView.h" />
     <ClInclude Include="InternalDefaults.h" />
-    <ClInclude Include="PanelBase.h" />
+    <ClInclude Include="WindowBase.h" />
     <ClInclude Include="PublicDefaults.h" />
     <ClInclude Include="SceneEditor.h" />
     <ClInclude Include="SceneGrid.h" />

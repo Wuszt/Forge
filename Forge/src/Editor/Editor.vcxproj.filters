@@ -17,7 +17,7 @@
     <ClCompile Include="SceneEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PanelBase.cpp">
+    <ClCompile Include="WindowBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EditorInstance.cpp">
@@ -46,7 +46,7 @@
     <ClInclude Include="SceneEditor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PanelBase.h">
+    <ClInclude Include="WindowBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EditorInstance.h">

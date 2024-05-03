@@ -27,7 +27,7 @@
 #include "../GameEngine/UpdateManager.h"
 #include "../../External/imgui/imgui.h"
 #include "SceneEditor.h"
-#include "PanelBase.h"
+#include "WindowBase.h"
 #include "../Systems/InputSystem.h"
 
 #ifdef FORGE_DEBUGGING
@@ -102,13 +102,13 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 
 	//CubeScene(engineInstance);
 
-	m_panels.emplace_back( std::make_unique< editor::SceneEditor >( engineInstance ) );
+	m_windows.emplace_back( std::make_unique< editor::SceneEditor >( nullptr, engineInstance ) );
 }
 
 void forge::EditorInstance::Deinitialize( EngineInstance& engineInstance )
 {
 	m_updateToken.Unregister();
-	m_panels.clear();
+	m_windows.clear();
 }
 
 void forge::EditorInstance::Update()
@@ -120,8 +120,8 @@ void forge::EditorInstance::Update()
 
 	ImGui::DockSpaceOverViewport( ImGui::GetMainViewport() );
 
-	for ( auto& panel : m_panels )
+	for ( auto& window : m_windows )
 	{
-		panel->Update();
+		window->Update();
 	}
 }

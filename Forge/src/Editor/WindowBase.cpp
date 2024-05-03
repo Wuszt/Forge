@@ -1,11 +1,12 @@
 #include "Fpch.h"
-#include "PanelBase.h"
+#include "WindowBase.h"
 #include "../../External/imgui/imgui.h"
 #include "../IMGUI/IMGUIHelpers.h"
 #include "../IMGUI/IMGUIMenuBar.h"
 
-editor::PanelBase::PanelBase( Bool withMenuBar, forge::EngineInstance& engineIntance )
-	: m_engineInstance( engineIntance )
+editor::WindowBase::WindowBase( forge::EngineInstance& engineInstance, WindowBase* parent, Bool withMenuBar )
+	: m_engineInstance( engineInstance )
+	, m_parent( parent )
 {
 	if ( withMenuBar )
 	{
@@ -13,9 +14,9 @@ editor::PanelBase::PanelBase( Bool withMenuBar, forge::EngineInstance& engineInt
 	}
 }
 
-editor::PanelBase::~PanelBase() = default;
+editor::WindowBase::~WindowBase() = default;
 
-void editor::PanelBase::Update()
+void editor::WindowBase::Update()
 {
 	ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, { 0.0f, 0.0f } );
 	ImGui::Begin( GetName(), nullptr, m_menuBar ? ImGuiWindowFlags_MenuBar : 0 );
@@ -29,11 +30,16 @@ void editor::PanelBase::Update()
 
 	Draw();
 
+	for ( auto& child : m_children )
+	{
+		child->Update();
+	}
+
 	ImGui::End();
 	ImGui::PopStyleVar();
 }
 
-Vector2 editor::PanelBase::GetSize() const
+Vector2 editor::WindowBase::GetSize() const
 {
 	return m_currentSize;
 }

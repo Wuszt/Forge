@@ -1,5 +1,5 @@
 #pragma once
-#include "PanelBase.h"
+#include "WindowBase.h"
 
 namespace physics
 {
@@ -26,12 +26,11 @@ namespace editor
 {
 	class SceneGrid;
 	class Gizmo;
-	class HierarchyView;
 
-	class SceneEditor : public PanelBase
+	class SceneEditor : public WindowBase
 	{
 	public:
-		SceneEditor( forge::EngineInstance& engineInstance );
+		SceneEditor( editor::WindowBase* parent, forge::EngineInstance& engineInstance );
 		~SceneEditor();
 
 		void SelectObject( forge::ObjectID objectID );
@@ -65,6 +64,5 @@ namespace editor
 		};
 
 		std::vector< ObjectCreationEntry > m_objectCreationHandles;
-		std::unique_ptr< HierarchyView > m_hierarchyView;
 	};
 }
