@@ -12,18 +12,22 @@ namespace editor
 	public:
 		virtual void OnAttach() override;
 
-		void Update( forge::ObjectID hoveredObject, const Vector3& cursorRayDir );
+		void OnInput( forge::ObjectID hoveredObject, const Vector3& cursorRayDir );
 		void Initialize( forge::ObjectID modifiedObject );
 
 	private:
 		Gizmo() = default;
 		Gizmo( Gizmo&& ) = default;
 
+		void Update();
+
 		std::vector< forge::ObjectLifetimeToken > m_elements;
 
 		forge::ObjectID m_modifiedObject;
 
 		GizmoElement* m_activeElement = nullptr;
+
+		forge::CallbackToken m_updateToken;
 	};
 }
 

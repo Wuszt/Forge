@@ -1,20 +1,20 @@
 #include "Fpch.h"
-#include "HierarchyView.h"
+#include "SceneHierarchy.h"
 #include "../ECS/Query.h"
 #include "../GameEngine/Object.h"
 #include "../../External/imgui/imgui.h"
 #include "SceneEditor.h"
 
-editor::HierarchyView::HierarchyView( editor::SceneEditor& sceneEditor )
+editor::SceneHierarchy::SceneHierarchy( editor::SceneEditor& sceneEditor )
 	: WindowBase( sceneEditor.GetEngineInstance(), &sceneEditor, false )
 {}
 
-editor::SceneEditor& editor::HierarchyView::GetSceneEditor()
+editor::SceneEditor& editor::SceneHierarchy::GetSceneEditor()
 {
 	return static_cast< editor::SceneEditor& >( *GetParent() );
 }
 
-void editor::HierarchyView::Draw()
+void editor::SceneHierarchy::Draw()
 {
 	ecs::Query objectsQuery( GetEngineInstance().GetECSManager() );
 	objectsQuery.AddFragmentRequirement< forge::ObjectFragment >( ecs::Query::RequirementType::Included );

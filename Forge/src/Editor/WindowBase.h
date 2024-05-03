@@ -34,9 +34,10 @@ namespace editor
 		virtual void Draw() = 0;
 		virtual const Char* GetName() const = 0;
 
-		void AddChild( std::unique_ptr< WindowBase > child )
+		template< class T , class... TArgs >
+		void AddChild( TArgs&&... args )
 		{
-			m_children.emplace_back( std::move( child ) );
+			m_children.emplace_back( std::make_unique< T >( std::forward< TArgs >( args )... ) );
 		}
 
 		Vector2 GetSize() const;

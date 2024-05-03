@@ -129,6 +129,8 @@ void editor::Gizmo::OnAttach()
 
 	AddComponents< forge::TransformComponent >();
 
+	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, [ this ](){ Update(); } );
+
 	auto CreateGizmoElement = [ this ]< class T >( const Vector3& direction, const Vector4& color )
 	{
 		GetEngineInstance().GetObjectsManager().RequestCreatingObject< T >( [ this, direction, color ]( T* element )
@@ -160,7 +162,7 @@ void editor::Gizmo::OnAttach()
 	CreateGizmoElement.template operator() < editor::GizmoUniformScaleCube >( Vector3::EY(), Vector4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 }
 
-void editor::Gizmo::Update( forge::ObjectID hoveredObject, const Vector3& cursorRayDir )
+void editor::Gizmo::OnInput( forge::ObjectID hoveredObject, const Vector3& cursorRayDir )
 {
 	forge::TransformComponent* modifiedTransformComp = GetEngineInstance().GetObjectsManager().GetObject( m_modifiedObject )->GetComponent< forge::TransformComponent >();
 
@@ -207,15 +209,6 @@ void editor::Gizmo::Update( forge::ObjectID hoveredObject, const Vector3& cursor
 
 	forge::TransformComponent* gizmoTransformComp = GetComponent< forge::TransformComponent >();
 	gizmoTransformComp->SetWorldTransform( modifiedTransformComp->GetWorldTransform() );
-
-	{
-		const auto& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
-		constexpr Float distToScaleFactor = 0.15f;
-		const Vector3 cameraPos = currentCamera.GetPosition();
-		const Vector3 cameraToGizmo = gizmoTransformComp->GetWorldPosition() - cameraPos;
-		const Float distToCamera = cameraToGizmo.Dot( currentCamera.GetTransform().GetForward() );
-		gizmoTransformComp->SetWorldScale( Vector3::ONES() * distToCamera * distToScaleFactor );
-	}
 }
 
 void editor::Gizmo::Initialize( forge::ObjectID modifiedObject )
@@ -224,6 +217,17 @@ void editor::Gizmo::Initialize( forge::ObjectID modifiedObject )
 
 	const forge::TransformComponent* modifiedTransformComp = GetEngineInstance().GetObjectsManager().GetObject( m_modifiedObject )->GetComponent< forge::TransformComponent >();
 	GetComponent< forge::TransformComponent >()->SetWorldTransform( modifiedTransformComp->GetWorldTransform() );
+}
+
+void editor::Gizmo::Update()
+{
+	const auto& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
+	constexpr Float distToScaleFactor = 0.15f;
+	const Vector3 cameraPos = currentCamera.GetPosition();
+	forge::TransformComponent* gizmoTransformComp = GetComponent< forge::TransformComponent >();
+	const Vector3 cameraToGizmo = gizmoTransformComp->GetWorldPosition() - cameraPos;
+	const Float distToCamera = cameraToGizmo.Dot( currentCamera.GetTransform().GetForward() );
+	gizmoTransformComp->SetWorldScale( Vector3::ONES() * distToCamera * distToScaleFactor );
 }
 
 void editor::GizmoElement::OnAttach()

@@ -29,7 +29,10 @@
     <ClCompile Include="SceneGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HierarchyView.cpp">
+    <ClCompile Include="SceneHierarchy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneViewport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -58,7 +61,10 @@
     <ClInclude Include="SceneGrid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HierarchyView.h">
+    <ClInclude Include="SceneHierarchy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneViewport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

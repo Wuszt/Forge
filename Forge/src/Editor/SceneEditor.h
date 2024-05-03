@@ -1,19 +1,10 @@
 #pragma once
 #include "WindowBase.h"
-
-namespace physics
-{
-	enum class PhysicsGroupFlags : Uint32;
-}
+#include "../GameEngine/ObjectID.h"
 
 namespace forge
 {
 	class EngineInstance;
-}
-
-namespace renderer
-{
-	class ITexture;
 }
 
 namespace imgui
@@ -24,9 +15,6 @@ namespace imgui
 
 namespace editor
 {
-	class SceneGrid;
-	class Gizmo;
-
 	class SceneEditor : public WindowBase
 	{
 	public:
@@ -39,6 +27,11 @@ namespace editor
 			return m_selectedObjectID;
 		}
 
+		[[ nodiscard ]] forge::CallbackToken RegisterOnNewSelectedObject( forge::Callback< forge::ObjectID >::TFunc func )
+		{
+			return m_onNewSelectedObject.AddListener( std::move( func ) );
+		}
+
 	protected:
 		virtual void Draw() override;
 		virtual const Char* GetName() const override
@@ -47,14 +40,7 @@ namespace editor
 		}
 
 	private:
-		void UpdateSelectedObject( const Vector2& cursorPos );
-		void UpdateGizmo( const Vector2& cursorPos );
-		bool FindHoveredObject( const Vector2& cursorPos, physics::PhysicsGroupFlags group, forge::ObjectID& outObjectId ) const;
-		Vector3 GetMouseRayDir( const Vector2& cursorPos ) const;
-
-		std::unique_ptr< renderer::ITexture > m_targetTexture;
-		std::unique_ptr< editor::SceneGrid > m_sceneGrid;
-		forge::ObjectLifetimeToken m_gizmoToken;
+		forge::Callback< forge::ObjectID > m_onNewSelectedObject;
 		forge::ObjectID m_selectedObjectID;
 		
 		struct ObjectCreationEntry

@@ -86,8 +86,9 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 	engineInstance.GetSystemsManager().AddSystems( systems );
 	engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor({ 0.55f, 0.55f, 0.55f });
 
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([&](forge::Object* player)
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([&]( forge::Object* player )
 	{
+		player->SetName( "Player" );
 		player->AddComponents< forge::TransformComponent, forge::CameraComponent, forge::PhysicsFreeCameraControllerComponent >();
 		player->GetComponent< forge::TransformComponent >()->SetWorldPosition({ 0.0f, -5.0f, 0.0f });
 		auto* cameraComp = player->GetComponent< forge::CameraComponent >();
@@ -97,7 +98,7 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 		camerasSystem.SetActiveCamera(cameraComp);
 
 		auto* freeCameraController = player->GetComponent< forge::PhysicsFreeCameraControllerComponent >();
-		engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent(*freeCameraController);
+		engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent( *freeCameraController);
 	});
 
 	//CubeScene(engineInstance);

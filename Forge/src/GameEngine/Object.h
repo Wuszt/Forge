@@ -67,6 +67,11 @@ namespace forge
 			return *m_engineInstance;
 		}
 
+		void SetName( std::string name )
+		{
+			m_name = std::move( name );
+		}
+
 		const char* GetName() const
 		{
 			return m_name.c_str();
