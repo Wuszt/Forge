@@ -24,19 +24,19 @@ Int32 main()
 		{
 			obj->AddComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsStaticComponent >();
 
-			if ( !objs->empty() )
-			{
-				forge::TransformComponent* parent = ( *objs )[ 0u /*Math::Random::GetRNG().GetUnsigned( 0u, static_cast< Uint32 >( objs->size() - 1 ) )*/ ]->GetComponent< forge::TransformComponent >();
-				obj->GetComponent< forge::TransformComponent >()->SetParent( *parent, true );
-			}
-			objs->emplace_back( obj );
-
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
 			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
 
 			transformComponent->SetWorldPosition( { static_cast< Float >( i * 5 ), 0.0f, 0.0f } );
+
+			if ( !objs->empty() )
+			{
+				forge::TransformComponent* parent = ( *objs )[ 0u /*Math::Random::GetRNG().GetUnsigned( 0u, static_cast< Uint32 >( objs->size() - 1 ) )*/ ]->GetComponent< forge::TransformComponent >();
+				obj->GetComponent< forge::TransformComponent >()->SetParent( *parent, true );
+			}
+			objs->emplace_back( obj );
 
 			auto* physicsComponent = obj->GetComponent< forge::PhysicsStaticComponent >();
 			auto modelAsset = engineInstance.GetAssetsManager().GetAsset< renderer::ModelAsset >( "Models\\cube.obj" );
