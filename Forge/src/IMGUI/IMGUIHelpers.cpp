@@ -36,3 +36,38 @@ void forge::imgui::DrawFoldableTextureView( const std::string& name, const rende
 		ImGui::TreePop();
 	}
 }
+
+Bool forge::imgui::InputText( const Char* label, std::string& text )
+{
+	struct ResizeCallback
+	{
+		static Int32 Callback( ImGuiInputTextCallbackData* data )
+		{
+			if ( data->EventFlag == ImGuiInputTextFlags_CallbackResize )
+			{
+				std::string* str = static_cast< std::string* >( data->UserData );
+				FORGE_ASSERT( str->data() == data->Buf );
+				str->resize( data->BufTextLen );
+				data->Buf = str->data();
+			}
+
+			return 0;
+		}
+	};
+
+	return ImGui::InputText( label, text.data(), text.size() + 1, ImGuiInputTextFlags_CallbackResize, &ResizeCallback::Callback, &text );
+}
+
+std::string forge::imgui::PrefixLabel( const Char* label )
+{
+	float width = ImGui::CalcItemWidth();
+
+	float x = ImGui::GetCursorPosX();
+	ImGui::SetNextItemWidth( width * 0.5f );
+	ImGui::Text( label );
+	ImGui::SameLine();
+	ImGui::SetCursorPosX( x + width * 0.5f + ImGui::GetStyle().ItemInnerSpacing.x );
+	ImGui::SetNextItemWidth( -1 );
+
+	return forge::String::Printf( "##%s", label );
+}

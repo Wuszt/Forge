@@ -329,6 +329,7 @@
     </ClCompile>
     <ClCompile Include="Gizmo.cpp" />
     <ClCompile Include="SceneHierarchy.cpp" />
+    <ClCompile Include="SceneObjectView.cpp" />
     <ClCompile Include="SceneViewport.cpp" />
     <ClCompile Include="WindowBase.cpp" />
     <ClCompile Include="SceneEditor.cpp" />
@@ -340,6 +341,7 @@
     <ClInclude Include="Gizmo.h" />
     <ClInclude Include="SceneHierarchy.h" />
     <ClInclude Include="InternalDefaults.h" />
+    <ClInclude Include="SceneObjectView.h" />
     <ClInclude Include="SceneViewport.h" />
     <ClInclude Include="WindowBase.h" />
     <ClInclude Include="PublicDefaults.h" />

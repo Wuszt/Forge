@@ -56,6 +56,17 @@ namespace forge
 			return static_cast< T* >( m_components[ it->second ].get() ); 
 		}
 
+		std::vector< IComponent* > GetComponents()
+		{
+			std::vector< IComponent* > components;
+			for ( auto& comp : m_components )
+			{
+				components.emplace_back( comp.get() );
+			}
+
+			return components;
+		}
+
 		template< class T >
 		const T* GetComponent() const
 		{

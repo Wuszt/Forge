@@ -20,5 +20,9 @@ namespace forge
 		{
 			return Vector2( vec.x, vec.y );
 		}
+
+		Bool InputText( const Char* label, std::string& text );
+
+		std::string PrefixLabel( const Char* label );
 	}
 }

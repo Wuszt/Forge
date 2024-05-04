@@ -64,42 +64,46 @@ void editor::SceneHierarchy::DrawObjectEntry( forge::ObjectID objectID, std::uno
 
 	if ( std::strncmp( typeName, editorNamespace, editorNamespaceLength ) != 0 )
 	{
-		std::string name = forge::String::Printf( "[%s] %s", typeName, obj->GetName() );
-
+		std::vector< forge::ObjectID > children;
 		if ( forge::TransformComponent* transformComp = obj->GetComponent< forge::TransformComponent >() )
 		{
-			auto children = transformComp->GetChildren();
+			children = transformComp->GetChildren();
+		}
 
-			if ( children.empty() )
+		if ( children.empty() )
+		{
+			if ( ImGui::Selectable( obj->GetName(), objectID == GetSceneEditor().GetSelectedObject() ) )
 			{
-				if ( ImGui::Selectable( name.c_str(), objectID == GetSceneEditor().GetSelectedObject() ) )
+				GetSceneEditor().SelectObject( objectID );
+			}
+		}
+		else
+		{
+			if ( ImGui::TreeNodeEx( obj->GetName(), ImGuiTreeNodeFlags_OpenOnArrow | ( objectID == GetSceneEditor().GetSelectedObject() ? ImGuiTreeNodeFlags_Selected : 0 ) ) )
+			{
+				if ( ImGui::IsItemClicked() )
 				{
 					GetSceneEditor().SelectObject( objectID );
 				}
+
+				for ( auto childID : children )
+				{
+					DrawObjectEntry( childID, drawnObjects );
+				}
+
+				ImGui::TreePop();
 			}
 			else
 			{
-				if ( ImGui::TreeNodeEx( name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | ( objectID == GetSceneEditor().GetSelectedObject() ? ImGuiTreeNodeFlags_Selected : 0 ) ) )
+				if ( ImGui::IsItemClicked() )
 				{
-					if ( ImGui::IsItemClicked() )
-					{
-						GetSceneEditor().SelectObject( objectID );
-					}
-
-					for ( auto childID : children )
-					{
-						DrawObjectEntry( childID, drawnObjects );
-					}
-
-					ImGui::TreePop();
+					GetSceneEditor().SelectObject( objectID );
 				}
-				else
-				{
-					VisitHierarchyBranch( GetEngineInstance(), objectID, [ & ]( forge::ObjectID object )
-						{
-							drawnObjects.emplace( object );
-						} );
-				}
+
+				VisitHierarchyBranch( GetEngineInstance(), objectID, [ & ]( forge::ObjectID object )
+					{
+						drawnObjects.emplace( object );
+					} );
 			}
 		}
 	}

@@ -4,12 +4,14 @@
 #include "../IMGUI/IMGUIMenuBar.h"
 #include "SceneHierarchy.h"
 #include "SceneViewport.h"
+#include "SceneObjectView.h"
 
 editor::SceneEditor::SceneEditor( editor::WindowBase* parent, forge::EngineInstance& engineInstance )
 	: WindowBase( engineInstance, parent, true )
 {
 	AddChild< SceneHierarchy >( *this );
 	AddChild< SceneViewport >( *this );
+	AddChild< SceneObjectView >( *this );
 
 	rtti::Get().VisitTypes( [ & ]( const rtti::Type& type )
 		{
