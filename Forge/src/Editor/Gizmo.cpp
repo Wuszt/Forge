@@ -234,6 +234,9 @@ void editor::GizmoElement::OnAttach()
 {
 	forge::Object::OnAttach();
 
+	ecs::EntityID entityID =  GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( GetObjectID() );
+	GetEngineInstance().GetECSManager().AddTagToEntity< forge::IgnoresLights >( entityID );
+
 	AddComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsStaticComponent >();
 	auto* renderingComponent = GetComponent< forge::RenderingComponent >();
 	renderingComponent->LoadMeshAndMaterial( GetModelPath() );

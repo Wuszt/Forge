@@ -32,6 +32,12 @@ void forge::RenderingComponent::OnAttached( EngineInstance& engineInstance, ecs:
 		} );
 }
 
+void forge::RenderingComponent::OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
+{
+	Super::OnDetaching( engineInstance, commandsQueue );
+	commandsQueue.RemoveFragment( engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ), engineInstance.GetRenderingManager().GetRenderer().GetECSFragmentType() );
+}
+
 void forge::RenderingComponent::LoadMeshAndMaterial( const std::string& path )
 {
 	PC_SCOPE_FUNC();

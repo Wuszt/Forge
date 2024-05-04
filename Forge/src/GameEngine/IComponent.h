@@ -38,6 +38,13 @@ namespace forge
 		Object* m_owner;
 	};
 
+	namespace datacomponent::internal
+	{
+		void OnAttaching( forge::Object& owner, const ecs::Fragment::Type& fragmentType, ecs::CommandsQueue& commandsQueue );
+		void OnDetaching( forge::Object& owner, const ecs::Fragment::Type& fragmentType, ecs::CommandsQueue& commandsQueue );
+		ecs::EntityID GetObjectEntityID( forge::Object& owner );
+	}
+
 	template< class TData, class ParentClass = IComponent >
 	class DataComponent : public ParentClass
 	{
@@ -48,39 +55,27 @@ namespace forge
 		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override
 		{
 			ParentClass::OnAttaching( engineInstance, commandsQueue );
-			auto& objectsManager = engineInstance.GetObjectsManager();
-			auto& ecsManager = engineInstance.GetECSManager();
-
-			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
-			commandsQueue.AddFragment( id, TData::GetTypeStatic() );
+			datacomponent::internal::OnAttaching( GetOwner(), TData::GetTypeStatic(), commandsQueue );
 		}
 
 		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override
 		{
 			ParentClass::OnDetaching( engineInstance, commandsQueue );
-			auto& objectsManager = engineInstance.GetObjectsManager();
-			auto& ecsManager = engineInstance.GetECSManager();
-
-			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
-			commandsQueue.RemoveFragment( id, TData::GetTypeStatic() );
+			datacomponent::internal::OnDetaching( GetOwner(), TData::GetTypeStatic(), commandsQueue );
 		}
 
 		ecs::FragmentView< TData > GetData() const
 		{
-			auto& objectsManager = GetOwner().GetEngineInstance().GetObjectsManager();
 			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
-
-			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
+			ecs::EntityID id = datacomponent::internal::GetObjectEntityID( GetOwner() );
 			return ecsManager.GetFragmentView< TData >( id );
 		}
 
 	protected:
 		ecs::MutableFragmentView< TData > GetMutableData()
 		{
-			auto& objectsManager = GetOwner().GetEngineInstance().GetObjectsManager();
 			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
-
-			ecs::EntityID id = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
+			ecs::EntityID id = datacomponent::internal::GetObjectEntityID( GetOwner() );
 			return ecsManager.GetMutableFragmentView< TData >( id );
 		}
 

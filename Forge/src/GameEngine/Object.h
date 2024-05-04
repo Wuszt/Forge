@@ -1,5 +1,6 @@
 #pragma once
 #include "../ECS/Fragment.h"
+#include "IComponent.h"
 
 namespace forge
 {
@@ -41,7 +42,17 @@ namespace forge
 			std::vector< std::unique_ptr< IComponent > > createdComponents;
 
 			CreateComponents< T, Ts... >( createdComponents );
-			AttachComponents( std::move( createdComponents ) );
+			AttachComponents( createdComponents );
+		}
+
+		void AddComponent( const forge::IComponent::Type& componentType );
+
+		void RemoveComponent( const forge::IComponent::Type& componentType );
+
+		template< class T >
+		void RemoveComponent()
+		{
+			RemoveComponent( T::GetTypeStatic() );
 		}
 
 		template< class T >
@@ -71,6 +82,11 @@ namespace forge
 		const T* GetComponent() const
 		{
 			return const_cast< This* >( this )->GetComponent< T >();
+		}
+
+		Bool HasComponent( const IComponent::Type& componentType ) const
+		{
+			return m_componentsLUT.contains( &componentType );
 		}
 
 		EngineInstance& GetEngineInstance() const
@@ -117,11 +133,11 @@ namespace forge
 			CreateComponents< Ts... >( createdComponents );
 		}
 
-		void AttachComponents( std::vector< std::unique_ptr< IComponent > >&& components );
+		void AttachComponents( forge::ArraySpan< std::unique_ptr< IComponent > > components );
 
 		std::string m_name;
 		std::vector< std::unique_ptr< IComponent > > m_components;
-		std::unordered_map< const rtti::Type*, Uint32 > m_componentsLUT;
+		std::unordered_map< const IComponent::Type*, Uint32 > m_componentsLUT;
 		EngineInstance* m_engineInstance = nullptr;
 		ObjectID m_id;
 

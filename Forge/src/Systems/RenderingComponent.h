@@ -46,6 +46,9 @@ namespace forge
 	public:
 		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
+
+		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
+
 		void LoadMeshAndMaterial( const std::string& path );
 		void SetDirty();
 

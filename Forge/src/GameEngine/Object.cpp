@@ -47,10 +47,37 @@ void forge::Object::OnDetach()
 	m_components.clear();
 }
 
-void forge::Object::AttachComponents( std::vector< std::unique_ptr< IComponent > >&& components )
+void forge::Object::AddComponent( const forge::IComponent::Type& componentType )
+{
+	AttachComponents( { componentType.Construct() } );
+}
+
+void forge::Object::RemoveComponent( const forge::IComponent::Type& componentType )
+{
+	auto it = m_componentsLUT.find( &componentType );
+	if ( it != m_componentsLUT.end() )
+	{
+		Uint32 idx = it->second;
+		m_componentsLUT[ &m_components[ m_components.size() - 1 ]->GetType() ] = idx;
+
+		auto& comp = m_components[ idx ];
+		ecs::CommandsQueue commandsQueue( GetEngineInstance().GetECSManager() );
+		
+		comp->Detach( GetEngineInstance(), commandsQueue );
+		commandsQueue.Execute();
+
+		comp->OnDetached( GetEngineInstance(), commandsQueue );
+		commandsQueue.Execute();
+
+		m_componentsLUT.erase( it );
+		forge::utils::RemoveReorder( m_components, idx );
+	}
+}
+
+void forge::Object::AttachComponents( forge::ArraySpan< std::unique_ptr< IComponent > > components )
 {
 	std::vector< IComponent* > attachedComponents;
-	attachedComponents.reserve( components.size() );
+	attachedComponents.reserve( components.GetSize() );
 
 	ecs::CommandsQueue queue( GetEngineInstance().GetECSManager() );
 
@@ -60,7 +87,7 @@ void forge::Object::AttachComponents( std::vector< std::unique_ptr< IComponent >
 		attachedComponents.emplace_back( comp.get() );
 		FORGE_ASSERT( !m_componentsLUT.contains( &comp->GetType() ) );
 		m_componentsLUT[ &comp->GetType() ] = static_cast< Uint32 >( m_components.size() ); 
-		m_components.emplace_back( std::move(comp ) );
+		m_components.emplace_back( std::move( comp ) );
 	}
 
 	queue.Execute();
