@@ -85,7 +85,7 @@ namespace forge
 
 		const char* GetName() const
 		{
-			return m_name.c_str();
+			return m_name.empty() ? "None" : m_name.c_str();
 		}
 
 	protected:
