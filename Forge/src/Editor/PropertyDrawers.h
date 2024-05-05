@@ -69,5 +69,11 @@ namespace editor
 	public:
 		virtual void Draw( void* owner, const rtti::Property& property ) const override;
 	};
+
+	class PropertyDrawer_Vector : public editor::PropertyDrawer
+	{
+	public:
+		virtual void Draw( void* owner, const rtti::Property& property ) const override;
+	};
 }
 

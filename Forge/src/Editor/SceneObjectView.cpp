@@ -91,9 +91,8 @@ void editor::SceneObjectView::Draw()
 				const Float width = ImGui::GetColumnWidth();
 				ImGui::SameLine();
 				constexpr Float buttonWidth = 75.0f;
-				constexpr Float marginFromRight = 10.0f;
-				ImGui::SetCursorPosX( width - buttonWidth - marginFromRight );
-				if ( ImGui::Button( forge::String::Printf( "Remove##%s", comp->GetType().GetName() ).c_str(), { buttonWidth, 0.0f } ) )
+				ImGui::SetCursorPosX( width - buttonWidth );
+				if ( ImGui::Button( forge::String::Printf( "Remove##%s", comp->GetType().GetName() ).c_str(), { -1.0f, 0.0f } ) )
 				{
 					obj->RemoveComponent( comp->GetType() );
 				}

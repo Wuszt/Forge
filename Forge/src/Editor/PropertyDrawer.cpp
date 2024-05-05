@@ -10,11 +10,14 @@ void editor::PropertyDrawer::Draw( void* owner, const rtti::Property& property )
 {
 	if ( ImGui::BeginTable( property.GetName(), 2 ) )
 	{
+		ImGui::TableSetupColumn( "Name", ImGuiTableColumnFlags_WidthFixed );
+
 		ImGui::TableNextColumn();
 		ImGui::AlignTextToFramePadding();
 		DrawName( owner, property ); 
 		ImGui::TableNextColumn();
 		ImGui::AlignTextToFramePadding();
+		ImGui::PushItemWidth( -1.0f );
 		DrawValue( owner, property );
 		ImGui::TableNextRow();
 
@@ -82,7 +85,7 @@ void editor::PropertyDrawer::DrawProperty( void* owner, const rtti::Property& pr
 		break;
 
 	case rtti::Type::Kind::Vector:
-		FORGE_ASSERT( false ); // TODO
+		editor::PropertyDrawer_Vector().Draw( owner, property );
 		break;
 
 	case rtti::Type::Kind::Set:

@@ -68,3 +68,42 @@ void editor::PropertyDrawer_Array::Draw( void* owner, const rtti::Property& prop
 		ImGui::TreePop();
 	}
 }
+
+void editor::PropertyDrawer_Vector::Draw( void* owner, const rtti::Property& property ) const
+{
+	const rtti::DynamicContainerType& containerType = static_cast< const rtti::DynamicContainerType& >( property.GetType() );
+	void* containerAddress = property.GetAddress( owner );
+	if ( ImGui::TreeNodeEx( property.GetName(), ImGuiTreeNodeFlags_AllowOverlap ) )
+	{
+		if ( ImGui::Button( "Add" ) )
+		{
+			containerType.AddDefaultElement( containerAddress );
+		}
+		ImGui::SameLine();
+		if ( ImGui::Button( "Clear" ) )
+		{
+			containerType.Clear( containerAddress );
+		}
+
+		Uint32 i = 0u;
+		containerType.VisitElementsAsProperties( containerAddress, [ &, index = i++ ]( const rtti::Property& property )
+			{
+				if ( ImGui::BeginTable( property.GetName(), 2 ) )
+				{
+					ImGui::TableSetupColumn( "Property" );
+					ImGui::TableSetupColumn( "RemoveButton", ImGuiTableColumnFlags_WidthFixed );
+
+					ImGui::TableNextColumn();
+					DrawProperty( containerAddress, property );
+					ImGui::TableNextColumn();
+					if ( ImGui::Button( forge::String::Printf( "Remove##%d", index ).c_str() ) )
+					{
+						containerType.RemoveElementAtIndex( containerAddress, index );
+					}
+					ImGui::EndTable();
+				}
+			} );
+
+		ImGui::TreePop();
+	}
+}
