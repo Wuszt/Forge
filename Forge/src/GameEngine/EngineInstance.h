@@ -73,6 +73,11 @@ namespace forge
 			return *m_renderingManager;
 		}
 
+		ApplicationInstance& GetApplicationInstance() const
+		{
+			return m_appInstance;
+		}
+
 		void Run();
 
 	private:

@@ -1,6 +1,13 @@
 #include "Fpch.h"
 #include "Vector4.h"
 
+RTTI_IMPLEMENT_TYPE( Vector4,
+	RTTI_REGISTER_PROPERTY( X );
+	RTTI_REGISTER_PROPERTY( Y );
+	RTTI_REGISTER_PROPERTY( Z );
+	RTTI_REGISTER_PROPERTY( W );
+);
+
 Vector4::Vector4( const Vector3& vec )
 	: X( vec.X )
 	, Y( vec.Y )

@@ -2,6 +2,8 @@
 
 struct Vector2
 {
+	RTTI_DECLARE_STRUCT( Vector2 );
+
 	Float X = 0.0f;
 	Float Y = 0.0f;
 

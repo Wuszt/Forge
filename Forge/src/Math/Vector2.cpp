@@ -1,6 +1,11 @@
 #include "Fpch.h"
 #include "Vector2.h"
 
+RTTI_IMPLEMENT_TYPE( Vector2, 
+	RTTI_REGISTER_PROPERTY( X );
+	RTTI_REGISTER_PROPERTY( Y );
+	);
+
 Vector2 Vector2::PLUS_MAX()
 {
 	return Vector2( std::numeric_limits< Float >::max() );

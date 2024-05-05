@@ -4,6 +4,7 @@
 #include "../GameEngine/ObjectsManager.h"
 #include "../../External/imgui/imgui.h"
 #include "../IMGUI/IMGUIHelpers.h"
+#include "PropertyDrawer.h"
 
 editor::SceneObjectView::SceneObjectView( SceneEditor& sceneEditor )
 	: WindowBase( sceneEditor.GetEngineInstance(), &sceneEditor, false )
@@ -49,8 +50,9 @@ void editor::SceneObjectView::Draw()
 					obj->SetName( name );
 				}
 			} );
+
+		ImGui::EndTable();
 	}
-	ImGui::EndTable();
 
 	// Components
 	ImGui::SeparatorText( "Components" );
@@ -84,15 +86,34 @@ void editor::SceneObjectView::Draw()
 	ImGui::NewLine();
 	for ( auto* comp : obj->GetComponents() )
 	{
-		const Float width = ImGui::GetColumnWidth();
-		ImGui::CollapsingHeader( comp->GetType().GetName(), ImGuiTreeNodeFlags_AllowOverlap );
-		ImGui::SameLine();
-		constexpr Float buttonWidth = 75.0f;
-		constexpr Float marginFromRight = 10.0f;
-		ImGui::SetCursorPosX( width - buttonWidth - marginFromRight );
-		if ( ImGui::Button( forge::String::Printf( "Remove##%s", comp->GetType().GetName() ).c_str(), { buttonWidth, 0.0f } ) )
+		auto DrawRemoveButtonFunc = [ & ]()
+			{
+				const Float width = ImGui::GetColumnWidth();
+				ImGui::SameLine();
+				constexpr Float buttonWidth = 75.0f;
+				constexpr Float marginFromRight = 10.0f;
+				ImGui::SetCursorPosX( width - buttonWidth - marginFromRight );
+				if ( ImGui::Button( forge::String::Printf( "Remove##%s", comp->GetType().GetName() ).c_str(), { buttonWidth, 0.0f } ) )
+				{
+					obj->RemoveComponent( comp->GetType() );
+				}
+			};
+
+		auto& compType = comp->GetType();
+		if ( ImGui::CollapsingHeader( compType.GetName(), ImGuiTreeNodeFlags_AllowOverlap ) )
 		{
-			obj->RemoveComponent( comp->GetType() );
+			DrawRemoveButtonFunc();
+
+			for ( Uint32 i = 0u; i < compType.GetPropertiesAmount(); ++i )
+			{
+				const auto* property = compType.GetProperty( i );
+				editor::PropertyDrawer::DrawProperty( comp, *property );
+			}
 		}
+		else
+		{
+			DrawRemoveButtonFunc();
+		}
+		
 	}
 }

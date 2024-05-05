@@ -156,9 +156,9 @@ void forge::Serializer::SerializeArray( const rtti::ContainerType& type, const v
 {
 	m_stream.Write( static_cast< Uint32 >( type.GetElementsAmount( address ) ) );
 
-	type.VisitElements( address, [ this, &type ]( const void* elementAddress )
+	type.VisitElementsAsProperties( address, [ this, &type, address ]( const rtti::Property& property )
 		{
-			SerializeType( type.GetInternalType(), elementAddress );
+			SerializeType( type.GetInternalType(), property.GetAddress( address ) );
 		} );
 }
 
@@ -182,9 +182,9 @@ void forge::Serializer::SerializeDynamicContainer( const rtti::ContainerType& ty
 {
 	m_stream.Write( static_cast< Uint32 >( type.GetElementsAmount( address ) ) );
 
-	type.VisitElements( address, [ this, &type ]( const void* elementAddress )
+	type.VisitElementsAsProperties( address, [ this, &type, address ]( const rtti::Property& property )
 		{
-			SerializeType( type.GetInternalType(), const_cast< void* >( elementAddress ) );
+			SerializeType( type.GetInternalType(), property.GetAddress( address ) );
 		} );
 }
 

@@ -328,6 +328,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Gizmo.cpp" />
+    <ClCompile Include="PropertyDrawer.cpp" />
+    <ClCompile Include="PropertyDrawers.cpp" />
     <ClCompile Include="SceneHierarchy.cpp" />
     <ClCompile Include="SceneObjectView.cpp" />
     <ClCompile Include="SceneViewport.cpp" />
@@ -339,6 +341,8 @@
     <ClInclude Include="EditorInstance.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="Gizmo.h" />
+    <ClInclude Include="PropertyDrawer.h" />
+    <ClInclude Include="PropertyDrawers.h" />
     <ClInclude Include="SceneHierarchy.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="SceneObjectView.h" />

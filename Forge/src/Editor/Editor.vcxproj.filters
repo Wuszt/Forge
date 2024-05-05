@@ -38,6 +38,12 @@
     <ClCompile Include="SceneObjectView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PropertyDrawer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyDrawers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InternalDefaults.h">
@@ -71,6 +77,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SceneObjectView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyDrawer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertyDrawers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,6 +4,8 @@ struct Vector3;
 
 struct Vector4
 {
+	RTTI_DECLARE_STRUCT( Vector4 );
+
 	union
 	{
 		struct
@@ -237,6 +239,11 @@ struct Vector4
 	}
 
 	const Float* AsArray() const
+	{
+		return &X;
+	}
+
+	Float* AsArray()
 	{
 		return &X;
 	}

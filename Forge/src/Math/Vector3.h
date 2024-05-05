@@ -4,6 +4,8 @@ struct Vector4;
 
 struct Vector3
 {
+	RTTI_DECLARE_STRUCT( Vector3 );
+
 	union
 	{
 		struct

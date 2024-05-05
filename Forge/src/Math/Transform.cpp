@@ -1,6 +1,11 @@
 #include "Fpch.h"
 #include "Transform.h"
 
+RTTI_IMPLEMENT_TYPE( Transform,
+	RTTI_REGISTER_PROPERTY( m_position );
+	RTTI_REGISTER_PROPERTY( m_orientation);
+	);
+
 Transform::Transform( const Vector4& pos )
 	: m_position( pos.X, pos.Y, pos.Z, 1.0f )
 {}

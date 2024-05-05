@@ -130,7 +130,7 @@ Int32 main()
 
 		virtual void Initialize( forge::EngineInstance& engineInstance )
 		{
-			const systems::ISystem::ClassType* systems[]
+			const systems::ISystem::Type* systems[]
 			{
 				&systems::CamerasSystem::GetTypeStatic(),
 				&systems::PlayerSystem::GetTypeStatic(),

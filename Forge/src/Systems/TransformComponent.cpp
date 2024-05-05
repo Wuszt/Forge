@@ -1,7 +1,10 @@
 #include "Fpch.h"
 #include "TransformComponent.h"
 
-RTTI_IMPLEMENT_TYPE( forge::TransformFragment );
+RTTI_IMPLEMENT_TYPE( forge::TransformFragment,
+	RTTI_REGISTER_PROPERTY( m_transform );
+	RTTI_REGISTER_PROPERTY( m_scale );
+	);
 RTTI_IMPLEMENT_TYPE( forge::ChildRequiringRecalculatingLocalTransform );
 RTTI_IMPLEMENT_TYPE( forge::TransformWasModifiedThisFrame );
 RTTI_IMPLEMENT_TYPE( forge::TransformParentFragment );

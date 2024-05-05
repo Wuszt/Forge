@@ -1,6 +1,8 @@
 #pragma once
 class Transform
 {
+	RTTI_DECLARE_CLASS( Transform );
+
 public:
 	static Transform IDENTITY() { return Transform(); }
 

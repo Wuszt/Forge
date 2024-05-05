@@ -1,6 +1,13 @@
 #include "Fpch.h"
 #include "Quaternion.h"
 
+RTTI_IMPLEMENT_TYPE( Quaternion,
+	RTTI_REGISTER_PROPERTY( i );
+	RTTI_REGISTER_PROPERTY( j );
+	RTTI_REGISTER_PROPERTY( k );
+	RTTI_REGISTER_PROPERTY( r );
+);
+
 Quaternion Quaternion::GetRotationBetweenVectors( const Vector3& first, const Vector3& second, const Vector3& up /*= Vector3::EZ()*/ )
 {
 	const Float kcos = first.Dot( second );

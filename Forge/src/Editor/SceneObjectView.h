@@ -17,7 +17,6 @@ namespace editor
 		{
 			return "Object View";
 		}
-
 	};
 }
 

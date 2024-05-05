@@ -2,6 +2,8 @@
 
 struct Quaternion
 {   
+	RTTI_DECLARE_STRUCT( Quaternion );
+
 	union
 	{
 		Vector4 vec4;
