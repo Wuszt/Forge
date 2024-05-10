@@ -38,10 +38,10 @@
     <ClCompile Include="SceneObjectView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PropertyDrawer.cpp">
+    <ClCompile Include="TypeDrawer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PropertyDrawers.cpp">
+    <ClCompile Include="TypeDrawers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -79,10 +79,10 @@
     <ClInclude Include="SceneObjectView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PropertyDrawer.h">
+    <ClInclude Include="TypeDrawer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PropertyDrawers.h">
+    <ClInclude Include="TypeDrawers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

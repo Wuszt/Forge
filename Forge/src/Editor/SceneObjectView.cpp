@@ -4,7 +4,7 @@
 #include "../GameEngine/ObjectsManager.h"
 #include "../../External/imgui/imgui.h"
 #include "../IMGUI/IMGUIHelpers.h"
-#include "PropertyDrawer.h"
+#include "TypeDrawer.h"
 
 editor::SceneObjectView::SceneObjectView( SceneEditor& sceneEditor )
 	: WindowBase( sceneEditor.GetEngineInstance(), &sceneEditor, false )
@@ -37,8 +37,8 @@ void editor::SceneObjectView::Draw()
 
 	auto* obj = GetEngineInstance().GetObjectsManager().GetObject( objectID );
 
-	ImGui::SeparatorText( "Object" );
 	// Object
+	ImGui::SeparatorText( "Object" );
 	if ( ImGui::BeginTable( "Object Properties", 2 ) )
 	{
 		DrawProperty( "Type", [ & ](){ ImGui::Text( obj->GetType().GetName() ); } );
@@ -103,11 +103,7 @@ void editor::SceneObjectView::Draw()
 		{
 			DrawRemoveButtonFunc();
 
-			for ( Uint32 i = 0u; i < compType.GetPropertiesAmount(); ++i )
-			{
-				const auto* property = compType.GetProperty( i );
-				editor::PropertyDrawer::DrawProperty( comp, *property );
-			}
+			editor::TypeDrawer::DrawType( comp, compType );
 		}
 		else
 		{
