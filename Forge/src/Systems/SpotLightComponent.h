@@ -15,7 +15,7 @@ namespace forge
 
 	class SpotLightComponent : public DataComponent< SpotLightFragment >
 	{
-		RTTI_DECLARE_POLYMORPHIC_CLASS( SpotLightComponent, forge::IComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( SpotLightComponent, forge::IDataComponent );
 	public:
 		using DataComponent::DataComponent;
 

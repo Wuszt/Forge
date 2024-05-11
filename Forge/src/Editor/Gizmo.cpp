@@ -221,10 +221,13 @@ void editor::Gizmo::Initialize( forge::ObjectID modifiedObject )
 
 void editor::Gizmo::Update()
 {
+	forge::TransformComponent* gizmoTransformComp = GetComponent< forge::TransformComponent >();
+	forge::TransformComponent* modifiedTransformComp = GetEngineInstance().GetObjectsManager().GetObject( m_modifiedObject )->GetComponent< forge::TransformComponent >();
+	gizmoTransformComp->SetWorldTransform( modifiedTransformComp->GetWorldTransform() );
+
 	const auto& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
 	constexpr Float distToScaleFactor = 0.15f;
 	const Vector3 cameraPos = currentCamera.GetPosition();
-	forge::TransformComponent* gizmoTransformComp = GetComponent< forge::TransformComponent >();
 	const Vector3 cameraToGizmo = gizmoTransformComp->GetWorldPosition() - cameraPos;
 	const Float distToCamera = cameraToGizmo.Dot( currentCamera.GetTransform().GetForward() );
 	gizmoTransformComp->SetWorldScale( Vector3::ONES() * distToCamera * distToScaleFactor );

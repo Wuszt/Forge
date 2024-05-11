@@ -41,7 +41,7 @@ namespace forge
 
 	class RenderingComponent : public DataComponent< RenderableFragment >
 	{
-		RTTI_DECLARE_POLYMORPHIC_CLASS( RenderingComponent, forge::IComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( RenderingComponent, forge::IDataComponent );
 
 	public:
 		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;

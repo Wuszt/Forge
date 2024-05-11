@@ -2,6 +2,7 @@
 #include "IComponent.h"
 
 RTTI_IMPLEMENT_TYPE( forge::IComponent );
+RTTI_IMPLEMENT_TYPE( forge::IDataComponent );
 
 forge::IComponent::IComponent() = default;
 forge::IComponent::~IComponent() = default;

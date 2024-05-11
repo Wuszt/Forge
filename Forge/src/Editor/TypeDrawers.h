@@ -79,5 +79,15 @@ namespace editor
 		virtual void DrawChildren( void* address, const rtti::Type& type ) const override;
 		virtual Bool HasChildren( void* address, const rtti::Type& type ) const override { return true; }
 	};
+
+	class TypeDrawer_DataComponent : public editor::CustomTypeDrawer
+	{
+		RTTI_DECLARE_CLASS( TypeDrawer_DataComponent, editor::CustomTypeDrawer );
+
+	public:
+		virtual const rtti::Type& GetSupportedType() const override;
+	protected:
+		virtual void DrawChildren( void* address, const rtti::Type& type ) const override;
+	};
 }
 

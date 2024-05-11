@@ -34,7 +34,7 @@ namespace forge
 
 	class AnimationComponent : public DataComponent< AnimationFragment >
 	{
-		RTTI_DECLARE_POLYMORPHIC_CLASS( AnimationComponent, forge::IComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( AnimationComponent, forge::IDataComponent );
 	public:
 		using DataComponent::DataComponent;
 

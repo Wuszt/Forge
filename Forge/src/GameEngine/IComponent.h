@@ -45,9 +45,21 @@ namespace forge
 		ecs::EntityID GetObjectEntityID( forge::Object& owner );
 	}
 
-	template< class TData, class ParentClass = IComponent >
+	class IDataComponent : public IComponent
+	{
+		RTTI_DECLARE_ABSTRACT_CLASS( IDataComponent, forge::IComponent );
+
+	public:
+		virtual const void* GetRawData( const ecs::Fragment::Type*& outDataType ) const = 0;
+		virtual void* GetMutableRawData( const ecs::Fragment::Type*& outDataType ) = 0;
+	};
+
+	template< class TData, class ParentClass = IDataComponent >
 	class DataComponent : public ParentClass
 	{
+		static_assert( std::is_base_of_v< IDataComponent, ParentClass >, "Parent class has to implement IDataComponent." );
+		static_assert( std::is_base_of_v< ecs::Fragment, TData >, "Data type has to derive from Fragment" );
+
 	public:
 		using ParentClass::ParentClass;
 		using ParentClass::GetOwner;
@@ -69,6 +81,17 @@ namespace forge
 			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
 			ecs::EntityID id = datacomponent::internal::GetObjectEntityID( GetOwner() );
 			return ecsManager.GetFragmentView< TData >( id );
+		}
+
+		virtual const void* GetRawData( const ecs::Fragment::Type*& outDataType ) const 
+		{
+			outDataType = &TData::GetTypeStatic();
+			return GetData().GetPtr();
+		}
+		virtual void* GetMutableRawData( const ecs::Fragment::Type*& outDataType ) 
+		{ 
+			outDataType = &TData::GetTypeStatic();
+			return GetMutableData().GetMutablePtr(); 
 		}
 
 	protected:

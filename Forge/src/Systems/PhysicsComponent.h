@@ -26,9 +26,9 @@ namespace forge
 		physics::PhysicsDynamicActor m_actor;
 	};
 
-	class PhysicsComponent : public IComponent
+	class PhysicsComponent : public IDataComponent
 	{
-		RTTI_DECLARE_ABSTRACT_CLASS( PhysicsComponent, forge::IComponent );
+		RTTI_DECLARE_ABSTRACT_CLASS( PhysicsComponent, forge::IDataComponent );
 
 		friend class systems::PhysicsSystem;
 

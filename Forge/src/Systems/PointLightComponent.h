@@ -13,7 +13,7 @@ namespace forge
 
 	class PointLightComponent : public DataComponent< PointLightFragment >
 	{
-		RTTI_DECLARE_POLYMORPHIC_CLASS( PointLightComponent, forge::IComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( PointLightComponent, forge::IDataComponent );
 	public:
 		using DataComponent::DataComponent;
 

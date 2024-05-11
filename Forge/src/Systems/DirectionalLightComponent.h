@@ -16,7 +16,7 @@ namespace forge
 
 	class DirectionalLightComponent : public DataComponent< DirectionalLightFragment >
 	{
-		RTTI_DECLARE_POLYMORPHIC_CLASS( DirectionalLightComponent, forge::IComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( DirectionalLightComponent, forge::IDataComponent );
 	public:
 		using DataComponent::DataComponent;
 

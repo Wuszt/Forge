@@ -1,12 +1,14 @@
 #include "Fpch.h"
 #include "TypeDrawers.h"
 #include "../../External/imgui/imgui.h"
+#include "../GameEngine/IComponent.h"
 
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Int32 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Float );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Vector2 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Vector3 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Vector4 );
+RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_DataComponent );
 
 void editor::TypeDrawer_Int32::DrawPropertyValue( void* owner, const rtti::Property& property ) const
 {
@@ -86,4 +88,21 @@ void editor::TypeDrawer_Vector::DrawChildren( void* address, const rtti::Type& t
 				ImGui::EndTable();
 			}
 		} );
+}
+
+const rtti::Type& editor::TypeDrawer_DataComponent::GetSupportedType() const
+{
+	return forge::IDataComponent::GetTypeStatic();
+}
+
+void editor::TypeDrawer_DataComponent::DrawChildren( void* address, const rtti::Type& type ) const
+{
+	forge::IDataComponent* dataComponent = static_cast< forge::IDataComponent* >( address );
+	const ecs::Fragment::Type* fragmentType = nullptr;
+	if ( void* fragmentAddress = dataComponent->GetMutableRawData( fragmentType ) )
+	{
+		editor::TypeDrawer::DrawType( fragmentAddress, *fragmentType );
+	}
+
+	editor::TypeDrawer::DrawChildren( address, type );
 }

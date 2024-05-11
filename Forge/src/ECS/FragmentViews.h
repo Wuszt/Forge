@@ -71,6 +71,11 @@ namespace ecs
 			return *this;
 		}
 
+		const T* GetPtr() const
+		{
+			return m_fragment;
+		}
+
 		const T* operator->() const
 		{
 			return m_fragment;
@@ -149,6 +154,11 @@ namespace ecs
 			}
 
 			return *this;
+		}
+
+		T* GetMutablePtr() const
+		{
+			return m_fragment;
 		}
 
 		T* operator->() const
