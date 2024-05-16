@@ -56,7 +56,7 @@ namespace forge
 
 	class TransformComponent : public DataComponent< TransformFragment >
 	{
-		RTTI_DECLARE_POLYMORPHIC_CLASS( TransformComponent, forge::IComponent );
+		RTTI_DECLARE_POLYMORPHIC_CLASS( TransformComponent, forge::IDataComponent );
 	public:
 		using DataComponent::DataComponent;
 
