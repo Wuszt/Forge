@@ -57,19 +57,18 @@ namespace windows
 		} WNDCLASS;
 
 		WNDCLASSEX wc;
-
 		wc.cbSize = sizeof( WNDCLASSEX );
 		wc.style = CS_HREDRAW | CS_VREDRAW;
 		wc.lpfnWndProc = WindowCallbackHandler;
 		wc.cbClsExtra = NULL;
 		wc.cbWndExtra = NULL;
 		wc.hInstance = hInstance;
-		wc.hIcon = LoadIcon( NULL, IDI_APPLICATION );
+		wc.hIcon = ( HICON )LoadImage( NULL, TEXT("../../forge.ico"), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_SHARED );
 		wc.hCursor = LoadCursor( NULL, IDC_ARROW );
 		wc.hbrBackground = ( HBRUSH )( COLOR_WINDOW + 2 );
 		wc.lpszMenuName = NULL;
 		wc.lpszClassName = c_windowClassName;
-		wc.hIconSm = LoadIcon( NULL, IDI_APPLICATION );
+		wc.hIconSm = wc.hIcon;
 
 		if ( !RegisterClassEx( &wc ) )
 		{
