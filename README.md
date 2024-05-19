@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Logo.png" height="400">
+</p>
+
 # Forge
 A game engine which purpose is to be a sandbox for various algorithms a.k.a. educational purposes.
 
