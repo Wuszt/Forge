@@ -31,6 +31,8 @@ editor::SceneEditor::SceneEditor( editor::WindowBase* parent, forge::EngineInsta
 					m_objectCreationHandles.push_back( { buttonHandle, std::move( onCreationHandle ) } );
 				}
 			}
+
+			return rtti::VisitOutcome::Continue;
 		} );
 }
 

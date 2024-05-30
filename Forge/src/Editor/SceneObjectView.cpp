@@ -74,6 +74,8 @@ void editor::SceneObjectView::Draw()
 						}
 					}
 				}
+
+				return rtti::VisitOutcome::Continue;
 			} );
 		ImGui::EndPopup();
 	}

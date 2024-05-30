@@ -46,6 +46,7 @@ void editor::TypeDrawer_Array::DrawChildren( void* address, const rtti::Type& ty
 	containerType.VisitElementsAsProperties( address, [ & ]( const rtti::Property& property )
 		{
 			DrawProperty( address, property );
+			return rtti::VisitOutcome::Continue;
 		} );
 }
 
@@ -87,6 +88,8 @@ void editor::TypeDrawer_Vector::DrawChildren( void* address, const rtti::Type& t
 				DrawProperty( address, property );
 				ImGui::EndTable();
 			}
+
+			return rtti::VisitOutcome::Continue;
 		} );
 }
 

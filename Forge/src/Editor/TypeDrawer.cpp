@@ -68,6 +68,8 @@ static std::unordered_map< const rtti::Type*, std::unique_ptr< editor::CustomTyp
 				const auto& supportedType = drawer->GetSupportedType();
 				drawers.emplace( &supportedType, std::move( drawer ) );
 			}
+
+			return rtti::VisitOutcome::Continue;
 		} );
 
 	return drawers;
