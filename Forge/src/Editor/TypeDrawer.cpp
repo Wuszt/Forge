@@ -87,7 +87,7 @@ static void VisitTypeDrawer( const rtti::Type& type, const TFunc& func )
 			auto found = drawers.find( tmpTypePtr );
 			if ( found != drawers.end() )
 			{
-				func(*found->second);
+				func( *found->second );
 				return;
 			}
 			tmpTypePtr = tmpTypePtr->GetParent();
@@ -99,7 +99,7 @@ static void VisitTypeDrawer( const rtti::Type& type, const TFunc& func )
 	case rtti::Type::Kind::Class:
 	case rtti::Type::Kind::RuntimeType:
 	case rtti::Type::Kind::Struct:
-		func(editor::TypeDrawer());
+		func( editor::TypeDrawer() );
 		break;
 
 	case rtti::Type::Kind::RawPointer:
@@ -115,11 +115,11 @@ static void VisitTypeDrawer( const rtti::Type& type, const TFunc& func )
 		break;
 
 	case rtti::Type::Kind::Array:
-		func(editor::TypeDrawer_Array());
+		func( editor::TypeDrawer_Array() );
 		break;
 
 	case rtti::Type::Kind::Vector:
-		func(editor::TypeDrawer_Vector());
+		func( editor::TypeDrawer_Vector() );
 		break;
 
 	case rtti::Type::Kind::Set:
@@ -130,6 +130,10 @@ static void VisitTypeDrawer( const rtti::Type& type, const TFunc& func )
 		FORGE_ASSERT( false ); // TODO
 		break;
 
+	case rtti::Type::Kind::Enum:
+		func( editor::TypeDrawer_Enum() );
+		break;
+
 	default:
 		FORGE_ASSERT( false );
 	}
@@ -137,7 +141,7 @@ static void VisitTypeDrawer( const rtti::Type& type, const TFunc& func )
 
 void editor::TypeDrawer::DrawProperty( void* owner, const rtti::Property& property )
 {
-	VisitTypeDrawer( property.GetType(), [ & ]( const editor::TypeDrawer& typeDrawer ) { typeDrawer.Draw(owner, property); } );
+	VisitTypeDrawer( property.GetType(), [ & ]( const editor::TypeDrawer& typeDrawer ) { typeDrawer.Draw( owner, property ); } );
 }
 
 void editor::TypeDrawer::DrawType( void* address, const rtti::Type& type )

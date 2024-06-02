@@ -80,6 +80,12 @@ namespace editor
 		virtual Bool HasChildren( void* address, const rtti::Type& type ) const override { return true; }
 	};
 
+	class TypeDrawer_Enum : public editor::TypeDrawer
+	{
+	protected:
+		virtual void DrawPropertyValue( void* owner, const rtti::Property& property ) const override;
+	};
+
 	class TypeDrawer_DataComponent : public editor::CustomTypeDrawer
 	{
 		RTTI_DECLARE_CLASS( TypeDrawer_DataComponent, editor::CustomTypeDrawer );

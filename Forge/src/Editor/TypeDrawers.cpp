@@ -109,3 +109,33 @@ void editor::TypeDrawer_DataComponent::DrawChildren( void* address, const rtti::
 
 	editor::TypeDrawer::DrawChildren( address, type );
 }
+
+void editor::TypeDrawer_Enum::DrawPropertyValue( void* owner, const rtti::Property& property ) const
+{
+	const rtti::EnumTypeBase& enumType = static_cast< const rtti::EnumTypeBase& >( property.GetType() );
+	std::string id = std::string( "##enumCombo_" ) + property.GetName();
+
+	const auto* currentMember = enumType.GetCurrentMember( property.GetAddress( owner ) );
+	FORGE_ASSERT( currentMember );
+
+	if ( ImGui::BeginCombo( id.c_str(), currentMember->m_name ) )
+	{
+		Uint32 i = 0u;
+		enumType.VisitMembers( [ & ]( const rtti::EnumTypeBase::MemberDesc& member )
+			{
+				const Bool isSelected = currentMember == &member;
+				if ( ImGui::Selectable( member.m_name, isSelected ) )
+				{
+					enumType.SetCurrentMember( property.GetAddress( owner ), member );
+				}
+
+				if ( isSelected )
+				{
+					ImGui::SetItemDefaultFocus();
+				}
+
+				return rtti::VisitOutcome::Continue;
+			} );		
+		ImGui::EndCombo();
+	}
+}
