@@ -105,7 +105,7 @@ void editor::SceneObjectView::Draw()
 		{
 			DrawRemoveButtonFunc();
 
-			editor::TypeDrawer::DrawType( comp, compType );
+			editor::TypeDrawer::DrawTypeChildren( comp, compType );
 		}
 		else
 		{

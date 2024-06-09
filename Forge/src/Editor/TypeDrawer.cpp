@@ -18,43 +18,43 @@ void editor::TypeDrawer::Draw( void* owner, const rtti::Property& property ) con
 
 		ImGui::TableNextColumn();
 		ImGui::AlignTextToFramePadding();
-		DrawPropertyName( owner, property );
+		OnDrawName( owner, property );
 		ImGui::TableNextColumn();
 		ImGui::AlignTextToFramePadding();
 		ImGui::PushItemWidth( -1.0f );
-		DrawPropertyValue( owner, property );
+		DrawValue( property.GetAddress( owner ), property.GetType(), property.GetFlags(), property.GetName() );
 		ImGui::EndTable();
 	}
 	ImGui::Unindent();
 
-	const Float height = ImGui::GetCursorPos().y - startPos.y;
-
-	if ( HasChildren( owner, property.GetType() ) )
-	{
-		ImGui::SetCursorPos( startPos );
-		ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 0.f, ( height ) * 0.5f - 6.5f ) );
-
-		auto prev = ImGui::GetCurrentWindow()->WorkRect.Max.x;
-		ImGui::GetCurrentWindow()->WorkRect.Max.x = ImGui::GetCurrentWindow()->WorkRect.Min.x + ImGui::GetStyle().IndentSpacing;
-		if ( ImGui::TreeNodeEx( property.GetName(), ImGuiTreeNodeFlags_FramePadding, "" ) )
-		{
-			ImGui::PopStyleVar();
-			ImGui::GetCurrentWindow()->WorkRect.Max.x = prev;
-
-			DrawChildren( property.GetAddress( owner ), property.GetType() );
-			ImGui::TreePop();
-		}
-		else
-		{
-			ImGui::PopStyleVar();
-			ImGui::GetCurrentWindow()->WorkRect.Max.x = prev;
-		}
-	}
+	
+	DrawChildrenInternal( property.GetAddress( owner ), property.GetType(), property.GetName(), { startPos.x, startPos.y }, Math::Min(16.0f, ImGui::GetCursorPos().y - startPos.y));
 }
 
-void editor::TypeDrawer::Draw( void* address, const rtti::Type& type ) const
+void editor::TypeDrawer::DrawChildren( void* address, const rtti::Type& type, const char* id ) const
 {
+	ImGui::PushID( id );
 	DrawChildren( address, type );
+	ImGui::PopID();
+}
+
+void editor::TypeDrawer::DrawChildren( void* address, const rtti::Type& type ) const
+{
+	OnDrawChildren( address, type );
+}
+
+void editor::TypeDrawer::DrawValue( void* address, const rtti::Type& type, rtti::InstanceFlags typeFlags, const char* id ) const
+{
+	ImGui::PushID( id );
+	OnDrawValue( address, type, typeFlags );
+	ImGui::PopID();
+}
+
+void editor::TypeDrawer::Draw( void* address, const rtti::Type& type, const char* id ) const
+{
+	const auto startPos = ImGui::GetCursorPos();
+	DrawValue( address, type, rtti::InstanceFlags::None, id );
+	DrawChildrenInternal( address, type, id, { startPos.x, startPos.y }, Math::Min( 16.0f, ImGui::GetCursorPos().y - startPos.y ) );
 }
 
 static std::unordered_map< const rtti::Type*, std::unique_ptr< editor::CustomTypeDrawer > > CollectCustomTypeDrawers()
@@ -103,15 +103,15 @@ static void VisitTypeDrawer( const rtti::Type& type, const TFunc& func )
 		break;
 
 	case rtti::Type::Kind::RawPointer:
-		FORGE_ASSERT( false ); // TODO
+		func( editor::TypeDrawer_RawPointer() );
 		break;
 
 	case rtti::Type::Kind::UniquePointer:
-		FORGE_ASSERT( false ); // TODO
+		func( editor::TypeDrawer_UniquePointer() );
 		break;
 
 	case rtti::Type::Kind::SharedPointer:
-		FORGE_ASSERT( false ); // TODO
+		func( editor::TypeDrawer_SharedPointer() );
 		break;
 
 	case rtti::Type::Kind::Array:
@@ -144,12 +144,22 @@ void editor::TypeDrawer::DrawProperty( void* owner, const rtti::Property& proper
 	VisitTypeDrawer( property.GetType(), [ & ]( const editor::TypeDrawer& typeDrawer ) { typeDrawer.Draw( owner, property ); } );
 }
 
-void editor::TypeDrawer::DrawType( void* address, const rtti::Type& type )
+void editor::TypeDrawer::DrawType( void* address, const rtti::Type& type, const char* id )
 {
-	VisitTypeDrawer( type, [ & ]( const editor::TypeDrawer& typeDrawer ) { typeDrawer.Draw( address, type ); } );
+	VisitTypeDrawer( type, [ & ]( const editor::TypeDrawer& typeDrawer ) { typeDrawer.Draw( address, type, id ); } );
 }
 
-void editor::TypeDrawer::DrawPropertyName( void* owner, const rtti::Property& property ) const
+void editor::TypeDrawer::DrawTypeChildren( void* address, const rtti::Type& type, const char* id )
+{
+	VisitTypeDrawer( type, [ & ]( const editor::TypeDrawer& typeDrawer ) { typeDrawer.DrawChildren( address, type, id ); } );
+}
+
+void editor::TypeDrawer::DrawTypeChildren( void* address, const rtti::Type& type )
+{
+	VisitTypeDrawer( type, [ & ]( const editor::TypeDrawer& typeDrawer ) { typeDrawer.DrawChildren( address, type ); } );
+}
+
+void editor::TypeDrawer::OnDrawName( void* owner, const rtti::Property& property ) const
 {
 	ImGui::Text( property.GetName() );
 }
@@ -159,11 +169,36 @@ Bool editor::TypeDrawer::HasChildren( void* owner, const rtti::Type& type ) cons
 	return type.GetPropertiesAmount() > 0;
 }
 
-void editor::TypeDrawer::DrawChildren( void* address, const rtti::Type& type ) const
+void editor::TypeDrawer::OnDrawChildren( void* address, const rtti::Type& type ) const
 {
 	for ( Uint32 i = 0u; i < type.GetPropertiesAmount(); ++i )
 	{
 		const auto* prop = type.GetProperty( i );
 		DrawProperty( address, *prop );
+	}
+}
+
+void editor::TypeDrawer::DrawChildrenInternal( void* address, const rtti::Type& type, const char* id, const Vector2& startPos, Float height ) const
+{
+	if ( HasChildren( address, type ) )
+	{
+		ImGui::SetCursorPos( { startPos.X, startPos.Y } );
+		ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 0.f, ( height ) * 0.5f - 6.5f ) );
+
+		auto prev = ImGui::GetCurrentWindow()->WorkRect.Max.x;
+		ImGui::GetCurrentWindow()->WorkRect.Max.x = ImGui::GetCurrentWindow()->WorkRect.Min.x + ImGui::GetStyle().IndentSpacing;
+		if ( ImGui::TreeNodeEx( forge::String::Printf( "##Children%s", id ).c_str(), ImGuiTreeNodeFlags_FramePadding, "") )
+		{
+			ImGui::PopStyleVar();
+			ImGui::GetCurrentWindow()->WorkRect.Max.x = prev;
+
+			DrawChildren( address, type );
+			ImGui::TreePop();
+		}
+		else
+		{
+			ImGui::PopStyleVar();
+			ImGui::GetCurrentWindow()->WorkRect.Max.x = prev;
+		}
 	}
 }
