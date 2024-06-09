@@ -48,7 +48,7 @@ void forge::RenderingComponent::LoadMeshAndMaterial( const std::string& path )
 
 	GetDirtyData()->m_renderable.SetModel( GetOwner().GetEngineInstance().GetAssetsManager(), path );
 	auto& engineInstance = GetOwner().GetEngineInstance();
-	engineInstance.GetECSManager().AddFragmentToEntity( engineInstance.GetObjectsManager().GetOrCreateEntityId(GetOwner().GetObjectID()), engineInstance.GetRenderingManager().GetRenderer().GetECSFragmentType() );
+	engineInstance.GetECSManager().AddFragmentToEntity( engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ), engineInstance.GetRenderingManager().GetRenderer().GetECSFragmentType() );
 }
 
 void forge::RenderingComponent::SetDirty()

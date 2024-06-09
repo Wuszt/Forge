@@ -10,7 +10,6 @@ RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Vector2 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Vector3 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Vector4 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_DataComponent );
-RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Material );
 
 static ImVec2 GetButtonSize()
 {
