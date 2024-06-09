@@ -7,6 +7,10 @@
 #include "../ECS/ECSManager.h"
 
 RTTI_IMPLEMENT_TYPE( renderer::WireFrameTag );
+RTTI_DECLARE_AND_IMPLEMENT_ENUM( renderer::FillMode,
+	RTTI_REGISTER_ENUM_MEMBER( Solid );
+	RTTI_REGISTER_ENUM_MEMBER( WireFrame );
+);
 
 namespace renderer
 {

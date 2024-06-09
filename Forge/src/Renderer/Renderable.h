@@ -16,6 +16,8 @@ namespace renderer
 
 	class Renderable
 	{
+		RTTI_DECLARE_CLASS( Renderable );
+
 	public:
 		Renderable( Renderer& renderer );
 		Renderable();

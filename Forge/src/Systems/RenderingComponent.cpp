@@ -7,17 +7,14 @@
 #include "../Renderer/ShadersManager.h"
 #include "../GameEngine/RenderingManager.h"
 
-RTTI_IMPLEMENT_TYPE( forge::RenderableFragment )
+RTTI_IMPLEMENT_TYPE( forge::RenderableFragment,
+	RTTI_REGISTER_PROPERTY( m_renderable )
+);
+
 RTTI_IMPLEMENT_TYPE( forge::RenderingComponent )
 RTTI_IMPLEMENT_TYPE( forge::DirtyRenderable );
 RTTI_IMPLEMENT_TYPE( forge::IgnoresLights );
 RTTI_IMPLEMENT_TYPE( forge::DrawAsOverlay );
-
-void forge::RenderingComponent::OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
-{
-	DataComponent< RenderableFragment >::OnAttaching( engineInstance, commandsQueue );
-	commandsQueue.AddFragment( engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ), engineInstance.GetRenderingManager().GetRenderer().GetECSFragmentType() );
-}
 
 void forge::RenderingComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
@@ -35,7 +32,14 @@ void forge::RenderingComponent::OnAttached( EngineInstance& engineInstance, ecs:
 void forge::RenderingComponent::OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
 {
 	Super::OnDetaching( engineInstance, commandsQueue );
-	commandsQueue.RemoveFragment( engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ), engineInstance.GetRenderingManager().GetRenderer().GetECSFragmentType() );
+
+	const auto entityID = engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() );
+	
+	const auto& renderingFragmentType = engineInstance.GetRenderingManager().GetRenderer().GetECSFragmentType();
+	if ( engineInstance.GetECSManager().GetEntityArchetypeId( entityID ).ContainsFragment( renderingFragmentType ) )
+	{
+		commandsQueue.RemoveFragment( engineInstance.GetObjectsManager().GetOrCreateEntityId( GetOwner().GetObjectID() ), engineInstance.GetRenderingManager().GetRenderer().GetECSFragmentType() );
+	}
 }
 
 void forge::RenderingComponent::LoadMeshAndMaterial( const std::string& path )
@@ -43,6 +47,8 @@ void forge::RenderingComponent::LoadMeshAndMaterial( const std::string& path )
 	PC_SCOPE_FUNC();
 
 	GetDirtyData()->m_renderable.SetModel( GetOwner().GetEngineInstance().GetAssetsManager(), path );
+	auto& engineInstance = GetOwner().GetEngineInstance();
+	engineInstance.GetECSManager().AddFragmentToEntity( engineInstance.GetObjectsManager().GetOrCreateEntityId(GetOwner().GetObjectID()), engineInstance.GetRenderingManager().GetRenderer().GetECSFragmentType() );
 }
 
 void forge::RenderingComponent::SetDirty()

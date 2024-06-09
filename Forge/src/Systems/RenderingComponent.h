@@ -44,7 +44,6 @@ namespace forge
 		RTTI_DECLARE_POLYMORPHIC_CLASS( RenderingComponent, forge::IDataComponent );
 
 	public:
-		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 
 		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
@@ -57,9 +56,16 @@ namespace forge
 
 		ecs::MutableFragmentView< forge::RenderableFragment > GetDirtyData()
 		{
-			SetDirty();
 			return GetMutableData();
 		}
+
+	protected:
+		virtual ecs::MutableFragmentView< RenderableFragment > GetMutableData() override
+		{
+			SetDirty();
+			return DataComponent< RenderableFragment >::GetMutableData();
+		}
+
 	private:
 		CallbackToken m_onShadersClearCache;
 	};

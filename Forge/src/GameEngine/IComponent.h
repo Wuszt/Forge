@@ -88,6 +88,7 @@ namespace forge
 			outDataType = &TData::GetTypeStatic();
 			return GetData().GetPtr();
 		}
+
 		virtual void* GetMutableRawData( const ecs::Fragment::Type*& outDataType ) 
 		{ 
 			outDataType = &TData::GetTypeStatic();
@@ -95,7 +96,7 @@ namespace forge
 		}
 
 	protected:
-		ecs::MutableFragmentView< TData > GetMutableData()
+		virtual ecs::MutableFragmentView< TData > GetMutableData()
 		{
 			auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
 			ecs::EntityID id = datacomponent::internal::GetObjectEntityID( GetOwner() );

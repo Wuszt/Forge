@@ -3,6 +3,14 @@
 #include "../Renderer/IShader.h"
 #include "ConstantBuffer.h"
 
+RTTI_IMPLEMENT_TYPE( renderer::Material );
+
+RTTI_DECLARE_AND_IMPLEMENT_ENUM( renderer::Material::TextureType,
+	RTTI_REGISTER_ENUM_MEMBER( Diffuse );
+	RTTI_REGISTER_ENUM_MEMBER( Normal );
+	RTTI_REGISTER_ENUM_MEMBER( Alpha );
+);
+
 std::vector< renderer::ShaderDefine > ConstructShaderDefines( const renderer::Model& model )
 {
 	std::vector< renderer::ShaderDefine > result;
@@ -18,7 +26,7 @@ std::vector< renderer::ShaderDefine > ConstructShaderDefines( const renderer::Mo
 }
 
 renderer::Material::Material( renderer::Renderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass )
-	: m_renderer( renderer )
+	: m_renderer( &renderer )
 {
 	m_shadersDefines = ConstructShaderDefines( model );
 
@@ -33,6 +41,8 @@ renderer::Material::Material( renderer::Renderer& renderer, const Model& model, 
 	} );
 }
 
+renderer::Material::Material() = default;
+renderer::Material::Material( Material&& ) = default;
 renderer::Material::~Material() = default;
 
 void renderer::Material::SetShaders( const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass )
@@ -54,10 +64,10 @@ void renderer::Material::SetShaders( const std::string& vsPath, const std::strin
 		defines.push_back( { "__ALPHA_TEXTURE__" } );
 	}
 
-	m_vertexShader = m_renderer.GetShadersManager()->GetVertexShader( vsPath, defines, true );
+	m_vertexShader = m_renderer->GetShadersManager()->GetVertexShader( vsPath, defines, true );
 	m_vertexShaderPath = vsPath;
 
-	m_pixelShader = m_renderer.GetShadersManager()->GetPixelShader( psPath, defines, true );
+	m_pixelShader = m_renderer->GetShadersManager()->GetPixelShader( psPath, defines, true );
 	m_pixelShaderPath = psPath;
 
 	m_renderingPass = renderingPass;

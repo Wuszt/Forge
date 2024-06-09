@@ -5,6 +5,11 @@
 #include "../Core/AssetsManager.h"
 #include "ConstantBuffer.h"
 
+RTTI_IMPLEMENT_TYPE( renderer::Renderable,
+	RTTI_REGISTER_PROPERTY( m_materials );
+	RTTI_REGISTER_PROPERTY( m_fillMode );
+);
+
 renderer::Renderable::Renderable( Renderer& renderer )
 	: m_renderer( &renderer )
 {
