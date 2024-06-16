@@ -46,7 +46,7 @@ namespace imgui
 
 		using ItemWeakHandle = std::weak_ptr< MenuBarItem >;
 
-		std::shared_ptr< MenuBarItem > AddButton( forge::ArraySpan< const char* > path, Bool selectable );
+		std::shared_ptr< MenuBarItem > AddButton( forge::ArraySpan< const char* > path, std::function<void()> onClickedFunc, Bool selectable );
 		void Draw();
 
 	private:
@@ -57,16 +57,18 @@ namespace imgui
 	class MenuBarItem : public MenuBar::Element
 	{
 	public:
-		MenuBarItem( const char* name, std::shared_ptr< MenuBar::Menu > parent, Bool selectable )
+		MenuBarItem( const char* name, std::shared_ptr< MenuBar::Menu > parent, forge::Callback<>::TFunc onClickedFunc, Bool selectable )
 			: Element( name, parent )
 		{
 			if ( selectable )
 			{
-				m_onClickedToken = m_onClicked.AddListener( [ this ]()
+				m_updateStateToken = m_onClicked.AddListener( [ this ]()
 					{
 						m_selected = !m_selected;
 					} );
 			}
+
+			SetOnClicked( onClickedFunc );
 		}
 
 		Bool IsSelected() const
@@ -79,6 +81,11 @@ namespace imgui
 			m_selected = value;
 		}
 
+		void SetOnClicked( forge::Callback<>::TFunc func )
+		{
+			m_userFuncToken = m_onClicked.AddListener( std::move( func ) );
+		}
+
 		forge::Callback<>& GetCallback()
 		{
 			return m_onClicked;
@@ -86,7 +93,8 @@ namespace imgui
 
 	private:
 		forge::Callback<> m_onClicked;
-		forge::CallbackToken m_onClickedToken;
+		forge::CallbackToken m_updateStateToken;
+		forge::CallbackToken m_userFuncToken;
 		Bool m_selected = false;
 	};
 

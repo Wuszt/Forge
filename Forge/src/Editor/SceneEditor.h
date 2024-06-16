@@ -42,13 +42,8 @@ namespace editor
 	private:
 		forge::Callback< forge::ObjectID > m_onNewSelectedObject;
 		forge::ObjectID m_selectedObjectID;
+		std::vector< std::shared_ptr< imgui::MenuBarItem > > m_objectCreationButtons;
 		
-		struct ObjectCreationEntry
-		{
-			std::shared_ptr< imgui::MenuBarItem > m_createObjectButtonHandle;
-			forge::CallbackToken m_onCreateObjectToken;
-		};
-
-		std::vector< ObjectCreationEntry > m_objectCreationHandles;
+		forge::CallbackToken m_onImportAssetClickedToken;
 	};
 }

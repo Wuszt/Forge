@@ -10,8 +10,7 @@ forge::IDebuggable::~IDebuggable() = default;
 
 void forge::IDebuggable::InitializeDebuggable( EngineInstance& engineInstance, const char* categoryName, const char* name )
 {
-	m_menuBarHandle = engineInstance.GetSystemsManager().GetSystem< systems::IMGUISystem >().GetMenuBar().AddButton( { "Debug", categoryName, name }, true );
-	m_onClickedTopBarItemToken = m_menuBarHandle->GetCallback().AddListener( [ this, &engineInstance ]()
+	m_menuBarHandle = engineInstance.GetSystemsManager().GetSystem< systems::IMGUISystem >().GetMenuBar().AddButton( { "Debug", categoryName, name }, [ this, &engineInstance ]()
 	{
 		if( m_menuBarHandle->IsSelected() )
 		{
@@ -24,6 +23,6 @@ void forge::IDebuggable::InitializeDebuggable( EngineInstance& engineInstance, c
 		{
 			m_onRenderDebugToken.Unregister();
 		}
-	} );
+	}, true );
 }
 #endif

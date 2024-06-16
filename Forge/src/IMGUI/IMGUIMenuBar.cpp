@@ -2,7 +2,7 @@
 #include "IMGUIMenuBar.h"
 
 #ifdef FORGE_IMGUI_ENABLED
-imgui::MenuBarItemHandle imgui::MenuBar::AddButton( forge::ArraySpan< const char* > path, Bool selectable )
+imgui::MenuBarItemHandle imgui::MenuBar::AddButton( forge::ArraySpan< const char* > path, std::function<void()> onClickedFunc, Bool selectable )
 {
 	std::shared_ptr< Menu > currentParent = nullptr;
 	std::vector< std::weak_ptr< Element > >* children = &m_rootElements;
@@ -63,7 +63,7 @@ imgui::MenuBarItemHandle imgui::MenuBar::AddButton( forge::ArraySpan< const char
 			return false;
 		} ) == children->end() );
 
-	std::shared_ptr< MenuBarItem > item = std::make_shared< MenuBarItem >( itemName, currentParent, selectable );
+	std::shared_ptr< MenuBarItem > item = std::make_shared< MenuBarItem >( itemName, currentParent, std::move( onClickedFunc ), selectable );
 	children->emplace_back( item );
 	std::sort( children->begin(), children->end(), sortElements );
 

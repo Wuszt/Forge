@@ -42,11 +42,10 @@ void systems::SceneRenderingSystem::OnPostInit()
 	m_camerasSystem = &GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >();
 
 #ifdef FORGE_IMGUI_ENABLED
-	m_menuBarButton = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().GetMenuBar().AddButton( { "Reload shaders" }, false );
-	m_menuBarButtonToken = m_menuBarButton->GetCallback().AddListener( [ this ]()
+	m_menuBarButton = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().GetMenuBar().AddButton( { "Reload shaders" }, [ this ]()
 		{
 			GetEngineInstance().GetRenderingManager().GetRenderer().GetShadersManager()->ClearCache();
-		} );
+		}, false );
 
 	m_overlayDebugToken = GetEngineInstance().GetSystemsManager().GetSystem< systems::IMGUISystem >().AddOverlayListener( [ this ]()
 	{

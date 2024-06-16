@@ -22,13 +22,11 @@ editor::SceneEditor::SceneEditor( editor::WindowBase* parent, forge::EngineInsta
 
 				if ( std::strncmp( type.GetName(), editorNamespace, editorNamespaceLength ) != 0 )
 				{
-					auto buttonHandle = GetMenuBar()->AddButton( { "Create Object", type.GetName() }, false );
-					auto onCreationHandle = buttonHandle->GetCallback().AddListener( [ & ]()
+					m_objectCreationButtons.emplace_back( GetMenuBar()->AddButton( { "Create Object", type.GetName() }, [ & ]()
 						{
 							const forge::Object::Type& asObjectType = static_cast< const forge::Object::Type& >( type );
 							GetEngineInstance().GetObjectsManager().RequestCreatingObject( asObjectType );
-						});
-					m_objectCreationHandles.push_back( { buttonHandle, std::move( onCreationHandle ) } );
+						}, false ) );
 				}
 			}
 
