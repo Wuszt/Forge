@@ -49,7 +49,7 @@ void forge::Object::OnDetach()
 
 void forge::Object::AddComponent( const forge::IComponent::Type& componentType )
 {
-	AttachComponents( { componentType.Construct() } );
+	AttachComponents( { std::unique_ptr< forge::IComponent >( componentType.ConstructTyped() ) } );
 }
 
 void forge::Object::RemoveComponent( const forge::IComponent::Type& componentType )

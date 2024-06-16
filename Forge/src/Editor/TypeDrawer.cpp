@@ -64,7 +64,7 @@ static std::unordered_map< const rtti::Type*, std::unique_ptr< editor::CustomTyp
 		{
 			if ( type.InheritsFrom< editor::CustomTypeDrawer >() )
 			{
-				auto drawer = static_cast< const editor::CustomTypeDrawer::Type& >( type ).Construct();
+				std::unique_ptr< editor::CustomTypeDrawer > drawer( static_cast< const editor::CustomTypeDrawer::Type& >( type ).ConstructTyped() );
 				const auto& supportedType = drawer->GetSupportedType();
 				drawers.emplace( &supportedType, std::move( drawer ) );
 			}

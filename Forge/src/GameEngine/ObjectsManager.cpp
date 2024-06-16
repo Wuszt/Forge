@@ -4,7 +4,7 @@
 forge::Object& forge::ObjectsManager::CreateObject( const forge::Object::Type& objectType )
 {
 	ObjectID id = ObjectID( m_nextObjectID++ );
-	std::unique_ptr< forge::Object > obj = objectType.Construct();
+	std::unique_ptr< forge::Object > obj( objectType.ConstructTyped() );
 	obj->forge::Object::Initialize( m_engineInstance, id );
 	auto* rawObj = obj.get();
 

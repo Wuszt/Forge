@@ -311,7 +311,7 @@ namespace d3d11
 			Uint32 m_IBOffset = 0u;
 			Uint32 m_indicesAmount = 0u;
 
-			ID3D11Buffer* m_materialCB;
+			ID3D11Buffer* m_materialCB = nullptr;
 			ID3D11InputLayout* m_inputLayout = nullptr;
 
 			struct Shaders
