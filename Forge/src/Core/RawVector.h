@@ -138,7 +138,7 @@ namespace forge
 
 			Uint32 newMemorySize = static_cast< Uint32 >( newCapacity * m_type.GetSize() );
 
-			RawSmartPtr m_newData( newMemorySize );
+			UniqueRawPtr m_newData( newMemorySize );
 
 			if ( GetSize() > newCapacity )
 			{
@@ -181,7 +181,7 @@ namespace forge
 
 		Uint32 m_size = 0u;
 		const rtti::Type& m_type;
-		RawSmartPtr m_data;
+		UniqueRawPtr m_data;
 	};
 }
 

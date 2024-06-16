@@ -27,16 +27,16 @@ namespace forge
 		}
 	}
 
-	class RawSmartPtr
+	class UniqueRawPtr
 	{
 	public:
-		RawSmartPtr( Uint64 size = 0u )
+		UniqueRawPtr( Uint64 size = 0u )
 		{
 			m_size = size;
 			m_data = ::operator new( size );
 		}
 
-		RawSmartPtr( RawSmartPtr&& ptr )
+		UniqueRawPtr( UniqueRawPtr&& ptr )
 		{
 			m_data = ptr.m_data;
 			m_size = ptr.m_size;
@@ -44,7 +44,7 @@ namespace forge
 			ptr.Release();
 		}
 
-		RawSmartPtr& operator=( RawSmartPtr&& ptr )
+		UniqueRawPtr& operator=( UniqueRawPtr&& ptr )
 		{
 			Reset();
 			m_data = ptr.m_data;
@@ -56,7 +56,7 @@ namespace forge
 			return *this;
 		}
 
-		~RawSmartPtr()
+		~UniqueRawPtr()
 		{
 			Reset();
 		}

@@ -195,7 +195,7 @@ void forge::Deserializer::DeserializeDynamicContainer( const rtti::ContainerType
 	Uint32 amount = m_stream.Read< Uint32 >();
 
 	FORGE_ASSERT( dynamic_cast< const ::rtti::DynamicContainerType* >( &type ) );
-	forge::RawSmartPtr buffer( type.GetInternalTypeDesc().GetType().GetSize() );
+	forge::UniqueRawPtr buffer( type.GetInternalTypeDesc().GetType().GetSize() );
 	for ( Uint32 i = 0u; i < amount; ++i )
 	{
 		type.GetInternalTypeDesc().GetType().ConstructInPlace( buffer.GetData() );
@@ -213,7 +213,7 @@ void forge::Serializer::SerializeUniquePointer( const rtti::UniquePtrBaseType& t
 void forge::Deserializer::DeserializeUniquePointer( const rtti::UniquePtrBaseType& type, void* address )
 {
 	type.ConstructInPlace( address );
-	forge::RawSmartPtr buffer( type.GetInternalTypeDesc().GetType().GetSize() );
+	forge::UniqueRawPtr buffer( type.GetInternalTypeDesc().GetType().GetSize() );
 	type.GetInternalTypeDesc().GetType().ConstructInPlace( buffer.GetData() );
 	DeserializeType( type.GetInternalTypeDesc().GetType(), buffer.GetData() );
 	type.SetPointedAddress( address, buffer.GetData() );
@@ -243,7 +243,7 @@ void forge::Deserializer::DeserializeSharedPointer( const rtti::SharedPtrBaseTyp
 	auto deserializeInternalFunc = [&]()
 	{
 		auto currentPos = m_stream.GetPos();
-		forge::RawSmartPtr buffer( type.GetInternalTypeDesc().GetType().GetSize() );
+		forge::UniqueRawPtr buffer( type.GetInternalTypeDesc().GetType().GetSize() );
 		type.GetInternalTypeDesc().GetType().ConstructInPlace( buffer.GetData() );
 		DeserializeType( type.GetInternalTypeDesc().GetType(), buffer.GetData() );
 		type.SetPointedAddress( address, buffer.GetData() );
