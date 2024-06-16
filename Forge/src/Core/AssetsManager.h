@@ -50,19 +50,30 @@ namespace forge
 		template< class T, class... Args >
 		void AddAssetsLoader( Args&&... args )
 		{
-			std::shared_ptr< IAssetsLoader > loader = std::make_shared< T >( std::forward< Args >( args )... );
+			std::unique_ptr< IAssetsLoader > loader = std::make_unique< T >( std::forward< Args >( args )... );
 			for( auto extension : loader->GetHandledExtensions() )
 			{
 				FORGE_ASSERT( m_assetsLoaders.find( extension ) == m_assetsLoaders.end() );
-				m_assetsLoaders.emplace( extension, loader );
+				m_assetsLoaders.emplace( extension, std::move( loader ) );
 			}
+		}
+
+		IAssetsLoader* GetAssetLoader( const Char* extension ) const
+		{
+			auto it = m_assetsLoaders.find( extension );
+			if ( it != m_assetsLoaders.end() )
+			{
+				return it->second.get();
+			}
+
+			return nullptr;
 		}
 
 	private:
 		forge::ArraySpan< std::shared_ptr< forge::IAsset > > GetAssetsInternal( const std::string& path );
 
 		std::unordered_map< std::string, std::vector< std::shared_ptr< IAsset > > > m_assetsCache;
-		std::unordered_map< std::string, std::shared_ptr< IAssetsLoader > > m_assetsLoaders;
+		std::unordered_map< std::string, std::unique_ptr< IAssetsLoader > > m_assetsLoaders;
 		const forge::DepotsContainer& m_depotsContainer;
 	};
 }

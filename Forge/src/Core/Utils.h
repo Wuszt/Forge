@@ -90,4 +90,59 @@ namespace forge
 		Uint64 m_size = 0u;
 		void* m_data = nullptr;
 	};
+
+	class UniqueDynamicPtr
+	{
+	public:
+		UniqueDynamicPtr() = default;
+		UniqueDynamicPtr( const rtti::Type& type )
+			: m_type( &type )
+			, m_memory( type.Construct() )
+		{}
+
+		template< class T >
+		UniqueDynamicPtr( T data )
+			: m_type( T::GetTypeStatic() )
+			, m_memory( m_type->ConstructWithMove( &data ) )
+		{}
+
+		~UniqueDynamicPtr()
+		{
+			if ( m_memory )
+			{
+				FORGE_ASSERT( m_type );
+				m_type->Destroy( m_memory );
+			}
+		}
+
+		const rtti::Type* GetType() const {	return m_type; }
+		void* GetMemory() {	return m_memory; }
+		const void* GetMemory() const {	m_memory; }
+
+		template< class T >
+		T* GetPtr()
+		{
+			if ( m_type && ( m_type->IsA< T >() || m_type->InheritsFrom< T >() ) )
+			{
+				return static_cast< T* >( m_memory );
+			}
+
+			return nullptr;
+		}
+
+		template< class T >
+		const T* GetPtr() const
+		{
+			if ( m_type && ( m_type->IsA< T >() || m_type->InheritsFrom< T >() ) )
+			{
+				return static_cast< const T* >( m_memory );
+			}
+
+			return nullptr;
+		}
+
+	private:
+		const rtti::Type* m_type = nullptr;
+		void* m_memory = nullptr;
+	};
 }
