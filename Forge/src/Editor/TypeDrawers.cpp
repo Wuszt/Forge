@@ -208,7 +208,7 @@ void DrawSmartPtr( void* address, const T& pointerType )
 			if ( ImGui::Button( "New", GetButtonSize() ) )
 			{
 				pointerType.ConstructInPlace( address );
-				forge::RawSmartPtr buffer( pointerType.GetInternalTypeDesc().GetType().GetSize() );
+				forge::UniqueRawPtr buffer( pointerType.GetInternalTypeDesc().GetType().GetSize() );
 				pointerType.GetInternalTypeDesc().GetType().ConstructInPlace( buffer.GetData() );
 				pointerType.SetPointedAddress( address, buffer.GetData() );
 				buffer.Release();

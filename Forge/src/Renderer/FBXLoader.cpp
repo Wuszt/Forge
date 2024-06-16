@@ -91,7 +91,7 @@ SceneHandle LoadScene( const std::string& path )
 	fseek( handle.m_file, 0, SEEK_END );
 	Uint64 fileSize = ftell( handle.m_file );
 	fseek( handle.m_file, 0, SEEK_SET );
-	forge::RawSmartPtr content( fileSize );
+	forge::UniqueRawPtr content( fileSize );
 	fread( content.GetData(), 1, fileSize, handle.m_file );
 
 	return SceneHandle( ofbx::load( reinterpret_cast< ofbx::u8* >( content.GetData() ), static_cast< Int32 >( fileSize ), static_cast< ofbx::u64 >( ofbx::LoadFlags::TRIANGULATE ) ) );

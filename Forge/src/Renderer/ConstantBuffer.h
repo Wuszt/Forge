@@ -126,7 +126,7 @@ namespace renderer
 			m_offsets = toCopy.m_offsets;
 			m_dataSize = toCopy.m_dataSize;
 			m_elementsAmount = toCopy.m_elementsAmount;
-			m_rawData = std::move( forge::RawSmartPtr( m_dataSize ) );
+			m_rawData = std::move( forge::UniqueRawPtr( m_dataSize ) );
 			memcpy( m_rawData.GetData(), toCopy.m_rawData.GetData(), m_dataSize );
 
 			CreateBuffer();
@@ -143,9 +143,9 @@ namespace renderer
 			FORGE_ASSURE( m_dataLUT.emplace( name, m_elementsAmount++ ).second );
 			m_offsets.emplace_back( prevSize );
 
-			forge::RawSmartPtr prevData = std::move( m_rawData );
+			forge::UniqueRawPtr prevData = std::move( m_rawData );
 
-			m_rawData = std::move( forge::RawSmartPtr( m_dataSize ) );
+			m_rawData = std::move( forge::UniqueRawPtr( m_dataSize ) );
 			memcpy( m_rawData.GetData(), prevData.GetData(), prevSize );
 			memcpy( static_cast< Byte* >( m_rawData.GetData() ) + prevSize, &data, offset );
 
@@ -200,6 +200,6 @@ namespace renderer
 
 		Uint32 m_dataSize = 0u;
 		Uint32 m_elementsAmount = 0u;
-		forge::RawSmartPtr m_rawData;
+		forge::UniqueRawPtr m_rawData;
 	};
 }

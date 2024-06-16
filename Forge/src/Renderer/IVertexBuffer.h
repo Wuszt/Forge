@@ -198,7 +198,7 @@ namespace renderer
 			m_verticesAmount = static_cast< Uint32 >( t0.size() );
 			m_vertexSize = GetSingleVertexDataSize< arrT, arrTs... >();
 
-			m_buffer = forge::RawSmartPtr( m_vertexSize * m_verticesAmount );
+			m_buffer = forge::UniqueRawPtr( m_vertexSize * m_verticesAmount );
 			AddDataInternalT( 0u, t0, ts... );
 		}
 
@@ -207,7 +207,7 @@ namespace renderer
 			m_verticesAmount = builder.GetVerticesAmount();
 			m_vertexSize = builder.GetVertexSize();
 
-			m_buffer = forge::RawSmartPtr( m_vertexSize * m_verticesAmount );
+			m_buffer = forge::UniqueRawPtr( m_vertexSize * m_verticesAmount );
 
 			Uint32 offset = 0u;
 			for( const auto& element : builder.GetElementsDescs() )
@@ -224,8 +224,8 @@ namespace renderer
 			Uint32 additionalVertexSize = GetSingleVertexDataSize< arrT, arrTs... >();
 
 			m_vertexSize = prevVertexSize + additionalVertexSize;
-			forge::RawSmartPtr oldBuffer = std::move( m_buffer );
-			m_buffer = forge::RawSmartPtr( m_verticesAmount * m_vertexSize );
+			forge::UniqueRawPtr oldBuffer = std::move( m_buffer );
+			m_buffer = forge::UniqueRawPtr( m_verticesAmount * m_vertexSize );
 
 			AddDataInternal( 0u, oldBuffer.GetData(), prevVertexSize );
 
@@ -300,7 +300,7 @@ namespace renderer
 		}
 
 		std::vector< InputElementDescription > m_inputElements;
-		forge::RawSmartPtr m_buffer;
+		forge::UniqueRawPtr m_buffer;
 		Uint32 m_vertexSize = 0u;
 		Uint32 m_verticesAmount = 0u;
 	};
