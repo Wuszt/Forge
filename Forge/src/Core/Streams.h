@@ -3,6 +3,8 @@ namespace forge
 {
 	class Stream
 	{
+		RTTI_DECLARE_ABSTRACT_CLASS( Stream );
+
 	public:
 		virtual ~Stream() = default;
 

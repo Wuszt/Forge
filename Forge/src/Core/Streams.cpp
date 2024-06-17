@@ -2,6 +2,8 @@
 #include "Streams.h"
 #include "fstream"
 
+RTTI_IMPLEMENT_TYPE( forge::Stream );
+
 forge::MemoryStream::MemoryStream( Uint64 initialCapacity )
 {
 	m_buffer.reserve( initialCapacity );

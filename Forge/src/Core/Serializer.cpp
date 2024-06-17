@@ -94,6 +94,20 @@ static constexpr rtti::ID CombineIds( rtti::ID first, rtti::ID second )
 
 void forge::Serializer::SerializeClassOrStruct( const rtti::Type& type, const void* address )
 {
+	if ( const rtti::Function* func = type.FindMethod( "Serialize" ) )
+	{
+		if ( func->GetParametersAmount() == 1 )
+		{
+			const auto* parameter = func->GetParameterTypeDesc( 0 );
+			FORGE_ASSERT( parameter );
+			if ( parameter->GetType().IsA< forge::Stream >() )
+			{
+				func->Call( const_cast< void* >( address ), &m_stream, nullptr );
+				return;
+			}
+		}
+	}
+
 	Uint32 propertiesAmount = static_cast< Uint32 >( type.GetPropertiesAmount() );
 
 	m_stream.Write( propertiesAmount );
@@ -120,6 +134,20 @@ void forge::Serializer::SerializeClassOrStruct( const rtti::Type& type, const vo
 
 void forge::Deserializer::DeserializeClassOrStruct( const rtti::Type& type, void* address )
 {
+	if ( const rtti::Function* func = type.FindMethod( "Deserialize" ) )
+	{
+		if ( func->GetParametersAmount() == 1 )
+		{
+			const auto* parameter = func->GetParameterTypeDesc( 0 );
+			FORGE_ASSERT( parameter );
+			if ( parameter->GetType().IsA< forge::Stream >() )
+			{
+				func->Call( const_cast< void* >( address ), &m_stream, nullptr );
+				return;
+			}
+		}
+	}
+
 	Uint32 propertiesAmount = static_cast< Uint32 >( type.GetPropertiesAmount() );
 	Uint32 serializedPropertiesAmount = m_stream.Read< Uint32 >();
 
