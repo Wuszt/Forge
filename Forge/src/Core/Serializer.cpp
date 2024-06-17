@@ -2,7 +2,7 @@
 #include "Serializer.h"
 #include "Streams.h"
 
-void forge::Serializer::SerializeType( const rtti::Type& type, const void* address )
+void forge::Serializer::Serialize( const rtti::Type& type, const void* address )
 {
 	switch ( type.GetKind() )
 	{
@@ -39,7 +39,7 @@ void forge::Serializer::SerializeType( const rtti::Type& type, const void* addre
 	}
 }
 
-void forge::Deserializer::DeserializeType( const rtti::Type& type, void* address )
+void forge::Deserializer::Deserialize( const rtti::Type& type, void* address )
 {
 	switch ( type.GetKind() )
 	{
@@ -121,7 +121,7 @@ void forge::Serializer::SerializeClassOrStruct( const rtti::Type& type, const vo
 		Uint64 serializedSize = 0u;
 		auto pos = m_stream.GetPos();
 		m_stream.Write( serializedSize );
-		SerializeType( prop->GetType(), prop->GetAddress( address ) );
+		Serialize( prop->GetType(), prop->GetAddress( address ) );
 		auto endPos = m_stream.GetPos();
 		serializedSize = m_stream.GetPos() - pos - sizeof( serializedSize );
 
@@ -175,7 +175,7 @@ void forge::Deserializer::DeserializeClassOrStruct( const rtti::Type& type, void
 		if ( foundSerialized != m_serializedProperties.end() )
 		{
 			m_stream.SetPos( foundSerialized->second );
-			DeserializeType( prop->GetType(), prop->GetAddress( address ) );
+			Deserialize( prop->GetType(), prop->GetAddress( address ) );
 		}
 	}
 }
@@ -186,7 +186,7 @@ void forge::Serializer::SerializeArray( const rtti::ContainerType& type, const v
 
 	type.VisitElementsAsProperties( address, [ this, &type, address ]( const rtti::Property& property )
 		{
-			SerializeType( type.GetInternalTypeDesc().GetType(), property.GetAddress( address ) );
+			Serialize( type.GetInternalTypeDesc().GetType(), property.GetAddress( address ) );
 			return ::rtti::VisitOutcome::Continue;
 		} );
 }
@@ -203,7 +203,7 @@ void forge::Deserializer::DeserializeArray( const rtti::ContainerType& type, voi
 	for ( Uint32 i = 0u; i < deserializeAmount; ++i )
 	{
 		Byte* currentAddress = static_cast< Byte* >( address ) + i * internalTypeSize;
-		DeserializeType( type.GetInternalTypeDesc().GetType(), currentAddress );
+		Deserialize( type.GetInternalTypeDesc().GetType(), currentAddress );
 	}
 }
 
@@ -213,7 +213,7 @@ void forge::Serializer::SerializeDynamicContainer( const rtti::ContainerType& ty
 
 	type.VisitElementsAsProperties( address, [ this, &type, address ]( const rtti::Property& property )
 		{
-			SerializeType( type.GetInternalTypeDesc().GetType(), property.GetAddress( address ) );
+			Serialize( type.GetInternalTypeDesc().GetType(), property.GetAddress( address ) );
 			return ::rtti::VisitOutcome::Continue;
 		} );
 }
@@ -227,7 +227,7 @@ void forge::Deserializer::DeserializeDynamicContainer( const rtti::ContainerType
 	for ( Uint32 i = 0u; i < amount; ++i )
 	{
 		type.GetInternalTypeDesc().GetType().ConstructInPlace( buffer.GetData() );
-		DeserializeType( type.GetInternalTypeDesc().GetType(), buffer.GetData() );
+		Deserialize( type.GetInternalTypeDesc().GetType(), buffer.GetData() );
 		static_cast< const ::rtti::DynamicContainerType* >( &type )->EmplaceElement( address, buffer.GetData() );
 	}
 }
@@ -235,7 +235,7 @@ void forge::Deserializer::DeserializeDynamicContainer( const rtti::ContainerType
 void forge::Serializer::SerializeUniquePointer( const rtti::UniquePtrBaseType& type, const void* address )
 {
 	const void* pointedAddress = type.GetPointedAddress( address );
-	SerializeType( type.GetInternalTypeDesc().GetType(), pointedAddress );
+	Serialize( type.GetInternalTypeDesc().GetType(), pointedAddress );
 }
 
 void forge::Deserializer::DeserializeUniquePointer( const rtti::UniquePtrBaseType& type, void* address )
@@ -243,7 +243,7 @@ void forge::Deserializer::DeserializeUniquePointer( const rtti::UniquePtrBaseTyp
 	type.ConstructInPlace( address );
 	forge::UniqueRawPtr buffer( type.GetInternalTypeDesc().GetType().GetSize() );
 	type.GetInternalTypeDesc().GetType().ConstructInPlace( buffer.GetData() );
-	DeserializeType( type.GetInternalTypeDesc().GetType(), buffer.GetData() );
+	Deserialize( type.GetInternalTypeDesc().GetType(), buffer.GetData() );
 	type.SetPointedAddress( address, buffer.GetData() );
 	buffer.Release();
 }
@@ -260,7 +260,7 @@ void forge::Serializer::SerializeSharedPointer( const rtti::SharedPtrBaseType& t
 	{
 		m_stream.Write( std::numeric_limits< Uint64 >::max() );
 		m_sharedPtrsOffsets[ pointedAddress ] = m_stream.GetPos();
-		SerializeType( type.GetInternalTypeDesc().GetType(), pointedAddress );
+		Serialize( type.GetInternalTypeDesc().GetType(), pointedAddress );
 	}
 }
 
@@ -273,7 +273,7 @@ void forge::Deserializer::DeserializeSharedPointer( const rtti::SharedPtrBaseTyp
 		auto currentPos = m_stream.GetPos();
 		forge::UniqueRawPtr buffer( type.GetInternalTypeDesc().GetType().GetSize() );
 		type.GetInternalTypeDesc().GetType().ConstructInPlace( buffer.GetData() );
-		DeserializeType( type.GetInternalTypeDesc().GetType(), buffer.GetData() );
+		Deserialize( type.GetInternalTypeDesc().GetType(), buffer.GetData() );
 		type.SetPointedAddress( address, buffer.GetData() );
 		m_sharedPtrsAddresses[ currentPos ] = address;
 		buffer.Release();

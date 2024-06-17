@@ -81,6 +81,7 @@
     <ClCompile Include="Streams.cpp" />
     <ClCompile Include="StringUtils.cpp" />
     <ClCompile Include="Time.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="WindowsInput.cpp" />
     <ClCompile Include="WindowsTime.cpp" />
     <ClCompile Include="Fpch.cpp">

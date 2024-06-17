@@ -29,6 +29,8 @@ namespace forge
 
 	class UniqueRawPtr
 	{
+		RTTI_DECLARE_CLASS( UniqueRawPtr );
+
 	public:
 		UniqueRawPtr( Uint64 size = 0u )
 		{
@@ -91,8 +93,12 @@ namespace forge
 		void* m_data = nullptr;
 	};
 
+	class Stream;
+
 	class UniqueDynamicPtr
 	{
+		RTTI_DECLARE_CLASS( UniqueDynamicPtr );
+
 	public:
 		UniqueDynamicPtr() = default;
 		UniqueDynamicPtr( const rtti::Type& type )
@@ -115,9 +121,12 @@ namespace forge
 			}
 		}
 
-		const rtti::Type* GetType() const {	return m_type; }
+		const rtti::Type* GetStoredType() const { return m_type; }
 		void* GetMemory() {	return m_memory; }
 		const void* GetMemory() const {	m_memory; }
+
+		void Serialize( forge::Stream& stream ) const;
+		void Deserialize( forge::Stream& stream );
 
 		template< class T >
 		T* GetPtr()

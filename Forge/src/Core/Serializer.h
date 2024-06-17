@@ -14,11 +14,12 @@ namespace forge
 		template< class T >
 		void Serialize( const T& data )
 		{
-			SerializeType( ::rtti::GetTypeInstanceOf< T >(), &data );
+			Serialize( ::rtti::GetTypeInstanceOf< T >(), &data );
 		}
 
+		void Serialize( const rtti::Type& type, const void* address );
+
 	private:
-		void SerializeType( const rtti::Type& type, const void* address );
 		void SerializePrimitive( const rtti::Type& type, const void* address );
 		void SerializeClassOrStruct( const rtti::Type& type, const void* address );
 		void SerializeArray( const rtti::ContainerType& type, const void* address );
@@ -40,11 +41,12 @@ namespace forge
 		template< class T >
 		void Deserialize( T& data )
 		{
-			DeserializeType( ::rtti::GetTypeInstanceOf< T >(), &data );
+			Deserialize( ::rtti::GetTypeInstanceOf< T >(), &data );
 		}
 
+		void Deserialize( const rtti::Type& type, void* address );
+
 	private:
-		void DeserializeType( const rtti::Type& type, void* address );
 		void DeserializePrimitive( const rtti::Type& type, void* address );
 		void DeserializeClassOrStruct( const rtti::Type& type, void* address );
 		void DeserializeArray( const rtti::ContainerType& type, void* address );
