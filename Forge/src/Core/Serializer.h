@@ -21,6 +21,7 @@ namespace forge
 
 	private:
 		void SerializePrimitive( const rtti::Type& type, const void* address );
+		void SerializeString( const rtti::StringType& type, const void* address );
 		void SerializeClassOrStruct( const rtti::Type& type, const void* address );
 		void SerializeArray( const rtti::ContainerType& type, const void* address );
 		void SerializeDynamicContainer( const rtti::ContainerType& type, const void* address );
@@ -48,6 +49,7 @@ namespace forge
 
 	private:
 		void DeserializePrimitive( const rtti::Type& type, void* address );
+		void DeserializeString( const rtti::StringType& type, void* address );
 		void DeserializeClassOrStruct( const rtti::Type& type, void* address );
 		void DeserializeArray( const rtti::ContainerType& type, void* address );
 		void DeserializeDynamicContainer( const rtti::ContainerType& type, void* address );

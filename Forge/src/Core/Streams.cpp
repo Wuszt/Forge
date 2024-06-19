@@ -56,6 +56,7 @@ void forge::FileStream::Write( const void* data, Uint64 size )
 
 void forge::FileStream::Read( void* data, Uint64 size )
 {
+	FORGE_ASSERT( GetPos() < GetSize() );
 	m_stream->read( reinterpret_cast< char* >( data ), size );
 	m_stream->seekp( m_stream->tellg(), std::ios_base::beg );
 }
