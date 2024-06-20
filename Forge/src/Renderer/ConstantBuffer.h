@@ -114,7 +114,6 @@ namespace renderer
 		T m_data;
 	};
 
-	// WARNING - CB's size must be multiplication of 16 bytes, nothing is checking that right now...
 	class ConstantBuffer : public IConstantBuffer
 	{
 	public:
@@ -124,10 +123,9 @@ namespace renderer
 		{
 			m_dataLUT = toCopy.m_dataLUT;
 			m_offsets = toCopy.m_offsets;
-			m_dataSize = toCopy.m_dataSize;
 			m_elementsAmount = toCopy.m_elementsAmount;
-			m_rawData = std::move( forge::UniqueRawPtr( m_dataSize ) );
-			memcpy( m_rawData.GetData(), toCopy.m_rawData.GetData(), m_dataSize );
+			m_rawData = std::move( forge::UniqueRawPtr( toCopy.m_rawData.GetSize() ) );
+			memcpy( m_rawData.GetData(), toCopy.m_rawData.GetData(), m_rawData.GetSize() );
 
 			CreateBuffer();
 			UpdateBuffer();
@@ -136,16 +134,18 @@ namespace renderer
 		template< class T >
 		void AddData( const std::string& name, const T& data )
 		{
-			Uint32 offset = sizeof( T );
-			Uint32 prevSize = m_dataSize;
-			m_dataSize += offset;
+			const Uint32 offset = sizeof( T );
+			const Uint64 prevSize = m_rawData.GetSize() - m_currentPadding;
 
 			FORGE_ASSURE( m_dataLUT.emplace( name, m_elementsAmount++ ).second );
-			m_offsets.emplace_back( prevSize );
+			m_offsets.emplace_back( static_cast< Uint32 >( prevSize ) );
 
 			forge::UniqueRawPtr prevData = std::move( m_rawData );
 
-			m_rawData = std::move( forge::UniqueRawPtr( m_dataSize ) );
+			const Uint64 newSize = prevData.GetSize() + offset;
+			m_currentPadding = 16 - ( newSize % 16 );
+			m_currentPadding = m_currentPadding == 16 ? 0 : m_currentPadding;
+			m_rawData = std::move( forge::UniqueRawPtr( prevSize + offset + m_currentPadding ) );
 			memcpy( m_rawData.GetData(), prevData.GetData(), prevSize );
 			memcpy( static_cast< Byte* >( m_rawData.GetData() ) + prevSize, &data, offset );
 
@@ -190,16 +190,15 @@ namespace renderer
 	protected:
 		virtual void CreateBuffer() override
 		{
-			GetImpl()->CreateBuffer( m_dataSize );
+			GetImpl()->CreateBuffer( static_cast< Uint32 >( m_rawData.GetSize() ) );
 		}
 
 	private:
 		std::unordered_map< std::string, Uint32 > m_dataLUT;
-
 		std::vector< Uint32 > m_offsets;
-
-		Uint32 m_dataSize = 0u;
-		Uint32 m_elementsAmount = 0u;
 		forge::UniqueRawPtr m_rawData;
+
+		Uint16 m_elementsAmount = 0u;
+		Uint8 m_currentPadding = 0u;
 	};
 }

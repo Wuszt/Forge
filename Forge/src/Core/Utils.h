@@ -95,24 +95,24 @@ namespace forge
 
 	class Stream;
 
-	class UniqueDynamicPtr
+	class InstanceUniquePtr
 	{
-		RTTI_DECLARE_CLASS( UniqueDynamicPtr );
+		RTTI_DECLARE_CLASS( InstanceUniquePtr );
 
 	public:
-		UniqueDynamicPtr() = default;
-		UniqueDynamicPtr( const rtti::Type& type )
+		InstanceUniquePtr() = default;
+		InstanceUniquePtr( const rtti::Type& type )
 			: m_type( &type )
 			, m_memory( type.Construct() )
 		{}
 
 		template< class T >
-		UniqueDynamicPtr( T data )
+		InstanceUniquePtr( T data )
 			: m_type( T::GetTypeStatic() )
 			, m_memory( m_type->ConstructWithMove( &data ) )
 		{}
 
-		~UniqueDynamicPtr()
+		~InstanceUniquePtr()
 		{
 			if ( m_memory )
 			{
