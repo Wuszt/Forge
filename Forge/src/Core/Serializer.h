@@ -6,9 +6,11 @@ namespace forge
 
 	class Serializer
 	{
+		RTTI_DECLARE_CLASS( Serializer );
+
 	public:
 		Serializer( Stream& stream )
-			: m_stream( stream )
+			: m_stream( &stream )
 		{}
 
 		template< class T >
@@ -20,6 +22,8 @@ namespace forge
 		void Serialize( const rtti::Type& type, const void* address );
 
 	private:
+		Serializer() = default;
+
 		void SerializePrimitive( const rtti::Type& type, const void* address );
 		void SerializeString( const rtti::StringType& type, const void* address );
 		void SerializeClassOrStruct( const rtti::Type& type, const void* address );
@@ -29,14 +33,16 @@ namespace forge
 		void SerializeSharedPointer( const rtti::SharedPtrBaseType& type, const void* address );
 
 		std::unordered_map< const void*, Uint64 > m_sharedPtrsOffsets;
-		Stream& m_stream;
+		Stream* m_stream = nullptr;
 	};
 
 	class Deserializer
 	{
+		RTTI_DECLARE_CLASS( Deserializer );
+
 	public:
 		Deserializer( Stream& stream )
-			: m_stream( stream )
+			: m_stream( &stream )
 		{}
 
 		template< class T >
@@ -45,9 +51,19 @@ namespace forge
 			Deserialize( ::rtti::GetTypeInstanceOf< T >(), &data );
 		}
 
+		template< class T >
+		T Deserialize()
+		{
+			T result;
+			Deserialize( result );
+			return result;
+		}
+
 		void Deserialize( const rtti::Type& type, void* address );
 
 	private:
+		Deserializer() = default;
+
 		void DeserializePrimitive( const rtti::Type& type, void* address );
 		void DeserializeString( const rtti::StringType& type, void* address );
 		void DeserializeClassOrStruct( const rtti::Type& type, void* address );
@@ -57,7 +73,7 @@ namespace forge
 		void DeserializeSharedPointer( const rtti::SharedPtrBaseType& type, void* address );
 
 		std::unordered_map< Uint64, void* > m_sharedPtrsAddresses;
-		Stream& m_stream;
+		Stream* m_stream = nullptr;
 	};
 }
 

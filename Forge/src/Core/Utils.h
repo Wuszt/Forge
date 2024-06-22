@@ -93,7 +93,8 @@ namespace forge
 		void* m_data = nullptr;
 	};
 
-	class Stream;
+	class Serializer;
+	class Deserializer;
 
 	class InstanceUniquePtr
 	{
@@ -125,8 +126,8 @@ namespace forge
 		void* GetMemory() {	return m_memory; }
 		const void* GetMemory() const {	m_memory; }
 
-		void Serialize( forge::Stream& stream ) const;
-		void Deserialize( forge::Stream& stream );
+		void Serialize( forge::Serializer& serializer ) const;
+		void Deserialize( forge::Deserializer& deserializer );
 
 		template< class T >
 		T* GetPtr()
