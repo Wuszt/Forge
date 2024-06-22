@@ -101,6 +101,9 @@
     <ClInclude Include="OnScopeExit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GUID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fpch.cpp">
@@ -161,6 +164,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -39,6 +39,7 @@
     <ClInclude Include="ArraySpan.h" />
     <ClInclude Include="Assertions.h" />
     <ClInclude Include="AssetsManager.h" />
+    <ClInclude Include="GUID.h" />
     <ClInclude Include="IAsset.h" />
     <ClInclude Include="Callback.h" />
     <ClInclude Include="Core.h" />
@@ -68,6 +69,7 @@
   <ItemGroup>
     <ClCompile Include="ArraySpan.cpp" />
     <ClCompile Include="AssetsManager.cpp" />
+    <ClCompile Include="GUID.cpp" />
     <ClCompile Include="IAsset.cpp" />
     <ClCompile Include="Callback.cpp" />
     <ClCompile Include="DepotsContainer.cpp" />

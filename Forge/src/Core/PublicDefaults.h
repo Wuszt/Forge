@@ -14,3 +14,4 @@
 #include "ArraySpan.h"
 #include "RawVector.h"
 #include "OnScopeExit.h"
+#include "GUID.h"
