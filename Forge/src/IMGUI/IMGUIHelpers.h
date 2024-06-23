@@ -24,5 +24,29 @@ namespace forge
 		Bool InputText( const Char* label, std::string& text );
 
 		std::string PrefixLabel( const Char* label );
+
+		class ScopedStyle
+		{
+		public:
+			ScopedStyle( void ( *func )( ImGuiStyle* dest ) )
+			{
+				m_prevStyle = ImGui::GetStyle();
+				func(nullptr);
+			}
+
+			ScopedStyle( void ( *func )( ) )
+			{
+				m_prevStyle = ImGui::GetStyle();
+				func();
+			}
+
+			~ScopedStyle()
+			{
+				ImGui::GetStyle() = m_prevStyle;
+			}
+
+		private:
+			ImGuiStyle m_prevStyle;
+		};
 	}
 }
