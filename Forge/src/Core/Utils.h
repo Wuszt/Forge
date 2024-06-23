@@ -27,6 +27,9 @@ namespace forge
 		}
 	}
 
+	class Serializer;
+	class Deserializer;
+
 	class UniqueRawPtr
 	{
 		RTTI_DECLARE_CLASS( UniqueRawPtr );
@@ -88,13 +91,13 @@ namespace forge
 			m_size = 0u;
 		}
 
+		void Serialize( forge::Serializer& serializer ) const;
+		void Deserialize( forge::Deserializer& deserializer );
+
 	private:
 		Uint64 m_size = 0u;
 		void* m_data = nullptr;
 	};
-
-	class Serializer;
-	class Deserializer;
 
 	class InstanceUniquePtr
 	{
