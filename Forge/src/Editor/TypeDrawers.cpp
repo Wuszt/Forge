@@ -3,6 +3,7 @@
 #include "../../External/imgui/imgui.h"
 #include "../GameEngine/IComponent.h"
 #include "../Renderer/Material.h"
+#include "../IMGUI/IMGUIHelpers.h"
 
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Int32 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Float );
@@ -229,4 +230,10 @@ void editor::TypeDrawer_UniquePointer::OnDrawValue( void* address, const rtti::T
 void editor::TypeDrawer_SharedPointer::OnDrawValue( void* address, const rtti::Type& type, rtti::InstanceFlags typeFlags ) const
 {
 	DrawSmartPtr( address, static_cast< const rtti::SharedPtrBaseType& >( type ) );
+}
+
+void editor::TypeDrawer_String::OnDrawValue( void* address, const rtti::Type& type, rtti::InstanceFlags typeFlags ) const
+{
+	std::string* str = static_cast< std::string* >( address );
+	forge::imgui::InputText( "##Value", *str );
 }

@@ -74,6 +74,12 @@ namespace editor
 		virtual void OnDrawValue( void* address, const rtti::Type& type, rtti::InstanceFlags typeFlags ) const override;
 	};
 
+	class TypeDrawer_String : public editor::TypeDrawer
+	{
+	public:
+		virtual void OnDrawValue( void* address, const rtti::Type& type, rtti::InstanceFlags typeFlags ) const override;
+	};
+
 	class TypeDrawer_RawPointer : public editor::TypeDrawer
 	{
 	public:

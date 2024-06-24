@@ -134,6 +134,10 @@ static void VisitTypeDrawer( const rtti::Type& type, const TFunc& func )
 		func( editor::TypeDrawer_Enum() );
 		break;
 
+	case rtti::Type::Kind::String:
+		func( editor::TypeDrawer_String() );
+		break;
+
 	default:
 		FORGE_ASSERT( false );
 	}
