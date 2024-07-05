@@ -11,22 +11,58 @@ namespace editor
 		RTTI_DECLARE_ABSTRACT_CLASS( TypeDrawer );
 
 	public:
-		static void DrawProperty( void* owner, const rtti::Property& property );
-		static void DrawType( void* address, const rtti::Type& type, const char* id );
-		static void DrawTypeChildren( void* address, const rtti::Type& type, const char* id );
-		static void DrawTypeChildren( void* address, const rtti::Type& type );
+		class Drawable
+		{
+		public:
+			Drawable( void* address )
+				: m_address( address )
+			{}
+			virtual ~Drawable() = default;
+			virtual const rtti::Type& GetType() const = 0;
+			virtual rtti::InstanceFlags GetInstanceFlags() const = 0;
+			virtual Bool HasMetadata( const std::string& key ) const = 0;
+			virtual const std::string* GetMetadataValue( const std::string& key ) const = 0;
+			virtual const Char* GetName() const = 0;
+			virtual const Char* GetID() const = 0;
 
-		void Draw( void* owner, const rtti::Property& property ) const;
-		void Draw( void* address, const rtti::Type& type, const char* id ) const;
-		void DrawChildren( void* address, const rtti::Type& type, const char* id ) const;
-		void DrawChildren( void* address, const rtti::Type& type ) const;
-		void DrawValue( void* address, const rtti::Type& type, rtti::InstanceFlags typeFlags, const char* id ) const;
-		virtual Bool HasChildren( void* address, const rtti::Type& type ) const;
+			virtual void* GetAddress() const
+			{
+				return m_address;
+			}
+
+		private:
+			void* m_address = nullptr;
+		};
+
+		TypeDrawer( forge::EngineInstance& engineInstance )
+			: m_engineInstance( &engineInstance )
+		{}
+
+		static void Draw( forge::EngineInstance& engineInstance, const Drawable& drawable );
+		static void DrawChildren( forge::EngineInstance& engineInstance, const Drawable& drawable );
+
+		void Draw( const Drawable& drawable ) const;
+		void DrawChildren( const Drawable& drawable ) const;
+		void DrawValue( const Drawable& drawable ) const;
+
+		virtual Bool HasChildren( const Drawable& drawable ) const;
+
+		void SetEngineInstance( forge::EngineInstance& engineInstance )
+		{
+			m_engineInstance = &engineInstance;
+		}
 
 	protected:
-		virtual void OnDrawName( void* owner, const rtti::Property& property ) const;
-		virtual void OnDrawChildren( void* address, const rtti::Type& type ) const;
-		virtual void OnDrawValue( void* address, const rtti::Type& type, rtti::InstanceFlags typeFlags ) const {}
+		TypeDrawer() = default;
+
+		virtual void OnDrawName( const Drawable& drawable ) const;
+		virtual void OnDrawChildren( const Drawable& drawable ) const;
+		virtual void OnDrawValue( const Drawable& drawable ) const {}
+
+		forge::EngineInstance& GetEngineInstance() const
+		{
+			return *m_engineInstance;
+		}
 
 		template< class T >
 		static T& GetValue( void* address )
@@ -35,7 +71,8 @@ namespace editor
 		}
 
 	private:
-		void DrawChildrenInternal( void* address, const rtti::Type& type, const char* id, const Vector2& startPos, Float height ) const;
+		void DrawChildrenInternal( const Drawable& drawable, const Vector2& startPos, Float height ) const;
+		forge::EngineInstance* m_engineInstance = nullptr;
 	};
 
 	class CustomTypeDrawer : public TypeDrawer
@@ -44,5 +81,47 @@ namespace editor
 
 	public:
 		virtual const rtti::Type& GetSupportedType() const = 0;
+	protected:
+		CustomTypeDrawer() = default;
+	};
+
+	class DrawableType : public TypeDrawer::Drawable
+	{
+	public:
+		DrawableType( void* address, const rtti::Type& type, const Char* id = "" )
+			: TypeDrawer::Drawable( address )
+			, m_type( type )
+			, m_id( id )
+		{}
+
+		virtual const rtti::Type& GetType() const {	return m_type; }
+		virtual rtti::InstanceFlags GetInstanceFlags() const { return rtti::InstanceFlags::None; }
+		virtual Bool HasMetadata( const std::string& key ) const override { return false; }
+		virtual const std::string* GetMetadataValue( const std::string& key ) const override { return nullptr; }
+		virtual const Char* GetName() const override { return nullptr; }
+		virtual const Char* GetID() const override { return m_id; }
+
+	private:
+		const rtti::Type& m_type;
+		const Char* m_id = nullptr;
+	};
+
+	class DrawableProperty : public TypeDrawer::Drawable
+	{
+	public:
+		DrawableProperty( void* address, const rtti::Property& property )
+			: TypeDrawer::Drawable( address )
+			, m_property( property )
+		{}
+
+		virtual const rtti::Type& GetType() const override { return m_property.GetType(); }
+		virtual Bool HasMetadata( const std::string& key ) const override { return m_property.HasMetadata( key ); }
+		virtual const std::string* GetMetadataValue( const std::string& key ) const override { return m_property.GetMetadataValue( key ); }
+		virtual rtti::InstanceFlags GetInstanceFlags() const override { return m_property.GetFlags(); }
+		virtual const Char* GetName() const override { return m_property.GetName(); }
+		virtual const Char* GetID() const override { return m_property.GetName(); }
+
+	private:
+		const rtti::Property& m_property;
 	};
 }

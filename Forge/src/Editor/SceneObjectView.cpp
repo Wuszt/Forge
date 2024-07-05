@@ -97,15 +97,19 @@ void editor::SceneObjectView::Draw()
 				if ( ImGui::Button( forge::String::Printf( "Remove##%s", comp->GetType().GetName() ).c_str(), { -1.0f, 0.0f } ) )
 				{
 					obj->RemoveComponent( comp->GetType() );
+					return true;
 				}
+
+				return false;
 			};
 
 		auto& compType = comp->GetType();
 		if ( ImGui::CollapsingHeader( compType.GetName(), ImGuiTreeNodeFlags_AllowOverlap ) )
 		{
-			DrawRemoveButtonFunc();
-
-			editor::TypeDrawer::DrawTypeChildren( comp, compType );
+			if ( !DrawRemoveButtonFunc() )
+			{
+				editor::TypeDrawer::DrawChildren( GetEngineInstance(), editor::DrawableType( comp, compType ) );
+			}
 		}
 		else
 		{
