@@ -166,7 +166,13 @@ Bool editor::TypeDrawer::HasChildren( const Drawable& drawable ) const
 
 void editor::TypeDrawer::OnDrawName( const Drawable& drawable ) const
 {
-	ImGui::Text( drawable.GetName() );
+	const Char* name = drawable.GetName();
+	if ( const std::string* displayName = drawable.GetMetadataValue( "DisplayName" ) )
+	{
+		name = displayName->c_str();
+	}
+
+	ImGui::Text( name );
 }
 
 void editor::TypeDrawer::OnDrawChildren( const Drawable& drawable ) const
