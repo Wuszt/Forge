@@ -114,7 +114,11 @@ namespace forge
 
 		ArraySpan< T > Mid( Uint32 index, Uint32 count = std::numeric_limits< Uint32 >::max() ) const
 		{
-			FORGE_ASSERT( index < GetSize() );
+			if ( index < GetSize() )
+			{
+				return {};
+			}
+
 			count = count < GetSize() - index ? count : GetSize() - index;
 			return ArraySpan< T >( m_begin + index, count );
 		}

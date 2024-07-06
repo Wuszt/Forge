@@ -78,7 +78,13 @@ namespace forge
 		virtual Uint32 GetPosX() const = 0;
 		virtual Uint32 GetPosY() const = 0;
 
-		virtual std::string CreateFileDialog( forge::ArraySpan< std::string > extensions = {}, std::string defaultPath = std::string() ) const = 0;
+		enum class FileDialogType
+		{
+			Open,
+			Save
+		};
+
+		virtual std::string CreateFileDialog( FileDialogType type, forge::ArraySpan< std::string > extensions = {}, std::string defaultPath = std::string() ) const = 0;
 
 		Float GetAspectRatio() const
 		{

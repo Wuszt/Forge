@@ -8,6 +8,7 @@
 #include "../GameEngine/EngineInstance.h"
 #include "../GameEngine/RenderingManager.h"
 #include "../Core/IWindow.h"
+#include "../Core/DepotsContainer.h"
 
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Int32 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Float );
@@ -255,7 +256,37 @@ void editor::TypeDrawer_Path::OnDrawValue( const Drawable& drawable ) const
 	ImGui::SameLine();
 	if ( ImGui::Button( "Browse..." ) )
 	{
-		std::string newPath = GetEngineInstance().GetRenderingManager().GetWindow().CreateFileDialog();
+		std::string startPath;
+		if ( drawable.HasMetadata( "StartFromDepot" ) )
+		{
+			startPath = GetEngineInstance().GetDepotsContainer().GetDepotsPath();
+		}
+
+		std::vector< std::string > extensions;
+		if ( const std::string* extensionsAsString = drawable.GetMetadataValue( "Extensions" ) )
+		{
+			Uint32 start = 0u;
+			for ( Uint32 i = 0u; i < extensionsAsString->size(); ++i )
+			{
+				if ( ( *extensionsAsString )[ i ] == ',' )
+				{
+					extensions.emplace_back( extensionsAsString->data() + start, i - start );
+					start = i + 1;
+				}
+			}
+			extensions.emplace_back( extensionsAsString->data() + start );
+		}
+
+		forge::IWindow::FileDialogType dialogType = forge::IWindow::FileDialogType::Open;
+		if ( const std::string* value = drawable.GetMetadataValue("FileDialogType") )
+		{
+			if ( *value == "Save" )
+			{
+				dialogType = forge::IWindow::FileDialogType::Save;
+			}
+		}
+
+		const std::string newPath = GetEngineInstance().GetRenderingManager().GetWindow().CreateFileDialog( dialogType, extensions, startPath );
 		if ( !newPath.empty() )
 		{
 			*m_path = newPath;

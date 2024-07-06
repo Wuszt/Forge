@@ -206,13 +206,31 @@ namespace windows
 		return false;
 	}
 
-	std::string WindowsWindow::CreateFileDialog( forge::ArraySpan< std::string > extensions, std::string defaultPath ) const
+	std::string WindowsWindow::CreateFileDialog( FileDialogType type, forge::ArraySpan< std::string > extensions, std::string defaultPath ) const
 	{
 		std::string result;
 		if ( SUCCEEDED( CoInitializeEx( nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE ) ) )
 		{
+			IID fileDialogIID;
+			CLSID fileDialogCLSID;
+			switch ( type )
+			{
+			case forge::IWindow::FileDialogType::Open:
+				fileDialogIID = IID_IFileOpenDialog;
+				fileDialogCLSID = CLSID_FileOpenDialog;
+				break;
+
+			case forge::IWindow::FileDialogType::Save:
+				fileDialogIID = IID_IFileSaveDialog;
+				fileDialogCLSID = CLSID_FileSaveDialog;
+				break;
+
+			default:
+				FORGE_FATAL();
+			}
+
 			IFileOpenDialog* fileDialog = nullptr;
-			if ( SUCCEEDED( CoCreateInstance( CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast< void** >( &fileDialog ) ) ) )
+			if ( SUCCEEDED( CoCreateInstance( fileDialogCLSID, nullptr, CLSCTX_ALL, fileDialogIID, reinterpret_cast< void** >( &fileDialog ) ) ) )
 			{
 				ON_SCOPE_EXIT( fileDialog->Release(); );
 
