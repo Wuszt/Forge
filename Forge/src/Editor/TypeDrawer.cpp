@@ -100,7 +100,9 @@ void editor::TypeDrawer::Draw( const Drawable& drawable ) const
 	if ( drawable.GetName() == nullptr )
 	{
 		const auto startPos = ImGui::GetCursorPos();
+		ImGui::Indent();
 		DrawValue( drawable );
+		ImGui::Unindent();
 		DrawChildrenInternal( drawable, { startPos.x, startPos.y }, Math::Min( 16.0f, ImGui::GetCursorPos().y - startPos.y ) );
 		return;
 	}
@@ -123,8 +125,8 @@ void editor::TypeDrawer::Draw( const Drawable& drawable ) const
 	}
 	ImGui::Unindent();
 
-	
-	DrawChildrenInternal( drawable, { startPos.x, startPos.y }, Math::Min(16.0f, ImGui::GetCursorPos().y - startPos.y));
+
+	DrawChildrenInternal( drawable, { startPos.x, startPos.y }, Math::Min( 16.0f, ImGui::GetCursorPos().y - startPos.y ) );
 }
 
 void editor::TypeDrawer::Draw( forge::EngineInstance& engineInstance, const Drawable& drawable )
@@ -184,6 +186,13 @@ void editor::TypeDrawer::OnDrawChildren( const Drawable& drawable ) const
 	}
 }
 
+void editor::TypeDrawer::OnDrawValue( const Drawable& drawable ) const
+{
+	ImGui::PushStyleColor( ImGuiCol_Text, { 0.5f, 0.5f, 0.5f, 1.0f } );
+	ImGui::Text( forge::String::Printf( "(%s)", drawable.GetType().GetName() ).c_str() );
+	ImGui::PopStyleColor();
+}
+
 void editor::TypeDrawer::DrawChildrenInternal( const Drawable& drawable, const Vector2& startPos, Float height ) const
 {
 	height = Math::Max( height, 20.0f );
@@ -194,7 +203,7 @@ void editor::TypeDrawer::DrawChildrenInternal( const Drawable& drawable, const V
 
 		auto prev = ImGui::GetCurrentWindow()->WorkRect.Max.x;
 		ImGui::GetCurrentWindow()->WorkRect.Max.x = ImGui::GetCurrentWindow()->WorkRect.Min.x + ImGui::GetStyle().IndentSpacing;
-		if ( ImGui::TreeNodeEx( forge::String::Printf( "##Children%s", drawable.GetID() ).c_str(), ImGuiTreeNodeFlags_FramePadding, "") )
+		if ( ImGui::TreeNodeEx( forge::String::Printf( "##Children%s", drawable.GetID() ).c_str(), ImGuiTreeNodeFlags_FramePadding, "" ) )
 		{
 			ImGui::PopStyleVar();
 			ImGui::GetCurrentWindow()->WorkRect.Max.x = prev;

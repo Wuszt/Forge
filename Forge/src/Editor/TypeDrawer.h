@@ -57,7 +57,7 @@ namespace editor
 
 		virtual void OnDrawName( const Drawable& drawable ) const;
 		virtual void OnDrawChildren( const Drawable& drawable ) const;
-		virtual void OnDrawValue( const Drawable& drawable ) const {}
+		virtual void OnDrawValue( const Drawable& drawable ) const;
 
 		forge::EngineInstance& GetEngineInstance() const
 		{
