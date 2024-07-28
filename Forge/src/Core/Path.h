@@ -9,17 +9,23 @@ namespace forge
 		Path() = default;
 		Path( std::string path )
 			: m_path ( std::move( path ) )
-		{}
-
-		const Char* GetExtension() const
 		{
-			const Uint32 extensionStart = static_cast< Uint32 >( m_path.find_last_of( '.' ) );
-			if ( extensionStart == std::string::npos )
-			{
-				return "";
-			}
+			m_extensionStart = static_cast< Uint32 >( m_path.find_last_of( '.' ) );
+			m_fileNameStart = static_cast< Uint32 >( m_path.find_last_of( '/' ) );
+		}
 
-			return m_path.data() + extensionStart;
+		std::string GetExtension() const
+		{
+			FORGE_ASSERT( m_extensionStart > 0 && m_extensionStart < m_path.size() );
+			return m_path.substr( m_extensionStart );
+		}
+
+		std::string GetFileName() const
+		{
+			FORGE_ASSERT( m_extensionStart > 0 && m_extensionStart < m_path.size() );
+			FORGE_ASSERT( m_fileNameStart > 0 && m_fileNameStart < m_path.size() );
+			FORGE_ASSERT( m_extensionStart > m_fileNameStart );
+			return m_path.substr( m_fileNameStart, m_extensionStart - m_fileNameStart );
 		}
 
 		const Char* Get() const
@@ -28,5 +34,7 @@ namespace forge
 		}
 
 		std::string m_path;
+		Uint32 m_extensionStart = static_cast< Uint32 >( -1 );
+		Uint32 m_fileNameStart = static_cast< Uint32 >( -1 );
 	};
 }
