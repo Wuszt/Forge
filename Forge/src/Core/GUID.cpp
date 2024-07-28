@@ -15,3 +15,8 @@ forge::GUID forge::GUID::Generate()
 	CoCreateGuid( reinterpret_cast< ::GUID* >( &result ) );
 	return result;
 }
+
+Uint64 forge::GUID::GetHash() const
+{
+	return (static_cast< Int64 >( m_A ) << 32 | static_cast< Int64 >( m_B )) ^ (static_cast< Int64 >( m_C ) << 32 | static_cast< Int64 >( m_D ));
+}

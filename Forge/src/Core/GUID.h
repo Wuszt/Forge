@@ -28,10 +28,21 @@ namespace forge
 
 		static GUID Generate();
 
+		Uint64 GetHash() const;
+
 	private:
 		Int32 m_A = 0;
 		Int32 m_B = 0;
 		Int32 m_C = 0;
 		Int32 m_D = 0;
+	};
+}
+
+namespace std 
+{
+	template <>
+	struct hash< forge::GUID > 
+	{
+		size_t operator() ( const forge::GUID& guid ) const { return guid.GetHash(); }
 	};
 }
