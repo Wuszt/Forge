@@ -16,6 +16,7 @@ void forge::Serializer::Serialize( const void* address, const rtti::Type& type )
 		break;
 
 	case rtti::Type::Kind::Primitive:
+	case rtti::Type::Kind::Enum:
 		SerializePrimitive( address, type );
 		break;
 
@@ -62,6 +63,7 @@ void forge::Deserializer::Deserialize( void* address, const rtti::Type& type )
 		break;
 
 	case rtti::Type::Kind::Primitive:
+	case rtti::Type::Kind::Enum:
 		DeserializePrimitive( address, type );
 		break;
 
