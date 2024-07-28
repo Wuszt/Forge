@@ -11,6 +11,7 @@
 #include "../Core/DepotsContainer.h"
 
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Int32 );
+RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Uint32 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Float );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Vector2 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Vector3 );
@@ -32,25 +33,25 @@ void editor::TypeDrawer_Int32::OnDrawValue( const Drawable& drawable ) const
 void editor::TypeDrawer_Float::OnDrawValue( const Drawable& drawable ) const
 {
 	Float& value = GetValue< Float >( drawable.GetAddress() );
-	ImGui::InputFloat( "##Value", &value);
+	ImGui::InputFloat( "##Value", &value );
 }
 
 void editor::TypeDrawer_Vector2::OnDrawValue( const Drawable& drawable ) const
 {
 	Vector2& value = GetValue< Vector2 >( drawable.GetAddress() );
-	ImGui::InputFloat2( "##Value", value.AsArray());
+	ImGui::InputFloat2( "##Value", value.AsArray() );
 }
 
 void editor::TypeDrawer_Vector3::OnDrawValue( const Drawable& drawable ) const
 {
 	Vector3& value = GetValue< Vector3 >( drawable.GetAddress() );
-	ImGui::InputFloat3( "##Value", value.AsArray());
+	ImGui::InputFloat3( "##Value", value.AsArray() );
 }
 
 void editor::TypeDrawer_Vector4::OnDrawValue( const Drawable& drawable ) const
 {
 	Vector4& value = GetValue< Vector4 >( drawable.GetAddress() );
-	ImGui::InputFloat4( "##Value", value.AsArray());
+	ImGui::InputFloat4( "##Value", value.AsArray() );
 }
 
 void editor::TypeDrawer_Array::OnDrawChildren( const Drawable& drawable ) const
@@ -84,7 +85,7 @@ void editor::TypeDrawer_Vector::OnDrawChildren( const Drawable& drawable ) const
 	Uint32 i = 0u;
 	containerType.VisitElementsAsProperties( drawable.GetAddress(), [ & ]( const rtti::Property& property )
 		{
-			if ( ImGui::BeginTable( "VectorTable", 2) )
+			if ( ImGui::BeginTable( "VectorTable", 2 ) )
 			{
 				ImGui::TableSetupColumn( "RemoveButton", ImGuiTableColumnFlags_WidthFixed );
 				ImGui::TableSetupColumn( "Property" );
@@ -93,7 +94,7 @@ void editor::TypeDrawer_Vector::OnDrawChildren( const Drawable& drawable ) const
 				const Int32 index = i++;
 				if ( ImGui::Button( forge::String::Printf( "X##%d", index ).c_str(), { 0, 25.0f } ) )
 				{
-					containerType.RemoveElementAtIndex( drawable.GetAddress(), index);
+					containerType.RemoveElementAtIndex( drawable.GetAddress(), index );
 				}
 
 				ImGui::TableNextColumn();
@@ -137,7 +138,7 @@ void editor::TypeDrawer_Enum::OnDrawValue( const Drawable& drawable ) const
 				const Bool isSelected = currentMember == &member;
 				if ( ImGui::Selectable( member.m_name, isSelected ) )
 				{
-					enumType.SetCurrentMember( drawable.GetAddress(), member);
+					enumType.SetCurrentMember( drawable.GetAddress(), member );
 				}
 
 				if ( isSelected )
@@ -146,7 +147,7 @@ void editor::TypeDrawer_Enum::OnDrawValue( const Drawable& drawable ) const
 				}
 
 				return rtti::VisitOutcome::Continue;
-			} );		
+			} );
 		ImGui::EndCombo();
 	}
 }
@@ -156,7 +157,7 @@ void editor::TypeDrawer_RawPointer::OnDrawValue( const Drawable& drawable ) cons
 	const rtti::PointerType< void >& pointerType = static_cast< const rtti::PointerType< void >& >( drawable.GetType() );
 	if ( void* pointedAddress = GetValue< void* >( drawable.GetAddress() ) )
 	{
-		if ( ImGui::BeginTable( "PointerTable", 2) )
+		if ( ImGui::BeginTable( "PointerTable", 2 ) )
 		{
 			ImGui::TableSetupColumn( "RemoveButton", ImGuiTableColumnFlags_WidthFixed );
 			ImGui::TableSetupColumn( "Property" );
@@ -185,7 +186,7 @@ void DrawSmartPtr( forge::EngineInstance& engineInstance, void* address, const T
 {
 	if ( void* pointedAddress = pointerType.GetPointedAddress( address ) )
 	{
-		if ( ImGui::BeginTable( "SmartPtr", 2) )
+		if ( ImGui::BeginTable( "SmartPtr", 2 ) )
 		{
 			ImGui::TableSetupColumn( "RemoveButton", ImGuiTableColumnFlags_WidthFixed );
 			ImGui::TableSetupColumn( "Property" );
@@ -206,7 +207,7 @@ void DrawSmartPtr( forge::EngineInstance& engineInstance, void* address, const T
 	}
 	else
 	{
-		if ( ImGui::BeginTable( "SmartPtr", 2) )
+		if ( ImGui::BeginTable( "SmartPtr", 2 ) )
 		{
 			ImGui::TableSetupColumn( "NewButton", ImGuiTableColumnFlags_WidthFixed );
 			ImGui::TableSetupColumn( "Value" );
@@ -235,7 +236,7 @@ void editor::TypeDrawer_UniquePointer::OnDrawValue( const Drawable& drawable ) c
 
 void editor::TypeDrawer_SharedPointer::OnDrawValue( const Drawable& drawable ) const
 {
-	DrawSmartPtr( GetEngineInstance(), drawable.GetAddress(), static_cast< const rtti::SharedPtrBaseType& >( drawable.GetType() ));
+	DrawSmartPtr( GetEngineInstance(), drawable.GetAddress(), static_cast< const rtti::SharedPtrBaseType& >( drawable.GetType() ) );
 }
 
 void editor::TypeDrawer_String::OnDrawValue( const Drawable& drawable ) const
@@ -278,7 +279,7 @@ void editor::TypeDrawer_Path::OnDrawValue( const Drawable& drawable ) const
 		}
 
 		forge::IWindow::FileDialogType dialogType = forge::IWindow::FileDialogType::Open;
-		if ( const std::string* value = drawable.GetMetadataValue("FileDialogType") )
+		if ( const std::string* value = drawable.GetMetadataValue( "FileDialogType" ) )
 		{
 			if ( *value == "Save" )
 			{
@@ -286,10 +287,24 @@ void editor::TypeDrawer_Path::OnDrawValue( const Drawable& drawable ) const
 			}
 		}
 
-		const std::string newPath = GetEngineInstance().GetRenderingManager().GetWindow().CreateFileDialog( dialogType, extensions, startPath );
+		std::string newPath = GetEngineInstance().GetRenderingManager().GetWindow().CreateFileDialog( dialogType, extensions, startPath );
 		if ( !newPath.empty() )
 		{
+			if ( extensions.size() == 1u )
+			{
+				newPath = forge::String::Printf( "%s.%s", newPath.c_str(), extensions[ 0 ].c_str() );
+			}
+
 			*m_path = newPath;
 		}
 	}
+}
+
+void editor::TypeDrawer_Uint32::OnDrawValue( const Drawable& drawable ) const
+{
+	Uint32& value = GetValue< Uint32 >( drawable.GetAddress() );
+
+	Int32 valueAsInt = static_cast< Int32 >( value );
+	ImGui::InputInt( "##Value", &valueAsInt );
+	value = Math::Max( 0, valueAsInt );
 }

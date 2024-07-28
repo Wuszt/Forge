@@ -186,6 +186,7 @@ void editor::TypeDrawer::OnDrawChildren( const Drawable& drawable ) const
 
 void editor::TypeDrawer::DrawChildrenInternal( const Drawable& drawable, const Vector2& startPos, Float height ) const
 {
+	height = Math::Max( height, 20.0f );
 	if ( HasChildren( drawable ) )
 	{
 		ImGui::SetCursorPos( { startPos.X, startPos.Y } );

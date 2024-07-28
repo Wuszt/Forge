@@ -16,6 +16,19 @@ namespace editor
 		TypeDrawer_Int32() = default;
 	};
 
+	class TypeDrawer_Uint32 : public editor::CustomTypeDrawer
+	{
+		RTTI_DECLARE_CLASS( TypeDrawer_Uint32, editor::CustomTypeDrawer );
+
+	public:
+		using editor::CustomTypeDrawer::CustomTypeDrawer;
+		virtual const rtti::Type& GetSupportedType() const override { return rtti::PrimitiveType< Uint32 >::GetInstance(); }
+		virtual void OnDrawValue( const Drawable& drawable ) const override;
+		virtual Bool HasChildren( const Drawable& drawable ) const override { return false; }
+	private:
+		TypeDrawer_Uint32() = default;
+	};
+
 	class TypeDrawer_Float : public editor::CustomTypeDrawer
 	{
 		RTTI_DECLARE_CLASS( TypeDrawer_Float, editor::CustomTypeDrawer );
