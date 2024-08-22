@@ -32,7 +32,7 @@ namespace editor
 
 	protected:
 		using forge::Object::Object;
-		virtual const char* GetModelPath() const = 0;
+		virtual forge::Path GetModelPath() const = 0;
 		Vector3 GetRayIntersectionWithPlane( const Vector3& cursorRayDir, const Vector3& planeNormal ) const;
 	};
 	RTTI_IMPLEMENT_TYPE( editor::GizmoElement );
@@ -47,9 +47,9 @@ namespace editor
 
 	protected:
 		using GizmoElement::GizmoElement;
-		virtual const char* GetModelPath() const override
+		virtual forge::Path GetModelPath() const override
 		{
-			return "Models/Gizmo/gizmoArrow.fbx";
+			return forge::Path( "Models\\Gizmo\\gizmoArrow.fbx" );
 		}
 
 	private:
@@ -67,9 +67,9 @@ namespace editor
 
 	protected:
 		using GizmoElement::GizmoElement;
-		virtual const char* GetModelPath() const override
+		virtual forge::Path GetModelPath() const override
 		{
-			return "Models/Gizmo/gizmoRing.fbx";
+			return forge::Path( "Models\\Gizmo\\gizmoRing.fbx" );
 		}
 
 	private:
@@ -89,9 +89,9 @@ namespace editor
 
 	protected:
 		using GizmoElement::GizmoElement;
-		virtual const char* GetModelPath() const override
+		virtual forge::Path GetModelPath() const override
 		{
-			return "Models/Cube.obj";
+			return forge::Path( "Models\\Cube.obj" );
 		}
 
 	private:
@@ -111,9 +111,9 @@ namespace editor
 
 	protected:
 		using GizmoElement::GizmoElement;
-		virtual const char* GetModelPath() const override
+		virtual forge::Path GetModelPath() const override
 		{
-			return "Models/Cube.obj";
+			return forge::Path( "Models\\Cube.obj" );
 		}
 
 	private:

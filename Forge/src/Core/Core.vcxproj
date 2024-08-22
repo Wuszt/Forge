@@ -50,6 +50,7 @@
     <ClInclude Include="IWindow.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="OnScopeExit.h" />
+    <ClInclude Include="Path.h" />
     <ClInclude Include="Profiling.h" />
     <ClInclude Include="RawVector.h" />
     <ClInclude Include="Serializer.h" />
@@ -78,6 +79,7 @@
     <ClCompile Include="IInput.cpp" />
     <ClCompile Include="IWindow.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="Path.cpp" />
     <ClCompile Include="RawVector.cpp" />
     <ClCompile Include="Serializer.cpp" />
     <ClCompile Include="Streams.cpp" />

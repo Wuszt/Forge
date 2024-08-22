@@ -9,7 +9,7 @@ namespace renderer
 
 	public:
 		SkeletonAsset();
-		SkeletonAsset( const std::string& path, std::vector< Matrix > bonesOffsets );
+		SkeletonAsset( const forge::Path& path, std::vector< Matrix > bonesOffsets );
 
 		forge::ArraySpan< const Matrix > GetBonesOffsets() const
 		{

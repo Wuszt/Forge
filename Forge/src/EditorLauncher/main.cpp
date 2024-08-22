@@ -27,7 +27,7 @@ Int32 main()
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-			renderingComponent->LoadMeshAndMaterial( "Models\\cube.obj" );
+			renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\cube.obj" ) );
 
 			transformComponent->SetWorldPosition( { static_cast< Float >( i * 5 ), 0.0f, 0.0f } );
 
@@ -39,7 +39,7 @@ Int32 main()
 			objs->emplace_back( obj );
 
 			auto* physicsComponent = obj->GetComponent< forge::PhysicsStaticComponent >();
-			auto modelAsset = engineInstance.GetAssetsManager().GetAsset< renderer::ModelAsset >( "Models\\cube.obj" );
+			auto modelAsset = engineInstance.GetAssetsManager().GetAsset< renderer::ModelAsset >( forge::Path( "Models\\cube.obj" ) );
 
 			auto model = modelAsset->GetModel();
 			const renderer::Vertices& vertices = model->GetVertices();

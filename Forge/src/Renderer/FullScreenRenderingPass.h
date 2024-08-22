@@ -1,5 +1,6 @@
 #pragma once
 #include "IRenderingPass.h"
+#include "../Core/Path.h"
 
 namespace renderer
 {
@@ -9,8 +10,8 @@ namespace renderer
 	class FullScreenRenderingPass : public IRenderingPass
 	{
 	public:
-		FullScreenRenderingPass( Renderer& renderer, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines );
-		FullScreenRenderingPass( Renderer& renderer, const std::string& fullscreenVSPath, const std::string& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines );
+		FullScreenRenderingPass( Renderer& renderer, const forge::Path& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines );
+		FullScreenRenderingPass( Renderer& renderer, const forge::Path& fullscreenVSPath, const forge::Path& fullscreenEffectPath, forge::ArraySpan< renderer::ShaderDefine > shaderDefines );
 
 		void Draw( forge::ArraySpan< const IShaderResourceView* > input );
 
@@ -19,21 +20,21 @@ namespace renderer
 			m_shaderDefines = { shaderDefines.begin(), shaderDefines.end() };
 		}
 
-		void SetVSName( const std::string& vsName )
+		void SetVSPath( const forge::Path& vsPath )
 		{
-			m_vertexShaderName = vsName;
+			m_vertexShaderPath = vsPath;
 		}
 
-		void SetPSName( const std::string& psName )
+		void SetPSPath( const forge::Path& psPath )
 		{
-			m_vertexShaderName = psName;
+			m_pixelShaderPath = psPath;
 		}
 
 	private:
 		void AdjustViewportSize();
 
-		std::string m_vertexShaderName;;
-		std::string m_pixelShaderName;
+		forge::Path m_vertexShaderPath;;
+		forge::Path m_pixelShaderPath;
 		std::vector< renderer::ShaderDefine > m_shaderDefines;
 	};
 }

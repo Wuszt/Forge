@@ -3,6 +3,6 @@
 
 RTTI_IMPLEMENT_TYPE( forge::IAsset );
 
-forge::IAsset::IAsset( const std::string& path )
+forge::IAsset::IAsset( const forge::Path& path )
 	: m_path( path )
 {}

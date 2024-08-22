@@ -4,10 +4,10 @@
 RTTI_IMPLEMENT_TYPE( renderer::SkeletonAsset );
 
 renderer::SkeletonAsset::SkeletonAsset()
-	: forge::IAsset("")
+	: forge::IAsset( {} )
 {}
 
-renderer::SkeletonAsset::SkeletonAsset( const std::string& path, std::vector< Matrix > bonesOffsets )
+renderer::SkeletonAsset::SkeletonAsset( const forge::Path& path, std::vector< Matrix > bonesOffsets )
 	: m_bonesOffsets( std::move( bonesOffsets ) )
 	, IAsset( path )
 {}

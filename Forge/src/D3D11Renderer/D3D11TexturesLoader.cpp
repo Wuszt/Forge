@@ -9,9 +9,9 @@ d3d11::D3D11TexturesLoader::D3D11TexturesLoader( const d3d11::D3D11Device& devic
 	, m_context( context )
 {}
 
-std::vector< std::shared_ptr< forge::IAsset > > d3d11::D3D11TexturesLoader::LoadAssets( const std::string& path ) const
+std::vector< std::shared_ptr< forge::IAsset > > d3d11::D3D11TexturesLoader::LoadAssets( const forge::Path& path ) const
 {
-	std::wstring wPath = std::wstring( path.begin(), path.end() );
+	const std::wstring wPath = std::wstring( path.AsString().begin(), path.AsString().end() );
 	ID3D11Resource* resource = nullptr;
 	ID3D11ShaderResourceView* resourceView = nullptr;
 	DirectX::CreateWICTextureFromFile( m_device.GetDevice(), wPath.c_str(), &resource, &resourceView );

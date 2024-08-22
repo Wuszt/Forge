@@ -12,6 +12,8 @@ namespace renderer
 
 namespace forge
 {
+	class Path;
+
 	struct RenderableFragment : public ecs::Fragment
 	{
 		RTTI_DECLARE_STRUCT( RenderableFragment, ecs::Fragment );
@@ -48,7 +50,7 @@ namespace forge
 
 		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 
-		void LoadMeshAndMaterial( const std::string& path );
+		void LoadMeshAndMaterial( const forge::Path& path );
 		void SetDirty();
 
 		void SetInteractingWithLight( bool enabled );

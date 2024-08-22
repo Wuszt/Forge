@@ -11,7 +11,7 @@ namespace d3d11
 	class D3D11PixelShader : public renderer::IPixelShader
 	{
 	public:
-		D3D11PixelShader( const D3D11Device& device, D3D11RenderContext& context, const std::string& path, forge::ArraySpan< const renderer::ShaderDefine > defines );
+		D3D11PixelShader( const D3D11Device& device, D3D11RenderContext& context, const forge::Path& path, forge::ArraySpan< const renderer::ShaderDefine > defines );
 		~D3D11PixelShader();
 
 		ID3D11PixelShader* GetShader() const

@@ -13,7 +13,7 @@ forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 {
 	forge::Time::Initialize();
 
-	m_depotsContainer = std::make_unique< DepotsContainer >( appInstance.GetApplicationName() );
+	m_depotsContainer = std::make_unique< DepotsContainer >( forge::Path( appInstance.GetApplicationName() ) );
 	m_assetsManager = std::make_unique< AssetsManager >( GetDepotsContainer() );
 
 	m_ecsManager = std::make_unique< ecs::ECSManager >();

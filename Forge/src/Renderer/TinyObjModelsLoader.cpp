@@ -11,15 +11,15 @@ renderer::TinyObjModelsLoader::TinyObjModelsLoader( renderer::Renderer& renderer
 	: m_renderer( renderer )
 {}
 
-std::vector< std::shared_ptr< forge::IAsset > > renderer::TinyObjModelsLoader::LoadAssets( const std::string& path ) const
+std::vector< std::shared_ptr< forge::IAsset > > renderer::TinyObjModelsLoader::LoadAssets( const forge::Path& path ) const
 {
 	tinyobj::ObjReaderConfig readerConfig;
 
-	readerConfig.mtl_search_path = path.substr( 0u, path.find_last_of( '\\' ) );
+	readerConfig.mtl_search_path = path.GetFolder().AsString();
 
 	tinyobj::ObjReader reader;
 
-	if ( !reader.ParseFromFile( path, readerConfig ) )
+	if ( !reader.ParseFromFile( path.AsString(), readerConfig ) )
 	{
 		return {};
 	}

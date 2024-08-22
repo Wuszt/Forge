@@ -10,7 +10,7 @@ forge::AssetsManager::AssetsManager( const forge::DepotsContainer& depotsContain
 
 forge::AssetsManager::~AssetsManager() = default;
 
-forge::ArraySpan< std::shared_ptr< forge::IAsset > > forge::AssetsManager::GetAssetsInternal( const std::string& path )
+forge::ArraySpan< std::shared_ptr< forge::IAsset > > forge::AssetsManager::GetAssetsInternal( const forge::Path& path )
 {
 	{
 		auto cachedAsset = m_assetsCache.find( path );
@@ -20,20 +20,18 @@ forge::ArraySpan< std::shared_ptr< forge::IAsset > > forge::AssetsManager::GetAs
 		}
 	}
 
-	std::string finalPath;
+	forge::Path finalPath;
 	if( !m_depotsContainer.TryToGetExistingFilePath( path, finalPath ) )
 	{
 		return {};
 	}
 
-	std::size_t extensionStartIndex = finalPath.find_last_of( '.' ) + 1u;
+	const std::string extension = finalPath.GetExtension();
 
-	if( extensionStartIndex >= finalPath.size() )
+	if ( extension.empty() )
 	{
 		return {};
 	}
-
-	std::string extension = finalPath.substr( extensionStartIndex );
 
 	auto loader = m_assetsLoaders.find( extension );
 
@@ -45,7 +43,7 @@ forge::ArraySpan< std::shared_ptr< forge::IAsset > > forge::AssetsManager::GetAs
 
 	StopWatch sw;
 	std::vector< std::shared_ptr< IAsset > > loadedAssets = loader->second->LoadAssets( finalPath );
-	FORGE_LOG( "Loaded %s in %.4f seconds", finalPath.c_str(), sw.GetDuration() );
+	FORGE_LOG( "Loaded %s in %.4f seconds", finalPath.Get(), sw.GetDuration());
 	 
 	if( loadedAssets.empty() )
 	{

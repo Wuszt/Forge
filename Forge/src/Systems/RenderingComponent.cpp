@@ -42,7 +42,7 @@ void forge::RenderingComponent::OnDetaching( EngineInstance& engineInstance, ecs
 	}
 }
 
-void forge::RenderingComponent::LoadMeshAndMaterial( const std::string& path )
+void forge::RenderingComponent::LoadMeshAndMaterial( const forge::Path& path )
 {
 	PC_SCOPE_FUNC();
 

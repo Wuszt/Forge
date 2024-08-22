@@ -118,7 +118,7 @@ void systems::SceneRenderingSystem::OnRenderDebug()
 				auto texturesAssets = GetEngineInstance().GetAssetsManager().GetLoadedAssetsOfType< renderer::TextureAsset >();
 				for( const auto& asset : texturesAssets )
 				{
-					forge::imgui::DrawFoldableTextureView( asset->GetPath(), *asset->GetTexture() );
+					forge::imgui::DrawFoldableTextureView( asset->GetPath().AsString(), *asset->GetTexture());
 				}
 
 				ImGui::EndTabItem();
@@ -177,7 +177,7 @@ void systems::SceneRenderingSystem::CacheDepthBufferForDebug()
 		cb->SetPS( renderer::PSConstantBufferType::Material );
 
 		const renderer::ICamera& currentCamera = GetEngineInstance().GetSystemsManager().GetSystem< systems::CamerasSystem >().GetActiveCamera()->GetCamera();
-		renderer::FullScreenRenderingPass fsPass( *m_renderer, "DepthBufferDebug.fx", currentCamera.HasNonLinearDepth() ? forge::ArraySpan< renderer::ShaderDefine >{ renderer::ShaderDefine{ "__NON_LINEAR_DEPTH__" } } : forge::ArraySpan< renderer::ShaderDefine >{} );
+		renderer::FullScreenRenderingPass fsPass( *m_renderer, forge::Path( "DepthBufferDebug.fx" ), currentCamera.HasNonLinearDepth() ? forge::ArraySpan< renderer::ShaderDefine >{ renderer::ShaderDefine{ "__NON_LINEAR_DEPTH__" } } : forge::ArraySpan< renderer::ShaderDefine >{} );
 		fsPass.SetTargetTexture( *m_depthBufferDebugTexture );
 		fsPass.Draw( { m_depthStencilBuffer->GetTexture()->GetShaderResourceView() } );
 	}
@@ -522,7 +522,7 @@ void systems::SceneRenderingSystem::OnDraw()
 		m_transparencyBlendState->Clear();
 	}
 
-	renderer::FullScreenRenderingPass copyResourcePass( *m_renderer, "CopyTexture.fx", {} );
+	renderer::FullScreenRenderingPass copyResourcePass( *m_renderer, forge::Path( "CopyTexture.fx" ), {} );
 	copyResourcePass.SetTargetTexture( *m_targetTexture );
 	copyResourcePass.Draw( { m_intermediateTexture->GetShaderResourceView() } );
 }

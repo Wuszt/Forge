@@ -44,12 +44,12 @@ void SkeletalMesh( forge::EngineInstance& engineInstance, const Vector3& pos )
 		auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 		auto* animComponent = obj->GetComponent< forge::AnimationComponent >();
 
-		std::string animName = "Animations\\Thriller.fbx";
+		forge::Path animPath( "Animations\\Thriller.fbx" );
 
-		auto animation = engineInstance.GetAssetsManager().GetAsset< renderer::AnimationSetAsset >( animName );
-		auto skeleton = engineInstance.GetAssetsManager().GetAsset< renderer::SkeletonAsset >( animName );
+		auto animation = engineInstance.GetAssetsManager().GetAsset< renderer::AnimationSetAsset >( animPath );
+		auto skeleton = engineInstance.GetAssetsManager().GetAsset< renderer::SkeletonAsset >( animPath );
 
-		renderingComponent->LoadMeshAndMaterial( animName );
+		renderingComponent->LoadMeshAndMaterial( animPath );
 
 		animComponent->SetSkeleton( *skeleton );
 		animComponent->SetAnimation( animation->GetAnimations()[ 0 ] );
@@ -67,13 +67,13 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 		auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
 
-		renderingComponent->LoadMeshAndMaterial( "Models\\sponza\\sponza.obj" );
+		renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\sponza\\sponza.obj" ) );
 
 		transformComponent->SetWorldPosition( Vector3::ZEROS() );
 		transformComponent->SetWorldScale( Vector3::ONES() * 0.01f );
 
 		auto* physicsComponent = obj->GetComponent< forge::PhysicsStaticComponent >();
-		auto modelAsset = engineInstance.GetAssetsManager().GetAsset< renderer::ModelAsset >( "Models\\sponza\\sponza.obj" );
+		auto modelAsset = engineInstance.GetAssetsManager().GetAsset< renderer::ModelAsset >( forge::Path( "Models\\sponza\\sponza.obj" ) );
 
 		auto model = modelAsset->GetModel();
 		const renderer::Vertices& vertices = model->GetVertices();
@@ -168,10 +168,11 @@ Int32 main()
 				engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent( *freeCameraController );
 			} );
 
-			engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetSkyboxTexture( engineInstance.GetAssetsManager().GetAsset< renderer::TextureAsset >( "Textures\\skymap.dds" )->GetTexture() );
+			engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetSkyboxTexture( engineInstance.GetAssetsManager().GetAsset< renderer::TextureAsset >( forge::Path( "Textures\\skymap.dds" ) )->GetTexture() );
 			engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetTargetTexture( &engineInstance.GetRenderingManager().GetRenderer().GetSwapchain()->GetBackBuffer() );
 
 			SponzaScene( engineInstance );
+			//SkeletalMesh( engineInstance, Vector3() );
 		}
 
 		virtual void OnUpdate( forge::EngineInstance& engineInstance ) override
@@ -196,7 +197,7 @@ Int32 main()
 
 					auto* renderingComponent = sphere->GetComponent< forge::RenderingComponent >();
 
-					renderingComponent->LoadMeshAndMaterial( "Models\\sphere.obj" );
+					renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\sphere.obj" ) );
 					renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ Math::Random::GetRNG().GetFloat(), Math::Random::GetRNG().GetFloat(), Math::Random::GetRNG().GetFloat(), 1.0f } );
 					renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 

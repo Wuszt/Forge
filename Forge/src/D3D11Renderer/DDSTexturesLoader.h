@@ -8,7 +8,7 @@ namespace d3d11
 	public:
 		DDSTexturesLoader( const D3D11Device& device, const D3D11RenderContext& context );
 
-		virtual std::vector< std::shared_ptr< forge::IAsset > > LoadAssets( const std::string& path ) const override;
+		virtual std::vector< std::shared_ptr< forge::IAsset > > LoadAssets( const forge::Path& path ) const override;
 		virtual forge::ArraySpan<const char*> GetHandledExtensions() const override;
 
 	private:

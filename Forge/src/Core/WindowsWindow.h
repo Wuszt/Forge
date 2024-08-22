@@ -7,6 +7,11 @@ typedef HINSTANCE__* HINSTANCE;
 struct HWND__;
 typedef HWND__* HWND;
 
+namespace forge
+{
+	class Path;
+}
+
 namespace windows
 {
 	class WindowsInput;
@@ -68,7 +73,7 @@ namespace windows
 			return m_positionY;
 		}
 
-		virtual std::string CreateFileDialog( FileDialogType type, forge::ArraySpan< std::string > extensions = {}, std::string defaultPath = std::string() ) const override;
+		virtual forge::Path CreateFileDialog( FileDialogType type, forge::ArraySpan< std::string > extensions = {}, const forge::Path& defaultPath = {}) const override;
 
 		forge::CallbackToken RegisterWindowRawEventListener( const WindowRawEventCallback::TFunc& callback )
 		{

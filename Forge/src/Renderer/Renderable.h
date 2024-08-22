@@ -2,6 +2,11 @@
 #include "ConstantBuffer.h"
 #include "Renderer.h"
 
+namespace forge
+{
+	class Path;
+}
+
 namespace renderer
 {
 	class Model;
@@ -26,7 +31,7 @@ namespace renderer
 		Renderable( Renderable&& );
 		Renderable& operator=(Renderable&&);
 
-		void SetModel( forge::AssetsManager& assetsManager, const std::string& path );
+		void SetModel( forge::AssetsManager& assetsManager, const forge::Path& path );
 		const Model& GetModel() const
 		{
 			return *m_model;

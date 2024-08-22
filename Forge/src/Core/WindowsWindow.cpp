@@ -206,9 +206,9 @@ namespace windows
 		return false;
 	}
 
-	std::string WindowsWindow::CreateFileDialog( FileDialogType type, forge::ArraySpan< std::string > extensions, std::string defaultPath ) const
+	forge::Path WindowsWindow::CreateFileDialog( FileDialogType type, forge::ArraySpan< std::string > extensions, const forge::Path& defaultPath ) const
 	{
-		std::string result;
+		forge::Path result;
 		if ( SUCCEEDED( CoInitializeEx( nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE ) ) )
 		{
 			IID fileDialogIID;
@@ -235,11 +235,11 @@ namespace windows
 				ON_SCOPE_EXIT( fileDialog->Release(); );
 
 				IShellItem* currentFolder = NULL;
-				if ( !defaultPath.empty() )
+				if ( !defaultPath.IsEmpty() )
 				{
-					if ( !SUCCEEDED( SHCreateItemFromParsingName( std::wstring( defaultPath.begin(), defaultPath.end() ).c_str(), NULL, IID_PPV_ARGS( &currentFolder ) ) ) )
+					if ( !SUCCEEDED( SHCreateItemFromParsingName( std::wstring( defaultPath.AsString().begin(), defaultPath.AsString().end() ).c_str(), NULL, IID_PPV_ARGS( &currentFolder ) ) ) )
 					{
-						return "";
+						return {};
 					}
 
 					ON_SCOPE_EXIT( currentFolder->Release(); );
@@ -257,7 +257,7 @@ namespace windows
 					COMDLG_FILTERSPEC filterSpec = { TEXT( "" ), combinedExtentionsAsWide.c_str() };
 					if ( !SUCCEEDED( fileDialog->SetFileTypes( 1, &filterSpec ) ) )
 					{
-						return "";
+						return {};
 					}
 				}
 
@@ -270,8 +270,10 @@ namespace windows
 						LPWSTR filePath;
 						if ( SUCCEEDED( item->GetDisplayName( SIGDN_FILESYSPATH, &filePath ) ) )
 						{
-							result.resize( std::wcslen( filePath ) );
-							wcstombs( result.data(), filePath, result.size() );
+							std::string str;
+							str.resize( std::wcslen( filePath ) );
+							wcstombs( str.data(), filePath, str.size() );
+							result = forge::Path( std::move( str ) );
 						}
 					}
 				}

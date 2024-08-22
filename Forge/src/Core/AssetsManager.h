@@ -1,5 +1,6 @@
 #pragma once
 #include "IAssetsLoader.h"
+#include "Path.h"
 
 namespace forge
 {
@@ -33,7 +34,7 @@ namespace forge
 		}
 
 		template< class T >
-		std::shared_ptr< T > GetAsset( const std::string& path )
+		std::shared_ptr< T > GetAsset( const forge::Path& path )
 		{
 			for( auto asset : GetAssetsInternal( path ) )
 			{
@@ -50,11 +51,11 @@ namespace forge
 		template< class T, class... Args >
 		void AddAssetsLoader( Args&&... args )
 		{
-			std::unique_ptr< IAssetsLoader > loader = std::make_unique< T >( std::forward< Args >( args )... );
+			std::shared_ptr< IAssetsLoader > loader = std::make_shared< T >( std::forward< Args >( args )... );
 			for( auto extension : loader->GetHandledExtensions() )
 			{
 				FORGE_ASSERT( m_assetsLoaders.find( extension ) == m_assetsLoaders.end() );
-				m_assetsLoaders.emplace( extension, std::move( loader ) );
+				m_assetsLoaders.emplace( extension, loader );
 			}
 		}
 
@@ -70,10 +71,10 @@ namespace forge
 		}
 
 	private:
-		forge::ArraySpan< std::shared_ptr< forge::IAsset > > GetAssetsInternal( const std::string& path );
+		forge::ArraySpan< std::shared_ptr< forge::IAsset > > GetAssetsInternal( const forge::Path& path );
 
-		std::unordered_map< std::string, std::vector< std::shared_ptr< IAsset > > > m_assetsCache;
-		std::unordered_map< std::string, std::unique_ptr< IAssetsLoader > > m_assetsLoaders;
+		std::unordered_map< forge::Path, std::vector< std::shared_ptr< IAsset > > > m_assetsCache;
+		std::unordered_map< std::string, std::shared_ptr< IAssetsLoader > > m_assetsLoaders;
 		const forge::DepotsContainer& m_depotsContainer;
 	};
 }

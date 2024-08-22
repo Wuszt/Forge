@@ -4,10 +4,10 @@
 RTTI_IMPLEMENT_TYPE( renderer::AnimationSetAsset );
 
 renderer::AnimationSetAsset::AnimationSetAsset()
-	: forge::IAsset("")
+	: forge::IAsset({})
 {}
 
-renderer::AnimationSetAsset::AnimationSetAsset( const std::string& path, std::vector< Animation > animations )
+renderer::AnimationSetAsset::AnimationSetAsset( const forge::Path& path, std::vector< Animation > animations )
 	: m_animations( std::move( animations ) )
 	, forge::IAsset( path )
 {}

@@ -1,8 +1,10 @@
 #pragma once
+#include "Path.h"
 
 namespace forge
 {
 	class IInput;
+	class Path;
 
 	class IWindow
 	{
@@ -84,7 +86,7 @@ namespace forge
 			Save
 		};
 
-		virtual std::string CreateFileDialog( FileDialogType type, forge::ArraySpan< std::string > extensions = {}, std::string defaultPath = std::string() ) const = 0;
+		virtual forge::Path CreateFileDialog( FileDialogType type, forge::ArraySpan< std::string > extensions = {}, const forge::Path& defaultPath = {} ) const = 0;
 
 		Float GetAspectRatio() const
 		{

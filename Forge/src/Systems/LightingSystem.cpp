@@ -186,7 +186,7 @@ void systems::LightingSystem::OnRenderDebug()
 			cb->UpdateBuffer();
 			cb->SetPS( renderer::PSConstantBufferType::Material );
 
-			renderer::FullScreenRenderingPass fsPass( GetEngineInstance().GetRenderingManager().GetRenderer(), "DepthBufferDebug.fx", shaderDefines );
+			renderer::FullScreenRenderingPass fsPass( GetEngineInstance().GetRenderingManager().GetRenderer(), forge::Path( "DepthBufferDebug.fx" ), shaderDefines );
 			fsPass.SetTargetTexture( *tempTexture );
 			fsPass.Draw( { texture.GetShaderResourceView() } );
 

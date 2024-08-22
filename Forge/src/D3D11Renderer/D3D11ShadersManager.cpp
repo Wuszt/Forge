@@ -9,10 +9,13 @@ d3d11::D3D11ShadersManager::D3D11ShadersManager( const forge::DepotsContainer& d
 	, m_context( context )
 {}
 
-std::unique_ptr< renderer::IVertexShader > d3d11::D3D11ShadersManager::CreateVertexShader( const std::string& path, forge::ArraySpan< const renderer::ShaderDefine > defines ) const
+std::unique_ptr< renderer::IVertexShader > d3d11::D3D11ShadersManager::CreateVertexShader( const forge::Path& path, forge::ArraySpan< const renderer::ShaderDefine > defines ) const
 {
-	std::string absolutePath;
-	if( m_depotsContainer.TryToGetExistingFilePath( "Shaders\\" + path, absolutePath ) )
+	forge::Path absolutePath;
+	forge::Path localPath( "Shaders" );
+	localPath.Append( path );
+
+	if( m_depotsContainer.TryToGetExistingFilePath( localPath, absolutePath ) )
 	{
 		return std::make_unique< d3d11::D3D11VertexShader >( m_device, m_context, absolutePath, defines );
 	}
@@ -20,10 +23,13 @@ std::unique_ptr< renderer::IVertexShader > d3d11::D3D11ShadersManager::CreateVer
 	return nullptr;
 }
 
-std::unique_ptr< renderer::IPixelShader > d3d11::D3D11ShadersManager::CreatePixelShader( const std::string& path, forge::ArraySpan< const renderer::ShaderDefine > defines ) const
+std::unique_ptr< renderer::IPixelShader > d3d11::D3D11ShadersManager::CreatePixelShader( const forge::Path& path, forge::ArraySpan< const renderer::ShaderDefine > defines ) const
 {
-	std::string absolutePath;
-	if( m_depotsContainer.TryToGetExistingFilePath( "Shaders\\" + path, absolutePath ) )
+	forge::Path absolutePath;
+	forge::Path localPath( "Shaders" );
+	localPath.Append( path );
+
+	if( m_depotsContainer.TryToGetExistingFilePath( localPath, absolutePath ) )
 	{
 		return std::make_unique< d3d11::D3D11PixelShader >( m_device, m_context, absolutePath, defines );
 	}

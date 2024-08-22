@@ -4,5 +4,5 @@
 RTTI_IMPLEMENT_TYPE( renderer::ModelAsset );
 
 renderer::ModelAsset::ModelAsset()
-	: IAsset( "" )
+	: IAsset( {} )
 {}

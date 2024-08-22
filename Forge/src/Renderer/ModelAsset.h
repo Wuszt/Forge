@@ -18,10 +18,10 @@ namespace renderer
 		};
 
 		ModelAsset();
-		ModelAsset( const std::string& name, std::unique_ptr< renderer::Model >&& model, std::vector< MaterialData >&& materialsData )
+		ModelAsset( const forge::Path& path, std::unique_ptr< renderer::Model >&& model, std::vector< MaterialData >&& materialsData )
 			: m_model( std::move( model ) )
 			, m_materialsData( std::move( materialsData ) )
-			, forge::IAsset( name )
+			, forge::IAsset( path )
 		{}
 
 		const std::shared_ptr< renderer::Model > GetModel() const

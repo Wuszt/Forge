@@ -24,7 +24,7 @@ editor::SceneGrid::SceneGrid( forge::EngineInstance& engineInstance )
 		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
 		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
-		renderingComponent->LoadMeshAndMaterial( "Models\\cylinder.obj" );
+		renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\cylinder.obj" ) );
 
 		const Vector3 start = { static_cast< Float >( xStart ), static_cast< Float >( yStart ), 0.0f };
 		const Vector3 end = { static_cast< Float >( xEnd ), static_cast< Float >( yEnd ), 0.0f };

@@ -7,6 +7,7 @@
 #include "../../External/openfbx/src/ofbx.h"
 #include "AnimationSetAsset.h"
 #include <regex>
+#include "../Core/Path.h"
 
 renderer::FBXLoader::FBXLoader( renderer::Renderer& renderer )
 	: m_renderer( renderer )
@@ -61,9 +62,9 @@ namespace
 {
 	struct FileHandle
 	{
-		FileHandle( const std::string& path )
+		FileHandle( const forge::Path& path )
 		{
-			fopen_s( &m_file, path.c_str(), "rb" );
+			fopen_s( &m_file, path.Get(), "rb" );
 		}
 
 		~FileHandle()
@@ -79,7 +80,7 @@ namespace
 }
 
 using SceneHandle = std::unique_ptr < ofbx::IScene, decltype( []( ofbx::IScene* scene ) { if ( scene ) scene->destroy(); } ) > ;
-SceneHandle LoadScene( const std::string& path )
+SceneHandle LoadScene( const forge::Path& path )
 {
 	FileHandle handle( path );
 
@@ -112,7 +113,7 @@ namespace
 	};
 }
 
-std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const std::string& path, const SceneHandle& scene, SkeletonData& skeletonData )
+std::shared_ptr< renderer::SkeletonAsset > LoadSkeleton( const forge::Path& path, const SceneHandle& scene, SkeletonData& skeletonData )
 {
 	std::vector< Matrix > bonesOffsets;
 
@@ -286,7 +287,7 @@ Matrix GetNodeLocalTransform( const ofbx::AnimationLayer& animLayer, renderer::A
 	return Matrix();
 }
 
-std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHandle& scene, const std::string& path, const SkeletonData& skeletonData, renderer::SkeletonAsset& skeleton )
+std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHandle& scene, const forge::Path& path, const SkeletonData& skeletonData, renderer::SkeletonAsset& skeleton )
 {
 	std::vector< renderer::Animation > animations;
 
@@ -326,7 +327,7 @@ std::shared_ptr< renderer::AnimationSetAsset > LoadAnimationSet( const SceneHand
 	return std::make_shared< renderer::AnimationSetAsset >( path, animations );
 }
 
-std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, renderer::Renderer& renderer, const SceneHandle& scene, const SkeletonData& skeletonData )
+std::shared_ptr< renderer::ModelAsset > LoadModel( const forge::Path& path, renderer::Renderer& renderer, const SceneHandle& scene, const SkeletonData& skeletonData )
 {
 	if ( scene->getMeshCount() == 0u )
 	{
@@ -507,9 +508,11 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const std::string& path, rend
 	return modelAsset;
 }
 
-std::string GetFixedPathOfAsset( const char* path )
+forge::Path GetFixedPathOfAsset( const Char* rawPath )
 {
-	return std::regex_replace( path, std::regex( "\\\\[^\\\\]*fbm\\\\" ), "\\" );
+	FORGE_ASSERT( false );
+	return forge::Path( rawPath );
+	//return std::regex_replace( path, std::regex( "\\\\[^\\\\]*fbm\\\\" ), "\\" );
 }
 
 void CreateExternalAssets( const SceneHandle& scene )
@@ -520,17 +523,17 @@ void CreateExternalAssets( const SceneHandle& scene )
 
 		char path[ 400 ];
 		scene->getEmbeddedFilename( i ).toString( path );
-		std::string fixedPath = GetFixedPathOfAsset( path );
+		forge::Path fixedPath = GetFixedPathOfAsset( path );
 		FileHandle fileHandle( fixedPath );
 
-		if ( std::filesystem::exists( fixedPath ) )
+		if ( std::filesystem::exists( fixedPath.Get() ) )
 		{
 			continue;
 		}
 
-		if ( fopen_s( &fileHandle.m_file, fixedPath.c_str(), "wb" ) != 0 )
+		if ( fopen_s( &fileHandle.m_file, fixedPath.Get(), "wb" ) != 0 )
 		{
-			FORGE_LOG_ERROR( "Couldn't open %s to write external asset", fixedPath.c_str() );
+			FORGE_LOG_ERROR( "Couldn't open %s to write external asset", fixedPath.Get() );
 			continue;
 		}
 
@@ -538,7 +541,7 @@ void CreateExternalAssets( const SceneHandle& scene )
 	}
 }
 
-std::vector< std::shared_ptr< forge::IAsset > > renderer::FBXLoader::LoadAssets( const std::string& path ) const
+std::vector< std::shared_ptr< forge::IAsset > > renderer::FBXLoader::LoadAssets( const forge::Path& path ) const
 {
 	std::vector< std::shared_ptr< forge::IAsset > > loadedAssets;
 

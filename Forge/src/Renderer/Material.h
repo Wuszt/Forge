@@ -2,6 +2,7 @@
 
 #include "IShader.h"
 #include "IRenderingResource.h"
+#include "../Core/Path.h"
 
 namespace renderer
 {
@@ -30,7 +31,7 @@ namespace renderer
 			Count
 		};
 
-		Material( renderer::Renderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass );
+		Material( renderer::Renderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const forge::Path& vsPath, const forge::Path& psPath, renderer::RenderingPass renderingPass );
 		Material();
 		Material( Material&& );
 		~Material();
@@ -65,7 +66,7 @@ namespace renderer
 			return m_textures;
 		}
 
-		void SetShaders( const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass );
+		void SetShaders( const forge::Path& vsPath, const forge::Path& psPath, renderer::RenderingPass renderingPass );
 		void SetRenderingPass( renderer::RenderingPass renderingPass );
 		void SetTexture( std::shared_ptr< const ITexture > texture, Material::TextureType textureType );
 
@@ -74,12 +75,12 @@ namespace renderer
 			return m_renderingPass;
 		}
 
-		const std::string& GetVertexShaderPath() const
+		const forge::Path& GetVertexShaderPath() const
 		{
 			return m_vertexShaderPath;
 		}
 
-		const std::string& GetPixelShaderPath() const
+		const forge::Path& GetPixelShaderPath() const
 		{
 			return m_pixelShaderPath;
 		}
@@ -98,8 +99,8 @@ namespace renderer
 		renderer::RenderingPass m_renderingPass = static_cast< renderer::RenderingPass >( 0 );
 		forge::CallbackToken m_onShadersClearCache;
 
-		std::string m_vertexShaderPath;
-		std::string m_pixelShaderPath;
+		forge::Path m_vertexShaderPath;
+		forge::Path m_pixelShaderPath;
 	};
 }
 

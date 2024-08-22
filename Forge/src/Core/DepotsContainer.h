@@ -1,22 +1,23 @@
 #pragma once
+#include "Path.h"
 
 namespace forge
 {
 	class Depot
 	{
 	public:
-		Depot( const std::string& depotsAbsolutePath, const std::string& rootPath );
-		std::string GetAbsolutePath( const std::string& localPath ) const;
-		bool ContainsFile( const std::string& localPath ) const;
+		Depot( const forge::Path& depotsAbsolutePath, const forge::Path& rootPath );
+		forge::Path GetAbsolutePath( const forge::Path& localPath ) const;
+		bool ContainsFile( const forge::Path& localPath ) const;
 
 	private:
-		const std::string m_rootPath;
+		const forge::Path m_rootPath;
 	};
 
 	class DepotsContainer
 	{
 	public:
-		DepotsContainer( const std::string& appDepotName );
+		DepotsContainer( const forge::Path& appDepotName );
 
 		const Depot& GetApplicationDepot() const
 		{
@@ -28,12 +29,12 @@ namespace forge
 			return m_engineDepot;
 		}
 
-		const std::string& GetDepotsPath() const
+		const forge::Path& GetDepotsPath() const
 		{
 			return m_depotsPath;
 		}
 
-		bool TryToGetExistingFilePath( const std::string& localPath, std::string& outAbsolutePath ) const
+		bool TryToGetExistingFilePath( const forge::Path& localPath, forge::Path& outAbsolutePath ) const
 		{
 			if( m_appDepot.ContainsFile( localPath ) )
 			{
@@ -51,7 +52,7 @@ namespace forge
 		}
 
 	private:
-		std::string m_depotsPath;
+		forge::Path m_depotsPath;
 
 		const Depot m_appDepot;
 		const Depot m_engineDepot;

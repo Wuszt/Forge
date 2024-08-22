@@ -4,7 +4,7 @@
 
 namespace d3d11
 {
-	D3D11PixelShader::D3D11PixelShader( const D3D11Device& device, D3D11RenderContext& context, const std::string& path, forge::ArraySpan< const renderer::ShaderDefine > defines )
+	D3D11PixelShader::D3D11PixelShader( const D3D11Device& device, D3D11RenderContext& context, const forge::Path& path, forge::ArraySpan< const renderer::ShaderDefine > defines )
 		: m_context( context )
 	{
 		std::vector< D3D_SHADER_MACRO > macros;
@@ -15,7 +15,7 @@ namespace d3d11
 
 		macros.push_back( { nullptr, nullptr } );
 
-		auto wstr = std::wstring( path.begin(), path.end() );
+		auto wstr = std::wstring( path.AsString().begin(), path.AsString().end() );
 		LPCWSTR wPath = wstr.c_str();
 		ID3DBlob* errorMsg;
 		HRESULT result = D3DCompileFromFile( wPath, macros.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, "PS", "ps_4_0", D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG, 0, &m_buffer, &errorMsg );
@@ -31,11 +31,11 @@ namespace d3d11
 
 			if( result == S_OK )
 			{
-				FORGE_LOG_WARNING( "Pixel Shader [%s] [%s] compilation warning: %s", path.c_str(), definesAsString.c_str(), static_cast< char* >( errorMsg->GetBufferPointer() ) );
+				FORGE_LOG_WARNING( "Pixel Shader [%s] [%s] compilation warning: %s", path.Get(), definesAsString.c_str(), static_cast< char* >( errorMsg->GetBufferPointer() ) );
 			}
 			else
 			{
-				FORGE_LOG_ERROR( "Pixel Shader [%s] [%s] compilation error: %s", path.c_str(), definesAsString.c_str(), static_cast< char* >( errorMsg->GetBufferPointer() ) );
+				FORGE_LOG_ERROR( "Pixel Shader [%s] [%s] compilation error: %s", path.Get(), definesAsString.c_str(), static_cast< char* >( errorMsg->GetBufferPointer() ) );
 			}
 
 			errorMsg->Release();

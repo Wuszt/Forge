@@ -59,7 +59,7 @@ namespace renderer
 
 	public:
 		AnimationSetAsset();
-		AnimationSetAsset( const std::string& path, std::vector< Animation > animation );
+		AnimationSetAsset( const forge::Path& path, std::vector< Animation > animation );
 
 		const std::vector< Animation >& GetAnimations() const
 		{

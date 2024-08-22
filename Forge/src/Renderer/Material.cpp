@@ -2,6 +2,7 @@
 #include "../Renderer/Renderer.h"
 #include "../Renderer/IShader.h"
 #include "ConstantBuffer.h"
+#include "TextureAsset.h"
 
 RTTI_IMPLEMENT_TYPE( renderer::Material );
 
@@ -25,7 +26,7 @@ std::vector< renderer::ShaderDefine > ConstructShaderDefines( const renderer::Mo
 	return result;
 }
 
-renderer::Material::Material( renderer::Renderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass )
+renderer::Material::Material( renderer::Renderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const forge::Path& vsPath, const forge::Path& psPath, renderer::RenderingPass renderingPass )
 	: m_renderer( &renderer )
 {
 	m_shadersDefines = ConstructShaderDefines( model );
@@ -45,7 +46,7 @@ renderer::Material::Material() = default;
 renderer::Material::Material( Material&& ) = default;
 renderer::Material::~Material() = default;
 
-void renderer::Material::SetShaders( const std::string& vsPath, const std::string& psPath, renderer::RenderingPass renderingPass )
+void renderer::Material::SetShaders( const forge::Path& vsPath, const forge::Path& psPath, renderer::RenderingPass renderingPass )
 {
 	std::vector< renderer::ShaderDefine > defines = m_shadersDefines;
 

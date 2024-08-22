@@ -49,7 +49,7 @@ forge::ArraySpan< const renderer::ShaderDefine > renderer::DeferredRenderingPass
 renderer::DeferredRenderingPass::DeferredRenderingPass( Renderer& renderer )
 	: IMeshesRenderingPass( renderer )
 {
-	m_lightingPass = std::make_unique< FullScreenRenderingPass >( GetRenderer(), "DeferredLighting.fx", "DeferredLighting.fx", forge::ArraySpan< renderer::ShaderDefine >( {} ) );
+	m_lightingPass = std::make_unique< FullScreenRenderingPass >( GetRenderer(), forge::Path( "DeferredLighting.fx" ), forge::Path( "DeferredLighting.fx" ), forge::ArraySpan< renderer::ShaderDefine >( {} ) );
 
 	m_cbDeferredRendering = GetRenderer().CreateStaticConstantBuffer< CBDeferredRendering >();
 	m_cbPointLight = GetRenderer().CreateStaticConstantBuffer< CBPointLight >();

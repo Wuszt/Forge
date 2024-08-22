@@ -26,7 +26,7 @@ namespace renderer
 		ClearCache();
 	}
 
-	Uint32 CalcShaderHash( const std::string& path, forge::ArraySpan< const ShaderDefine > defines )
+	Uint32 CalcShaderHash( const forge::Path& path, forge::ArraySpan< const ShaderDefine > defines )
 	{
 		Uint64 result = Math::CalculateHash( path );
 		for( auto& define : defines )
@@ -37,7 +37,7 @@ namespace renderer
 		return static_cast<Uint32>( result );
 	}
 
-	std::shared_ptr< ShaderPack< IVertexShader > > ShadersManager::GetVertexShader( const std::string& path, std::vector< ShaderDefine > defines, Bool withSubshaders )
+	std::shared_ptr< ShaderPack< IVertexShader > > ShadersManager::GetVertexShader( const forge::Path& path, std::vector< ShaderDefine > defines, Bool withSubshaders )
 	{
 		FORGE_ASSERT( !withSubshaders || std::count_if( m_baseShaderDefines.begin(), m_baseShaderDefines.end(), [ &defines ]( const ShaderDefine& define ) { return std::count( defines.begin(), defines.end(), define ) > 0u; } ) == 0u );
 
@@ -67,7 +67,7 @@ namespace renderer
 		return shaderPack;
 	}
 
-	std::shared_ptr< ShaderPack< IPixelShader > > ShadersManager::GetPixelShader( const std::string& path, std::vector< ShaderDefine > defines, Bool withSubshaders )
+	std::shared_ptr< ShaderPack< IPixelShader > > ShadersManager::GetPixelShader( const forge::Path& path, std::vector< ShaderDefine > defines, Bool withSubshaders )
 	{
 		Uint32 shaderHash = CalcShaderHash( path, defines );
 		auto& shaderPack = m_pixelShaders[ shaderHash ];
