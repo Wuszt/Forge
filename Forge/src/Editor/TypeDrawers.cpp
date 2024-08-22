@@ -257,7 +257,7 @@ void editor::TypeDrawer_Path::OnDrawValue( const Drawable& drawable ) const
 	ImGui::SameLine();
 	if ( ImGui::Button( "Browse..." ) )
 	{
-		std::string startPath;
+		forge::Path startPath;
 		if ( drawable.HasMetadata( "StartFromDepot" ) )
 		{
 			startPath = GetEngineInstance().GetDepotsContainer().GetDepotsPath();
@@ -287,12 +287,12 @@ void editor::TypeDrawer_Path::OnDrawValue( const Drawable& drawable ) const
 			}
 		}
 
-		std::string newPath = GetEngineInstance().GetRenderingManager().GetWindow().CreateFileDialog( dialogType, extensions, startPath );
-		if ( !newPath.empty() )
+		forge::Path newPath = GetEngineInstance().GetRenderingManager().GetWindow().CreateFileDialog( dialogType, extensions, startPath );
+		if ( !newPath.IsEmpty() )
 		{
 			if ( extensions.size() == 1u )
 			{
-				newPath = forge::String::Printf( "%s.%s", newPath.c_str(), extensions[ 0 ].c_str() );
+				newPath.Append( forge::Path( forge::String::Printf( ".%s", newPath.Get(), extensions[ 0 ].c_str() ) ) );
 			}
 
 			*m_path = newPath;
