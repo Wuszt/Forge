@@ -107,6 +107,9 @@
     <ClInclude Include="Path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IndexTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fpch.cpp">
@@ -173,6 +176,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Path.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexTypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

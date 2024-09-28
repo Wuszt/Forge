@@ -47,6 +47,7 @@
     <ClInclude Include="FPSCounter.h" />
     <ClInclude Include="IAssetsLoader.h" />
     <ClInclude Include="IInput.h" />
+    <ClInclude Include="IndexTypes.h" />
     <ClInclude Include="IWindow.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="OnScopeExit.h" />
@@ -77,6 +78,7 @@
     <ClCompile Include="FPSCounter.cpp" />
     <ClCompile Include="IAssetsLoader.cpp" />
     <ClCompile Include="IInput.cpp" />
+    <ClCompile Include="IndexTypes.cpp" />
     <ClCompile Include="IWindow.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Path.cpp" />
