@@ -15,3 +15,4 @@
 #include "RawVector.h"
 #include "OnScopeExit.h"
 #include "GUID.h"
+#include "IndexTypes.h"
