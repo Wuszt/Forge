@@ -72,12 +72,12 @@ static void AddOrRemoveTag( forge::Object& owner, Bool add )
 	}
 }
 
-void forge::RenderingComponent::SetInteractingWithLight( bool enabled )
+void forge::RenderingComponent::SetInteractingWithLight( Bool enabled )
 {
 	AddOrRemoveTag< forge::IgnoresLights >( GetOwner(), !enabled );
 }
 
-void forge::RenderingComponent::SetDrawAsOverlayEnabled( bool enabled )
+void forge::RenderingComponent::SetDrawAsOverlayEnabled( Bool enabled )
 {
 	AddOrRemoveTag< forge::DrawAsOverlay >( GetOwner(), enabled );
 }

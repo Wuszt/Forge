@@ -53,8 +53,8 @@ namespace forge
 		void LoadMeshAndMaterial( const forge::Path& path );
 		void SetDirty();
 
-		void SetInteractingWithLight( bool enabled );
-		void SetDrawAsOverlayEnabled( bool enabled );
+		void SetInteractingWithLight( Bool enabled );
+		void SetDrawAsOverlayEnabled( Bool enabled );
 
 		ecs::MutableFragmentView< forge::RenderableFragment > GetDirtyData()
 		{
