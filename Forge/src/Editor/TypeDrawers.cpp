@@ -9,6 +9,7 @@
 #include "../GameEngine/RenderingManager.h"
 #include "../Core/IWindow.h"
 #include "../Core/DepotsContainer.h"
+#include "../Core/PropertiesChain.h"
 
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Int32 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Uint32 );
@@ -24,34 +25,103 @@ static ImVec2 GetButtonSize()
 	return { 0.0f, ImGui::GetFontSize() + 6.0f };
 }
 
+static void BroadcastPropertyChangedCallback( const editor::TypeDrawer::Drawable& drawable )
+{
+	forge::PropertiesChain chain;
+	const editor::TypeDrawer::Drawable* firstDrawable = &drawable;
+
+	std::function< void( const editor::TypeDrawer::Drawable& ) > visitDrawable;
+	visitDrawable = [ & ]( const editor::TypeDrawer::Drawable& drawable )
+	{
+		if ( const auto* parentDrawable = drawable.GetParent() )
+		{
+			firstDrawable = parentDrawable;
+			if ( parentDrawable->GetName() != nullptr )
+			{
+				visitDrawable( *parentDrawable );
+			}
+
+			const Char* propertyName = drawable.GetName();
+			FORGE_ASSERT( propertyName );
+
+			const rtti::Property* property = parentDrawable->GetType().FindProperty( propertyName );
+			FORGE_ASSERT( property );
+
+			chain.Add( *property );
+		}
+	};
+
+	visitDrawable( drawable );
+
+	auto tryToBroadcastCallbackOnType = [ & ]( const rtti::Type& type, void* address )
+	{
+		if ( const rtti::Function* func = type.FindMethod( "OnPropertyChanged" ) )
+		{
+			if ( func->GetParametersAmount() == 1 && func->GetReturnTypeDesc() == nullptr )
+			{
+				const rtti::ParameterTypeDesc* paramDesc = func->GetParameterTypeDesc( 0 );
+
+				if ( paramDesc->GetType() == forge::PropertiesChain::GetTypeStatic() && paramDesc->HasFlags( rtti::InstanceFlags::Const | rtti::InstanceFlags::Ref ) )
+				{
+					func->Call( address, &chain, nullptr );
+				}
+			}
+		}
+	};
+
+	tryToBroadcastCallbackOnType( firstDrawable->GetType(), firstDrawable->GetAddress() );
+
+	void* currentAddress = firstDrawable->GetAddress();
+	for ( const rtti::Property* property : chain.Get() )
+	{
+		currentAddress = property->GetAddress( currentAddress );
+		tryToBroadcastCallbackOnType( property->GetType(), currentAddress );
+	}
+}
+
 void editor::TypeDrawer_Int32::OnDrawValue( const Drawable& drawable ) const
 {
 	Int32& value = GetValue< Int32 >( drawable.GetAddress() );
-	ImGui::InputInt( "##Value", &value );
+	if ( ImGui::InputInt( "##Value", &value ) )
+	{
+		BroadcastPropertyChangedCallback( drawable );
+	}
 }
 
 void editor::TypeDrawer_Float::OnDrawValue( const Drawable& drawable ) const
 {
 	Float& value = GetValue< Float >( drawable.GetAddress() );
-	ImGui::InputFloat( "##Value", &value );
+	if ( ImGui::InputFloat( "##Value", &value ) )
+	{
+		BroadcastPropertyChangedCallback( drawable );
+	}
 }
 
 void editor::TypeDrawer_Vector2::OnDrawValue( const Drawable& drawable ) const
 {
 	Vector2& value = GetValue< Vector2 >( drawable.GetAddress() );
-	ImGui::InputFloat2( "##Value", value.AsArray() );
+	if ( ImGui::InputFloat2( "##Value", value.AsArray() ) )
+	{
+		BroadcastPropertyChangedCallback( drawable );
+	}
 }
 
 void editor::TypeDrawer_Vector3::OnDrawValue( const Drawable& drawable ) const
 {
 	Vector3& value = GetValue< Vector3 >( drawable.GetAddress() );
-	ImGui::InputFloat3( "##Value", value.AsArray() );
+	if ( ImGui::InputFloat3( "##Value", value.AsArray() ) )
+	{
+		BroadcastPropertyChangedCallback( drawable );
+	}
 }
 
 void editor::TypeDrawer_Vector4::OnDrawValue( const Drawable& drawable ) const
 {
 	Vector4& value = GetValue< Vector4 >( drawable.GetAddress() );
-	ImGui::InputFloat4( "##Value", value.AsArray() );
+	if ( ImGui::InputFloat4( "##Value", value.AsArray() ) )
+	{
+		BroadcastPropertyChangedCallback( drawable );
+	}
 }
 
 void editor::TypeDrawer_Array::OnDrawChildren( const Drawable& drawable ) const
@@ -59,7 +129,7 @@ void editor::TypeDrawer_Array::OnDrawChildren( const Drawable& drawable ) const
 	const rtti::ContainerType& containerType = static_cast< const rtti::ContainerType& >( drawable.GetType() );
 	containerType.VisitElementsAsProperties( drawable.GetAddress(), [ & ]( const rtti::Property& property )
 		{
-			Draw( GetEngineInstance(), editor::DrawableProperty( property.GetAddress( drawable.GetAddress() ), property ) );
+			Draw( GetEngineInstance(), editor::DrawableProperty( property.GetAddress( drawable.GetAddress() ), property, drawable ) );
 			return rtti::VisitOutcome::Continue;
 		} );
 }
@@ -70,11 +140,13 @@ void editor::TypeDrawer_Vector::OnDrawValue( const Drawable& drawable ) const
 	if ( ImGui::Button( "Add" ) )
 	{
 		containerType.AddDefaultElement( drawable.GetAddress() );
+		BroadcastPropertyChangedCallback( drawable );
 	}
 	ImGui::SameLine();
 	if ( ImGui::Button( "Clear" ) )
 	{
 		containerType.Clear( drawable.GetAddress() );
+		BroadcastPropertyChangedCallback( drawable );
 	}
 }
 
@@ -92,14 +164,17 @@ void editor::TypeDrawer_Vector::OnDrawChildren( const Drawable& drawable ) const
 
 				ImGui::TableNextColumn();
 				const Int32 index = i++;
-				if ( ImGui::Button( forge::String::Printf( "X##%d", index ).c_str(), { 0, 25.0f } ) )
-				{
-					containerType.RemoveElementAtIndex( drawable.GetAddress(), index );
-				}
+				const Bool clickedRemove = ImGui::Button( forge::String::Printf( "X##%d", index ).c_str(), { 0, 25.0f } );
 
 				ImGui::TableNextColumn();
-				Draw( GetEngineInstance(), editor::DrawableProperty( property.GetAddress( drawable.GetAddress() ), property ) );
+				Draw( GetEngineInstance(), editor::DrawableProperty( property.GetAddress( drawable.GetAddress() ), property, drawable, index ) );
 				ImGui::EndTable();
+
+				if ( clickedRemove )
+				{
+					containerType.RemoveElementAtIndex( drawable.GetAddress(), index );
+					BroadcastPropertyChangedCallback( drawable );
+				}
 			}
 
 			return rtti::VisitOutcome::Continue;
@@ -139,6 +214,7 @@ void editor::TypeDrawer_Enum::OnDrawValue( const Drawable& drawable ) const
 				if ( ImGui::Selectable( member.m_name, isSelected ) )
 				{
 					enumType.SetCurrentMember( drawable.GetAddress(), member );
+					BroadcastPropertyChangedCallback( drawable );
 				}
 
 				if ( isSelected )
@@ -166,6 +242,7 @@ void editor::TypeDrawer_RawPointer::OnDrawValue( const Drawable& drawable ) cons
 			if ( ImGui::Button( "X", GetButtonSize() ) )
 			{
 				GetValue< void* >( drawable.GetAddress() ) = nullptr;
+				BroadcastPropertyChangedCallback( drawable );
 			}
 			else
 			{
@@ -182,8 +259,11 @@ void editor::TypeDrawer_RawPointer::OnDrawValue( const Drawable& drawable ) cons
 }
 
 template< class T >
-void DrawSmartPtr( forge::EngineInstance& engineInstance, void* address, const T& pointerType )
+void DrawSmartPtr( forge::EngineInstance& engineInstance, const editor::TypeDrawer::Drawable& drawable )
 {
+	void* address = drawable.GetAddress();
+	const T& pointerType = static_cast< const T& >( drawable.GetType() );
+
 	if ( void* pointedAddress = pointerType.GetPointedAddress( address ) )
 	{
 		if ( ImGui::BeginTable( "SmartPtr", 2 ) )
@@ -195,6 +275,7 @@ void DrawSmartPtr( forge::EngineInstance& engineInstance, void* address, const T
 			if ( ImGui::Button( "X", GetButtonSize() ) )
 			{
 				pointerType.SetPointedAddress( address, nullptr );
+				BroadcastPropertyChangedCallback( drawable );
 			}
 			else
 			{
@@ -220,6 +301,7 @@ void DrawSmartPtr( forge::EngineInstance& engineInstance, void* address, const T
 				pointerType.GetInternalTypeDesc().GetType().ConstructInPlace( buffer.GetData() );
 				pointerType.SetPointedAddress( address, buffer.GetData() );
 				buffer.Release();
+				BroadcastPropertyChangedCallback( drawable );
 			}
 
 			ImGui::TableNextColumn();
@@ -231,18 +313,21 @@ void DrawSmartPtr( forge::EngineInstance& engineInstance, void* address, const T
 
 void editor::TypeDrawer_UniquePointer::OnDrawValue( const Drawable& drawable ) const
 {
-	DrawSmartPtr( GetEngineInstance(), drawable.GetAddress(), static_cast< const rtti::UniquePtrBaseType& >( drawable.GetType() ) );
+	DrawSmartPtr< const rtti::UniquePtrBaseType >( GetEngineInstance(), drawable );
 }
 
 void editor::TypeDrawer_SharedPointer::OnDrawValue( const Drawable& drawable ) const
 {
-	DrawSmartPtr( GetEngineInstance(), drawable.GetAddress(), static_cast< const rtti::SharedPtrBaseType& >( drawable.GetType() ) );
+	DrawSmartPtr< const rtti::SharedPtrBaseType >( GetEngineInstance(), drawable );
 }
 
 void editor::TypeDrawer_String::OnDrawValue( const Drawable& drawable ) const
 {
 	std::string* str = static_cast< std::string* >( drawable.GetAddress() );
-	forge::imgui::InputText( "##Value", *str );
+	if ( forge::imgui::InputText( "##Value", *str ) )
+	{
+		BroadcastPropertyChangedCallback( drawable );
+	}
 }
 
 const rtti::Type& editor::TypeDrawer_Path::GetSupportedType() const
@@ -290,12 +375,13 @@ void editor::TypeDrawer_Path::OnDrawValue( const Drawable& drawable ) const
 		forge::Path newPath = GetEngineInstance().GetRenderingManager().GetWindow().CreateFileDialog( dialogType, extensions, startPath );
 		if ( !newPath.IsEmpty() )
 		{
-			if ( extensions.size() == 1u )
+			if ( dialogType == forge::IWindow::FileDialogType::Save && extensions.size() == 1u )
 			{
 				newPath.Append( forge::Path( forge::String::Printf( ".%s", newPath.Get(), extensions[ 0 ].c_str() ) ) );
 			}
 
 			*m_path = newPath;
+			BroadcastPropertyChangedCallback( drawable );
 		}
 	}
 }
@@ -305,6 +391,9 @@ void editor::TypeDrawer_Uint32::OnDrawValue( const Drawable& drawable ) const
 	Uint32& value = GetValue< Uint32 >( drawable.GetAddress() );
 
 	Int32 valueAsInt = static_cast< Int32 >( value );
-	ImGui::InputInt( "##Value", &valueAsInt );
-	value = Math::Max( 0, valueAsInt );
+	if ( ImGui::InputInt( "##Value", &valueAsInt ) )
+	{
+		value = Math::Max( 0, valueAsInt );
+		BroadcastPropertyChangedCallback( drawable );
+	}	
 }

@@ -7,7 +7,7 @@ namespace forge
 	{
 		RTTI_DECLARE_STRUCT( DirectionalLightFragment, ecs::Fragment );
 
-		Vector3 Direction;
+		Vector3 Direction = Vector3::EY();
 		Float padding0;
 		Vector3 Color = { 1.0f, 1.0f, 1.0f };
 		Float padding1;

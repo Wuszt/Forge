@@ -182,7 +182,7 @@ void editor::TypeDrawer::OnDrawChildren( const Drawable& drawable ) const
 	for ( Uint32 i = 0u; i < drawable.GetType().GetPropertiesAmount(); ++i )
 	{
 		const auto* prop = drawable.GetType().GetProperty( i );
-		Draw( GetEngineInstance(), DrawableProperty( prop->GetAddress( drawable.GetAddress() ), *prop ) );
+		Draw( GetEngineInstance(), DrawableProperty( prop->GetAddress( drawable.GetAddress() ), *prop, drawable ) );
 	}
 }
 

@@ -14,9 +14,12 @@ namespace editor
 		class Drawable
 		{
 		public:
-			Drawable( void* address )
+			Drawable( void* address, forge::Index16 containerIndex, const Drawable* parent )
 				: m_address( address )
+				, m_parent( parent )
+				, m_containerIndex( containerIndex )
 			{}
+
 			virtual ~Drawable() = default;
 			virtual const rtti::Type& GetType() const = 0;
 			virtual rtti::InstanceFlags GetInstanceFlags() const = 0;
@@ -24,14 +27,22 @@ namespace editor
 			virtual const std::string* GetMetadataValue( const std::string& key ) const = 0;
 			virtual const Char* GetName() const = 0;
 			virtual const Char* GetID() const = 0;
+			virtual const Drawable* GetParent() const { return m_parent; }
 
-			virtual void* GetAddress() const
+			void* GetAddress() const
 			{
 				return m_address;
 			}
 
+			forge::Index16 GetArrayIndex() const
+			{
+				return m_containerIndex;
+			}
+
 		private:
 			void* m_address = nullptr;
+			const Drawable* m_parent = nullptr;
+			forge::Index16 m_containerIndex;
 		};
 
 		TypeDrawer( forge::EngineInstance& engineInstance )
@@ -89,7 +100,7 @@ namespace editor
 	{
 	public:
 		DrawableType( void* address, const rtti::Type& type, const Char* id = "" )
-			: TypeDrawer::Drawable( address )
+			: TypeDrawer::Drawable( address, forge::Index16(), nullptr )
 			, m_type( type )
 			, m_id( id )
 		{}
@@ -109,8 +120,8 @@ namespace editor
 	class DrawableProperty : public TypeDrawer::Drawable
 	{
 	public:
-		DrawableProperty( void* address, const rtti::Property& property )
-			: TypeDrawer::Drawable( address )
+		DrawableProperty( void* address, const rtti::Property& property, const TypeDrawer::Drawable& parent, forge::Index16 containerIndex = forge::Index16() )
+			: TypeDrawer::Drawable( address, containerIndex, &parent )
 			, m_property( property )
 		{}
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "../Renderer/Renderable.h"
 #include "../GameEngine/IComponent.h"
+#include "../Core/Path.h"
 
 namespace renderer
 {
@@ -13,6 +14,7 @@ namespace renderer
 namespace forge
 {
 	class Path;
+	class PropertiesChain;
 
 	struct RenderableFragment : public ecs::Fragment
 	{
@@ -69,7 +71,10 @@ namespace forge
 		}
 
 	private:
+		void OnPropertyChanged( const forge::PropertiesChain& propertiesChain );
+
 		CallbackToken m_onShadersClearCache;
+		forge::Path m_meshPath;
 	};
 }
 

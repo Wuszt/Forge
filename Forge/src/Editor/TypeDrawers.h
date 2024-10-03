@@ -167,6 +167,7 @@ namespace editor
 		using editor::CustomTypeDrawer::CustomTypeDrawer;
 		virtual const rtti::Type& GetSupportedType() const override;
 		virtual void OnDrawValue( const Drawable& drawable ) const override;
+		virtual Bool HasChildren( const Drawable& drawable ) const override { return false; }
 	private:
 		TypeDrawer_Path() = default;
 	};

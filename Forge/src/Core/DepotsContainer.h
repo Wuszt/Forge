@@ -1,5 +1,6 @@
 #pragma once
 #include "Path.h"
+#include <filesystem>
 
 namespace forge
 {
@@ -34,17 +35,23 @@ namespace forge
 			return m_depotsPath;
 		}
 
-		bool TryToGetExistingFilePath( const forge::Path& localPath, forge::Path& outAbsolutePath ) const
+		bool TryToGetExistingFilePath( const forge::Path& path, forge::Path& outAbsolutePath ) const
 		{
-			if( m_appDepot.ContainsFile( localPath ) )
+			if( m_appDepot.ContainsFile( path ) )
 			{
-				outAbsolutePath = m_appDepot.GetAbsolutePath( localPath );
+				outAbsolutePath = m_appDepot.GetAbsolutePath( path );
 				return true;
 			}
 
-			if( m_engineDepot.ContainsFile( localPath ) )
+			if( m_engineDepot.ContainsFile( path ) )
 			{
-				outAbsolutePath = m_engineDepot.GetAbsolutePath( localPath );
+				outAbsolutePath = m_engineDepot.GetAbsolutePath( path );
+				return true;
+			}
+
+			if( std::filesystem::exists( path.Get() ) )
+			{
+				outAbsolutePath = path;
 				return true;
 			}
 

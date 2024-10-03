@@ -114,7 +114,7 @@ namespace forge
 
 		ArraySpan< T > Mid( Uint32 index, Uint32 count = std::numeric_limits< Uint32 >::max() ) const
 		{
-			if ( index < GetSize() )
+			if ( index >= GetSize() )
 			{
 				return {};
 			}
@@ -127,5 +127,8 @@ namespace forge
 		T* m_begin;
 		T* m_end;
 	};
+
+	template< class T >
+	using ConstArraySpan = ArraySpan< const T >;
 }
 

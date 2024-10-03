@@ -6,12 +6,18 @@
 #include "../Renderer/Material.h"
 #include "../Renderer/ShadersManager.h"
 #include "../GameEngine/RenderingManager.h"
+#include "../Core/PropertiesChain.h"
 
 RTTI_IMPLEMENT_TYPE( forge::RenderableFragment,
-	RTTI_REGISTER_PROPERTY( m_renderable )
+	RTTI_REGISTER_PROPERTY( m_renderable );
 );
 
-RTTI_IMPLEMENT_TYPE( forge::RenderingComponent )
+RTTI_IMPLEMENT_TYPE( forge::RenderingComponent,
+	RTTI_REGISTER_PROPERTY( m_meshPath, 
+		RTTI_ADD_METADATA( "Extensions", "obj,fbx" ) );
+	RTTI_REGISTER_METHOD( OnPropertyChanged );
+);
+
 RTTI_IMPLEMENT_TYPE( forge::DirtyRenderable );
 RTTI_IMPLEMENT_TYPE( forge::IgnoresLights );
 RTTI_IMPLEMENT_TYPE( forge::DrawAsOverlay );
@@ -80,4 +86,12 @@ void forge::RenderingComponent::SetInteractingWithLight( Bool enabled )
 void forge::RenderingComponent::SetDrawAsOverlayEnabled( Bool enabled )
 {
 	AddOrRemoveTag< forge::DrawAsOverlay >( GetOwner(), enabled );
+}
+
+void forge::RenderingComponent::OnPropertyChanged( const forge::PropertiesChain& propertiesChain )
+{
+	if (std::strcmp( ( *propertiesChain.Get().back() )->GetName(), "m_meshPath" ) == 0)
+	{
+		LoadMeshAndMaterial( m_meshPath );
+	}
 }
