@@ -321,6 +321,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EditorInstance.cpp" />
+    <ClCompile Include="EditorTags.cpp" />
     <ClCompile Include="Fpch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -339,6 +340,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EditorInstance.h" />
+    <ClInclude Include="EditorTags.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="Gizmo.h" />
     <ClInclude Include="TypeDrawer.h" />

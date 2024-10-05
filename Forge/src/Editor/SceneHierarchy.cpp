@@ -5,6 +5,7 @@
 #include "../../External/imgui/imgui.h"
 #include "SceneEditor.h"
 #include "../Systems/TransformComponent.h"
+#include "EditorTags.h"
 
 editor::SceneHierarchy::SceneHierarchy( editor::SceneEditor& sceneEditor )
 	: WindowBase( sceneEditor.GetEngineInstance(), &sceneEditor, false )
@@ -58,53 +59,55 @@ void editor::SceneHierarchy::DrawObjectEntry( forge::ObjectID objectID, std::uno
 
 	forge::Object* obj = GetEngineInstance().GetObjectsManager().GetObject( objectID );
 
-	const char* typeName = obj->GetType().GetName();
-	const char editorNamespace[] = "editor::";
-	constexpr Uint32 editorNamespaceLength = sizeof( editorNamespace ) - 1;
+	const auto entityID = GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( objectID );
+	auto& ecsManager = GetEngineInstance().GetECSManager();
+	const Bool isEditorOnlyObject = ecsManager.GetEntityArchetypeId( entityID ).ContainsTag< editor::EditorObjectTag >();
 
-	if ( std::strncmp( typeName, editorNamespace, editorNamespaceLength ) != 0 )
+	if ( obj->GetType().HasMetadata( "EditorOnly" ) || isEditorOnlyObject )
 	{
-		std::vector< forge::ObjectID > children;
-		if ( forge::TransformComponent* transformComp = obj->GetComponent< forge::TransformComponent >() )
-		{
-			children = transformComp->GetChildren();
-		}
+		return;
+	}
 
-		if ( children.empty() )
+	std::vector< forge::ObjectID > children;
+	if ( forge::TransformComponent* transformComp = obj->GetComponent< forge::TransformComponent >() )
+	{
+		children = transformComp->GetChildren();
+	}
+
+	if ( children.empty() )
+	{
+		if ( ImGui::Selectable( obj->GetName(), objectID == GetSceneEditor().GetSelectedObject() ) )
 		{
-			if ( ImGui::Selectable( obj->GetName(), objectID == GetSceneEditor().GetSelectedObject() ) )
+			GetSceneEditor().SelectObject( objectID );
+		}
+	}
+	else
+	{
+		if ( ImGui::TreeNodeEx( obj->GetName(), ImGuiTreeNodeFlags_OpenOnArrow | ( objectID == GetSceneEditor().GetSelectedObject() ? ImGuiTreeNodeFlags_Selected : 0 ) ) )
+		{
+			if ( ImGui::IsItemClicked() )
 			{
 				GetSceneEditor().SelectObject( objectID );
 			}
+
+			for ( auto childID : children )
+			{
+				DrawObjectEntry( childID, drawnObjects );
+			}
+
+			ImGui::TreePop();
 		}
 		else
 		{
-			if ( ImGui::TreeNodeEx( obj->GetName(), ImGuiTreeNodeFlags_OpenOnArrow | ( objectID == GetSceneEditor().GetSelectedObject() ? ImGuiTreeNodeFlags_Selected : 0 ) ) )
+			if ( ImGui::IsItemClicked() )
 			{
-				if ( ImGui::IsItemClicked() )
-				{
-					GetSceneEditor().SelectObject( objectID );
-				}
-
-				for ( auto childID : children )
-				{
-					DrawObjectEntry( childID, drawnObjects );
-				}
-
-				ImGui::TreePop();
+				GetSceneEditor().SelectObject( objectID );
 			}
-			else
-			{
-				if ( ImGui::IsItemClicked() )
-				{
-					GetSceneEditor().SelectObject( objectID );
-				}
 
-				VisitHierarchyBranch( GetEngineInstance(), objectID, [ & ]( forge::ObjectID object )
-					{
-						drawnObjects.emplace( object );
-					} );
-			}
+			VisitHierarchyBranch( GetEngineInstance(), objectID, [ & ]( forge::ObjectID object )
+				{
+					drawnObjects.emplace( object );
+				} );
 		}
 	}
 }

@@ -17,10 +17,7 @@ editor::SceneEditor::SceneEditor( editor::WindowBase* parent, forge::EngineInsta
 		{
 			if ( type.IsA< forge::Object >() || type.InheritsFrom< forge::Object >() )
 			{
-				const char editorNamespace[] = "editor::";
-				constexpr Uint32 editorNamespaceLength = sizeof( editorNamespace ) - 1;
-
-				if ( std::strncmp( type.GetName(), editorNamespace, editorNamespaceLength ) != 0 )
+				if( !type.HasMetadata( "EditorOnly" ) )
 				{
 					m_objectCreationButtons.emplace_back( GetMenuBar()->AddButton( { "Create Object", type.GetName() }, [ & ]()
 						{

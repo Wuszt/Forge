@@ -36,6 +36,7 @@
 
 #include "../Systems/IMGUISystem.h"
 #include "../IMGUI/IMGUIHelpers.h"
+#include "EditorTags.h"
 
 forge::EditorInstance::EditorInstance( const std::string& applicationName )
 	: forge::ApplicationInstance( applicationName )
@@ -71,8 +72,11 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 	engineInstance.GetSystemsManager().AddSystems( systems );
 	engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor({ 0.55f, 0.55f, 0.55f });
 
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([&]( forge::Object* player )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([ & ]( forge::Object* player )
 	{
+		const auto entityID = engineInstance.GetObjectsManager().GetOrCreateEntityId( player->GetObjectID() );
+		engineInstance.GetECSManager().AddTagToEntity< editor::EditorObjectTag >( entityID );
+
 		player->SetName( "Player" );
 		player->AddComponents< forge::TransformComponent, forge::CameraComponent, forge::PhysicsFreeCameraControllerComponent >();
 		player->GetComponent< forge::TransformComponent >()->SetWorldPosition({ 0.0f, -5.0f, 0.0f });

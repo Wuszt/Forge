@@ -15,7 +15,7 @@ namespace editor
 		RTTI_DECLARE_CLASS( SceneGridLine, forge::Object );
 	};
 }
-RTTI_IMPLEMENT_TYPE( editor::SceneGridLine );
+RTTI_IMPLEMENT_TYPE( editor::SceneGridLine, RTTI_ADD_METADATA( "EditorOnly" ) );
 
 editor::SceneGrid::SceneGrid( forge::EngineInstance& engineInstance )
 {
