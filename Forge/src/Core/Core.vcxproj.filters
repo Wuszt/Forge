@@ -12,6 +12,9 @@
     <Filter Include="External">
       <UniqueIdentifier>{d22ba02d-bbc9-4755-84d3-305162d98567}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Natvis Files">
+      <UniqueIdentifier>{ab068eb5-ed8f-4539-b45e-c418493d24bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.h">
@@ -187,5 +190,10 @@
     <ClCompile Include="PropertiesChain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="ArraySpan.natvis">
+      <Filter>Natvis Files</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

@@ -109,6 +109,9 @@
       <Project>{737bed4c-8378-4d33-b8dd-93940b0490bf}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="ArraySpan.natvis" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{38E97199-F4E4-4704-B916-DD286525C84B}</ProjectGuid>

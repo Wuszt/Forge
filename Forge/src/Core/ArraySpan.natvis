@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="forge::ArraySpan&lt;*&gt;">
+    <DisplayString>{{ size = {m_end - m_begin} }}</DisplayString>
+    <Expand>
+      <ArrayItems>
+        <Size>m_end - m_begin</Size>
+        <ValuePointer>m_begin</ValuePointer>
+      </ArrayItems>
+     </Expand>
+  </Type>
+</AutoVisualizer>
