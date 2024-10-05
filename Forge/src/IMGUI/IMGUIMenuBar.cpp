@@ -9,19 +9,6 @@ imgui::MenuBarItemHandle imgui::MenuBar::AddButton( forge::ArraySpan< const char
 
 	forge::ArraySpan< const char* > purePath = { path, path.GetSize() - 1u };
 
-	auto sortElements = []( std::weak_ptr< Element > a, std::weak_ptr< Element > b )
-		{
-			if ( auto hardA = a.lock() )
-			{
-				if ( auto hardB = b.lock() )
-				{
-					return std::strcmp( hardA->GetName(), hardB->GetName() ) < 0;
-				}
-			}
-
-			return false;
-		};
-
 	for ( const char* name : purePath )
 	{
 		auto it = std::find_if( children->begin(), children->end(), [ name ]( std::weak_ptr< Element > element )
@@ -38,7 +25,6 @@ imgui::MenuBarItemHandle imgui::MenuBar::AddButton( forge::ArraySpan< const char
 		{
 			auto tmp = std::make_shared< Menu >( name, currentParent );
 			children->emplace_back( tmp );
-			std::sort( children->begin(), children->end(), sortElements );
 			currentParent = tmp;
 			children = &currentParent->GetChildren();
 		}
@@ -65,7 +51,6 @@ imgui::MenuBarItemHandle imgui::MenuBar::AddButton( forge::ArraySpan< const char
 
 	std::shared_ptr< MenuBarItem > item = std::make_shared< MenuBarItem >( itemName, currentParent, std::move( onClickedFunc ), selectable );
 	children->emplace_back( item );
-	std::sort( children->begin(), children->end(), sortElements );
 
 	return item;
 }
