@@ -25,7 +25,7 @@ namespace editor
 		RTTI_DECLARE_ABSTRACT_CLASS( GizmoElement, forge::Object );
 
 	public:
-		virtual void OnAttach() override;
+		virtual void OnInit() override;
 		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) {}
 		void SetColor( const Vector4& color );
 		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3 & cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const = 0;
@@ -123,9 +123,9 @@ namespace editor
 	RTTI_IMPLEMENT_TYPE( editor::GizmoAxisScaleCube, RTTI_ADD_METADATA( "EditorOnly" ) );
 }
 
-void editor::Gizmo::OnAttach()
+void editor::Gizmo::OnInit()
 {
-	forge::Object::OnAttach();
+	Super::OnInit();
 
 	AddComponents< forge::TransformComponent >();
 
@@ -233,9 +233,9 @@ void editor::Gizmo::Update()
 	gizmoTransformComp->SetWorldScale( Vector3::ONES() * distToCamera * distToScaleFactor );
 }
 
-void editor::GizmoElement::OnAttach()
+void editor::GizmoElement::OnInit()
 {
-	forge::Object::OnAttach();
+	forge::Object::OnInit();
 
 	ecs::EntityID entityID =  GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( GetObjectID() );
 	GetEngineInstance().GetECSManager().AddTagToEntity< forge::IgnoresLights >( entityID );

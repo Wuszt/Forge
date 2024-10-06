@@ -12,7 +12,7 @@ forge::Object::Object() = default;
 forge::Object::Object( Object&& ) = default;
 forge::Object::~Object() = default;
 
-void forge::Object::OnAttach()
+void forge::Object::OnInit()
 {
 	auto& ecsManager = GetEngineInstance().GetECSManager();
 	auto& objectsManager = GetEngineInstance().GetObjectsManager();
@@ -20,7 +20,7 @@ void forge::Object::OnAttach()
 	ecsManager.AddFragmentDataToEntity( entityID, forge::ObjectFragment( GetObjectID() ) );
 }
 
-void forge::Object::OnDetach()
+void forge::Object::OnDeinit()
 {
 	ecs::CommandsQueue commandsQueue( GetEngineInstance().GetECSManager() );
 

@@ -12,14 +12,14 @@ forge::Object& forge::ObjectsManager::CreateObject( const forge::Object::Type& o
 
 	m_onObjectAdded.Invoke( id );
 
-	rawObj->OnAttach();
+	rawObj->OnInit();
 
 	return *rawObj;
 }
 
 void forge::ObjectsManager::RemoveObject( const ObjectID& id )
 {
-	m_objects[ id ]->OnDetach();
+	m_objects[ id ]->OnDeinit();
 	m_objects.erase( id );
 
 	auto foundEntityId = m_objectsToEntities.find( id );
