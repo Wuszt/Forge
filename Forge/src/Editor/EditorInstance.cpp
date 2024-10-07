@@ -37,6 +37,7 @@
 #include "../Systems/IMGUISystem.h"
 #include "../IMGUI/IMGUIHelpers.h"
 #include "EditorTags.h"
+#include "../GameEngine/SceneObject.h"
 
 forge::EditorInstance::EditorInstance( const std::string& applicationName )
 	: forge::ApplicationInstance( applicationName )
@@ -75,8 +76,6 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([ & ]( forge::Object* player )
 	{
 		const auto entityID = engineInstance.GetObjectsManager().GetOrCreateEntityId( player->GetObjectID() );
-		engineInstance.GetECSManager().AddTagToEntity< editor::EditorObjectTag >( entityID );
-
 		player->SetName( "Player" );
 		player->AddComponents< forge::TransformComponent, forge::CameraComponent, forge::PhysicsFreeCameraControllerComponent >();
 		player->GetComponent< forge::TransformComponent >()->SetWorldPosition({ 0.0f, -5.0f, 0.0f });

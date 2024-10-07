@@ -66,6 +66,8 @@ void forge::Object::RemoveComponent( const forge::IComponent::Type& componentTyp
 		comp->Detach( GetEngineInstance(), commandsQueue );
 		commandsQueue.Execute();
 
+		OnComponentDetached( *comp );
+
 		comp->OnDetached( GetEngineInstance(), commandsQueue );
 		commandsQueue.Execute();
 
@@ -95,6 +97,7 @@ void forge::Object::AttachComponents( forge::ArraySpan< std::unique_ptr< ICompon
 	for ( IComponent* comp : attachedComponents )
 	{
 		comp->OnAttached( *m_engineInstance, queue );
+		OnComponentAttached( *comp );
 	}
 
 	queue.Execute();

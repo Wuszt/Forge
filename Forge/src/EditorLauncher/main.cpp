@@ -11,6 +11,7 @@
 #include "../Renderer/Model.h"
 #include "../Physics/PhysicsShape.h"
 #include "../Systems/PhysicsSystem.h"
+#include "../GameEngine/SceneObject.h"
 
 Int32 main()
 {
@@ -20,9 +21,9 @@ Int32 main()
 	std::shared_ptr< std::vector< forge::Object* > > objs = std::make_shared< std::vector< forge::Object* > >();
 	for( Uint32 i = 0u; i < 3; ++i )
 	{
-		engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( [ &, i, objs ]( forge::Object* obj )
+		engineInstance.GetObjectsManager().RequestCreatingObject< forge::SceneObject >( [ &, i, objs ]( forge::Object* obj )
 		{
-			obj->AddComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsStaticComponent >();
+			obj->AddComponents< forge::RenderingComponent, forge::PhysicsStaticComponent >();
 
 			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();

@@ -31,8 +31,8 @@ namespace forge
 			return m_id;
 		}
 
-		virtual void OnAttach();
-		virtual void OnDetach();
+		virtual void OnInit();
+		virtual void OnDeinit();
 
 		virtual void PostInit() {}
 
@@ -43,6 +43,12 @@ namespace forge
 
 			CreateComponents< T, Ts... >( createdComponents );
 			AttachComponents( createdComponents );
+		}
+
+		template< class T >
+		void AddComponent()
+		{
+			AddComponent( T::GetTypeStatic() );
 		}
 
 		void AddComponent( const forge::IComponent::Type& componentType );
@@ -107,6 +113,9 @@ namespace forge
 	protected:
 		Object();
 		Object( Object&& );
+
+		virtual void OnComponentAttached( IComponent& component ) {}
+		virtual void OnComponentDetached( IComponent& component ) {}
 
 	private:
 		void Initialize( EngineInstance& engineInstance, ObjectID id )

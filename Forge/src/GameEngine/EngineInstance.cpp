@@ -7,6 +7,7 @@
 #include "../Renderer/TinyObjModelsLoader.h"
 #include "../Core/AssetsManager.h"
 #include "RenderingManager.h"
+#include "SceneManager.h"
 
 forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 	: m_appInstance( appInstance )
@@ -20,6 +21,7 @@ forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 	m_updateManager = std::make_unique< forge::UpdateManager >();
 	m_systemManager = std::make_unique< systems::SystemsManager >( *this );
 	m_objectsManager = std::make_unique< forge::ObjectsManager >( *this, *m_updateManager, *m_ecsManager );
+	m_sceneManager = std::make_unique< forge::SceneManager >( *m_objectsManager );
 
 	if( m_appInstance.WithWindow() )
 	{

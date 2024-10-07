@@ -18,7 +18,7 @@ namespace editor
 		SceneEditor& GetSceneEditor();
 
 		void Draw() override;
-		void DrawObjectEntry( forge::ObjectID objectID, std::unordered_set< forge::ObjectID >& drawnObjects );
+		void DrawObjectEntry( forge::ObjectID objectID );
 		const Char* GetName() const override { return "Hierarchy"; }
 	};
 }

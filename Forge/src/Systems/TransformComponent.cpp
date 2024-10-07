@@ -34,8 +34,32 @@ std::vector< forge::ObjectID > forge::TransformComponent::GetChildren() const
 			result.emplace_back( ecsManager.GetFragmentView< forge::ObjectFragment >( child )->m_objectID );
 		}
 	}
-	
+
 	return result;
+}
+
+forge::ObjectID forge::TransformComponent::GetParent() const
+{
+	auto& objectsManager = GetOwner().GetEngineInstance().GetObjectsManager();
+	ecs::EntityID entityID = objectsManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
+	auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
+	if ( auto fragmentView = ecsManager.GetFragmentView< forge::TransformChildFragment >( entityID ) )
+	{
+		auto parentObjectID = ecsManager.GetFragmentView< forge::ObjectFragment >( fragmentView->m_parentId )->m_objectID;
+		return parentObjectID;
+	}
+
+	return forge::ObjectID();
+}
+
+static void DetachFrom( ecs::ECSManager& ecsManager, ecs::EntityID myId, forge::TransformChildFragment& childFragment )
+{
+	auto parentTransform = ecsManager.GetMutableFragmentView< forge::TransformParentFragment >( childFragment.m_parentId );
+	forge::utils::RemoveValueReorder( parentTransform->m_children, myId );
+	if ( parentTransform->m_children.empty() )
+	{
+		ecsManager.RemoveFragmentFromEntity< forge::TransformParentFragment >( childFragment.m_parentId );
+	}
 }
 
 void forge::TransformComponent::SetParent( TransformComponent& parent, bool keepWorldTransform )
@@ -54,12 +78,7 @@ void forge::TransformComponent::SetParent( TransformComponent& parent, bool keep
 		{
 			if ( childFragment )
 			{
-				auto parentTransform = ecsManager.GetMutableFragmentView< forge::TransformParentFragment >( childFragment->m_parentId );
-				forge::utils::RemoveValueReorder( parentTransform->m_children, myId );
-				if ( parentTransform->m_children.empty() )
-				{
-					ecsManager.RemoveFragmentFromEntity< forge::TransformParentFragment >( childFragment->m_parentId );
-				}
+				DetachFrom( ecsManager, myId, *childFragment );
 			}
 			else
 			{
@@ -92,6 +111,26 @@ void forge::TransformComponent::SetParent( TransformComponent& parent, bool keep
 			ecsManager.AddFragmentToEntity< forge::TransformParentFragment >( parentId );
 			transformParent = ecsManager.GetMutableFragmentView< forge::TransformParentFragment >( parentId );
 		}
+
 		transformParent->m_children.emplace_back( myId );
+	}
+
+	m_onTransformParentChanged.Invoke();
+}
+
+void forge::TransformComponent::DetachFromParent()
+{
+	auto& ecsManager = GetOwner().GetEngineInstance().GetECSManager();
+	auto& objectManager = GetOwner().GetEngineInstance().GetObjectsManager();
+
+	ecs::EntityID myId = objectManager.GetOrCreateEntityId( GetOwner().GetObjectID() );
+
+	auto childFragment = ecsManager.GetMutableFragmentView< forge::TransformChildFragment >( myId );
+	{
+		if ( childFragment )
+		{
+			DetachFrom( ecsManager, myId, *childFragment );
+			m_onTransformParentChanged.Invoke();
+		}
 	}
 }

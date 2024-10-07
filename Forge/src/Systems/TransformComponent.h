@@ -69,6 +69,8 @@ namespace forge
 
 		std::vector< forge::ObjectID > GetChildren() const;
 
+		forge::ObjectID GetParent() const;
+
 		const Transform& GetWorldTransform() const
 		{
 			return GetData()->m_transform;
@@ -171,6 +173,13 @@ namespace forge
 		}
 
 		void SetParent( TransformComponent& parent, bool keepWorldTransform );
+		void DetachFromParent();
+
+		template< class TFunc >
+		CallbackToken RegisterOnTransformParentChanged( TFunc&& func )
+		{
+			return m_onTransformParentChanged.AddListener( std::move( func ) );
+		}
 
 	private:
 		Transform& GetMutableRelativeTransform()
@@ -183,6 +192,8 @@ namespace forge
 
 			return GetMutableData()->m_transform;
 		}
+
+		Callback<> m_onTransformParentChanged;
 	};
 }
 

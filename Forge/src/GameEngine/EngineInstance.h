@@ -23,6 +23,7 @@ namespace forge
 	class ApplicationInstance;
 	class DepotsContainer;
 	class AssetsManager;
+	class SceneManager;
 
 	class EngineInstance
 	{
@@ -73,6 +74,12 @@ namespace forge
 			return *m_renderingManager;
 		}
 
+		SceneManager& GetSceneManager() const
+		{
+			FORGE_ASSERT( m_sceneManager );
+			return *m_sceneManager;
+		}
+
 		ApplicationInstance& GetApplicationInstance() const
 		{
 			return m_appInstance;
@@ -88,6 +95,7 @@ namespace forge
 		std::unique_ptr< ecs::ECSManager > m_ecsManager;
 		std::unique_ptr< renderer::RenderingManager > m_renderingManager;
 		std::unique_ptr< systems::SystemsManager > m_systemManager;
+		std::unique_ptr< forge::SceneManager > m_sceneManager;
 
 		forge::CallbackToken m_windowClosedToken;
 
