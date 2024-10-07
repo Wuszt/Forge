@@ -5,6 +5,7 @@
 #include "SceneHierarchy.h"
 #include "SceneViewport.h"
 #include "SceneObjectView.h"
+#include "../GameEngine/SceneObject.h"
 
 editor::SceneEditor::SceneEditor( editor::WindowBase* parent, forge::EngineInstance& engineInstance )
 	: WindowBase( engineInstance, parent, true )
@@ -15,14 +16,14 @@ editor::SceneEditor::SceneEditor( editor::WindowBase* parent, forge::EngineInsta
 
 	rtti::Get().VisitTypes( [ & ]( const rtti::Type& type )
 		{
-			if ( type.IsA< forge::Object >() || type.InheritsFrom< forge::Object >() )
+			if ( type.IsA< forge::SceneObject >() || type.InheritsFrom< forge::SceneObject >() )
 			{
 				if( !type.HasMetadata( "EditorOnly" ) )
 				{
-					m_objectCreationButtons.emplace_back( GetMenuBar()->AddButton( { "Create Object", type.GetName() }, [ & ]()
+					m_objectCreationButtons.emplace_back( GetMenuBar()->AddButton( { "Create Scene Object", type.GetName() }, [ & ]()
 						{
 							const forge::Object::Type& asObjectType = static_cast< const forge::Object::Type& >( type );
-							GetEngineInstance().GetObjectsManager().RequestCreatingObject( asObjectType );
+							GetEngineInstance().GetObjectsManager().RequestCreatingObject( asObjectType, {} );
 						}, false ) );
 				}
 			}
