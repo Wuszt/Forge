@@ -4,6 +4,7 @@
 #include "../src/Core/Streams.h"
 #include "../src/Math/Random.h"
 #include "filesystem"
+#include "../src/Core/Path.h"
 
 struct StructWithPrimitives
 {
@@ -131,7 +132,7 @@ int main()
 		StructWithPointers& dest = *destData;
 
 		const Uint64 c_bufferInitialSize = 256 * 1024;
-		const Char* fileName = "test.data";
+		forge::Path fileName( "test.data" );
 			
 		init += initSw.GetDuration();
 
@@ -159,7 +160,7 @@ int main()
 		}
 		deserializing += deserializationSw.GetDuration();
 
-		std::filesystem::remove( fileName );
+		std::filesystem::remove( fileName.Get() );
     }
 
     std::cout << "All:" << allSw.GetDuration() << "\n";

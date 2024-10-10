@@ -36,6 +36,10 @@ void editor::SceneObjectView::Draw()
 	}
 
 	auto* obj = GetEngineInstance().GetObjectsManager().GetObject( objectID );
+	if ( obj == nullptr )
+	{
+		return;
+	}
 
 	// Object
 	ImGui::SeparatorText( "Object" );

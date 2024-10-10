@@ -1,6 +1,8 @@
 #pragma once
 namespace forge
 {
+	class Path;
+
 	class Stream
 	{
 		RTTI_DECLARE_ABSTRACT_CLASS( Stream );
@@ -76,7 +78,7 @@ namespace forge
 	class FileStream : public Stream
 	{
 	public:
-		FileStream( const Char* filePath, Bool append, Uint64 bufferSize = 1024u * 1024u );
+		FileStream( const forge::Path& filePath, Bool append, Uint64 bufferSize = 1024u * 1024u );
 		~FileStream();
 
 		virtual void Write( const void* data, Uint64 size ) override;

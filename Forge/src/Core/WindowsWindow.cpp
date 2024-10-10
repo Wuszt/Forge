@@ -273,6 +273,14 @@ namespace windows
 							std::string str;
 							str.resize( std::wcslen( filePath ) );
 							wcstombs( str.data(), filePath, str.size() );
+							if ( type == forge::IWindow::FileDialogType::Save && extensions.GetSize() == 1 )
+							{
+								if ( str.find( '.' ) == std::string::npos )
+								{
+									str += "." + extensions[ 0 ];
+								}
+							}
+
 							result = forge::Path( std::move( str ) );
 						}
 					}

@@ -1,6 +1,7 @@
 #include "fpch.h"
 #include "Streams.h"
 #include "fstream"
+#include "Path.h"
 
 RTTI_IMPLEMENT_TYPE( forge::Stream );
 
@@ -32,12 +33,12 @@ void forge::MemoryStream::SetPos( Uint64 pos )
 	m_pos = pos;
 }
 
-forge::FileStream::FileStream( const Char* filePath, Bool append, Uint64 bufferSize )
+forge::FileStream::FileStream( const forge::Path& filePath, Bool append, Uint64 bufferSize )
 	: m_stream( std::make_unique< std::fstream >() )
 {
-	m_stream->open( filePath, std::ios::out | std::ios::app );
+	m_stream->open( filePath.Get(), std::ios::out | std::ios::app );
 	m_stream->close();
-	m_stream->open( filePath, std::ios::in | std::ios::out | std::ios::binary |  (append ? std::ios::app : 0 ) );
+	m_stream->open( filePath.Get(), std::ios::in | std::ios::out | std::ios::binary |  (append ? std::ios::app : 0 ) );
 
 	m_stream->rdbuf()->pubsetbuf( nullptr, bufferSize );
 	m_stream->sync_with_stdio( false );
