@@ -41,7 +41,7 @@ namespace systems
 
 		struct ObjectCreationRequest
 		{
-			std::function< void( forge::Object* ) > m_initFunc;
+			std::function< void( forge::Object& ) > m_initFunc;
 			Float m_timestamp = 0.0f;
 		};
 

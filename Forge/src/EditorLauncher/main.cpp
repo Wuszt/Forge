@@ -21,12 +21,12 @@ Int32 main()
 	std::shared_ptr< std::vector< forge::Object* > > objs = std::make_shared< std::vector< forge::Object* > >();
 	for( Uint32 i = 0u; i < 3; ++i )
 	{
-		engineInstance.GetObjectsManager().RequestCreatingObject< forge::SceneObject >( [ &, i, objs ]( forge::Object* obj )
+		engineInstance.GetObjectsManager().RequestCreatingObject< forge::SceneObject >( { .m_postInitFunc = [ &, i, objs ]( forge::Object& obj )
 		{
-			obj->AddComponents< forge::RenderingComponent, forge::PhysicsStaticComponent >();
+			obj.AddComponents< forge::RenderingComponent, forge::PhysicsStaticComponent >();
 
-			auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-			auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+			auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
 			renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\cube.obj" ) );
 
@@ -35,11 +35,11 @@ Int32 main()
 			if ( !objs->empty() )
 			{
 				forge::TransformComponent* parent = ( *objs )[ 0u /*Math::Random::GetRNG().GetUnsigned( 0u, static_cast< Uint32 >( objs->size() - 1 ) )*/ ]->GetComponent< forge::TransformComponent >();
-				obj->GetComponent< forge::TransformComponent >()->SetParent( *parent, true );
+				obj.GetComponent< forge::TransformComponent >()->SetParent( *parent, true );
 			}
-			objs->emplace_back( obj );
+			objs->emplace_back( &obj );
 
-			auto* physicsComponent = obj->GetComponent< forge::PhysicsStaticComponent >();
+			auto* physicsComponent = obj.GetComponent< forge::PhysicsStaticComponent >();
 			auto modelAsset = engineInstance.GetAssetsManager().GetAsset< renderer::ModelAsset >( forge::Path( "Models\\cube.obj" ) );
 
 			auto model = modelAsset->GetModel();
@@ -61,7 +61,7 @@ Int32 main()
 				physicsComponent->AddShape( physics::PhysicsShape( engineInstance.GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), verts, shape.m_indices ) );
 				++index;
 			}
-		} );
+		} } );
 	}
 
 

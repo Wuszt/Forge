@@ -133,14 +133,15 @@ void editor::Gizmo::OnInit()
 
 	auto CreateGizmoElement = [ this ]< class T >( const Vector3& direction, const Vector4& color )
 	{
-		GetEngineInstance().GetObjectsManager().RequestCreatingObject< T >( [ this, direction, color ]( T* element )
+		GetEngineInstance().GetObjectsManager().RequestCreatingObject< T >( { .m_postInitFunc = [ this, direction, color ]( forge::Object& obj )
 		{
-			m_elements.emplace_back( std::move( forge::ObjectLifetimeToken( *element ) ) );
-			element->SetColor( color );
+			auto& element = static_cast< T& >( obj );
+			m_elements.emplace_back( std::move( forge::ObjectLifetimeToken( element ) ) );
+			element.SetColor( color );
 
-			element->GetComponent< forge::TransformComponent >()->SetParent( *GetComponent< forge::TransformComponent >(), false );
-			element->GetComponent< forge::TransformComponent >()->SetRelativeOrientation( Quaternion::CreateFromDirection( direction ) );
-		} );
+			element.GetComponent< forge::TransformComponent >()->SetParent( *GetComponent< forge::TransformComponent >(), false );
+			element.GetComponent< forge::TransformComponent >()->SetRelativeOrientation( Quaternion::CreateFromDirection( direction ) );
+		} } );
 	};
 
 	const Vector4 c_xAxisColor( 1.0f, 0.0f, 0.0f, 1.0f );

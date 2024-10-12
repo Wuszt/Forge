@@ -66,10 +66,10 @@ void systems::DebugSystem::OnPostInit()
 
 void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
-	auto initFunc = [ = ]( forge::Object* obj )
+	auto initFunc = [ = ]( forge::Object& obj )
 	{
-		auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-		auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
+		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\sphere.obj" ) );
 
@@ -92,10 +92,10 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 
 void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& extension, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
-	auto initFunc = [ = ]( forge::Object* obj )
+	auto initFunc = [ = ]( forge::Object& obj )
 	{
-		auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-		auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
+		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\cube.obj" ) );
 
@@ -118,10 +118,10 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 
 void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, Float thickness, const Vector4& color, Bool overlay, Float lifetime )
 {
-	auto initFunc = [ = ]( forge::Object* obj )
+	auto initFunc = [ = ]( forge::Object& obj )
 	{
-		auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-		auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+			auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\cylinder.obj" ) );
 
@@ -140,10 +140,10 @@ void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, F
 
 void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Float angle, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
-	auto initFunc = [ = ]( forge::Object* obj )
+	auto initFunc = [ = ]( forge::Object& obj )
 	{
-		auto* transformComponent = obj->GetComponent< forge::TransformComponent >();
-		auto* renderingComponent = obj->GetComponent< forge::RenderingComponent >();
+		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
+		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\cone.obj" ) );
 
@@ -185,7 +185,7 @@ void systems::DebugSystem::Update()
 		{
 			if ( requestsLastIndex >= 0 )
 			{
-				m_objectsCreationRequests[ requestsLastIndex ].m_initFunc( GetEngineInstance().GetObjectsManager().GetObject( it->m_objectId ) );
+				m_objectsCreationRequests[ requestsLastIndex ].m_initFunc( *GetEngineInstance().GetObjectsManager().GetObject( it->m_objectId ) );
 				it->m_timestamp = forge::Time::GetTime() + m_objectsCreationRequests[ requestsLastIndex ].m_timestamp;
 				--requestsLastIndex;
 			}
@@ -204,12 +204,12 @@ void systems::DebugSystem::Update()
 
 	for ( auto&& request : std::move( m_objectsCreationRequests ) )
 	{
-		GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( [ request = std::move( request ), this ]( forge::Object* obj )
+		GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ request = std::move( request ), this ]( forge::Object& obj )
 		{
-			obj->AddComponents< forge::TransformComponent, forge::RenderingComponent >();
+			obj.AddComponents< forge::TransformComponent, forge::RenderingComponent >();
 			request.m_initFunc( obj );
-			m_debugObjects.emplace_back( DebugObject{ obj->GetObjectID(), forge::Time::GetTime() + request.m_timestamp } );
-		} );
+			m_debugObjects.emplace_back( DebugObject{ obj.GetObjectID(), forge::Time::GetTime() + request.m_timestamp } );
+		} } );
 	}
 
 	m_objectsCreationRequests.clear();

@@ -45,23 +45,23 @@ editor::SceneGrid::SceneGrid( forge::EngineInstance& engineInstance )
 
 	for ( Int32 x = -100; x < 100; ++x )
 	{
-		engineInstance.GetObjectsManager().RequestCreatingObject< SceneGridLine >( [ this, x, drawFunc ]( SceneGridLine* obj )
+		engineInstance.GetObjectsManager().RequestCreatingObject< SceneGridLine >( { .m_postInitFunc = [ this, x, drawFunc ]( forge::Object& obj )
 			{
-				m_linesTokens.emplace_back( *obj );
+				m_linesTokens.emplace_back( obj );
 
-				obj->AddComponents< forge::TransformComponent, forge::RenderingComponent >();
-				drawFunc( x, x, -100, 100, *obj );
-			} );
+				obj.AddComponents< forge::TransformComponent, forge::RenderingComponent >();
+				drawFunc( x, x, -100, 100, obj );
+			} } );
 	}
 
 	for ( Int32 y = -100; y < 100; ++y )
 	{
-		engineInstance.GetObjectsManager().RequestCreatingObject< SceneGridLine >( [ this, y, drawFunc ]( SceneGridLine* obj )
+		engineInstance.GetObjectsManager().RequestCreatingObject< SceneGridLine >( { .m_postInitFunc = [ this, y, drawFunc ]( forge::Object& obj )
 			{
-				m_linesTokens.emplace_back( *obj );
+				m_linesTokens.emplace_back( obj );
 
-		obj->AddComponents< forge::TransformComponent, forge::RenderingComponent >();
-		drawFunc( -100, 100, y, y, *obj );
-			} );
+				obj.AddComponents< forge::TransformComponent, forge::RenderingComponent >();
+				drawFunc( -100, 100, y, y, obj );
+			} } );
 	}
 }

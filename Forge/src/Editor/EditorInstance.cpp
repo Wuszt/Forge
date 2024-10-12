@@ -73,21 +73,21 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 	engineInstance.GetSystemsManager().AddSystems( systems );
 	engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor({ 0.55f, 0.55f, 0.55f });
 
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >([ & ]( forge::Object* player )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& player )
 	{
-		const auto entityID = engineInstance.GetObjectsManager().GetOrCreateEntityId( player->GetObjectID() );
-		player->SetName( "Player" );
-		player->AddComponents< forge::TransformComponent, forge::CameraComponent, forge::PhysicsFreeCameraControllerComponent >();
-		player->GetComponent< forge::TransformComponent >()->SetWorldPosition({ 0.0f, -5.0f, 0.0f });
-		auto* cameraComp = player->GetComponent< forge::CameraComponent >();
+		const auto entityID = engineInstance.GetObjectsManager().GetOrCreateEntityId( player.GetObjectID() );
+		player.SetName( "Player" );
+		player.AddComponents< forge::TransformComponent, forge::CameraComponent, forge::PhysicsFreeCameraControllerComponent >();
+		player.GetComponent< forge::TransformComponent >()->SetWorldPosition({ 0.0f, -5.0f, 0.0f });
+		auto* cameraComp = player.GetComponent< forge::CameraComponent >();
 		cameraComp->CreateImplementation< renderer::PerspectiveCamera >(forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstance.GetRenderingManager().GetWindow() ) );
 
 		auto& camerasSystem = engineInstance.GetSystemsManager().GetSystem< systems::CamerasSystem >();
 		camerasSystem.SetActiveCamera(cameraComp);
 
-		auto* freeCameraController = player->GetComponent< forge::PhysicsFreeCameraControllerComponent >();
+		auto* freeCameraController = player.GetComponent< forge::PhysicsFreeCameraControllerComponent >();
 		engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent( *freeCameraController);
-	});
+	} } );
 
 	m_windows.emplace_back( std::make_unique< editor::SceneEditor >( nullptr, engineInstance ) );
 }

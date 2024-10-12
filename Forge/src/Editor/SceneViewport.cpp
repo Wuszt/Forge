@@ -34,11 +34,12 @@ editor::SceneViewport::SceneViewport( SceneEditor& sceneEditor )
 			{
 				if ( GetEngineInstance().GetObjectsManager().GetObject( selectedObject )->GetComponent< forge::TransformComponent >() )
 				{
-					GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::Gizmo >( [ this, selectedObject ]( editor::Gizmo* gizmo )
+					GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::Gizmo >( { .m_postInitFunc = [ this, selectedObject ]( forge::Object& obj )
 						{
-							m_gizmoToken = forge::ObjectLifetimeToken( *gizmo );
-							gizmo->Initialize( selectedObject );
-						} );
+							auto& gizmo = static_cast< editor::Gizmo& >( obj );
+							m_gizmoToken = forge::ObjectLifetimeToken( gizmo );
+							gizmo.Initialize( selectedObject );
+						} } );
 				}
 			}
 		} );

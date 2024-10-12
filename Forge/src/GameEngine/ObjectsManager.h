@@ -16,21 +16,30 @@ namespace forge
 		ObjectsManager( EngineInstance& engineInstance, UpdateManager& updateManager, ecs::ECSManager& ecsManager );
 		~ObjectsManager();
 
-		template< class T = forge::Object, class TFunc >
-		void RequestCreatingObject( TFunc initializeFunc = []( T* ){} )
+		struct InitializationParams
+		{
+			std::function< void( Object& ) > m_preInitFunc = []( Object& ) {};
+			std::function< void( Object& ) > m_postInitFunc = []( Object& ) {};
+		};
+
+		template< class T = forge::Object >
+		void RequestCreatingObject( InitializationParams initParams = {} )
 		{
 			static_assert( std::is_base_of_v< forge::Object, T > );
-			RequestCreatingObject( T::GetTypeStatic(), [ initializeFunc = std::move( initializeFunc ) ]( forge::Object* obj ){ initializeFunc( static_cast< T* >( obj ) ); } );
+			RequestCreatingObject( T::GetTypeStatic(), std::move( initParams ) );
 		}
 
 		template< class TFunc = decltype( []( forge::Object* ){} ) >
-		void RequestCreatingObject( const forge::Object::Type& objectType, TFunc initializeFunc = {} )
+		void RequestCreatingObject( const forge::Object::Type& objectType, InitializationParams initParams = {} )
 		{
 			ObjectCreationRequest req;
-			req.m_creationFunc = [ this, &objectType, initializeFunc = std::move( initializeFunc ) ]()
+			req.m_creationFunc = [ this, &objectType, initParams = std::move( initParams ) ]()
 				{
 					auto& rawObj =  CreateObject( objectType );
-					initializeFunc( &rawObj );
+
+					initParams.m_preInitFunc( rawObj );
+					rawObj.OnInit();
+					initParams.m_postInitFunc( rawObj );
 
 					rawObj.PostInit();
 				};

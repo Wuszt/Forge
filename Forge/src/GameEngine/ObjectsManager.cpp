@@ -12,8 +12,6 @@ forge::Object& forge::ObjectsManager::CreateObject( const forge::Object::Type& o
 
 	m_onObjectAdded.Invoke( id );
 
-	rawObj->OnInit();
-
 	return *rawObj;
 }
 
