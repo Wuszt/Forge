@@ -21,6 +21,11 @@ namespace forge
 
 		bool operator==( const Path& ) const = default;
 
+		void OnPostDeserialize()
+		{
+			UpdateIndices();
+		}
+
 		std::string GetExtension() const
 		{
 			FORGE_ASSERT( m_extensionStart > 0 && m_extensionStart < m_path.size() );

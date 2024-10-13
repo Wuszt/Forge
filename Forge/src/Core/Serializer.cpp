@@ -119,6 +119,8 @@ void forge::Deserializer::DeserializePrimitive( void* address, const rtti::Type&
 void forge::Deserializer::DeserializeString( void* address, const rtti::StringType& type )
 {
 	std::string* str = static_cast< std::string* >( address );
+	str->clear();
+
 	std::vector< Char > buffer;
 	buffer.reserve( 25 );
 	Uint32 readStep = 25;
@@ -191,9 +193,19 @@ void forge::Serializer::SerializeClassOrStruct( const void* address, const rtti:
 
 void forge::Deserializer::DeserializeClassOrStruct( void* address, const rtti::Type& type )
 {
+	ON_SCOPE_EXIT(
+		if ( const rtti::Function* func = type.FindMethod( "OnPostDeserialize" ) )
+		{
+			if ( func->GetParametersAmount() == 0 && func->GetReturnTypeDesc() == nullptr )
+			{
+				func->Call( address, nullptr, nullptr );
+			}
+		}
+	);
+
 	if ( const rtti::Function* func = type.FindMethod( "Deserialize" ) )
 	{
-		if ( func->GetParametersAmount() == 1 )
+		if ( func->GetParametersAmount() == 1 && func->GetReturnTypeDesc() == nullptr )
 		{
 			const auto* parameter = func->GetParameterTypeDesc( 0 );
 			FORGE_ASSERT( parameter );
