@@ -2,6 +2,8 @@
 
 namespace forge
 {
+	class Stream;
+
 	class Scene
 	{
 	public:
@@ -29,6 +31,9 @@ namespace forge
 				visitor( objectID );
 			}
 		}
+
+		void Serialize( forge::Stream& stream ) const;
+		void Deserialize( forge::Stream& stream );
 
 	private:
 		std::unordered_set< forge::ObjectID > m_objects;

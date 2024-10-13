@@ -33,6 +33,11 @@ void forge::RenderingComponent::OnAttached( EngineInstance& engineInstance, ecs:
 		{
 			SetDirty();
 		} );
+
+	if ( !m_meshPath.IsEmpty() )
+	{
+		LoadMeshAndMaterial( m_meshPath );
+	}
 }
 
 void forge::RenderingComponent::OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )

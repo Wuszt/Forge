@@ -43,7 +43,12 @@ namespace editor
 		forge::Callback< forge::ObjectID > m_onNewSelectedObject;
 		forge::ObjectID m_selectedObjectID;
 		std::vector< std::shared_ptr< imgui::MenuBarItem > > m_objectCreationButtons;
-		
+		std::shared_ptr< imgui::MenuBarItem > m_newSceneButton;
+		std::shared_ptr< imgui::MenuBarItem > m_saveSceneButton;
+		std::shared_ptr< imgui::MenuBarItem > m_saveAsSceneButton;
+		std::shared_ptr< imgui::MenuBarItem > m_loadSceneButton;
+
 		forge::CallbackToken m_onImportAssetClickedToken;
+		forge::CallbackToken m_onNewSceneToken;
 	};
 }

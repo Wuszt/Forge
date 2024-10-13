@@ -35,8 +35,9 @@ namespace forge
 			ObjectCreationRequest req;
 			req.m_creationFunc = [ this, &objectType, initParams = std::move( initParams ) ]()
 				{
-					auto& rawObj =  CreateObject( objectType );
-
+					forge::ObjectID objID;
+					auto& rawObj =  CreateObject( objectType, objID );
+					rawObj.forge::Object::Initialize( m_engineInstance, objID );
 					initParams.m_preInitFunc( rawObj );
 					rawObj.OnInit();
 					initParams.m_postInitFunc( rawObj );
@@ -52,15 +53,6 @@ namespace forge
 			m_objectDestructionRequests.emplace_back( ObjectDestructionRequest{ id } );
 		}
 
-		Callback< ObjectID >& GetObjectCreatedCallback()
-		{
-			return m_onObjectAdded;
-		}
-
-		Callback< ObjectID >& GetObjectDestructedCallback()
-		{
-			return m_onObjectDestructed;
-		}
 
 		Uint32 GetObjectsAmount() const
 		{
@@ -94,7 +86,7 @@ namespace forge
 			return static_cast< T& >( CreateObject( T::GetTypeStatic() ) );
 		}
 
-		forge::Object& CreateObject( const forge::Object::Type& objectType );
+		forge::Object& CreateObject( const forge::Object::Type& objectType, ObjectID& outID );
 
 		void RemoveObject( const ObjectID& id );
 
@@ -104,9 +96,6 @@ namespace forge
 
 		ecs::ECSManager& m_ecsManager;
 		forge::EngineInstance& m_engineInstance;
-
-		Callback< ObjectID > m_onObjectAdded;
-		Callback< ObjectID > m_onObjectDestructed;
 
 		struct ObjectCreationRequest
 		{

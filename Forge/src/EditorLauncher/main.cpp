@@ -18,52 +18,5 @@ Int32 main()
 	forge::EditorInstance editorInstance( "Editor" );
 	forge::EngineInstance engineInstance( editorInstance );
 
-	std::shared_ptr< std::vector< forge::Object* > > objs = std::make_shared< std::vector< forge::Object* > >();
-	for( Uint32 i = 0u; i < 3; ++i )
-	{
-		engineInstance.GetObjectsManager().RequestCreatingObject< forge::SceneObject >( { .m_postInitFunc = [ &, i, objs ]( forge::Object& obj )
-		{
-			obj.AddComponents< forge::RenderingComponent, forge::PhysicsStaticComponent >();
-
-			auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
-			auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
-
-			renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\cube.obj" ) );
-
-			transformComponent->SetWorldPosition( { static_cast< Float >( i * 5 ), 0.0f, 0.0f } );
-
-			if ( !objs->empty() )
-			{
-				forge::TransformComponent* parent = ( *objs )[ 0u /*Math::Random::GetRNG().GetUnsigned( 0u, static_cast< Uint32 >( objs->size() - 1 ) )*/ ]->GetComponent< forge::TransformComponent >();
-				obj.GetComponent< forge::TransformComponent >()->SetParent( *parent, true );
-			}
-			objs->emplace_back( &obj );
-
-			auto* physicsComponent = obj.GetComponent< forge::PhysicsStaticComponent >();
-			auto modelAsset = engineInstance.GetAssetsManager().GetAsset< renderer::ModelAsset >( forge::Path( "Models\\cube.obj" ) );
-
-			auto model = modelAsset->GetModel();
-			const renderer::Vertices& vertices = model->GetVertices();
-			std::vector< Vector3 > verts;
-			verts.resize( vertices.GetVerticesAmount() );
-
-			FORGE_ASSERT( vertices.GetInputElements().begin()->m_inputType == renderer::InputType::Position );
-			const Byte* address = static_cast< const Byte* >( vertices.GetData() );
-			for ( Vector3& vec : verts )
-			{
-				vec = *reinterpret_cast< const Vector3* >( address );
-				address += vertices.GetVertexSize();
-			}
-
-			Uint32 index = 0u;
-			for ( renderer::Model::Shape& shape : model->GetShapes() )
-			{
-				physicsComponent->AddShape( physics::PhysicsShape( engineInstance.GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), verts, shape.m_indices ) );
-				++index;
-			}
-		} } );
-	}
-
-
 	engineInstance.Run();
 }

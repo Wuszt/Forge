@@ -2,10 +2,13 @@
 #include "Object.h"
 #include "../ECS/CommandsQueue.h"
 #include "../ECS/EntityID.h"
+#include "../Core/Serializer.h"
 
 RTTI_IMPLEMENT_TYPE( forge::ObjectFragment );
 RTTI_IMPLEMENT_TYPE( forge::Object,
-	RTTI_REGISTER_PROPERTY( m_components )
+	RTTI_REGISTER_PROPERTY( m_components );
+	RTTI_REGISTER_METHOD( Serialize );
+	RTTI_REGISTER_METHOD( Deserialize );
 );
 
 forge::Object::Object() = default;
@@ -47,9 +50,15 @@ void forge::Object::OnDeinit()
 	m_components.clear();
 }
 
-void forge::Object::AddComponent( const forge::IComponent::Type& componentType )
+Bool forge::Object::AddComponent( const forge::IComponent::Type& componentType )
 {
+	if ( HasComponent( componentType ) )
+	{
+		return false;
+	}
+
 	AttachComponents( { std::unique_ptr< forge::IComponent >( componentType.ConstructTyped() ) } );
+	return true;
 }
 
 void forge::Object::RemoveComponent( const forge::IComponent::Type& componentType )
@@ -74,6 +83,43 @@ void forge::Object::RemoveComponent( const forge::IComponent::Type& componentTyp
 		m_componentsLUT.erase( it );
 		forge::utils::RemoveReorder( m_components, idx );
 	}
+}
+
+void forge::Object::Serialize( forge::Serializer& serializer )
+{
+	serializer.Serialize( m_name );
+
+	serializer.Serialize( static_cast< Uint32 >( m_components.size() ) );
+
+	for ( auto& comp : m_components )
+	{
+		serializer.Serialize( comp->GetType().GetID() );
+		serializer.Serialize( comp.get(), comp->GetType() );
+	}
+}
+
+void forge::Object::Deserialize( forge::Deserializer& deserializer )
+{
+	deserializer.Deserialize( m_name );
+
+	const Uint32 componentsAmount = deserializer.Deserialize< Uint32 >();
+
+	std::vector< std::unique_ptr< IComponent > > deserializedComponents;
+	
+	for ( Uint32 i = 0; i < componentsAmount; ++i )
+	{
+		const rtti::ID componentTypeID = deserializer.Deserialize< rtti::ID >();
+		if ( const forge::IComponent::Type* type = static_cast< const forge::IComponent::Type* >( rtti::Get().FindType( componentTypeID ) ) )
+		{
+			FORGE_ASSERT( type->InheritsFromOrIsA< forge::IComponent >() );
+
+			FORGE_ASSERT ( !HasComponent( *type ) );
+			deserializedComponents.emplace_back( type->ConstructTyped() );
+			deserializer.Deserialize( deserializedComponents.back().get(), *type );
+		}
+	}
+
+	AttachComponents( deserializedComponents );
 }
 
 void forge::Object::AttachComponents( forge::ArraySpan< std::unique_ptr< IComponent > > components )

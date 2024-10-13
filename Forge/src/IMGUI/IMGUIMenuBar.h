@@ -46,7 +46,7 @@ namespace imgui
 
 		using ItemWeakHandle = std::weak_ptr< MenuBarItem >;
 
-		std::shared_ptr< MenuBarItem > AddButton( forge::ArraySpan< const char* > path, std::function<void()> onClickedFunc, Bool selectable = false );
+		std::shared_ptr< MenuBarItem > AddButton( forge::ArraySpan< const char* > path, std::function<void()> onClickedFunc, Bool selectable = false, std::function< Bool() > isEnabledFunc = {} );
 		void Draw();
 
 	private:
@@ -57,8 +57,9 @@ namespace imgui
 	class MenuBarItem : public MenuBar::Element
 	{
 	public:
-		MenuBarItem( const char* name, std::shared_ptr< MenuBar::Menu > parent, forge::Callback<>::TFunc onClickedFunc, Bool selectable = false )
+		MenuBarItem( const char* name, std::shared_ptr< MenuBar::Menu > parent, forge::Callback<>::TFunc onClickedFunc, Bool selectable = false, std::function< Bool() > isEnabledFunc = {} )
 			: Element( name, parent )
+			, m_isEnabledFunc( std::move( isEnabledFunc ) )
 		{
 			if ( selectable )
 			{
@@ -91,10 +92,16 @@ namespace imgui
 			return m_onClicked;
 		}
 
+		Bool IsEnabled() const
+		{
+			return m_isEnabledFunc ? m_isEnabledFunc() : true;
+		}
+
 	private:
 		forge::Callback<> m_onClicked;
 		forge::CallbackToken m_updateStateToken;
 		forge::CallbackToken m_userFuncToken;
+		std::function< Bool() > m_isEnabledFunc;
 		Bool m_selected = false;
 	};
 

@@ -46,12 +46,12 @@ namespace forge
 		}
 
 		template< class T >
-		void AddComponent()
+		Bool AddComponent()
 		{
-			AddComponent( T::GetTypeStatic() );
+			return AddComponent( T::GetTypeStatic() );
 		}
 
-		void AddComponent( const forge::IComponent::Type& componentType );
+		Bool AddComponent( const forge::IComponent::Type& componentType );
 
 		void RemoveComponent( const forge::IComponent::Type& componentType );
 
@@ -61,16 +61,21 @@ namespace forge
 			RemoveComponent( T::GetTypeStatic() );
 		}
 
-		template< class T >
-		T* GetComponent()
+		forge::IComponent* GetComponent( const IComponent::Type& componentType )
 		{
-			auto it = m_componentsLUT.find( &T::GetTypeStatic() );
+			auto it = m_componentsLUT.find( &componentType );
 			if ( it == m_componentsLUT.end() )
 			{
 				return nullptr;
 			}
 
-			return static_cast< T* >( m_components[ it->second ].get() ); 
+			return m_components[ it->second ].get();
+		}
+
+		template< class T >
+		T* GetComponent()
+		{
+			return static_cast< T* >( GetComponent( T::GetTypeStatic() ) ); 
 		}
 
 		std::vector< IComponent* > GetComponents()
@@ -109,6 +114,9 @@ namespace forge
 		{
 			return m_name.empty() ? "None" : m_name.c_str();
 		}
+
+		virtual void Serialize( forge::Serializer& serializer );
+		virtual void Deserialize( forge::Deserializer& deserializer );
 
 	protected:
 		Object();

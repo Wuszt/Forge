@@ -2,7 +2,7 @@
 #include "IMGUIMenuBar.h"
 
 #ifdef FORGE_IMGUI_ENABLED
-imgui::MenuBarItemHandle imgui::MenuBar::AddButton( forge::ArraySpan< const char* > path, std::function<void()> onClickedFunc, Bool selectable )
+imgui::MenuBarItemHandle imgui::MenuBar::AddButton( forge::ArraySpan< const char* > path, std::function<void()> onClickedFunc, Bool selectable, std::function< Bool() > isEnabledFunc )
 {
 	std::shared_ptr< Menu > currentParent = nullptr;
 	std::vector< std::weak_ptr< Element > >* children = &m_rootElements;
@@ -49,7 +49,7 @@ imgui::MenuBarItemHandle imgui::MenuBar::AddButton( forge::ArraySpan< const char
 			return false;
 		} ) == children->end() );
 
-	std::shared_ptr< MenuBarItem > item = std::make_shared< MenuBarItem >( itemName, currentParent, std::move( onClickedFunc ), selectable );
+	std::shared_ptr< MenuBarItem > item = std::make_shared< MenuBarItem >( itemName, currentParent, std::move( onClickedFunc ), selectable, std::move( isEnabledFunc ) );
 	children->emplace_back( item );
 
 	return item;
@@ -64,7 +64,7 @@ void DrawElements( std::vector< std::weak_ptr< imgui::MenuBar::Element > >& elem
 			if ( auto item = std::dynamic_pointer_cast< imgui::MenuBarItem > ( element ) )
 			{
 				Bool isSelected = item->IsSelected();
-				if ( ImGui::MenuItem( item->GetName(), nullptr, &isSelected ) )
+				if ( ImGui::MenuItem( item->GetName(), nullptr, &isSelected, item->IsEnabled() ) )
 				{
 					item->GetCallback().Invoke();
 				}
