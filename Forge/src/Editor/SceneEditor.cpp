@@ -78,8 +78,11 @@ editor::SceneEditor::~SceneEditor() = default;
 
 void editor::SceneEditor::SelectObject( forge::ObjectID objectID )
 {
-	m_selectedObjectID = objectID;
-	m_onNewSelectedObject.Invoke( m_selectedObjectID );
+	if ( m_selectedObjectID != objectID )
+	{
+		m_selectedObjectID = objectID;
+		m_onNewSelectedObject.Invoke( m_selectedObjectID );
+	}
 }
 
 void editor::SceneEditor::Draw()

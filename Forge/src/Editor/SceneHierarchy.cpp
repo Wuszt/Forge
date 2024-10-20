@@ -58,6 +58,16 @@ void editor::SceneHierarchy::DrawObjectEntry( forge::ObjectID objectID )
 		{
 			GetSceneEditor().SelectObject( objectID );
 		}
+		if ( ImGui::BeginPopupContextItem() )
+		{
+			GetSceneEditor().SelectObject( objectID );
+			if ( ImGui::MenuItem( "Delete" ) )
+			{
+				GetSceneEditor().SelectObject( {} );
+				GetEngineInstance().GetObjectsManager().RequestDestructingObject( objectID );
+			}
+			ImGui::EndPopup();
+		}
 	}
 	else
 	{
