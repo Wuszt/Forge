@@ -35,6 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LinearColor.h" />
     <ClInclude Include="InternalDefaults.h" />
     <ClInclude Include="Fpch.h" />
     <ClInclude Include="Math.h" />
@@ -48,6 +49,7 @@
     <ClInclude Include="Vector4.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LinearColor.cpp" />
     <ClCompile Include="Fpch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

@@ -64,7 +64,7 @@ void systems::DebugSystem::OnPostInit()
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostUpdate, [ this ]() { Update(); } );
 }
 
-void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime )
+void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
 	auto initFunc = [ = ]( forge::Object& obj )
 	{
@@ -90,7 +90,7 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
 }
 
-void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& extension, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime )
+void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& extension, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
 	auto initFunc = [ = ]( forge::Object& obj )
 	{
@@ -116,7 +116,7 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
 }
 
-void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, Float thickness, const Vector4& color, Bool overlay, Float lifetime )
+void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, Float thickness, const LinearColor& color, Bool overlay, Float lifetime )
 {
 	auto initFunc = [ = ]( forge::Object& obj )
 	{
@@ -138,7 +138,7 @@ void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, F
 	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
 }
 
-void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Float angle, const Vector4& color, Bool wireFrame, Bool overlay, Float lifetime )
+void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Float angle, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
 	auto initFunc = [ = ]( forge::Object& obj )
 	{

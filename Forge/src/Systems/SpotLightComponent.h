@@ -7,7 +7,7 @@ namespace forge
 	{
 		RTTI_DECLARE_STRUCT( SpotLightFragment, ecs::Fragment )
 
-		Vector3 m_color = { 1.0f, 1.0f, 1.0f };
+		LinearColor m_color = { 1.0f, 1.0f, 1.0f };
 		Float m_innerAngle = FORGE_PI / 12.0f;
 		Float m_outerAngle = FORGE_PI / 6.0f;
 		Float m_power = 5.0f;

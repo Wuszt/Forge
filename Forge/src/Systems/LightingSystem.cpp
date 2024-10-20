@@ -227,7 +227,7 @@ void systems::LightingSystem::OnRenderDebug()
 				{
 					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen) )
 					{
-						ImGui::ColorEdit3( "Color", lightFragments[i].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
+						ImGui::ColorEdit3( "Color", &lightFragments[i].m_color.R, ImGuiColorEditFlags_NoInputs );
 						ImGui::SliderFloat( "Power", &lightFragments[i].m_power, 0.0f, 10.0f );
 
 						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( transformFragments[ i ].m_transform.GetPosition3(), 1.0f, lightFragments[ i ].m_color, true, false, 0.0f );
@@ -263,7 +263,7 @@ void systems::LightingSystem::OnRenderDebug()
 				{
 					if( ImGui::TreeNodeEx( std::to_string( i ).c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
 					{
-						ImGui::ColorEdit3( "Color", lightFragments[ i ].m_color.AsArray(), ImGuiColorEditFlags_NoInputs );
+						ImGui::ColorEdit3( "Color", &lightFragments[ i ].m_color.R, ImGuiColorEditFlags_NoInputs );
 						ImGui::SliderFloat( "Power", &lightFragments[ i ].m_power, 0.0f, 10.0f );
 						ImGui::SliderFloat( "Inner Angle", &lightFragments[ i ].m_innerAngle, 0.0f, lightFragments[ i ].m_outerAngle - 0.01f );
 						ImGui::SliderFloat( "Outer Angle", &lightFragments[ i ].m_outerAngle, 0.0f, FORGE_PI_HALF );

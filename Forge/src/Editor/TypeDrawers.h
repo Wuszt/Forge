@@ -171,5 +171,18 @@ namespace editor
 	private:
 		TypeDrawer_Path() = default;
 	};
+
+	class TypeDrawer_LinearColor : public editor::CustomTypeDrawer
+	{
+	public:
+		RTTI_DECLARE_CLASS( TypeDrawer_LinearColor, editor::CustomTypeDrawer );
+
+		using editor::CustomTypeDrawer::CustomTypeDrawer;
+		virtual const rtti::Type& GetSupportedType() const override;
+		virtual void OnDrawValue( const Drawable& drawable ) const override;
+		virtual Bool HasChildren( const Drawable& drawable ) const override { return false; }
+	private:
+		TypeDrawer_LinearColor() = default;
+	};
 }
 

@@ -1,0 +1,9 @@
+#include "Fpch.h"
+#include "LinearColor.h"
+
+RTTI_IMPLEMENT_TYPE( LinearColor,
+	RTTI_REGISTER_PROPERTY( R );
+	RTTI_REGISTER_PROPERTY( G );
+	RTTI_REGISTER_PROPERTY( B );
+	RTTI_REGISTER_PROPERTY( A );
+);

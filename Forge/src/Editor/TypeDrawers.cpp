@@ -19,6 +19,7 @@ RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Vector3 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Vector4 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_DataComponent );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Path );
+RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_LinearColor );
 
 static ImVec2 GetButtonSize()
 {
@@ -344,7 +345,7 @@ void editor::TypeDrawer_Path::OnDrawValue( const Drawable& drawable ) const
 		forge::Path startPath;
 		if ( drawable.HasMetadata( "StartFromDepot" ) )
 		{
-			//startPath = GetEngineInstance().GetDepotsContainer().GetDepotsPath();
+			startPath = GetEngineInstance().GetDepotsContainer().GetDepotsPath();
 		}
 
 		std::vector< std::string > extensions;
@@ -395,4 +396,19 @@ void editor::TypeDrawer_Uint32::OnDrawValue( const Drawable& drawable ) const
 		value = Math::Max( 0, valueAsInt );
 		BroadcastPropertyChangedCallback( drawable );
 	}	
+}
+
+const rtti::Type& editor::TypeDrawer_LinearColor::GetSupportedType() const
+{
+	return LinearColor::GetTypeStatic();
+}
+
+void editor::TypeDrawer_LinearColor::OnDrawValue( const Drawable& drawable ) const
+{
+	LinearColor& value = GetValue< LinearColor >( drawable.GetAddress() );
+	if ( ImGui::ColorEdit4( "##Value", &value.R ) )
+	{
+		BroadcastPropertyChangedCallback( drawable );
+	}
+
 }

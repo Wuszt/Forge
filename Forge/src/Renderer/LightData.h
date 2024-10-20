@@ -9,10 +9,10 @@ namespace renderer
 		PointLightData() = default;
 		~PointLightData() = default;
 
-		PointLightData( Matrix p, const Vector3& position, Float power, const Vector3& color )
+		PointLightData( Matrix p, const Vector3& position, Float power, const LinearColor& color )
 			: Position( position )
 			, Power( power )
-			, Color( color )
+			, Color( color.R, color.G, color.B )
 			, ProjectionA( p[ 1 ][ 2 ] )
 			, ProjectionB( p[ 3 ][ 2 ] )
 		{}
@@ -31,13 +31,13 @@ namespace renderer
 		~SpotLightData() = default;
 
 		SpotLightData( const Vector3& position, const Vector3& direction,
-			Float innerAngle, Float outerAngle, Float power, const Vector3& color, const Matrix& vp )
+			Float innerAngle, Float outerAngle, Float power, const LinearColor& color, const Matrix& vp )
 			: Position( position )
 			, InnerAngle( innerAngle )
 			, OuterAngle( outerAngle )
 			, Direction( direction )
 			, Power( power )
-			, Color( color )
+			, Color( color.R, color.G, color.B )
 			, VP( vp )
 		{}
 
