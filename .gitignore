@@ -401,3 +401,4 @@ FodyWeavers.xsd
 imgui.ini
 Forge/src/EditorLauncher/Depots
 Forge/src/Launcher/Depots
+/Forge/Depots/Launcher/Models

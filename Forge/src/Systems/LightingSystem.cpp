@@ -216,8 +216,8 @@ void systems::LightingSystem::OnRenderDebug()
 		if( ImGui::TreeNodeEx( "Point Lights", ImGuiTreeNodeFlags_DefaultOpen ) )
 		{
 			ecs::Query query( GetEngineInstance().GetECSManager() );
-			query.AddFragmentRequirement< forge::PointLightFragment >( ecs::Query::RequirementType::Included );
-			query.AddMutableFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
+			query.AddMutableFragmentRequirement< forge::PointLightFragment >( ecs::Query::RequirementType::Included );
+			query.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
 
 			query.VisitArchetypes( [ & ]( ecs::MutableArchetypeView archetype )
 			{

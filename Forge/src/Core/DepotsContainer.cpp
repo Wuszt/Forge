@@ -12,15 +12,3 @@ forge::DepotsContainer::DepotsContainer( const forge::Path& appDepotName )
 forge::Depot::Depot( const forge::Path& depotsAbsolutePath, const forge::Path& rootPath )
 	: m_rootPath( depotsAbsolutePath.AsString() + rootPath.AsString() )
 {}
-
-forge::Path forge::Depot::GetAbsolutePath( const forge::Path& localPath ) const
-{
-	forge::Path result = m_rootPath;
-	result.Append( localPath );
-	return result;
-}
-
-bool forge::Depot::ContainsFile( const forge::Path& localPath ) const
-{
-	return std::filesystem::exists( GetAbsolutePath( localPath ).Get() );
-}

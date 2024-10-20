@@ -49,7 +49,7 @@ namespace editor
 		using GizmoElement::GizmoElement;
 		virtual forge::Path GetModelPath() const override
 		{
-			return forge::Path( "Models\\Gizmo\\gizmoArrow.fbx" );
+			return forge::Path( "Engine\\Models\\Gizmo\\gizmoArrow.fbx" );
 		}
 
 	private:
@@ -69,7 +69,7 @@ namespace editor
 		using GizmoElement::GizmoElement;
 		virtual forge::Path GetModelPath() const override
 		{
-			return forge::Path( "Models\\Gizmo\\gizmoRing.fbx" );
+			return forge::Path( "Engine\\Models\\Gizmo\\gizmoRing.fbx" );
 		}
 
 	private:
@@ -91,7 +91,7 @@ namespace editor
 		using GizmoElement::GizmoElement;
 		virtual forge::Path GetModelPath() const override
 		{
-			return forge::Path( "Models\\Cube.obj" );
+			return forge::Path( "Engine\\Models\\Cube.obj" );
 		}
 
 	private:
@@ -113,7 +113,7 @@ namespace editor
 		using GizmoElement::GizmoElement;
 		virtual forge::Path GetModelPath() const override
 		{
-			return forge::Path( "Models\\Cube.obj" );
+			return forge::Path( "Engine\\Models\\Cube.obj" );
 		}
 
 	private:

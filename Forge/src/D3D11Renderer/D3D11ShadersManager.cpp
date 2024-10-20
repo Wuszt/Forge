@@ -15,7 +15,12 @@ std::unique_ptr< renderer::IVertexShader > d3d11::D3D11ShadersManager::CreateVer
 	forge::Path localPath( "Shaders" );
 	localPath.Append( path );
 
-	if( m_depotsContainer.TryToGetExistingFilePath( localPath, absolutePath ) )
+	if( m_depotsContainer.TryToGetExistingFilePath( m_depotsContainer.GetEngineDepot().GetPath() + localPath, absolutePath) )
+	{
+		return std::make_unique< d3d11::D3D11VertexShader >( m_device, m_context, absolutePath, defines );
+	}
+
+	if ( m_depotsContainer.TryToGetExistingFilePath( m_depotsContainer.GetApplicationDepot().GetPath() + localPath, absolutePath ) )
 	{
 		return std::make_unique< d3d11::D3D11VertexShader >( m_device, m_context, absolutePath, defines );
 	}
@@ -29,7 +34,12 @@ std::unique_ptr< renderer::IPixelShader > d3d11::D3D11ShadersManager::CreatePixe
 	forge::Path localPath( "Shaders" );
 	localPath.Append( path );
 
-	if( m_depotsContainer.TryToGetExistingFilePath( localPath, absolutePath ) )
+	if ( m_depotsContainer.TryToGetExistingFilePath( m_depotsContainer.GetEngineDepot().GetPath() + localPath, absolutePath ) )
+	{
+		return std::make_unique< d3d11::D3D11PixelShader >( m_device, m_context, absolutePath, defines );
+	}
+
+	if ( m_depotsContainer.TryToGetExistingFilePath( m_depotsContainer.GetApplicationDepot().GetPath() + localPath, absolutePath ) )
 	{
 		return std::make_unique< d3d11::D3D11PixelShader >( m_device, m_context, absolutePath, defines );
 	}

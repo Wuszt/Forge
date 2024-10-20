@@ -31,6 +31,7 @@ void renderer::Renderable::SetModel( forge::AssetsManager& assetsManager, const 
 
 	const forge::Path texturesFolderPath = path.GetFolder();
 
+	m_materials.clear();
 	for( auto& materialData : modelAsset->GetMaterialsData() )
 	{
 		m_materials.emplace_back( std::make_unique< Material >( *m_renderer, *m_model, m_renderer->CreateConstantBufferFromOther( *materialData.m_buffer ), forge::Path( "Uber.fx" ), forge::Path( "Uber.fx" ), renderer::RenderingPass::Opaque ) );

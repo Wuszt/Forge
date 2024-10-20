@@ -71,7 +71,7 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
 		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
-		renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\sphere.obj" ) );
+		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\sphere.obj" ) );
 
 		if ( wireFrame )
 		{
@@ -97,7 +97,7 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
 		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
-		renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\cube.obj" ) );
+		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\cube.obj" ) );
 
 		if ( wireFrame )
 		{
@@ -123,7 +123,7 @@ void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, F
 			auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
-		renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\cylinder.obj" ) );
+		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\cylinder.obj" ) );
 
 		transformComponent->SetWorldPosition( start + ( end - start ) * 0.5f );
 		transformComponent->SetWorldScale( { thickness, thickness, ( end - start ).Mag() } );
@@ -145,7 +145,7 @@ void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Fl
 		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
 		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
-		renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\cone.obj" ) );
+		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\cone.obj" ) );
 
 		if ( wireFrame )
 		{

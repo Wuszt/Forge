@@ -10,7 +10,7 @@ renderer::SkyboxRenderingPass::SkyboxRenderingPass( forge::AssetsManager& assets
 	FORGE_ASSERT( texture->GetType() == renderer::ITexture::Type::TextureCube );
 
 	m_renderable = Renderable( renderer );
-	m_renderable.SetModel( assetsManager, forge::Path( "Models\\sphere.obj" ) );
+	m_renderable.SetModel( assetsManager, forge::Path( "Engine\\Models\\sphere.obj" ) );
 
 	m_renderable.GetMaterials()[ 0 ]->SetShaders( forge::Path( "Skybox.fx" ), forge::Path( "Skybox.fx" ), renderer::RenderingPass::Opaque );
 	m_renderable.GetMaterials()[ 0 ]->SetTexture( texture, renderer::Material::TextureType::Diffuse );

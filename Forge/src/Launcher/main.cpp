@@ -67,13 +67,13 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
 		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
-		renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\sponza\\sponza.obj" ) );
+		renderingComponent->LoadMeshAndMaterial( forge::Path( "Launcher\\Models\\sponza\\sponza.obj" ) );
 
 		transformComponent->SetWorldPosition( Vector3::ZEROS() );
 		transformComponent->SetWorldScale( Vector3::ONES() * 0.01f );
 
 		auto* physicsComponent = obj.GetComponent< forge::PhysicsStaticComponent >();
-		auto modelAsset = engineInstance.GetAssetsManager().GetAsset< renderer::ModelAsset >( forge::Path( "Models\\sponza\\sponza.obj" ) );
+		auto modelAsset = engineInstance.GetAssetsManager().GetAsset< renderer::ModelAsset >( forge::Path( "Launcher\\Models\\sponza\\sponza.obj" ) );
 
 		auto model = modelAsset->GetModel();
 		const renderer::Vertices& vertices = model->GetVertices();
@@ -197,7 +197,7 @@ Int32 main()
 
 					auto* renderingComponent = sphere.GetComponent< forge::RenderingComponent >();
 
-					renderingComponent->LoadMeshAndMaterial( forge::Path( "Models\\sphere.obj" ) );
+					renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\sphere.obj" ) );
 					renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", Vector4{ Math::Random::GetRNG().GetFloat(), Math::Random::GetRNG().GetFloat(), Math::Random::GetRNG().GetFloat(), 1.0f } );
 					renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 

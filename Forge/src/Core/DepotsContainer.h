@@ -8,8 +8,11 @@ namespace forge
 	{
 	public:
 		Depot( const forge::Path& depotsAbsolutePath, const forge::Path& rootPath );
-		forge::Path GetAbsolutePath( const forge::Path& localPath ) const;
-		bool ContainsFile( const forge::Path& localPath ) const;
+
+		const forge::Path& GetPath() const
+		{
+			return m_rootPath;
+		}
 
 	private:
 		const forge::Path m_rootPath;
@@ -37,24 +40,21 @@ namespace forge
 
 		bool TryToGetExistingFilePath( const forge::Path& path, forge::Path& outAbsolutePath ) const
 		{
-			if( m_appDepot.ContainsFile( path ) )
-			{
-				outAbsolutePath = m_appDepot.GetAbsolutePath( path );
-				return true;
-			}
-
-			if( m_engineDepot.ContainsFile( path ) )
-			{
-				outAbsolutePath = m_engineDepot.GetAbsolutePath( path );
-				return true;
-			}
-
 			if( std::filesystem::exists( path.Get() ) )
 			{
 				outAbsolutePath = path;
 				return true;
 			}
 
+			outAbsolutePath = GetDepotsPath();
+			outAbsolutePath.Append( path );
+
+			if ( std::filesystem::exists( outAbsolutePath.Get() ) )
+			{
+				return true;
+			}
+
+			outAbsolutePath = {};
 			return false;
 		}
 

@@ -95,6 +95,11 @@ namespace forge
 			return m_path.empty();
 		}
 
+		forge::Path operator+( const forge::Path& path ) const
+		{
+			return forge::Path( m_path + path.AsString() );
+		}
+
 	private:
 		void UpdateIndices()
 		{

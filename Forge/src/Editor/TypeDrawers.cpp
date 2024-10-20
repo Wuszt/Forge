@@ -92,7 +92,31 @@ void editor::TypeDrawer_Int32::OnDrawValue( const Drawable& drawable ) const
 void editor::TypeDrawer_Float::OnDrawValue( const Drawable& drawable ) const
 {
 	Float& value = GetValue< Float >( drawable.GetAddress() );
-	if ( ImGui::InputFloat( "##Value", &value ) )
+	Float min = -std::numeric_limits< Float >::infinity();
+	Float max = std::numeric_limits< Float >::infinity();
+	if ( const std::string* minValue = drawable.GetMetadataValue( "RangeMin" ) )
+	{
+		min = std::stof( *minValue );
+	}
+
+	if ( const std::string* maxValue = drawable.GetMetadataValue( "RangeMax" ) )
+	{
+		max = std::stof( *maxValue );
+	}
+
+	bool bModified = false;
+	if ( drawable.HasMetadata( "IsRadiansAngle" ) )
+	{
+		min = Math::Max( RAD2DEG * min, -180.0f );
+		max = Math::Min( RAD2DEG * max, 180.0f );
+		bModified = ImGui::SliderAngle( "##Value", &value, min, max );
+	}
+	else
+	{
+		bModified = ImGui::InputFloat( "##Value", &value );
+	}
+
+	if ( bModified )
 	{
 		BroadcastPropertyChangedCallback( drawable );
 	}
@@ -343,7 +367,7 @@ void editor::TypeDrawer_Path::OnDrawValue( const Drawable& drawable ) const
 	if ( ImGui::Button( "Browse..." ) )
 	{
 		forge::Path startPath;
-		if ( drawable.HasMetadata( "StartFromDepot" ) )
+		if ( drawable.HasMetadata( "InDepot" ) )
 		{
 			startPath = GetEngineInstance().GetDepotsContainer().GetDepotsPath();
 		}
@@ -373,6 +397,19 @@ void editor::TypeDrawer_Path::OnDrawValue( const Drawable& drawable ) const
 		}
 
 		forge::Path newPath = GetEngineInstance().GetRenderingManager().GetWindow().CreateFileDialog( dialogType, extensions, startPath );
+		
+		if ( drawable.HasMetadata( "InDepot" ) )
+		{
+			if ( newPath.AsString().find( startPath.Get() ) != std::string::npos )
+			{
+				newPath = newPath = forge::Path( newPath.Get() + strlen( startPath.Get() ) );
+			}
+			else
+			{
+				newPath = {};
+			}
+		}
+		
 		if ( !newPath.IsEmpty() )
 		{
 			if ( dialogType == forge::IWindow::FileDialogType::Save && extensions.size() == 1u )
