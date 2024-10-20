@@ -13,7 +13,7 @@ RTTI_IMPLEMENT_TYPE( forge::PhysicsStaticComponent );
 RTTI_IMPLEMENT_TYPE( forge::PhysicsDynamicFragment );
 RTTI_IMPLEMENT_TYPE( forge::PhysicsDynamicComponent );
 
-void forge::PhysicsComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
+void forge::PhysicsComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData )
 {
 	auto& physicsSystem = engineInstance.GetSystemsManager().GetSystem < systems::PhysicsSystem >();
 	const forge::ObjectID objectId = GetOwner().GetObjectID();

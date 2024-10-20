@@ -154,6 +154,22 @@ namespace forge
 			return nullptr;
 		}
 
+		template< class T >
+		T& Get()
+		{
+			T* ptr = GetPtr< T >();
+			FORGE_ASSERT( ptr );
+			return *ptr;
+		}
+
+		template< class T >
+		const T& Get() const
+		{
+			const T* ptr = GetPtr< T >();
+			FORGE_ASSERT( ptr );
+			return *ptr;
+		}
+
 	private:
 		const rtti::Type* m_type = nullptr;
 		void* m_memory = nullptr;

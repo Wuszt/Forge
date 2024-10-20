@@ -69,8 +69,11 @@ namespace forge
 			FORGE_ASSERT( index < GetSize() );
 
 			m_type.Destroy( GetRawData( index ) );
-			std::memmove( GetRawData( index ), GetRawDataUnsafe( index + 1u ), ( GetSize() - index - 1u ) * m_type.GetSize() );
-
+			for ( Uint32 i = index; i < GetSize(); ++i )
+			{
+				m_type.MoveInPlace( GetRawData( i ), GetRawDataUnsafe( i + 1u ) );
+			}
+			
 			--m_size;
 		}
 
@@ -82,7 +85,7 @@ namespace forge
 
 			if( index != GetSize() - 1u )
 			{
-				std::memmove( GetRawData( index ), GetRawData( GetSize() - 1u ), m_type.GetSize() );
+				m_type.MoveInPlace( GetRawData( index ), GetRawData( GetSize() - 1u ) );
 			}
 
 			--m_size;

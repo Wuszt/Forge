@@ -21,6 +21,7 @@ namespace forge
 
 		void Serialize( const void* address, Uint64 size );
 		void Serialize( const void* address, const rtti::Type& type );
+		void SerializeProperties( const void* address, const rtti::Type& type );
 
 	private:
 		Serializer() = default;
@@ -62,6 +63,7 @@ namespace forge
 
 		void Deserialize( void* address, Uint64 size );
 		void Deserialize( void* address, const rtti::Type& type );
+		void DeserializeProperties( void* address, const rtti::Type& type );
 
 	private:
 		Deserializer() = default;

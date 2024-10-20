@@ -8,7 +8,7 @@ namespace forge
 		RTTI_DECLARE_CLASS( SceneObject, forge::Object );
 
 	protected:
-		virtual void OnInit() override;
+		virtual void OnInit( ObjectInitData& initData ) override;
 		virtual void OnDeinit() override;
 
 	private:

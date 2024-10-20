@@ -18,8 +18,10 @@ namespace forge
 
 		struct InitializationParams
 		{
-			std::function< void( Object& ) > m_preInitFunc = []( Object& ) {};
-			std::function< void( Object& ) > m_postInitFunc = []( Object& ) {};
+			using TFunc = void( Object&, ObjectInitData& );
+
+			std::function< TFunc > m_preInitFunc = []( Object&, ObjectInitData& ) {};
+			std::function< TFunc > m_postInitFunc = []( Object&, ObjectInitData& ) {};
 		};
 
 		template< class T = forge::Object >
@@ -29,7 +31,7 @@ namespace forge
 			RequestCreatingObject( T::GetTypeStatic(), std::move( initParams ) );
 		}
 
-		template< class TFunc = decltype( []( forge::Object* ){} ) >
+		template< class TFunc = decltype( []( forge::Object*, forge::ObjectInitData& ){} ) >
 		void RequestCreatingObject( const forge::Object::Type& objectType, InitializationParams initParams = {} )
 		{
 			ObjectCreationRequest req;
@@ -38,9 +40,10 @@ namespace forge
 					forge::ObjectID objID;
 					auto& rawObj =  CreateObject( objectType, objID );
 					rawObj.forge::Object::Initialize( m_engineInstance, objID );
-					initParams.m_preInitFunc( rawObj );
-					rawObj.OnInit();
-					initParams.m_postInitFunc( rawObj );
+					forge::ObjectInitData initData;
+					initParams.m_preInitFunc( rawObj, initData );
+					rawObj.OnInit( initData );
+					initParams.m_postInitFunc( rawObj, initData );
 
 					rawObj.PostInit();
 				};

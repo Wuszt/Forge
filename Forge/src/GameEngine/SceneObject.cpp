@@ -6,9 +6,9 @@
 
 RTTI_IMPLEMENT_TYPE( forge::SceneObject );
 
-void forge::SceneObject::OnInit()
+void forge::SceneObject::OnInit( ObjectInitData& initData )
 {
-	Super::OnInit();
+	Super::OnInit( initData );
 	AddComponent< forge::TransformComponent >();
 
 	auto& sceneManager = GetEngineInstance().GetSceneManager();

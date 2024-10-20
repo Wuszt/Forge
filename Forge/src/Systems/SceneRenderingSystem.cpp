@@ -343,6 +343,39 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 	m_opaqueRenderingPass->ClearTargetTexture(); // this is fucked up, what about other rendering passes?
 
 	{
+		PC_SCOPE( "SceneRenderingSystem::OnDraw::UpdatingBuffers" );
+
+		auto func = [ & ]( ecs::MutableArchetypeView archetype )
+			{
+				auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
+				auto renderableFragments = archetype.GetMutableFragments< forge::RenderableFragment >();
+
+				for ( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
+				{
+					auto& cb = renderableFragments[ i ].m_renderable.GetCBMesh();
+					cb.GetData().W = transformFragments[ i ].ToMatrix();
+					cb.UpdateBuffer();
+				}
+			};
+
+		{
+			ecs::Query modifiedTransformQuery( GetEngineInstance().GetECSManager() );
+			modifiedTransformQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
+			modifiedTransformQuery.AddMutableFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
+			modifiedTransformQuery.AddTagRequirement< forge::TransformWasModifiedThisFrame >( ecs::Query::RequirementType::Included );
+			modifiedTransformQuery.VisitArchetypes( func );
+		}
+
+		{
+			ecs::Query modifiedRenderableQuery( GetEngineInstance().GetECSManager() );
+			modifiedRenderableQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
+			modifiedRenderableQuery.AddMutableFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
+			modifiedRenderableQuery.AddTagRequirement< forge::DirtyRenderable >( ecs::Query::RequirementType::Included );
+			modifiedRenderableQuery.VisitArchetypes( func );
+		}
+	}
+
+	{
 		PC_SCOPE( "SceneRenderingSystem::UpdatingRawRenderables" );
 		ecs::Query renderablesToUpdate( GetEngineInstance().GetECSManager() );
 		renderablesToUpdate.AddTagRequirement< forge::DirtyRenderable >( ecs::Query::RequirementType::Included );
@@ -412,30 +445,6 @@ void systems::SceneRenderingSystem::OnBeforeDraw()
 				} );
 			}
 		} );
-	}
-
-	ecs::Query modifiedTransformQuery( GetEngineInstance().GetECSManager() );
-	modifiedTransformQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
-	modifiedTransformQuery.AddMutableFragmentRequirement< forge::RenderableFragment >( ecs::Query::RequirementType::Included );
-	modifiedTransformQuery.AddTagRequirement< forge::TransformWasModifiedThisFrame >( ecs::Query::RequirementType::Included );
-
-	{
-		PC_SCOPE( "SceneRenderingSystem::OnDraw::UpdatingBuffers" );
-
-		auto func = [ & ]( ecs::MutableArchetypeView archetype )
-		{
-			auto transformFragments = archetype.GetFragments< forge::TransformFragment >();
-			auto renderableFragments = archetype.GetMutableFragments< forge::RenderableFragment >();
-
-			for ( Uint32 i = 0; i < archetype.GetEntitiesAmount(); ++i )
-			{
-				auto& cb = renderableFragments[ i ].m_renderable.GetCBMesh();
-				cb.GetData().W = transformFragments[ i ].ToMatrix();
-				cb.UpdateBuffer();
-			}
-		};
-
-		modifiedTransformQuery.VisitArchetypes( func );
 	}
 }
 

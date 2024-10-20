@@ -12,7 +12,7 @@
 
 RTTI_IMPLEMENT_TYPE( forge::IPlayerControllerComponent);
 
-void forge::PhysicsFreeCameraControllerComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
+void forge::PhysicsFreeCameraControllerComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData )
 {
 	m_ownerTransform = GetOwner().GetComponent< forge::TransformComponent >();
 

@@ -33,7 +33,7 @@ namespace forge
 		friend class systems::PhysicsSystem;
 
 	public:
-		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
+		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData ) override;
 		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 
 		virtual void AddShape( physics::PhysicsShape&& shape );

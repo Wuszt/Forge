@@ -22,7 +22,7 @@ namespace forge
 		virtual void Update() override;
 
 	protected:
-		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
+		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData ) override;
 
 	private:
 		TransformComponent* m_ownerTransform = nullptr;

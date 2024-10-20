@@ -2,6 +2,7 @@
 #include "../ECS/EntityID.h"
 #include "../ECS/ECSManager.h"
 #include "../ECS/CommandsQueue.h"
+#include "ObjectInitData.h"
 
 namespace ecs
 {
@@ -25,14 +26,14 @@ namespace forge
 		}
 
 	protected:
-		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) {}
+		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData ) {}
 		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) {}
 
-		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) {}
+		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData ) {}
 		virtual void OnDetached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) {}
 
 	private:
-		void Attach( EngineInstance& engineInstance, Object& owner, ecs::CommandsQueue& commandsQueue );
+		void Attach( EngineInstance& engineInstance, Object& owner, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData );
 		void Detach( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue );
 
 		Object* m_owner;
@@ -40,7 +41,7 @@ namespace forge
 
 	namespace datacomponent::internal
 	{
-		void OnAttaching( forge::Object& owner, const ecs::Fragment::Type& fragmentType, ecs::CommandsQueue& commandsQueue );
+		void OnAttaching( forge::Object& owner, const ecs::Fragment::Type& fragmentType, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData );
 		void OnDetaching( forge::Object& owner, const ecs::Fragment::Type& fragmentType, ecs::CommandsQueue& commandsQueue );
 		ecs::EntityID GetObjectEntityID( forge::Object& owner );
 	}
@@ -50,8 +51,12 @@ namespace forge
 		RTTI_DECLARE_ABSTRACT_CLASS( IDataComponent, forge::IComponent );
 
 	public:
-		virtual const void* GetRawData( const ecs::Fragment::Type*& outDataType ) const = 0;
-		virtual void* GetMutableRawData( const ecs::Fragment::Type*& outDataType ) = 0;
+		virtual const ecs::Fragment::Type& GetDataType() const = 0;
+		virtual const void* GetRawData() const = 0;
+		virtual void* GetMutableRawData() = 0;
+
+		virtual void Serialize( forge::Serializer& serializer ) const;
+		virtual void Deserialize( forge::Deserializer& deserializer, forge::ObjectInitData& initData );
 	};
 
 	template< class TData, class ParentClass = IDataComponent >
@@ -64,10 +69,25 @@ namespace forge
 		using ParentClass::ParentClass;
 		using ParentClass::GetOwner;
 
-		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override
+		virtual void OnAttaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData ) override
 		{
-			ParentClass::OnAttaching( engineInstance, commandsQueue );
-			datacomponent::internal::OnAttaching( GetOwner(), TData::GetTypeStatic(), commandsQueue );
+			ParentClass::OnAttaching( engineInstance, commandsQueue, initData );
+			datacomponent::internal::OnAttaching( GetOwner(), TData::GetTypeStatic(), commandsQueue, initData );
+		}
+
+		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData ) override
+		{
+			ParentClass::OnAttached( engineInstance, commandsQueue, initData );
+
+			if ( initData )
+			{
+				if ( TData* fragmentData = initData->GetData< TData >() )
+				{
+					void* address = GetMutableData().GetMutablePtr();
+					TData::GetTypeStatic().Destroy( address );
+					TData::GetTypeStatic().MoveInPlace( address, fragmentData );
+				}
+			}
 		}
 
 		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override
@@ -83,15 +103,18 @@ namespace forge
 			return ecsManager.GetFragmentView< TData >( id );
 		}
 
-		virtual const void* GetRawData( const ecs::Fragment::Type*& outDataType ) const 
+		virtual const ecs::Fragment::Type& GetDataType() const override
 		{
-			outDataType = &TData::GetTypeStatic();
+			return TData::GetTypeStatic();
+		}
+
+		virtual const void* GetRawData() const 
+		{
 			return GetData().GetPtr();
 		}
 
-		virtual void* GetMutableRawData( const ecs::Fragment::Type*& outDataType ) 
-		{ 
-			outDataType = &TData::GetTypeStatic();
+		virtual void* GetMutableRawData() 
+		{
 			return GetMutableData().GetMutablePtr(); 
 		}
 

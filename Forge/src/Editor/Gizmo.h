@@ -10,7 +10,7 @@ namespace editor
 		RTTI_DECLARE_CLASS( Gizmo, forge::Object );
 
 	public:
-		virtual void OnInit() override;
+		virtual void OnInit( forge::ObjectInitData& initData ) override;
 
 		void OnInput( forge::ObjectID hoveredObject, const Vector3& cursorRayDir );
 		void Initialize( forge::ObjectID modifiedObject );

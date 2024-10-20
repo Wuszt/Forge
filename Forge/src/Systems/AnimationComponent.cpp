@@ -12,9 +12,9 @@ forge::AnimationFragment::AnimationFragment()
 	: m_animation( 0.0f, 0u )
 {}
 
-void forge::AnimationComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
+void forge::AnimationComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData )
 {
-	DataComponent< AnimationFragment >::OnAttached( engineInstance, commandsQueue );
+	DataComponent< AnimationFragment >::OnAttached( engineInstance, commandsQueue, initData );
 	GetMutableData()->m_cb->SetImpl( engineInstance.GetRenderingManager().GetRenderer().CreateConstantBufferImpl() );
 	GetOwner().GetComponent< forge::RenderingComponent >()->GetDirtyData()->m_renderable.AddConstantBuffer( { renderer::VSConstantBufferType::SkeletalMesh, renderer::PSConstantBufferType::Invalid, GetMutableData()->m_cb->GetImpl() } );
 }

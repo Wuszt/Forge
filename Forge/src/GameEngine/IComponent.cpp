@@ -1,16 +1,20 @@
 #include "Fpch.h"
 #include "IComponent.h"
+#include "../Core/Serializer.h"
 
 RTTI_IMPLEMENT_TYPE( forge::IComponent );
-RTTI_IMPLEMENT_TYPE( forge::IDataComponent );
+RTTI_IMPLEMENT_TYPE( forge::IDataComponent,
+	RTTI_REGISTER_METHOD( Serialize );
+	RTTI_REGISTER_METHOD( Deserialize );
+	)
 
 forge::IComponent::IComponent() = default;
 forge::IComponent::~IComponent() = default;
 
-void forge::IComponent::Attach( EngineInstance& engineInstance, Object& owner, ecs::CommandsQueue& commandsQueue )
+void forge::IComponent::Attach( EngineInstance& engineInstance, Object& owner, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData )
 {
 	m_owner = &owner;
-	OnAttaching( engineInstance, commandsQueue );
+	OnAttaching( engineInstance, commandsQueue, initData );
 }
 
 void forge::IComponent::Detach( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
@@ -19,7 +23,7 @@ void forge::IComponent::Detach( EngineInstance& engineInstance, ecs::CommandsQue
 	m_owner = nullptr;
 }
 
-void forge::datacomponent::internal::OnAttaching( forge::Object& owner, const ecs::Fragment::Type& fragmentType, ecs::CommandsQueue& commandsQueue )
+void forge::datacomponent::internal::OnAttaching( forge::Object& owner, const ecs::Fragment::Type& fragmentType, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData )
 {
 	auto& engineInstance = owner.GetEngineInstance();
 	auto& ecsManager = engineInstance.GetECSManager();
@@ -37,5 +41,19 @@ ecs::EntityID forge::datacomponent::internal::GetObjectEntityID( forge::Object& 
 {
 	auto& engineInstance = owner.GetEngineInstance();
 	auto& objectsManager = engineInstance.GetObjectsManager();
+
 	return objectsManager.GetOrCreateEntityId( owner.GetObjectID() );
+}
+
+void forge::IDataComponent::Serialize( forge::Serializer& serializer ) const
+{
+	const void* rawData = GetRawData();
+	serializer.Serialize( rawData, GetDataType() );
+	serializer.SerializeProperties( this, GetType() );
+}
+
+void forge::IDataComponent::Deserialize( forge::Deserializer& deserializer, forge::ObjectInitData& initData )
+{
+	deserializer.Deserialize( initData.AddData( GetDataType() ), GetDataType() );
+	deserializer.DeserializeProperties( this, GetType() );
 }

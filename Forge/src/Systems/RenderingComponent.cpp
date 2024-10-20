@@ -14,7 +14,9 @@ RTTI_IMPLEMENT_TYPE( forge::RenderableFragment,
 
 RTTI_IMPLEMENT_TYPE( forge::RenderingComponent,
 	RTTI_REGISTER_PROPERTY( m_meshPath, 
-		RTTI_ADD_METADATA( "Extensions", "obj,fbx" ) );
+		RTTI_ADD_METADATA( "Extensions", "obj,fbx" );
+		RTTI_ADD_METADATA( "StartFromDepot" );
+		);
 	RTTI_REGISTER_METHOD( OnPropertyChanged );
 );
 
@@ -22,12 +24,13 @@ RTTI_IMPLEMENT_TYPE( forge::DirtyRenderable );
 RTTI_IMPLEMENT_TYPE( forge::IgnoresLights );
 RTTI_IMPLEMENT_TYPE( forge::DrawAsOverlay );
 
-void forge::RenderingComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
+void forge::RenderingComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData )
 {
 	PC_SCOPE_FUNC();
 
-	DataComponent< forge::RenderableFragment >::OnAttached( engineInstance, commandsQueue );
+	DataComponent< forge::RenderableFragment >::OnAttached( engineInstance, commandsQueue, initData );
 	GetDirtyData()->m_renderable = renderer::Renderable(engineInstance.GetRenderingManager().GetRenderer());
+
 	m_onShadersClearCache = engineInstance.GetRenderingManager().GetRenderer().GetShadersManager()->RegisterCacheClearingListener(
 		[ this ]()
 		{

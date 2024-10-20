@@ -25,7 +25,7 @@ namespace editor
 		RTTI_DECLARE_ABSTRACT_CLASS( GizmoElement, forge::Object );
 
 	public:
-		virtual void OnInit() override;
+		virtual void OnInit( forge::ObjectInitData& initData ) override;
 		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) {}
 		void SetColor( const Vector4& color );
 		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3 & cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const = 0;
@@ -123,9 +123,9 @@ namespace editor
 	RTTI_IMPLEMENT_TYPE( editor::GizmoAxisScaleCube, RTTI_ADD_METADATA( "EditorOnly" ) );
 }
 
-void editor::Gizmo::OnInit()
+void editor::Gizmo::OnInit( forge::ObjectInitData& initData )
 {
-	Super::OnInit();
+	Super::OnInit( initData );
 
 	AddComponents< forge::TransformComponent >();
 
@@ -133,7 +133,7 @@ void editor::Gizmo::OnInit()
 
 	auto CreateGizmoElement = [ this ]< class T >( const Vector3& direction, const Vector4& color )
 	{
-		GetEngineInstance().GetObjectsManager().RequestCreatingObject< T >( { .m_postInitFunc = [ this, direction, color ]( forge::Object& obj )
+		GetEngineInstance().GetObjectsManager().RequestCreatingObject< T >( { .m_postInitFunc = [ this, direction, color ]( forge::Object& obj, forge::ObjectInitData& )
 		{
 			auto& element = static_cast< T& >( obj );
 			m_elements.emplace_back( std::move( forge::ObjectLifetimeToken( element ) ) );
@@ -234,9 +234,9 @@ void editor::Gizmo::Update()
 	gizmoTransformComp->SetWorldScale( Vector3::ONES() * distToCamera * distToScaleFactor );
 }
 
-void editor::GizmoElement::OnInit()
+void editor::GizmoElement::OnInit( forge::ObjectInitData& initData )
 {
-	forge::Object::OnInit();
+	forge::Object::OnInit( initData );
 
 	ecs::EntityID entityID =  GetEngineInstance().GetObjectsManager().GetOrCreateEntityId( GetObjectID() );
 	GetEngineInstance().GetECSManager().AddTagToEntity< forge::IgnoresLights >( entityID );

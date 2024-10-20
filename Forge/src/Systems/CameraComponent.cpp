@@ -9,9 +9,9 @@
 
 RTTI_IMPLEMENT_TYPE( forge::CameraComponent );
 
-void forge::CameraComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
+void forge::CameraComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData )
 {
-	Super::OnAttached( engineInstance, commandsQueue );
+	Super::OnAttached( engineInstance, commandsQueue, initData );
 
 	m_transformComponent = GetOwner().GetComponent< TransformComponent >();
 

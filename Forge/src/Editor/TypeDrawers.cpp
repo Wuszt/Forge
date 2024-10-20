@@ -189,10 +189,9 @@ const rtti::Type& editor::TypeDrawer_DataComponent::GetSupportedType() const
 void editor::TypeDrawer_DataComponent::OnDrawChildren( const Drawable& drawable ) const
 {
 	forge::IDataComponent* dataComponent = static_cast< forge::IDataComponent* >( drawable.GetAddress() );
-	const ecs::Fragment::Type* fragmentType = nullptr;
-	if ( void* fragmentAddress = dataComponent->GetMutableRawData( fragmentType ) )
+	if ( void* fragmentAddress = dataComponent->GetMutableRawData() )
 	{
-		editor::TypeDrawer::DrawChildren( GetEngineInstance(), editor::DrawableType( fragmentAddress, *fragmentType ) );
+		editor::TypeDrawer::DrawChildren( GetEngineInstance(), editor::DrawableType( fragmentAddress, dataComponent->GetDataType() ) );
 	}
 
 	editor::TypeDrawer::OnDrawChildren( drawable );
@@ -345,7 +344,7 @@ void editor::TypeDrawer_Path::OnDrawValue( const Drawable& drawable ) const
 		forge::Path startPath;
 		if ( drawable.HasMetadata( "StartFromDepot" ) )
 		{
-			startPath = GetEngineInstance().GetDepotsContainer().GetDepotsPath();
+			//startPath = GetEngineInstance().GetDepotsContainer().GetDepotsPath();
 		}
 
 		std::vector< std::string > extensions;

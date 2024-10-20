@@ -45,7 +45,7 @@ editor::SceneGrid::SceneGrid( forge::EngineInstance& engineInstance )
 
 	for ( Int32 x = -100; x < 100; ++x )
 	{
-		engineInstance.GetObjectsManager().RequestCreatingObject< SceneGridLine >( { .m_postInitFunc = [ this, x, drawFunc ]( forge::Object& obj )
+		engineInstance.GetObjectsManager().RequestCreatingObject< SceneGridLine >( { .m_postInitFunc = [ this, x, drawFunc ]( forge::Object& obj, forge::ObjectInitData& )
 			{
 				m_linesTokens.emplace_back( obj );
 
@@ -56,7 +56,7 @@ editor::SceneGrid::SceneGrid( forge::EngineInstance& engineInstance )
 
 	for ( Int32 y = -100; y < 100; ++y )
 	{
-		engineInstance.GetObjectsManager().RequestCreatingObject< SceneGridLine >( { .m_postInitFunc = [ this, y, drawFunc ]( forge::Object& obj )
+		engineInstance.GetObjectsManager().RequestCreatingObject< SceneGridLine >( { .m_postInitFunc = [ this, y, drawFunc ]( forge::Object& obj, forge::ObjectInitData& )
 			{
 				m_linesTokens.emplace_back( obj );
 

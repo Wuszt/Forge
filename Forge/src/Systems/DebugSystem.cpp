@@ -204,7 +204,7 @@ void systems::DebugSystem::Update()
 
 	for ( auto&& request : std::move( m_objectsCreationRequests ) )
 	{
-		GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ request = std::move( request ), this ]( forge::Object& obj )
+		GetEngineInstance().GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ request = std::move( request ), this ]( forge::Object& obj, forge::ObjectInitData& )
 		{
 			obj.AddComponents< forge::TransformComponent, forge::RenderingComponent >();
 			request.m_initFunc( obj );

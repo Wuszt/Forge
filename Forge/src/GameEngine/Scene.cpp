@@ -47,10 +47,10 @@ void forge::Scene::Deserialize( forge::Stream& stream )
 		if ( const auto* type = rtti::Get().FindType( objectTypeID ) )
 		{
 			FORGE_ASSERT( type->InheritsFromOrIsA< forge::Object >() );
-			m_objectsManager.RequestCreatingObject( static_cast< const forge::Object::Type& >( *type ), { .m_preInitFunc = [ memoryStream ]( forge::Object& obj )
+			m_objectsManager.RequestCreatingObject( static_cast< const forge::Object::Type& >( *type ), { .m_preInitFunc = [ memoryStream ]( forge::Object& obj, forge::ObjectInitData& initData )
 				{
 					forge::Deserializer deserializer( *memoryStream );
-					obj.Deserialize( deserializer );
+					obj.Deserialize( deserializer, initData );
 				} } );
 		}
 	}

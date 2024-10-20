@@ -48,7 +48,7 @@ namespace forge
 		RTTI_DECLARE_POLYMORPHIC_CLASS( RenderingComponent, forge::IDataComponent );
 
 	public:
-		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
+		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData ) override;
 
 		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 

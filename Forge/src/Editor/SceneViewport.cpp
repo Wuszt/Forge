@@ -34,7 +34,7 @@ editor::SceneViewport::SceneViewport( SceneEditor& sceneEditor )
 			{
 				if ( GetEngineInstance().GetObjectsManager().GetObject( selectedObject )->GetComponent< forge::TransformComponent >() )
 				{
-					GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::Gizmo >( { .m_postInitFunc = [ this, selectedObject ]( forge::Object& obj )
+					GetEngineInstance().GetObjectsManager().RequestCreatingObject< editor::Gizmo >( { .m_postInitFunc = [ this, selectedObject ]( forge::Object& obj, forge::ObjectInitData& )
 						{
 							auto& gizmo = static_cast< editor::Gizmo& >( obj );
 							m_gizmoToken = forge::ObjectLifetimeToken( gizmo );

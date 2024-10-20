@@ -12,13 +12,6 @@ RTTI_IMPLEMENT_TYPE( forge::TransformChildFragment );
 RTTI_IMPLEMENT_TYPE( forge::ChildRequiringRecalculatingWorldTransform );
 RTTI_IMPLEMENT_TYPE( forge::TransformComponent );
 
-void forge::TransformComponent::OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue )
-{
-	DataComponent< TransformFragment >::OnAttached( engineInstance, commandsQueue );
-	SetWorldTransform( Transform::IDENTITY() );
-	SetWorldScale( Vector3::ONES() );
-}
-
 std::vector< forge::ObjectID > forge::TransformComponent::GetChildren() const
 {
 	std::vector< forge::ObjectID > result;

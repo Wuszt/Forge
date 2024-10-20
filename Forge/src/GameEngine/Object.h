@@ -6,6 +6,7 @@ namespace forge
 {
 	class IComponent;
 	class EngineInstance;
+	class ObjectInitData;
 
 	struct ObjectFragment : public ecs::Fragment
 	{
@@ -31,7 +32,7 @@ namespace forge
 			return m_id;
 		}
 
-		virtual void OnInit();
+		virtual void OnInit( ObjectInitData& initData );
 		virtual void OnDeinit();
 
 		virtual void PostInit() {}
@@ -42,7 +43,7 @@ namespace forge
 			std::vector< std::unique_ptr< IComponent > > createdComponents;
 
 			CreateComponents< T, Ts... >( createdComponents );
-			AttachComponents( createdComponents );
+			AttachComponents( createdComponents, nullptr );
 		}
 
 		template< class T >
@@ -116,7 +117,7 @@ namespace forge
 		}
 
 		virtual void Serialize( forge::Serializer& serializer );
-		virtual void Deserialize( forge::Deserializer& deserializer );
+		virtual void Deserialize( forge::Deserializer& deserializer, ObjectInitData& initData );
 
 	protected:
 		Object();
@@ -150,7 +151,7 @@ namespace forge
 			CreateComponents< Ts... >( createdComponents );
 		}
 
-		void AttachComponents( forge::ArraySpan< std::unique_ptr< IComponent > > components );
+		void AttachComponents( forge::ArraySpan< std::unique_ptr< IComponent > > components, forge::ObjectInitData* initData );
 
 		std::string m_name;
 		std::vector< std::unique_ptr< IComponent > > m_components;

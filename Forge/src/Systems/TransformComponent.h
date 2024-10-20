@@ -9,7 +9,7 @@ namespace forge
 	{
 		RTTI_DECLARE_STRUCT( TransformFragment, ecs::Fragment );
 
-		Transform m_transform;
+		Transform m_transform = Transform::IDENTITY();
 		Vector3 m_scale = Vector3::ONES();
 
 		Matrix ToMatrix() const
@@ -59,8 +59,6 @@ namespace forge
 		RTTI_DECLARE_POLYMORPHIC_CLASS( TransformComponent, forge::IDataComponent );
 	public:
 		using DataComponent::DataComponent;
-
-		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue );
 
 		void SetWorldTransform( const Transform& transform )
 		{

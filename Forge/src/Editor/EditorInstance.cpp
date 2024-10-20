@@ -73,7 +73,7 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 	engineInstance.GetSystemsManager().AddSystems( systems );
 	engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor({ 0.55f, 0.55f, 0.55f });
 
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& player )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& player, forge::ObjectInitData& )
 	{
 		const auto entityID = engineInstance.GetObjectsManager().GetOrCreateEntityId( player.GetObjectID() );
 		player.SetName( "Player" );

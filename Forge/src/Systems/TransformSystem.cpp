@@ -104,8 +104,7 @@ void systems::TransformSystem::Update()
 
 	{
 		ecs::Query previousFrameTransformToUpdateQuery( ecsManager );
-		previousFrameTransformToUpdateQuery.AddFragmentRequirement< forge::TransformFragment >( ecs::Query::RequirementType::Included );
-		previousFrameTransformToUpdateQuery.AddTagRequirement< forge::ChildRequiringRecalculatingLocalTransform >( ecs::Query::RequirementType::Included );
+		previousFrameTransformToUpdateQuery.AddTagRequirement< forge::TransformWasModifiedThisFrame >( ecs::Query::RequirementType::Included );
 		previousFrameTransformToUpdateQuery.VisitArchetypes( [ & ]( ecs::ArchetypeView archetype )
 			{
 				cmdsQueue.RemoveTag( archetype.GetArchetypeID(), forge::TransformWasModifiedThisFrame::GetTypeStatic() );

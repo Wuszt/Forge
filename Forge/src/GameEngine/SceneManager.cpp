@@ -14,6 +14,7 @@ forge::SceneManager::~SceneManager() = default;
 
 void forge::SceneManager::OpenEmptyScene()
 {
+	m_currentScenePath = forge::Path();
 	m_scene = std::make_unique< Scene >( m_objectsManager );
 	m_onNewScene.Invoke();
 }

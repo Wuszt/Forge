@@ -38,7 +38,7 @@ namespace forge
 	public:
 		using DataComponent::DataComponent;
 
-		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
+		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData ) override;
 		virtual void OnDetached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 
 		void SetAnimation( renderer::Animation animation );

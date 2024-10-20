@@ -47,6 +47,38 @@ void forge::Serializer::Serialize( const void* address, const rtti::Type& type )
 	}
 }
 
+void forge::Serializer::SerializeProperties( const void* address, const rtti::Type& type )
+{
+	Uint32 propertiesAmount = static_cast< Uint32 >( type.GetPropertiesAmount() );
+
+	m_stream->Write( propertiesAmount );
+	for ( Uint32 i = 0u; i < propertiesAmount; ++i )
+	{
+		const ::rtti::Property* prop = type.GetProperty( i );
+		FORGE_ASSERT( prop );
+
+		if ( prop->HasMetadata( "Transient" ) || prop->GetType().HasMetadata( "Transient" ) )
+		{
+			continue;
+		}
+
+		m_stream->Write( prop->GetID() );
+		m_stream->Write( prop->GetType().GetID() );
+
+		Uint64 serializedSize = 0u;
+		auto pos = m_stream->GetPos();
+		m_stream->Write( serializedSize );
+		Serialize( prop->GetAddress( address ), prop->GetType() );
+		auto endPos = m_stream->GetPos();
+		serializedSize = m_stream->GetPos() - pos - sizeof( serializedSize );
+
+		m_stream->SetPos( pos );
+		m_stream->Write( serializedSize );
+
+		m_stream->SetPos( endPos );
+	}
+}
+
 void forge::Serializer::Serialize( const void* address, Uint64 size )
 {
 	m_stream->Write( address, size );
@@ -91,6 +123,51 @@ void forge::Deserializer::Deserialize( void* address, const rtti::Type& type )
 
 	default:
 		FORGE_FATAL();
+	}
+}
+
+// boost like
+static constexpr rtti::ID CombineIds( rtti::ID first, rtti::ID second )
+{
+	return first ^ ( second + 0x9e3779b9 + ( first << 6 ) + ( first >> 2 ) );
+}
+
+void forge::Deserializer::DeserializeProperties( void* address, const rtti::Type& type )
+{
+	Uint32 propertiesAmount = static_cast< Uint32 >( type.GetPropertiesAmount() );
+	Uint32 serializedPropertiesAmount = m_stream->Read< Uint32 >();
+
+	std::unordered_map< rtti::ID, std::streampos > m_serializedProperties;
+
+	for ( Uint32 i = 0u; i < serializedPropertiesAmount; ++i )
+	{
+		rtti::ID propertyId = m_stream->Read< rtti::ID >();
+		rtti::ID typeId = m_stream->Read< rtti::ID >();
+		Uint64 serializedSize = m_stream->Read< Uint64 >();
+
+		FORGE_ASSERT( !m_serializedProperties.contains( CombineIds( propertyId, typeId ) ) );
+		m_serializedProperties[ CombineIds( propertyId, typeId ) ] = m_stream->GetPos();
+
+		m_stream->SetPos( m_stream->GetPos() + serializedSize );
+	}
+
+	auto endPos = m_stream->GetPos();
+
+	for ( Uint32 i = 0u; i < propertiesAmount; ++i )
+	{
+		const ::rtti::Property* prop = type.GetProperty( i );
+
+		if ( prop->HasMetadata( "Transient" ) || prop->GetType().HasMetadata( "Transient" ) )
+		{
+			continue;
+		}
+
+		auto foundSerialized = m_serializedProperties.find( CombineIds( prop->GetID(), prop->GetType().GetID() ) );
+		if ( foundSerialized != m_serializedProperties.end() )
+		{
+			m_stream->SetPos( foundSerialized->second );
+			Deserialize( prop->GetAddress( address ), prop->GetType() );
+		}
 	}
 }
 
@@ -145,12 +222,6 @@ void forge::Deserializer::DeserializeString( void* address, const rtti::StringTy
 	}
 }
 
-// boost like
-static constexpr rtti::ID CombineIds( rtti::ID first, rtti::ID second )
-{
-	return first ^ ( second + 0x9e3779b9 + ( first << 6 ) + ( first >> 2 ) );
-}
-
 void forge::Serializer::SerializeClassOrStruct( const void* address, const rtti::Type& type )
 {
 	if ( const rtti::Function* func = type.FindMethod( "Serialize" ) )
@@ -167,28 +238,7 @@ void forge::Serializer::SerializeClassOrStruct( const void* address, const rtti:
 		}
 	}
 
-	Uint32 propertiesAmount = static_cast< Uint32 >( type.GetPropertiesAmount() );
-
-	m_stream->Write( propertiesAmount );
-	for ( Uint32 i = 0u; i < propertiesAmount; ++i )
-	{
-		const ::rtti::Property* prop = type.GetProperty( i );
-
-		m_stream->Write( prop->GetID() );
-		m_stream->Write( prop->GetType().GetID() );
-
-		Uint64 serializedSize = 0u;
-		auto pos = m_stream->GetPos();
-		m_stream->Write( serializedSize );
-		Serialize( prop->GetAddress( address ), prop->GetType() );
-		auto endPos = m_stream->GetPos();
-		serializedSize = m_stream->GetPos() - pos - sizeof( serializedSize );
-
-		m_stream->SetPos( pos );
-		m_stream->Write( serializedSize );
-
-		m_stream->SetPos( endPos );
-	}
+	SerializeProperties( address, type );
 }
 
 void forge::Deserializer::DeserializeClassOrStruct( void* address, const rtti::Type& type )
@@ -217,36 +267,7 @@ void forge::Deserializer::DeserializeClassOrStruct( void* address, const rtti::T
 		}
 	}
 
-	Uint32 propertiesAmount = static_cast< Uint32 >( type.GetPropertiesAmount() );
-	Uint32 serializedPropertiesAmount = m_stream->Read< Uint32 >();
-
-	std::unordered_map< rtti::ID, std::streampos > m_serializedProperties;
-
-	for ( Uint32 i = 0u; i < serializedPropertiesAmount; ++i )
-	{
-		rtti::ID propertyId = m_stream->Read< rtti::ID >();
-		rtti::ID typeId = m_stream->Read< rtti::ID >();
-		Uint64 serializedSize = m_stream->Read< Uint64 >();
-
-		FORGE_ASSERT( !m_serializedProperties.contains( CombineIds( propertyId, typeId ) ) );
-		m_serializedProperties[ CombineIds( propertyId, typeId ) ] = m_stream->GetPos();
-
-		m_stream->SetPos( m_stream->GetPos() + serializedSize );
-	}
-
-	auto endPos = m_stream->GetPos();
-
-	for ( Uint32 i = 0u; i < propertiesAmount; ++i )
-	{
-		const ::rtti::Property* prop = type.GetProperty( i );
-
-		auto foundSerialized = m_serializedProperties.find( CombineIds( prop->GetID(), prop->GetType().GetID() ) );
-		if ( foundSerialized != m_serializedProperties.end() )
-		{
-			m_stream->SetPos( foundSerialized->second );
-			Deserialize( prop->GetAddress( address ), prop->GetType() );
-		}
-	}
+	DeserializeProperties( address, type );
 }
 
 void forge::Serializer::SerializeArray( const void* address, const rtti::ContainerType& type )

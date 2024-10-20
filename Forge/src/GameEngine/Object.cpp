@@ -10,12 +10,13 @@ RTTI_IMPLEMENT_TYPE( forge::Object,
 	RTTI_REGISTER_METHOD( Serialize );
 	RTTI_REGISTER_METHOD( Deserialize );
 );
+RTTI_IMPLEMENT_TYPE( forge::ObjectInitData );
 
 forge::Object::Object() = default;
 forge::Object::Object( Object&& ) = default;
 forge::Object::~Object() = default;
 
-void forge::Object::OnInit()
+void forge::Object::OnInit( ObjectInitData& initData )
 {
 	auto& ecsManager = GetEngineInstance().GetECSManager();
 	auto& objectsManager = GetEngineInstance().GetObjectsManager();
@@ -57,7 +58,7 @@ Bool forge::Object::AddComponent( const forge::IComponent::Type& componentType )
 		return false;
 	}
 
-	AttachComponents( { std::unique_ptr< forge::IComponent >( componentType.ConstructTyped() ) } );
+	AttachComponents( { std::unique_ptr< forge::IComponent >( componentType.ConstructTyped() ) }, nullptr );
 	return true;
 }
 
@@ -98,7 +99,7 @@ void forge::Object::Serialize( forge::Serializer& serializer )
 	}
 }
 
-void forge::Object::Deserialize( forge::Deserializer& deserializer )
+void forge::Object::Deserialize( forge::Deserializer& deserializer, ObjectInitData& initData )
 {
 	deserializer.Deserialize( m_name );
 
@@ -115,14 +116,34 @@ void forge::Object::Deserialize( forge::Deserializer& deserializer )
 
 			FORGE_ASSERT ( !HasComponent( *type ) );
 			deserializedComponents.emplace_back( type->ConstructTyped() );
+
+			if ( const auto* deserializeMethod = type->FindMethod( "Deserialize" ) )
+			{
+				if ( deserializeMethod->GetReturnTypeDesc() == nullptr && deserializeMethod->GetParametersAmount() == 2
+					&& deserializeMethod->GetParameterTypeDesc( 0 )->GetType() == forge::Deserializer::GetTypeStatic()
+					&& deserializeMethod->GetParameterTypeDesc( 1 )->GetType() == forge::ObjectInitData::GetTypeStatic() )
+				{
+					struct Params
+					{
+						forge::Deserializer deserializer;
+						forge::ObjectInitData initData;
+					} params{ std::move( deserializer ), std::move( initData ) };
+					deserializeMethod->Call( deserializedComponents.back().get(), &params, nullptr );
+
+					deserializer = std::move( params.deserializer );
+					initData = std::move( params.initData );
+					continue;
+				}
+			}
+
 			deserializer.Deserialize( deserializedComponents.back().get(), *type );
 		}
 	}
 
-	AttachComponents( deserializedComponents );
+	AttachComponents( deserializedComponents, &initData );
 }
 
-void forge::Object::AttachComponents( forge::ArraySpan< std::unique_ptr< IComponent > > components )
+void forge::Object::AttachComponents( forge::ArraySpan< std::unique_ptr< IComponent > > components, forge::ObjectInitData* initData )
 {
 	std::vector< IComponent* > attachedComponents;
 	attachedComponents.reserve( components.GetSize() );
@@ -131,7 +152,7 @@ void forge::Object::AttachComponents( forge::ArraySpan< std::unique_ptr< ICompon
 
 	for ( auto& comp : components )
 	{
-		comp->Attach( *m_engineInstance, *this, queue );
+		comp->Attach( *m_engineInstance, *this, queue, initData );
 		attachedComponents.emplace_back( comp.get() );
 		FORGE_ASSERT( !m_componentsLUT.contains( &comp->GetType() ) );
 		m_componentsLUT[ &comp->GetType() ] = static_cast< Uint32 >( m_components.size() ); 
@@ -142,7 +163,7 @@ void forge::Object::AttachComponents( forge::ArraySpan< std::unique_ptr< ICompon
 
 	for ( IComponent* comp : attachedComponents )
 	{
-		comp->OnAttached( *m_engineInstance, queue );
+		comp->OnAttached( *m_engineInstance, queue, initData );
 		OnComponentAttached( *comp );
 	}
 

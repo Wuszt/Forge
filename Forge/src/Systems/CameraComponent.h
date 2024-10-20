@@ -19,7 +19,7 @@ namespace forge
 	public:
 		using IComponent::IComponent;
 
-		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
+		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData ) override;
 
 		renderer::ICamera::CameraType GetCameraType() const
 		{
