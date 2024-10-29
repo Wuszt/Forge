@@ -80,7 +80,7 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
     #endif
 #endif
     
-    float4 lightColor = float4(DiffuseBuffer.Sample(LinearSamplerState, texCoord).rgb * LightingData.Color, 1.0f) * shadowMultiplier;
+    float4 lightColor = float4(DiffuseBuffer.Sample(LinearSamplerState, texCoord).rgb * LightingData.Color, 0.0f) * shadowMultiplier;
 #if defined __POINT_LIGHT__
     return lightColor * float4( CalcPointLight(worldPos, normal, LightingData), 1.0f);
 #elif defined __SPOT_LIGHT__
