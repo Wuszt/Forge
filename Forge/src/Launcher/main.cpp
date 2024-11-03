@@ -37,7 +37,7 @@
 
 void SkeletalMesh( forge::EngineInstance& engineInstance, const Vector3& pos )
 {
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ &engineInstance, pos ]( forge::Object& obj )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ &engineInstance, pos ]( forge::Object& obj, forge::ObjectInitData& )
 	{
 		obj.AddComponents< forge::TransformComponent, forge::RenderingComponent, forge::AnimationComponent >();
 		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
@@ -60,7 +60,7 @@ void SkeletalMesh( forge::EngineInstance& engineInstance, const Vector3& pos )
 
 void SponzaScene( forge::EngineInstance& engineInstance )
 {
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& obj )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& obj, forge::ObjectInitData& )
 	{
 		obj.AddComponents< forge::TransformComponent, forge::RenderingComponent, forge::PhysicsStaticComponent >();
 
@@ -96,7 +96,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		}
 	} } );
 
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& light )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& light, forge::ObjectInitData& )
 	{
 		light.AddComponents< forge::TransformComponent, forge::PointLightComponent >();
 		light.GetComponent< forge::TransformComponent >()->SetWorldPosition( { 0.0f, -11.0f, 2.5f } );
@@ -104,7 +104,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		light.GetComponent< forge::PointLightComponent >()->GetData()->m_power = 0.1f;
 	} } );
 
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& light )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& light, forge::ObjectInitData& )
 	{
 		light.AddComponents< forge::TransformComponent, forge::SpotLightComponent >();
 		light.GetComponent< forge::TransformComponent >()->SetWorldPosition( { 0.0f, 0.0f, 25.0f } );
@@ -112,7 +112,7 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		light.GetComponent< forge::SpotLightComponent >()->GetData()->m_color = { 0.5f, 0.5f, 0.5f };
 	} } );
 
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& light )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& light, forge::ObjectInitData& )
 	{
 		light.AddComponents< forge::TransformComponent, forge::PointLightComponent >();
 		light.GetComponent< forge::TransformComponent >()->SetWorldPosition( { 0.0f, 11.0f, 2.5f } );
@@ -154,7 +154,7 @@ Int32 main()
 
 			engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor( { 0.55f, 0.55f, 0.55f } );
 
-			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& player )
+			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& player, forge::ObjectInitData& )
 			{
 				player.AddComponents< forge::TransformComponent, forge::CameraComponent, forge::PhysicsFreeCameraControllerComponent >();
 				player.GetComponent< forge::TransformComponent >()->SetWorldPosition( { 0.0f, 0.0f, 2.0f } );
@@ -184,7 +184,7 @@ Int32 main()
 
 			if ( engineInstance.GetRenderingManager().GetWindow().GetInput().GetKeyDown( forge::IInput::Key::Space ) )
 			{
-				engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& sphere )
+				engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& sphere, forge::ObjectInitData& )
 				{
 					sphere.AddComponents< forge::TransformComponent, forge::PhysicsDynamicComponent, forge::RenderingComponent >();
 					auto* transformComponent = sphere.GetComponent< forge::TransformComponent >();
@@ -215,7 +215,7 @@ Int32 main()
 				physics::RaycastResult result;
 				if ( engineInstance.GetSystemsManager().GetSystem< systems::PhysicsSystem >().PerformRaycast( playerTransform.GetPosition3() + playerTransform.GetForward(), playerTransform.GetForward(), 100.0f, result ) )
 				{
-					engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( result.m_position, 0.5f, Vector4( 1.0f, 0.0f, 0.0f, 1.0f ), true, false, -1.0f );
+					engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( result.m_position, 0.5f, LinearColor::Red, true, false, -1.0f );
 					FORGE_LOG( "Hit!" );
 				}
 			}
