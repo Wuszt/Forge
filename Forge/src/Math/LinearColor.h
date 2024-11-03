@@ -16,5 +16,13 @@ struct LinearColor
 	Float G = 0.0f;
 	Float B = 0.0f;
 	Float A = 1.0f;
+
+	static const LinearColor Red;
+	static const LinearColor Green;
+	static const LinearColor Blue;
 };
+
+inline const LinearColor LinearColor::Red = { 1.0f, 0.0f, 0.0f };
+inline const LinearColor LinearColor::Green = { 0.0f, 1.0f, 0.0f };
+inline const LinearColor LinearColor::Blue = { 0.0f, 0.0f, 1.0f };
 
