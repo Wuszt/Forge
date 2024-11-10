@@ -19,6 +19,13 @@ namespace forge
 			Serialize( &data, ::rtti::GetTypeInstanceOf< T >() );
 		}
 
+		template< class T >
+		Serializer& operator<<( const T& data )
+		{
+			Serialize( data );
+			return *this;
+		}
+
 		void Serialize( const void* address, Uint64 size );
 		void Serialize( const void* address, const rtti::Type& type );
 		void SerializeProperties( const void* address, const rtti::Type& type );
@@ -59,6 +66,13 @@ namespace forge
 			T result;
 			Deserialize( result );
 			return result;
+		}
+
+		template< class T >
+		Deserializer& operator>>( T& data )
+		{
+			Deserialize( &data, ::rtti::GetTypeInstanceOf< T >() );
+			return *this;
 		}
 
 		void Deserialize( void* address, Uint64 size );
