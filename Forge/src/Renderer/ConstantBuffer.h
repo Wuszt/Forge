@@ -1,5 +1,10 @@
 #pragma once
 
+namespace forge
+{
+	class PropertiesChain;
+}
+
 namespace renderer
 {
 	class IConstantBufferImpl
@@ -116,62 +121,31 @@ namespace renderer
 
 	class ConstantBuffer : public IConstantBuffer
 	{
+		RTTI_DECLARE_CLASS( ConstantBuffer );
+
 	public:
 		ConstantBuffer() = default;
+		ConstantBuffer( const ConstantBuffer& toCopy );
 
-		void CopyDataFrom( const ConstantBuffer& toCopy )
-		{
-			m_elements = std::vector< Element >( toCopy.m_elements );
-			m_rawData = std::move( forge::UniqueRawPtr( toCopy.m_rawData.GetSize() ) );
-			memcpy( m_rawData.GetData(), toCopy.m_rawData.GetData(), m_rawData.GetSize() );
-
-			CreateBuffer();
-			UpdateBuffer();
-		}
+		ConstantBuffer& operator=( const ConstantBuffer& toCopy );
 
 		template< class T >
 		void AddData( std::string name, const T& data )
 		{
-			const Uint32 offset = sizeof( T );
-			const Uint64 prevSize = m_rawData.GetSize() - m_currentPadding;
-
-			FORGE_ASSURE( !ContainsElement( name ) );
-			m_elements.push_back( { std::move( name ), rtti::GetTypeInstanceOf< T >() } );
-
-			forge::UniqueRawPtr prevData = std::move( m_rawData );
-
-			const Uint64 newSize = prevData.GetSize() + offset;
-			m_currentPadding = 16 - ( newSize % 16 );
-			m_currentPadding = m_currentPadding == 16 ? 0 : m_currentPadding;
-			m_rawData = std::move( forge::UniqueRawPtr( prevSize + offset + m_currentPadding ) );
-			memcpy( m_rawData.GetData(), prevData.GetData(), prevSize );
-			memcpy( static_cast< Byte* >( m_rawData.GetData() ) + prevSize, &data, offset );
-
-			CreateBuffer();
+			AddData( std::move( name ), rtti::GetTypeInstanceOf< T >(), &data );
 		}
+
+		void AddData( std::string name, const rtti::Type& type, const void* data );
+
+		Bool SetData( std::string name, const rtti::Type& type, const void* data );
 
 		template< class T >
-		Bool SetData( const std::string& name, const T& data )
+		Bool SetData( std::string name, const T& data )
 		{
-			Uint32 offset = 0u;
-			for ( const Element& element : m_elements )
-			{
-				if ( element.m_name == name )
-				{
-					if ( element.m_type != rtti::GetTypeInstanceOf< T >() )
-					{
-						return false;
-					}
-
-					memcpy( static_cast< Byte* >( m_rawData.GetData() ) + offset, &data, sizeof( T ) );
-					return true;
-				}
-
-				offset += static_cast< Uint32 >( element.m_type.GetSize() );
-			}
-
-			return false;
+			return SetData( std::move( name ), rtti::GetTypeInstanceOf< T >(), &data );
 		}
+
+		void AddOrSetData( std::string name, const rtti::Type& type, const void* data );
 
 		template< class T >
 		Bool TryToGetData( const std::string& name, T& output ) const
@@ -196,10 +170,36 @@ namespace renderer
 			return false;
 		}
 
+		template< class TFunc >
+		void VisitElements( const TFunc& func )
+		{
+			Uint32 offset = 0u;
+			for ( const Element& el : m_elements )
+			{
+				Uint8* rawData = static_cast< Uint8* >( GetRawData() );
+				func( el.m_name.c_str(), *el.m_type, rawData + offset );
+				offset += static_cast< Uint32 >( el.m_type->GetSize() );
+			}
+		}
+
 		virtual void* GetRawData() override
 		{
 			return m_rawData.GetData();
 		}
+
+		Bool ContainsElement( const Char* name ) const;
+
+		struct Element
+		{
+			RTTI_DECLARE_STRUCT( Element );
+
+			std::string m_name;
+			const rtti::Type* m_type = nullptr;
+
+		private:
+			void Serialize( forge::Serializer& serializer ) const;
+			void Deserialize( forge::Deserializer& deserializer );
+		};
 
 	protected:
 		virtual void CreateBuffer() override
@@ -208,13 +208,10 @@ namespace renderer
 		}
 
 	private:
-		Bool ContainsElement( const std::string& name ) const;
+		void OnPropertyChanged( const forge::PropertiesChain& propertiesChain );
 
-		struct Element
-		{
-			std::string m_name;
-			const rtti::Type& m_type;
-		};
+		void Serialize( forge::Serializer& serializer ) const;
+		void Deserialize( forge::Deserializer& deserializer );
 
 		std::vector< Element > m_elements;
 		forge::UniqueRawPtr m_rawData;
