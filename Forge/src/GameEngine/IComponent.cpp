@@ -48,12 +48,12 @@ ecs::EntityID forge::datacomponent::internal::GetObjectEntityID( forge::Object& 
 void forge::IDataComponent::Serialize( forge::Serializer& serializer ) const
 {
 	const void* rawData = GetRawData();
-	serializer.Serialize( rawData, GetDataType() );
 	serializer.SerializeProperties( this, GetType() );
+	serializer.Serialize( rawData, GetDataType() );
 }
 
 void forge::IDataComponent::Deserialize( forge::Deserializer& deserializer, forge::ObjectInitData& initData )
 {
-	deserializer.Deserialize( initData.AddData( GetDataType() ), GetDataType() );
 	deserializer.DeserializeProperties( this, GetType() );
+	deserializer.Deserialize( initData.AddData( GetDataType() ), GetDataType() );
 }

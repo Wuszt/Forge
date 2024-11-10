@@ -12,6 +12,11 @@ RTTI_DECLARE_AND_IMPLEMENT_ENUM( renderer::FillMode,
 	RTTI_REGISTER_ENUM_MEMBER( WireFrame );
 );
 
+RTTI_DECLARE_AND_IMPLEMENT_ENUM( renderer::RenderingPass,
+	RTTI_REGISTER_ENUM_MEMBER( Opaque );
+	RTTI_REGISTER_ENUM_MEMBER( Transparent );
+);
+
 namespace renderer
 {
 	std::unique_ptr< Renderer > Renderer::CreateRenderer( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::IWindow& window, RendererType type )
