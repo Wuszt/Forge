@@ -6,7 +6,7 @@
 #include "../Systems/RenderingComponent.h"
 #include "../Renderer/Material.h"
 
-const Vector4 c_gridColor = Vector4( 1.0f, 1.0f, 1.0f, 0.5f );
+const LinearColor c_gridColor = LinearColor( 1.0f, 1.0f, 1.0f, 0.5f );
 
 namespace editor
 {

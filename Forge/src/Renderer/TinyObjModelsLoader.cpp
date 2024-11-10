@@ -91,7 +91,7 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::TinyObjModelsLoader::L
 		std::string alphaTexName = std::filesystem::path( material.alpha_texname ).filename().string();
 
 		materialsData.emplace_back( renderer::ModelAsset::MaterialData{ m_renderer.CreateConstantBuffer(), diffuseTexName, normalTexMap, alphaTexName } );
-		materialsData.back().m_buffer->AddData( "diffuseColor", Vector4( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ], 1.0f ) );
+		materialsData.back().m_buffer->AddData( "diffuseColor", LinearColor( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ] ) );
 		materialsData.back().m_buffer->UpdateBuffer();
 	}
 

@@ -27,7 +27,7 @@ namespace editor
 	public:
 		virtual void OnInit( forge::ObjectInitData& initData ) override;
 		virtual void OnSelected( const Vector3& cursorRayDir, const Vector3& currentScale ) {}
-		void SetColor( const Vector4& color );
+		void SetColor( const LinearColor& color );
 		virtual std::pair< Transform, Vector3 > GetDesiredTransformAndScale( const Vector3 & cursorRayDir, const Transform& currentTransform, const Vector3& currentScale ) const = 0;
 
 	protected:
@@ -131,7 +131,7 @@ void editor::Gizmo::OnInit( forge::ObjectInitData& initData )
 
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, [ this ](){ Update(); } );
 
-	auto CreateGizmoElement = [ this ]< class T >( const Vector3& direction, const Vector4& color )
+	auto CreateGizmoElement = [ this ]< class T >( const Vector3& direction, const LinearColor& color )
 	{
 		GetEngineInstance().GetObjectsManager().RequestCreatingObject< T >( { .m_postInitFunc = [ this, direction, color ]( forge::Object& obj, forge::ObjectInitData& )
 		{
@@ -144,9 +144,9 @@ void editor::Gizmo::OnInit( forge::ObjectInitData& initData )
 		} } );
 	};
 
-	const Vector4 c_xAxisColor( 1.0f, 0.0f, 0.0f, 1.0f );
-	const Vector4 c_yAxisColor( 0.0f, 1.0f, 0.0f, 1.0f );
-	const Vector4 c_zAxisColor( 0.0f, 0.0f, 1.0f, 1.0f );
+	const LinearColor c_xAxisColor( 1.0f, 0.0f, 0.0f );
+	const LinearColor c_yAxisColor( 0.0f, 1.0f, 0.0f );
+	const LinearColor c_zAxisColor( 0.0f, 0.0f, 1.0f );
 
 	CreateGizmoElement.template operator()< editor::GizmoTranslationArrow > ( Vector3::EX(), c_xAxisColor );
 	CreateGizmoElement.template operator()< editor::GizmoTranslationArrow > ( Vector3::EY(), c_yAxisColor );
@@ -160,7 +160,7 @@ void editor::Gizmo::OnInit( forge::ObjectInitData& initData )
 	CreateGizmoElement.template operator() < editor::GizmoAxisScaleCube > ( Vector3::EY(), c_yAxisColor );
 	CreateGizmoElement.template operator() < editor::GizmoAxisScaleCube > ( Vector3::EZ(), c_zAxisColor );
 
-	CreateGizmoElement.template operator() < editor::GizmoUniformScaleCube >( Vector3::EY(), Vector4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+	CreateGizmoElement.template operator() < editor::GizmoUniformScaleCube >( Vector3::EY(), LinearColor( 1.0f, 1.0f, 1.0f ) );
 }
 
 void editor::Gizmo::OnInput( forge::ObjectID hoveredObject, const Vector3& cursorRayDir )
@@ -274,7 +274,7 @@ void editor::GizmoElement::OnInit( forge::ObjectInitData& initData )
 	}
 }
 
-void editor::GizmoElement::SetColor( const Vector4& color )
+void editor::GizmoElement::SetColor( const LinearColor& color )
 {
 	renderer::ConstantBuffer* materialBuffer = GetComponent< forge::RenderingComponent >()->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer();
 	materialBuffer->SetData( "diffuseColor", color );

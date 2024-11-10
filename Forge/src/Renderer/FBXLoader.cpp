@@ -360,7 +360,7 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const forge::Path& path, rend
 			auto* rawMaterial = mesh->getMaterial( i );
 			materialsData.emplace_back( renderer::ModelAsset::MaterialData{ renderer.CreateConstantBuffer() } );
 			auto& materialData = materialsData.back();
-			materialData.m_buffer->AddData( "diffuseColor", Vector4( rawMaterial->getDiffuseColor().r, rawMaterial->getDiffuseColor().g, rawMaterial->getDiffuseColor().b, 1.0f ) );
+			materialData.m_buffer->AddData( "diffuseColor", LinearColor( rawMaterial->getDiffuseColor().r, rawMaterial->getDiffuseColor().g, rawMaterial->getDiffuseColor().b ) );
 			materialData.m_buffer->UpdateBuffer();
 
 			if ( const auto* rawTexture = rawMaterial->getTexture( ofbx::Texture::TextureType::DIFFUSE ) )

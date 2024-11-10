@@ -79,7 +79,7 @@ void renderer::Renderable::SetModel( forge::AssetsManager& assetsManager, const 
 	if( modelAsset->GetMaterialsData().empty() )
 	{
 		auto constantBuffer = m_renderer->CreateConstantBuffer();
-		constantBuffer->AddData( "diffuseColor", Vector4( 230.0f / 255.0f, 128.0f / 255.0f, 255.0f / 255.0f, 1.0f ) );
+		constantBuffer->AddData( "diffuseColor", LinearColor( 230.0f / 255.0f, 128.0f / 255.0f, 255.0f / 255.0f ) );
 		constantBuffer->UpdateBuffer();
 		m_materials.emplace_back( std::make_unique< Material >( *m_renderer, *m_model, std::move( constantBuffer ), forge::Path( "Uber.fx" ), forge::Path( "Uber.fx" ), renderer::RenderingPass::Opaque ) );
 		for( auto& shape : m_model->GetShapes() )

@@ -136,8 +136,7 @@ namespace renderer
 		std::unique_ptr< ConstantBuffer > CreateConstantBufferFromOther( const ConstantBuffer& data ) const
 		{
 			auto buff = CreateConstantBuffer();
-			buff->CopyDataFrom( data );
-			buff->UpdateBuffer();
+			*buff = data;
 			return buff;
 		}
 
