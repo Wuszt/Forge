@@ -95,9 +95,9 @@ static void VisitTypeDrawer( forge::EngineInstance& engineInstance, const rtti::
 	}
 }
 
-void editor::TypeDrawer::Draw( const Drawable& drawable ) const
+void editor::TypeDrawer::Draw( const Drawable& drawable, const TypeNameDrawerFunc& nameDrawer ) const
 {
-	if ( drawable.GetName() == nullptr )
+	if ( nameDrawer == nullptr )
 	{
 		const auto startPos = ImGui::GetCursorPos();
 		ImGui::Indent();
@@ -110,13 +110,13 @@ void editor::TypeDrawer::Draw( const Drawable& drawable ) const
 	const auto startPos = ImGui::GetCursorPos();
 
 	ImGui::Indent();
-	if ( ImGui::BeginTable( drawable.GetName(), 2 ) )
+	if ( ImGui::BeginTable( drawable.GetID(), 2 ) )
 	{
 		ImGui::TableSetupColumn( "Name", ImGuiTableColumnFlags_WidthFixed );
 
 		ImGui::TableNextColumn();
 		ImGui::AlignTextToFramePadding();
-		OnDrawName( drawable );
+		nameDrawer( drawable );
 		ImGui::TableNextColumn();
 		ImGui::AlignTextToFramePadding();
 		ImGui::PushItemWidth( -1.0f );
@@ -125,13 +125,29 @@ void editor::TypeDrawer::Draw( const Drawable& drawable ) const
 	}
 	ImGui::Unindent();
 
-
 	DrawChildrenInternal( drawable, { startPos.x, startPos.y }, Math::Min( 16.0f, ImGui::GetCursorPos().y - startPos.y ) );
 }
 
-void editor::TypeDrawer::Draw( forge::EngineInstance& engineInstance, const Drawable& drawable )
+void editor::TypeDrawer::Draw( forge::EngineInstance& engineInstance, const Drawable& drawable, const TypeNameDrawerFunc& nameDrawer )
 {
-	VisitTypeDrawer( engineInstance, drawable.GetType(), [ & ]( const editor::TypeDrawer& typeDrawer ) { typeDrawer.Draw( drawable ); } );
+	VisitTypeDrawer( engineInstance, drawable.GetType(), [ & ]( const editor::TypeDrawer& typeDrawer ) 
+		{ 
+			if ( nameDrawer )
+			{
+				typeDrawer.Draw( drawable, nameDrawer );
+			}
+			else if ( drawable.GetName() )
+			{
+				typeDrawer.Draw( drawable, [ & ]( const Drawable& drawable )
+					{
+						typeDrawer.OnDrawName( drawable );
+					} );
+			}
+			else
+			{
+				typeDrawer.Draw( drawable, nullptr );
+			}
+		} );
 }
 
 void editor::TypeDrawer::DrawChildren( const Drawable& drawable ) const

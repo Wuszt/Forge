@@ -184,5 +184,17 @@ namespace editor
 	private:
 		TypeDrawer_LinearColor() = default;
 	};
+
+	class TypeDrawer_ConstantBuffer : public editor::CustomTypeDrawer
+	{
+		RTTI_DECLARE_CLASS( TypeDrawer_ConstantBuffer, editor::CustomTypeDrawer );
+
+		using editor::CustomTypeDrawer::CustomTypeDrawer;
+		virtual const rtti::Type& GetSupportedType() const override;
+		virtual Bool HasChildren( const Drawable& drawable ) const override { return true; }
+		virtual void OnDrawChildren( const Drawable& drawable ) const override;
+	private:
+		TypeDrawer_ConstantBuffer() = default;
+	};
 }
 

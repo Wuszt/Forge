@@ -2,6 +2,7 @@
 namespace forge
 {
 	class EditorInstance;
+	class PropertiesChain;
 }
 
 namespace editor
@@ -14,10 +15,13 @@ namespace editor
 		class Drawable
 		{
 		public:
-			Drawable( void* address, forge::Index16 containerIndex, const Drawable* parent )
+			using OnModifiedFunc = std::function< void( const forge::PropertiesChain& ) >;
+
+			Drawable( void* address, forge::Index16 containerIndex, const Drawable* parent, OnModifiedFunc onModified )
 				: m_address( address )
 				, m_parent( parent )
 				, m_containerIndex( containerIndex )
+				, m_onModified( std::move( onModified ) )
 			{}
 
 			virtual ~Drawable() = default;
@@ -39,20 +43,30 @@ namespace editor
 				return m_containerIndex;
 			}
 
+			void InvokeOnModification( const forge::PropertiesChain& propertiesChain ) const
+			{
+				if ( m_onModified )
+				{
+					m_onModified( propertiesChain );
+				}
+			}
+
 		private:
 			void* m_address = nullptr;
 			const Drawable* m_parent = nullptr;
 			forge::Index16 m_containerIndex;
+			OnModifiedFunc m_onModified;
 		};
 
 		TypeDrawer( forge::EngineInstance& engineInstance )
 			: m_engineInstance( &engineInstance )
 		{}
 
-		static void Draw( forge::EngineInstance& engineInstance, const Drawable& drawable );
+		using TypeNameDrawerFunc = std::function< void( const Drawable& ) >;
+		static void Draw( forge::EngineInstance& engineInstance, const Drawable& drawable, const TypeNameDrawerFunc& nameDrawer = {} );
 		static void DrawChildren( forge::EngineInstance& engineInstance, const Drawable& drawable );
 
-		void Draw( const Drawable& drawable ) const;
+		void Draw( const Drawable& drawable, const TypeNameDrawerFunc& nameDrawer ) const;
 		void DrawChildren( const Drawable& drawable ) const;
 		void DrawValue( const Drawable& drawable ) const;
 
@@ -99,8 +113,8 @@ namespace editor
 	class DrawableType : public TypeDrawer::Drawable
 	{
 	public:
-		DrawableType( void* address, const rtti::Type& type, const Char* id = "" )
-			: TypeDrawer::Drawable( address, forge::Index16(), nullptr )
+		DrawableType( void* address, const rtti::Type& type, const Char* id = "", OnModifiedFunc onModified = nullptr )
+			: TypeDrawer::Drawable( address, forge::Index16(), nullptr, std::move( onModified ) )
 			, m_type( type )
 			, m_id( id )
 		{}
@@ -120,8 +134,8 @@ namespace editor
 	class DrawableProperty : public TypeDrawer::Drawable
 	{
 	public:
-		DrawableProperty( void* address, const rtti::Property& property, const TypeDrawer::Drawable& parent, forge::Index16 containerIndex = forge::Index16() )
-			: TypeDrawer::Drawable( address, containerIndex, &parent )
+		DrawableProperty( void* address, const rtti::Property& property, const TypeDrawer::Drawable& parent, forge::Index16 containerIndex = forge::Index16(), OnModifiedFunc onModified = nullptr )
+			: TypeDrawer::Drawable( address, containerIndex, &parent, std::move( onModified ) )
 			, m_property( property )
 		{}
 

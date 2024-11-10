@@ -10,6 +10,7 @@
 #include "../Core/IWindow.h"
 #include "../Core/DepotsContainer.h"
 #include "../Core/PropertiesChain.h"
+#include "../Renderer/ConstantBuffer.h"
 
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Int32 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Uint32 );
@@ -20,6 +21,7 @@ RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Vector4 );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_DataComponent );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_Path );
 RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_LinearColor );
+RTTI_IMPLEMENT_TYPE( editor::TypeDrawer_ConstantBuffer );
 
 static ImVec2 GetButtonSize()
 {
@@ -29,6 +31,7 @@ static ImVec2 GetButtonSize()
 static void BroadcastPropertyChangedCallback( const editor::TypeDrawer::Drawable& drawable )
 {
 	forge::PropertiesChain chain;
+	std::vector< const editor::TypeDrawer::Drawable* > drawables;
 	const editor::TypeDrawer::Drawable* firstDrawable = &drawable;
 
 	std::function< void( const editor::TypeDrawer::Drawable& ) > visitDrawable;
@@ -49,6 +52,7 @@ static void BroadcastPropertyChangedCallback( const editor::TypeDrawer::Drawable
 			FORGE_ASSERT( property );
 
 			chain.Add( *property );
+			drawables.emplace_back( &drawable );
 		}
 	};
 
@@ -70,11 +74,16 @@ static void BroadcastPropertyChangedCallback( const editor::TypeDrawer::Drawable
 		}
 	};
 
+	firstDrawable->InvokeOnModification( chain );
 	tryToBroadcastCallbackOnType( firstDrawable->GetType(), firstDrawable->GetAddress() );
 
+	FORGE_ASSERT( chain.Get().GetSize() == static_cast< Uint32 >( drawables.size() ) );
 	void* currentAddress = firstDrawable->GetAddress();
-	for ( const rtti::Property* property : chain.Get() )
+	for ( Uint32 i = 0u; i < chain.Get().GetSize(); ++i )
 	{
+		drawables[ i ]->InvokeOnModification( chain );
+
+		const auto* property = chain.Get()[ i ];
 		currentAddress = property->GetAddress( currentAddress );
 		tryToBroadcastCallbackOnType( property->GetType(), currentAddress );
 	}
@@ -448,4 +457,26 @@ void editor::TypeDrawer_LinearColor::OnDrawValue( const Drawable& drawable ) con
 		BroadcastPropertyChangedCallback( drawable );
 	}
 
+}
+
+const rtti::Type& editor::TypeDrawer_ConstantBuffer::GetSupportedType() const
+{
+	return renderer::ConstantBuffer::GetTypeStatic();
+}
+
+void editor::TypeDrawer_ConstantBuffer::OnDrawChildren( const Drawable& drawable ) const
+{
+	renderer::ConstantBuffer& cb = GetValue< renderer::ConstantBuffer >( drawable.GetAddress() );
+	cb.VisitElements( [ & ]( const Char* name, const rtti::Type& type, void* data )
+		{
+			Draw( GetEngineInstance(), editor::DrawableType( data, type, name, 
+				[ & ]( const forge::PropertiesChain& chain )
+				{
+					cb.UpdateBuffer();
+				} ),
+				[ & ]( const Drawable& drawable )
+				{
+					ImGui::Text( name );
+				} );
+		} );
 }
