@@ -9,11 +9,11 @@ renderer::SkyboxRenderingPass::SkyboxRenderingPass( forge::AssetsManager& assets
 {
 	FORGE_ASSERT( texture->GetType() == renderer::ITexture::Type::TextureCube );
 
-	m_renderable = Renderable( renderer );
-	m_renderable.SetModel( assetsManager, forge::Path( "Engine\\Models\\sphere.obj" ) );
+	m_renderable.Initialize( renderer );
+	m_renderable.SetModel( renderer, assetsManager, forge::Path( "Engine\\Models\\sphere.obj" ) );
 
-	m_renderable.GetMaterials()[ 0 ]->SetShaders( forge::Path( "Skybox.fx" ), forge::Path( "Skybox.fx" ), renderer::RenderingPass::Opaque );
-	m_renderable.GetMaterials()[ 0 ]->SetTexture( texture, renderer::Material::TextureType::Diffuse );
+	m_renderable.GetMaterials()[ 0 ]->SetShaders( renderer, forge::Path( "Skybox.fx" ), forge::Path( "Skybox.fx" ) );
+	m_renderable.GetMaterials()[ 0 ]->SetTexture( renderer, texture, renderer::Material::TextureType::Diffuse );
 
 	m_cameraCB = renderer.CreateStaticConstantBuffer< CBCamera >();
 }

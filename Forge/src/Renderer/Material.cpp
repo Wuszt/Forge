@@ -4,7 +4,10 @@
 #include "ConstantBuffer.h"
 #include "TextureAsset.h"
 
-RTTI_IMPLEMENT_TYPE( renderer::Material );
+RTTI_IMPLEMENT_TYPE( renderer::Material,
+	RTTI_REGISTER_PROPERTY( m_constantBuffer );
+	RTTI_REGISTER_PROPERTY( m_renderingPass );
+);
 
 RTTI_DECLARE_AND_IMPLEMENT_ENUM( renderer::Material::TextureType,
 	RTTI_REGISTER_ENUM_MEMBER( Diffuse );
@@ -26,29 +29,32 @@ std::vector< renderer::ShaderDefine > ConstructShaderDefines( const renderer::Mo
 	return result;
 }
 
-renderer::Material::Material( renderer::Renderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const forge::Path& vsPath, const forge::Path& psPath, renderer::RenderingPass renderingPass )
-	: m_renderer( &renderer )
+renderer::Material::Material( std::unique_ptr< ConstantBuffer >&& buffer, forge::Path vsPath, forge::Path psPath, renderer::RenderingPass renderingPass )
+	: m_vertexShaderPath( std::move( vsPath ) )
+	, m_pixelShaderPath( std::move( psPath ) )
+	, m_renderingPass( renderingPass )
+	, m_constantBuffer( std::move( buffer ) )
+{}
+
+void renderer::Material::Initialize( renderer::Renderer& renderer, const Model& model )
 {
-	m_shadersDefines = ConstructShaderDefines( model );
-
-	SetShaders( vsPath, psPath, renderingPass );
-	m_constantBuffer = std::move( buffer );
+	SetShaders( renderer, m_vertexShaderPath, m_pixelShaderPath );
+	m_shaderDefines = ConstructShaderDefines( model );
 	m_inputLayout = renderer.CreateInputLayout( *m_vertexShader->GetMainShader(), *model.GetVertexBuffer() );
-
 	m_onShadersClearCache = renderer.GetShadersManager()->RegisterCacheClearingListener(
-	[ this ]()
-	{
-		SetShaders( m_vertexShaderPath, m_pixelShaderPath, m_renderingPass );
-	} );
+		[ this, rendererPtr = &renderer ]()
+		{
+			SetShaders( *rendererPtr, m_vertexShaderPath, m_pixelShaderPath );
+		} );
 }
 
 renderer::Material::Material() = default;
 renderer::Material::Material( Material&& ) = default;
 renderer::Material::~Material() = default;
 
-void renderer::Material::SetShaders( const forge::Path& vsPath, const forge::Path& psPath, renderer::RenderingPass renderingPass )
+void renderer::Material::SetShaders( renderer::Renderer& renderer, const forge::Path& vsPath, const forge::Path& psPath )
 {
-	std::vector< renderer::ShaderDefine > defines = m_shadersDefines;
+	std::vector< renderer::ShaderDefine > defines = m_shaderDefines;
 
 	if( m_textures[ static_cast< Uint32 >( TextureType::Diffuse ) ] )
 	{
@@ -65,22 +71,20 @@ void renderer::Material::SetShaders( const forge::Path& vsPath, const forge::Pat
 		defines.push_back( { "__ALPHA_TEXTURE__" } );
 	}
 
-	m_vertexShader = m_renderer->GetShadersManager()->GetVertexShader( vsPath, defines, true );
+	m_vertexShader = renderer.GetShadersManager()->GetVertexShader( vsPath, defines, true );
 	m_vertexShaderPath = vsPath;
 
-	m_pixelShader = m_renderer->GetShadersManager()->GetPixelShader( psPath, defines, true );
+	m_pixelShader = renderer.GetShadersManager()->GetPixelShader( psPath, defines, true );
 	m_pixelShaderPath = psPath;
-
-	m_renderingPass = renderingPass;
 }
 
 void renderer::Material::SetRenderingPass( renderer::RenderingPass renderingPass )
 {
-	SetShaders( m_vertexShaderPath, m_pixelShaderPath, renderingPass );
+	m_renderingPass = renderingPass;
 }
 
-void renderer::Material::SetTexture( std::shared_ptr< const ITexture > texture, Material::TextureType textureType )
+void renderer::Material::SetTexture( renderer::Renderer& renderer, std::shared_ptr< const ITexture > texture, Material::TextureType textureType )
 {
 	m_textures[ static_cast< Uint32 >( textureType) ] = texture;
-	SetShaders( m_vertexShaderPath, m_pixelShaderPath, m_renderingPass );
+	SetShaders( renderer, m_vertexShaderPath, m_pixelShaderPath );
 }

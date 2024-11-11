@@ -31,10 +31,12 @@ namespace renderer
 			Count
 		};
 
-		Material( renderer::Renderer& renderer, const Model& model, std::unique_ptr< ConstantBuffer >&& buffer, const forge::Path& vsPath, const forge::Path& psPath, renderer::RenderingPass renderingPass );
+		Material( std::unique_ptr< ConstantBuffer >&& buffer, forge::Path vsPath, forge::Path psPath, renderer::RenderingPass renderingPass );
 		Material();
 		Material( Material&& );
 		~Material();
+
+		void Initialize( renderer::Renderer& renderer, const Model& model );
 
 		std::shared_ptr< ShaderPack< IVertexShader > > GetVertexShader() const
 		{
@@ -66,9 +68,9 @@ namespace renderer
 			return m_textures;
 		}
 
-		void SetShaders( const forge::Path& vsPath, const forge::Path& psPath, renderer::RenderingPass renderingPass );
+		void SetShaders( renderer::Renderer& renderer, const forge::Path& vsPath, const forge::Path& psPath );
 		void SetRenderingPass( renderer::RenderingPass renderingPass );
-		void SetTexture( std::shared_ptr< const ITexture > texture, Material::TextureType textureType );
+		void SetTexture( renderer::Renderer& renderer, std::shared_ptr< const ITexture > texture, Material::TextureType textureType );
 
 		renderer::RenderingPass GetRenderingPass() const
 		{
@@ -90,9 +92,8 @@ namespace renderer
 		std::shared_ptr< ShaderPack< IPixelShader > > m_pixelShader;
 		std::unique_ptr< renderer::ConstantBuffer > m_constantBuffer;
 		std::unique_ptr< const IInputLayout > m_inputLayout;
-		Renderer* m_renderer = nullptr;
 
-		std::vector< renderer::ShaderDefine > m_shadersDefines;
+		std::vector< renderer::ShaderDefine > m_shaderDefines;
 
 		std::shared_ptr< const ITexture > m_textures[ static_cast< Uint32 > ( TextureType::Count ) ] = { nullptr };
 

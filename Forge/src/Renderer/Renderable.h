@@ -24,14 +24,15 @@ namespace renderer
 		RTTI_DECLARE_CLASS( Renderable );
 
 	public:
-		Renderable( Renderer& renderer );
 		Renderable();
 		~Renderable();
 
 		Renderable( Renderable&& );
-		Renderable& operator=(Renderable&&);
+		Renderable& operator=( Renderable&& );
 
-		void SetModel( forge::AssetsManager& assetsManager, const forge::Path& path );
+		void Initialize( renderer::Renderer& renderer );
+
+		void SetModel( Renderer& renderer, forge::AssetsManager& assetsManager, const forge::Path& path );
 		const Model& GetModel() const
 		{
 			return *m_model;
@@ -98,7 +99,6 @@ namespace renderer
 		}
 
 	private:
-		Renderer* m_renderer = nullptr;
 		std::shared_ptr< Model > m_model;
 		std::vector< std::unique_ptr< Material > > m_materials;
 		StaticConstantBuffer< cbMesh > m_cbMesh;

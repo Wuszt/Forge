@@ -10,21 +10,18 @@ RTTI_IMPLEMENT_TYPE( renderer::Renderable,
 	RTTI_REGISTER_PROPERTY( m_fillMode );
 );
 
-renderer::Renderable::Renderable( Renderer& renderer )
-	: m_renderer( &renderer )
+renderer::Renderable::Renderable() = default;
+renderer::Renderable::~Renderable() = default;
+
+renderer::Renderable::Renderable( Renderable&& ) = default;
+renderer::Renderable& renderer::Renderable::operator=( Renderable&& ) = default;
+
+void renderer::Renderable::Initialize( Renderer& renderer )
 {
 	m_cbMesh.SetImpl( renderer.CreateConstantBufferImpl() );
 }
 
-renderer::Renderable& renderer::Renderable::operator=( Renderable&& ) = default;
-
-renderer::Renderable::Renderable() = default;
-
-renderer::Renderable::~Renderable() = default;
-
-renderer::Renderable::Renderable( Renderable&& ) = default;
-
-void renderer::Renderable::SetModel( forge::AssetsManager& assetsManager, const forge::Path& path )
+void renderer::Renderable::SetModel( Renderer& renderer, forge::AssetsManager& assetsManager, const forge::Path& path )
 {
 	auto modelAsset = assetsManager.GetAsset< renderer::ModelAsset >( path );
 	m_model = modelAsset->GetModel();
@@ -34,14 +31,15 @@ void renderer::Renderable::SetModel( forge::AssetsManager& assetsManager, const 
 	m_materials.clear();
 	for( auto& materialData : modelAsset->GetMaterialsData() )
 	{
-		m_materials.emplace_back( std::make_unique< Material >( *m_renderer, *m_model, m_renderer->CreateConstantBufferFromOther( *materialData.m_buffer ), forge::Path( "Uber.fx" ), forge::Path( "Uber.fx" ), renderer::RenderingPass::Opaque ) );
+		m_materials.emplace_back( std::make_unique< Material >( renderer.CreateConstantBufferFromOther( *materialData.m_buffer ), forge::Path( "Uber.fx" ), forge::Path( "Uber.fx" ), renderer::RenderingPass::Opaque ) );
+		m_materials.back()->Initialize( renderer, *m_model );
 
 		if( !materialData.m_diffuseTextureName.empty() )
 		{
 			const forge::Path texturePath( texturesFolderPath.AsString() + materialData.m_diffuseTextureName );
 			if( auto textureAsset = assetsManager.GetAsset< renderer::TextureAsset >( texturePath ) )
 			{
-				m_materials.back()->SetTexture( textureAsset->GetTexture(), Material::TextureType::Diffuse );
+				m_materials.back()->SetTexture( renderer, textureAsset->GetTexture(), Material::TextureType::Diffuse );
 			}
 			else
 			{
@@ -54,7 +52,7 @@ void renderer::Renderable::SetModel( forge::AssetsManager& assetsManager, const 
 			const forge::Path texturePath( texturesFolderPath.AsString() + materialData.m_normalTextureName );
 			if( auto textureAsset = assetsManager.GetAsset< renderer::TextureAsset >( texturePath ) )
 			{
-				m_materials.back()->SetTexture( textureAsset->GetTexture(), Material::TextureType::Normal );
+				m_materials.back()->SetTexture( renderer, textureAsset->GetTexture(), Material::TextureType::Normal );
 			}
 			else
 			{
@@ -67,7 +65,7 @@ void renderer::Renderable::SetModel( forge::AssetsManager& assetsManager, const 
 			const forge::Path texturePath( texturesFolderPath.AsString() + materialData.m_alphaTextureName );
 			if( auto textureAsset = assetsManager.GetAsset< renderer::TextureAsset >( texturePath ) )
 			{
-				m_materials.back()->SetTexture( textureAsset->GetTexture(), Material::TextureType::Alpha );
+				m_materials.back()->SetTexture( renderer, textureAsset->GetTexture(), Material::TextureType::Alpha );
 			}
 			else
 			{
@@ -78,10 +76,11 @@ void renderer::Renderable::SetModel( forge::AssetsManager& assetsManager, const 
 
 	if( modelAsset->GetMaterialsData().empty() )
 	{
-		auto constantBuffer = m_renderer->CreateConstantBuffer();
+		auto constantBuffer = renderer.CreateConstantBuffer();
 		constantBuffer->AddData( "diffuseColor", LinearColor( 230.0f / 255.0f, 128.0f / 255.0f, 255.0f / 255.0f ) );
 		constantBuffer->UpdateBuffer();
-		m_materials.emplace_back( std::make_unique< Material >( *m_renderer, *m_model, std::move( constantBuffer ), forge::Path( "Uber.fx" ), forge::Path( "Uber.fx" ), renderer::RenderingPass::Opaque ) );
+		m_materials.emplace_back( std::make_unique< Material >( std::move( constantBuffer ), forge::Path( "Uber.fx" ), forge::Path( "Uber.fx" ), renderer::RenderingPass::Opaque ) );
+		m_materials.back()->Initialize( renderer, *m_model );
 		for( auto& shape : m_model->GetShapes() )
 		{
 			shape.m_materialIndex = 0u;
