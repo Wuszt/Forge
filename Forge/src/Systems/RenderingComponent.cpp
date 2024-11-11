@@ -29,7 +29,6 @@ void forge::RenderingComponent::OnAttached( EngineInstance& engineInstance, ecs:
 	PC_SCOPE_FUNC();
 
 	DataComponent< forge::RenderableFragment >::OnAttached( engineInstance, commandsQueue, initData );
-	GetDirtyData()->m_renderable = renderer::Renderable(engineInstance.GetRenderingManager().GetRenderer());
 
 	m_onShadersClearCache = engineInstance.GetRenderingManager().GetRenderer().GetShadersManager()->RegisterCacheClearingListener(
 		[ this ]()

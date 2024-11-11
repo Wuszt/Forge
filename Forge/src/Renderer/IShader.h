@@ -5,6 +5,8 @@ namespace renderer
 {
 	class ShaderDefine
 	{
+		RTTI_DECLARE_CLASS( ShaderDefine )
+
 	public:
 		ShaderDefine() = default;
 
@@ -13,8 +15,9 @@ namespace renderer
 		ShaderDefine( std::string name, std::string define = "")
 			: m_name( std::move( name ) )
 			, m_define( std::move( define ) )
-			, m_hash( Math::CombineHashes( Math::CalculateHash( m_name ), Math::CalculateHash( m_define ) ) )
-		{}
+		{
+			UpdateHash();
+		}
 
 		Bool operator==( const ShaderDefine& define ) const
 		{
@@ -44,6 +47,13 @@ namespace renderer
 		}
 
 	private:
+		void UpdateHash()
+		{
+			m_hash = Math::CombineHashes( Math::CalculateHash( m_name ), Math::CalculateHash( m_define ) );
+		}
+
+		void PostDeserialize() { UpdateHash(); }
+
 		std::string m_name;
 		std::string m_define;
 		Uint64 m_hash = 0u;
