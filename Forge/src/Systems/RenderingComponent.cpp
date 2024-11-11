@@ -9,13 +9,14 @@
 #include "../Core/PropertiesChain.h"
 
 RTTI_IMPLEMENT_TYPE( forge::RenderableFragment,
-	RTTI_REGISTER_PROPERTY( m_renderable );
+	RTTI_REGISTER_PROPERTY( m_renderable, RTTI_ADD_METADATA( "Editable" ) );
 );
 
 RTTI_IMPLEMENT_TYPE( forge::RenderingComponent,
 	RTTI_REGISTER_PROPERTY( m_meshPath, 
 		RTTI_ADD_METADATA( "Extensions", "obj,fbx" );
 		RTTI_ADD_METADATA( "InDepot" );
+		RTTI_ADD_METADATA( "Editable" );
 		);
 	RTTI_REGISTER_METHOD( OnPropertyChanged );
 );

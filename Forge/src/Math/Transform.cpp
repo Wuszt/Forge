@@ -2,8 +2,8 @@
 #include "Transform.h"
 
 RTTI_IMPLEMENT_TYPE( Transform,
-	RTTI_REGISTER_PROPERTY( m_position );
-	RTTI_REGISTER_PROPERTY( m_orientation);
+	RTTI_REGISTER_PROPERTY( m_position, RTTI_ADD_METADATA( "Editable" ) );
+	RTTI_REGISTER_PROPERTY( m_orientation, RTTI_ADD_METADATA( "Editable" ) );
 	);
 
 Transform::Transform( const Vector4& pos )

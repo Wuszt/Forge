@@ -6,8 +6,8 @@
 #include "ConstantBuffer.h"
 
 RTTI_IMPLEMENT_TYPE( renderer::Renderable,
-	RTTI_REGISTER_PROPERTY( m_materials );
-	RTTI_REGISTER_PROPERTY( m_fillMode );
+	RTTI_REGISTER_PROPERTY( m_materials, RTTI_ADD_METADATA( "Editable" ) );
+	RTTI_REGISTER_PROPERTY( m_fillMode, RTTI_ADD_METADATA( "Editable" ) );
 );
 
 renderer::Renderable::Renderable() = default;

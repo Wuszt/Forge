@@ -5,8 +5,8 @@
 #include "TextureAsset.h"
 
 RTTI_IMPLEMENT_TYPE( renderer::Material,
-	RTTI_REGISTER_PROPERTY( m_constantBuffer );
-	RTTI_REGISTER_PROPERTY( m_renderingPass );
+	RTTI_REGISTER_PROPERTY( m_constantBuffer, RTTI_ADD_METADATA( "Editable" ) );
+	RTTI_REGISTER_PROPERTY( m_renderingPass, RTTI_ADD_METADATA( "Editable" ) );
 );
 
 RTTI_DECLARE_AND_IMPLEMENT_ENUM( renderer::Material::TextureType,

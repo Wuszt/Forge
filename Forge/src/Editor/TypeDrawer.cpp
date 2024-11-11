@@ -179,7 +179,16 @@ void editor::TypeDrawer::DrawChildren( forge::EngineInstance& engineInstance, co
 
 Bool editor::TypeDrawer::HasChildren( const Drawable& drawable ) const
 {
-	return drawable.GetType().GetPropertiesAmount() > 0;
+	const auto& type = drawable.GetType();
+	for ( Uint32 i = 0u; i < type.GetPropertiesAmount(); ++i )
+	{
+		if ( type.GetProperty( i )->HasMetadata( "Editable" ) )
+		{
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 void editor::TypeDrawer::OnDrawName( const Drawable& drawable ) const
@@ -198,7 +207,10 @@ void editor::TypeDrawer::OnDrawChildren( const Drawable& drawable ) const
 	for ( Uint32 i = 0u; i < drawable.GetType().GetPropertiesAmount(); ++i )
 	{
 		const auto* prop = drawable.GetType().GetProperty( i );
-		Draw( GetEngineInstance(), DrawableProperty( prop->GetAddress( drawable.GetAddress() ), *prop, drawable ) );
+		if ( prop->HasMetadata( "Editable" ) )
+		{
+			Draw( GetEngineInstance(), DrawableProperty( prop->GetAddress( drawable.GetAddress() ), *prop, drawable ) );
+		}
 	}
 }
 

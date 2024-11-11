@@ -137,16 +137,24 @@ namespace editor
 		DrawableProperty( void* address, const rtti::Property& property, const TypeDrawer::Drawable& parent, forge::Index16 containerIndex = forge::Index16(), OnModifiedFunc onModified = nullptr )
 			: TypeDrawer::Drawable( address, containerIndex, &parent, std::move( onModified ) )
 			, m_property( property )
-		{}
+		{
+			const std::string& originalName = m_property.GetName();
+			if ( originalName.size() > 2 && originalName[ 0 ] == 'm' && originalName[ 1 ] == '_' )
+			{
+				m_displayName = originalName.substr( 2 );
+				m_displayName[ 0 ] = toupper( m_displayName[ 0 ] );
+			}
+		}
 
 		virtual const rtti::Type& GetType() const override { return m_property.GetType(); }
 		virtual Bool HasMetadata( const std::string& key ) const override { return m_property.HasMetadata( key ); }
 		virtual const std::string* GetMetadataValue( const std::string& key ) const override { return m_property.GetMetadataValue( key ); }
 		virtual rtti::InstanceFlags GetInstanceFlags() const override { return m_property.GetFlags(); }
-		virtual const Char* GetName() const override { return m_property.GetName(); }
+		virtual const Char* GetName() const override { return m_displayName.empty() ? m_property.GetName() : m_displayName.c_str(); }
 		virtual const Char* GetID() const override { return m_property.GetName(); }
 
 	private:
 		const rtti::Property& m_property;
+		std::string m_displayName;
 	};
 }
