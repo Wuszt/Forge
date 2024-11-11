@@ -9,6 +9,7 @@ namespace forge
 
 	public:
 		void* AddData( const rtti::Type& type );
+		void RemoveData( const rtti::Type& type );
 
 		template< class T >
 		T& AddData()

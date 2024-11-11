@@ -34,7 +34,7 @@ void forge::UniqueRawPtr::Serialize( forge::Serializer& serializer ) const
 
 void forge::UniqueRawPtr::Deserialize( forge::Deserializer& deserializer )
 {
-	Uint32 size = 0u;
+	Uint64 size = 0u;
 	deserializer >> size;
 	*this = forge::UniqueRawPtr( size );
 	deserializer.Deserialize( m_data, size );

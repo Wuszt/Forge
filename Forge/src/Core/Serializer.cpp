@@ -244,7 +244,7 @@ void forge::Serializer::SerializeClassOrStruct( const void* address, const rtti:
 void forge::Deserializer::DeserializeClassOrStruct( void* address, const rtti::Type& type )
 {
 	ON_SCOPE_EXIT(
-		if ( const rtti::Function* func = type.FindMethod( "OnPostDeserialize" ) )
+		if ( const rtti::Function* func = type.FindMethod( "PostDeserialize" ) )
 		{
 			if ( func->GetParametersAmount() == 0 && func->GetReturnTypeDesc() == nullptr )
 			{

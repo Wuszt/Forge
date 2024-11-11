@@ -21,7 +21,7 @@ namespace forge
 
 		bool operator==( const Path& ) const = default;
 
-		void OnPostDeserialize()
+		void PostDeserialize()
 		{
 			UpdateIndices();
 		}

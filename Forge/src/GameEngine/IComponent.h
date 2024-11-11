@@ -86,6 +86,7 @@ namespace forge
 					void* address = GetMutableData().GetMutablePtr();
 					TData::GetTypeStatic().Destroy( address );
 					TData::GetTypeStatic().MoveInPlace( address, fragmentData );
+					initData->RemoveData( TData::GetTypeStatic() );
 				}
 			}
 		}
