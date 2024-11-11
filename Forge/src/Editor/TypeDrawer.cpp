@@ -193,7 +193,7 @@ Bool editor::TypeDrawer::HasChildren( const Drawable& drawable ) const
 
 void editor::TypeDrawer::OnDrawName( const Drawable& drawable ) const
 {
-	const Char* name = drawable.GetName();
+	const Char* name = drawable.GetDisplayName();
 	if ( const std::string* displayName = drawable.GetMetadataValue( "DisplayName" ) )
 	{
 		name = displayName->c_str();

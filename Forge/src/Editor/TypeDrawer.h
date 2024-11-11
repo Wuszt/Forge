@@ -30,6 +30,7 @@ namespace editor
 			virtual Bool HasMetadata( const std::string& key ) const = 0;
 			virtual const std::string* GetMetadataValue( const std::string& key ) const = 0;
 			virtual const Char* GetName() const = 0;
+			virtual const Char* GetDisplayName() const = 0;
 			virtual const Char* GetID() const = 0;
 			virtual const Drawable* GetParent() const { return m_parent; }
 
@@ -124,6 +125,7 @@ namespace editor
 		virtual Bool HasMetadata( const std::string& key ) const override { return false; }
 		virtual const std::string* GetMetadataValue( const std::string& key ) const override { return nullptr; }
 		virtual const Char* GetName() const override { return nullptr; }
+		virtual const Char* GetDisplayName() const override { return nullptr; }
 		virtual const Char* GetID() const override { return m_id; }
 
 	private:
@@ -150,7 +152,8 @@ namespace editor
 		virtual Bool HasMetadata( const std::string& key ) const override { return m_property.HasMetadata( key ); }
 		virtual const std::string* GetMetadataValue( const std::string& key ) const override { return m_property.GetMetadataValue( key ); }
 		virtual rtti::InstanceFlags GetInstanceFlags() const override { return m_property.GetFlags(); }
-		virtual const Char* GetName() const override { return m_displayName.empty() ? m_property.GetName() : m_displayName.c_str(); }
+		virtual const Char* GetName() const override { return m_property.GetName(); }
+		virtual const Char* GetDisplayName() const override { return m_displayName.empty() ? m_property.GetName() : m_displayName.c_str(); }
 		virtual const Char* GetID() const override { return m_property.GetName(); }
 
 	private:
