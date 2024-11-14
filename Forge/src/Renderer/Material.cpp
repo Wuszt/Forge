@@ -38,8 +38,8 @@ renderer::Material::Material( std::unique_ptr< ConstantBuffer >&& buffer, forge:
 
 void renderer::Material::Initialize( renderer::Renderer& renderer, const Model& model )
 {
-	SetShaders( renderer, m_vertexShaderPath, m_pixelShaderPath );
 	m_shaderDefines = ConstructShaderDefines( model );
+	SetShaders( renderer, m_vertexShaderPath, m_pixelShaderPath );
 	m_inputLayout = renderer.CreateInputLayout( *m_vertexShader->GetMainShader(), *model.GetVertexBuffer() );
 	m_onShadersClearCache = renderer.GetShadersManager()->RegisterCacheClearingListener(
 		[ this, rendererPtr = &renderer ]()
