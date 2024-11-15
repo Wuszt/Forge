@@ -155,7 +155,7 @@ namespace renderer
 			{
 				if ( element.m_name == name )
 				{
-					if ( element.m_type != rtti::GetTypeInstanceOf< T >() )
+					if ( *element.m_type != rtti::GetTypeInstanceOf< T >() )
 					{
 						return false;
 					}
@@ -164,7 +164,7 @@ namespace renderer
 					return true;
 				}
 
-				offset += static_cast< Uint32 >( element.m_type.GetSize() );
+				offset += static_cast< Uint32 >( element.m_type->GetSize() );
 			}
 
 			return false;
