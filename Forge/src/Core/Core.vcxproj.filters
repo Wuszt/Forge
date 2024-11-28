@@ -116,6 +116,9 @@
     <ClInclude Include="PropertiesChain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Allocators.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fpch.cpp">

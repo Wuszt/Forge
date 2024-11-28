@@ -36,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\External\LibeRTTI\LibeRTTI.h" />
+    <ClInclude Include="Allocators.h" />
     <ClInclude Include="ArraySpan.h" />
     <ClInclude Include="Assertions.h" />
     <ClInclude Include="AssetsManager.h" />
