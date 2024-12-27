@@ -39,10 +39,7 @@ namespace windows
 		virtual Coords2D GetMouseDeltaPos() const override { return { m_mouseDeltaPos.X, m_mouseDeltaPos.Y }; }
 		virtual Float GetMouseScrollDelta() const override { return m_scrollDelta; }
 
-		virtual void LockCursor( Bool lock ) override
-		{
-			m_lockCursor = lock;
-		}
+		virtual void LockCursor( Bool lock ) override;
 
 		virtual Bool IsCursorLocked() const override
 		{
@@ -57,6 +54,7 @@ namespace windows
 	private:
 		void OnKeyEvent( forge::IInput::KeyEvent event );
 		void OnMouseWheelUpdate( Int32 delta );
+		Vector2 CalcMousePos() const;
 
 		Bool m_lockCursor = false;
 

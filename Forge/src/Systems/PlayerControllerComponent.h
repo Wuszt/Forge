@@ -29,8 +29,6 @@ namespace forge
 		PhysicsDynamicComponent* m_physicsComponent = nullptr;
 
 		Float m_currentSpeed = 3.0f;
-
-		Vector3 m_eulerAngles;
 	};
 }
 

@@ -89,16 +89,17 @@ void forge::PhysicsFreeCameraControllerComponent::Update()
 		deltaRot.X = deltaRot.Y;
 		deltaRot.Y = 0.0f;
 
-		m_eulerAngles += deltaRot;
+		Vector3 eulerAngles = m_ownerTransform->GetWorldOrientation().ToEulerAngles();
+		eulerAngles += deltaRot;
 
-		m_eulerAngles.X = Math::Clamp( -FORGE_PI_HALF, FORGE_PI_HALF, m_eulerAngles.X );
+		eulerAngles.X = Math::Clamp( -FORGE_PI_HALF, FORGE_PI_HALF, eulerAngles.X );
 
-		m_ownerTransform->SetWorldOrientation( Quaternion( 0.0f, 0.0f, m_eulerAngles.Z ) * Quaternion( m_eulerAngles.X, 0.0f, 0.0f ) );
+		m_ownerTransform->SetWorldOrientation( Quaternion( 0.0f, 0.0f, eulerAngles.Z ) * Quaternion( eulerAngles.X, 0.0f, 0.0f ) );
 	}
 
 	if ( inputHandler.GetKey( forge::IInput::Key::R ) )
 	{
 		m_ownerTransform->SetWorldTransform( Transform::IDENTITY() );
-		m_eulerAngles = Vector3::ZEROS();
+		m_ownerTransform->SetWorldOrientation( Quaternion::IDENTITY() );
 	}
 }

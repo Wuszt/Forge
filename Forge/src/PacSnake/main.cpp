@@ -67,7 +67,6 @@ Int32 main()
 			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& player, forge::ObjectInitData& )
 			{
 				player.AddComponents< forge::TransformComponent, forge::CameraComponent, forge::PhysicsFreeCameraControllerComponent >();
-				player.GetComponent< forge::TransformComponent >()->SetWorldPosition( { 0.0f, -10.0f, 0.0f } );
 				auto* cameraComp = player.GetComponent< forge::CameraComponent >();
 				cameraComp->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstance.GetRenderingManager().GetWindow() ) );
 
@@ -76,6 +75,10 @@ Int32 main()
 
 				auto* freeCameraController = player.GetComponent< forge::PhysicsFreeCameraControllerComponent >();
 				engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent( *freeCameraController );
+
+				auto* transformComp = player.GetComponent< forge::TransformComponent >();
+				transformComp->SetWorldPosition( { 0.0f, -7.5f, 10.0f } );
+				transformComp->SetWorldOrientation( Quaternion::CreateFromDirection( -transformComp->GetWorldPosition().Normalized() ) );
 			} } );
 		}
 
