@@ -1,4 +1,6 @@
 #pragma once
+#pragma comment(linker, "/WHOLEARCHIVE:Renderer.lib")
+
 #include "Renderer.h"
 #include "IIndexBuffer.h"
 #include "IInputLayout.h"

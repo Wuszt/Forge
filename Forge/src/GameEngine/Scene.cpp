@@ -53,5 +53,9 @@ void forge::Scene::Deserialize( forge::Stream& stream )
 					obj.Deserialize( deserializer, initData );
 				} } );
 		}
+		else
+		{
+			FORGE_LOG_ERROR( __FUNCTION__ " Can't find object's type while deserializing" );
+		}
 	}
 }

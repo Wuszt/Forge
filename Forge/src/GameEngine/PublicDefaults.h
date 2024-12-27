@@ -1,5 +1,6 @@
 #pragma once
 
+#pragma comment(linker, "/WHOLEARCHIVE:GameEngine.lib")
 #include "EngineInstance.h"
 #include "ApplicationInstance.h"
 #include "ObjectID.h"

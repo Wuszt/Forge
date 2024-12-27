@@ -16,6 +16,12 @@
 #include "../GameEngine/RenderingManager.h"
 #include "../Systems/InputSystem.h"
 
+#include "../GameEngine/SceneManager.h"
+#include "../Core/DepotsContainer.h"
+#include "../GameEngine/SceneObject.h"
+#include "../Renderer/Renderer.h"
+#include "../Renderer/ISwapchain.h"
+
 #ifdef FORGE_DEBUGGING
 #include "../Systems/DebugSystem.h"
 #endif
@@ -51,10 +57,17 @@ Int32 main()
 
 			engineInstance.GetSystemsManager().AddSystems( systems );
 
+			engineInstance.GetSystemsManager().GetSystem< systems::LightingSystem >().SetAmbientColor( { 0.55f, 0.55f, 0.55f } );
+			engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetTargetTexture( &engineInstance.GetRenderingManager().GetRenderer().GetSwapchain()->GetBackBuffer() );
+
+			forge::Path mainScenePath;
+			FORGE_ASSURE( engineInstance.GetDepotsContainer().TryToGetExistingFilePath( forge::Path( "PacSnake/Main.fscene" ), mainScenePath ) );
+			engineInstance.GetSceneManager().LoadScene( mainScenePath );
+
 			engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& player, forge::ObjectInitData& )
 			{
 				player.AddComponents< forge::TransformComponent, forge::CameraComponent, forge::PhysicsFreeCameraControllerComponent >();
-				player.GetComponent< forge::TransformComponent >()->SetWorldPosition( { 0.0f, 0.0f, 2.0f } );
+				player.GetComponent< forge::TransformComponent >()->SetWorldPosition( { 0.0f, -10.0f, 0.0f } );
 				auto* cameraComp = player.GetComponent< forge::CameraComponent >();
 				cameraComp->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstance.GetRenderingManager().GetWindow() ) );
 

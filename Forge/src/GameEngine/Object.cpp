@@ -138,6 +138,10 @@ void forge::Object::Deserialize( forge::Deserializer& deserializer, ObjectInitDa
 
 			deserializer.Deserialize( deserializedComponents.back().get(), *type );
 		}
+		else
+		{
+			FORGE_LOG_ERROR( __FUNCTION__ " Can't find component's type while deserializing");
+		}
 	}
 
 	AttachComponents( deserializedComponents, &initData );

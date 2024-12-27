@@ -1,4 +1,5 @@
 #pragma once
+#pragma comment(linker, "/WHOLEARCHIVE:Profiling.lib")
 
 #ifdef FORGE_PROFILING_ENABLED
 

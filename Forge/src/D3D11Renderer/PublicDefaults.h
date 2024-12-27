@@ -1,4 +1,6 @@
 #pragma once
+#pragma comment(linker, "/WHOLEARCHIVE:D3D11Renderer.lib")
+
 #include "D3D11Renderer.h"
 #include "D3D11RenderContext.h"
 #include "D3D11VertexShader.h"
