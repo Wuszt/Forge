@@ -1,6 +1,7 @@
 #include "../Core/PublicDefaults.h"
 #include "../Math/PublicDefaults.h"
 #include "../GameEngine/PublicDefaults.h"
+#include "../PacSnakeCommon/PublicDefaults.h"
 
 #include "../Systems/CamerasSystem.h"
 #include "../Systems/PlayerControllerComponent.h"
@@ -21,6 +22,7 @@
 #include "../GameEngine/SceneObject.h"
 #include "../Renderer/Renderer.h"
 #include "../Renderer/ISwapchain.h"
+
 
 #ifdef FORGE_DEBUGGING
 #include "../Systems/DebugSystem.h"

@@ -310,6 +310,9 @@
     <ProjectReference Include="..\Math\Math.vcxproj">
       <Project>{4ee1f241-1190-4a8f-be2a-2054bcab3709}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\PacSnakeCommon\PacSnakeCommon.vcxproj">
+      <Project>{7a1c772c-05a1-418e-8e2f-1b2a23ae34da}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Physics\Physics.vcxproj.vcxproj">
       <Project>{0e24b80c-132b-4ff7-843b-15042fc30d94}</Project>
     </ProjectReference>
