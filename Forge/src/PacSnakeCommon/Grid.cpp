@@ -24,3 +24,21 @@ void pacsnake::Grid::Update()
 		pawn.m_pos += pawn.m_dir;
 	}
 }
+
+std::vector< pacsnake::Grid::Collision > pacsnake::Grid::FindCollisions()
+{
+	std::vector< pacsnake::Grid::Collision > collisions;
+
+	for ( Uint32 i = 0u; i < m_pawns.size(); ++i )
+	{
+		for ( Uint32 j = i + 1; j < m_pawns.size(); ++j )
+		{
+			if ( m_pawns[ i ].m_pos == m_pawns[ j ].m_pos )
+			{
+				collisions.push_back( { m_pawns[ i ].m_id, m_pawns[ j ].m_id } );
+			}
+		}
+	}
+
+	return collisions;
+}

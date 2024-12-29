@@ -10,7 +10,7 @@ namespace pacsnake
 
 	public:
 		GridSystem()
-			: m_grid( Grid( 11u, 11u ) )
+			: m_grid( Grid( 19u, 19u ) )
 		{}
 
 		forge::CallbackToken RegisterOnSimUpdate( std::function< void() > func );
@@ -31,14 +31,16 @@ namespace pacsnake
 			return m_lastSimUpdateTime;
 		}
 
-	protected:
-		void OnInitialize() override;
-
 	private:
+		virtual void OnInitialize() override;
+		void CreateNewPickup();
+
 		Grid m_grid;
 		forge::CallbackToken m_updateToken;
 		forge::Callback<> m_onSimUpdated;
 		forge::Callback<> m_onBeforeSimUpdate;
+		pacsnake::GridPawnID m_pickupID;
+
 		Float m_lastSimUpdateTime = 0.0f;
 		Float m_period = 0.5f;
 	};
