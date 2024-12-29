@@ -12,7 +12,7 @@ namespace pacsnake
 	{
 		RTTI_DECLARE_CLASS( Pickup, forge::SceneObject );
 
-	public:
+	protected:
 		virtual void OnInit( forge::ObjectInitData& initData ) override;
 
 	private:

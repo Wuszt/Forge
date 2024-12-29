@@ -18,6 +18,9 @@
 #include "../GameEngine/SceneManager.h"
 #include "../Core/DepotsContainer.h"
 #include "../Renderer/ISwapchain.h"
+#include "../PacSnakeCommon/GridSystem.h"
+#include "../PacSnakeCommon/Snake.h"
+#include "../PacSnakeCommon/PlayerCharacterComponent.h"
 
 #ifdef FORGE_DEBUGGING
 #include "../Systems/DebugSystem.h"
@@ -36,6 +39,8 @@ void pacsnake::GameInstance::Initialize( forge::EngineInstance& engineInstance )
 		&systems::TransformSystem::GetTypeStatic(),
 		&systems::PhysicsSystem::GetTypeStatic(),
 		&systems::InputSystem::GetTypeStatic(),
+		&pacsnake::GridSystem::GetTypeStatic(),
+
 #ifdef FORGE_DEBUGGING
 		&systems::DebugSystem::GetTypeStatic(),
 #endif
@@ -54,20 +59,23 @@ void pacsnake::GameInstance::Initialize( forge::EngineInstance& engineInstance )
 	FORGE_ASSURE( engineInstance.GetDepotsContainer().TryToGetExistingFilePath( forge::Path( "PacSnake/Main.fscene" ), mainScenePath ) );
 	engineInstance.GetSceneManager().LoadScene( mainScenePath );
 
-	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& player, forge::ObjectInitData& )
+	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& camera, forge::ObjectInitData& )
 	{
-		player.AddComponents< forge::TransformComponent, forge::CameraComponent, forge::PhysicsFreeCameraControllerComponent >();
-		auto* cameraComp = player.GetComponent< forge::CameraComponent >();
+		camera.AddComponents< forge::TransformComponent, forge::CameraComponent >();
+		auto* cameraComp = camera.GetComponent< forge::CameraComponent >();
 		cameraComp->CreateImplementation< renderer::PerspectiveCamera >( forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstance.GetRenderingManager().GetWindow() ) );
 
 		auto& camerasSystem = engineInstance.GetSystemsManager().GetSystem< systems::CamerasSystem >();
 		camerasSystem.SetActiveCamera( cameraComp );
 
-		auto* freeCameraController = player.GetComponent< forge::PhysicsFreeCameraControllerComponent >();
-		engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent( *freeCameraController );
-
-		auto* transformComp = player.GetComponent< forge::TransformComponent >();
-		transformComp->SetWorldPosition( { 0.0f, -7.5f, 10.0f } );
+		auto* transformComp = camera.GetComponent< forge::TransformComponent >();
+		transformComp->SetWorldPosition( { 0.0f, -4.5f, 22.0f } );
 		transformComp->SetWorldOrientation( Quaternion::CreateFromDirection( -transformComp->GetWorldPosition().Normalized() ) );
 	} } );
+
+	engineInstance.GetObjectsManager().RequestCreatingObject< pacsnake::Snake >( { .m_postInitFunc = [ & ]( forge::Object& snake, forge::ObjectInitData& )
+		{
+			auto* playerComponent = snake.GetComponent< pacsnake::PlayerCharacterComponent >();
+			engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent( *playerComponent );
+		} } );
 }
