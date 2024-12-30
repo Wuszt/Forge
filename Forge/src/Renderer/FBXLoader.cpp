@@ -508,13 +508,6 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const forge::Path& path, rend
 	return modelAsset;
 }
 
-forge::Path GetFixedPathOfAsset( const Char* rawPath )
-{
-	FORGE_ASSERT( false );
-	return forge::Path( rawPath );
-	//return std::regex_replace( path, std::regex( "\\\\[^\\\\]*fbm\\\\" ), "\\" );
-}
-
 void CreateExternalAssets( const SceneHandle& scene )
 {
 	for ( Uint32 i = 0u; i < static_cast< Uint32 >( scene->getEmbeddedDataCount() ); ++i )
@@ -523,7 +516,7 @@ void CreateExternalAssets( const SceneHandle& scene )
 
 		char path[ 400 ];
 		scene->getEmbeddedFilename( i ).toString( path );
-		forge::Path fixedPath = GetFixedPathOfAsset( path );
+		forge::Path fixedPath( path );
 		FileHandle fileHandle( fixedPath );
 
 		if ( std::filesystem::exists( fixedPath.Get() ) )

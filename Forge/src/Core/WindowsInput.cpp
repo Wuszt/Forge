@@ -15,7 +15,9 @@ namespace windows
 {
 	WindowsInput::WindowsInput( HINSTANCE hInstance, const WindowsWindow& window )
 		: m_window( window )
-	{}
+	{
+		m_mouseCurrentPos = CalcMousePos();
+	}
 
 	WindowsInput::~WindowsInput() = default;
 
@@ -25,15 +27,8 @@ namespace windows
 		m_keysReleased.reset();
 		m_scrollDelta = 0.0f;
 
-		POINT rawCursorPos;
-		GetCursorPos( &rawCursorPos );
-		ScreenToClient( m_window.GetHWND(), &rawCursorPos );
-
-		Vector2 prevPos = m_mouseCurrentPos;
-
-		m_mouseCurrentPos = Vector2( static_cast< Float >( rawCursorPos.x ), static_cast< Float >( rawCursorPos.y ) );
-		m_mouseCurrentPos.X = Math::Clamp( 0.0f, static_cast< Float >( m_window.GetWidth() ), m_mouseCurrentPos.X ) - static_cast< Float >( m_window.GetWidth() / 2u );
-		m_mouseCurrentPos.Y = -( Math::Clamp( 0.0f, static_cast< Float >( m_window.GetHeight() ), m_mouseCurrentPos.Y ) - static_cast< Float >( m_window.GetHeight() / 2u ) );
+		const Vector2 prevPos = m_mouseCurrentPos;
+		m_mouseCurrentPos = CalcMousePos();
 
 		m_mouseDeltaPos = Vector2( m_mouseCurrentPos - prevPos );
 
@@ -45,6 +40,7 @@ namespace windows
 		if ( m_lockCursor )
 		{
 			m_mouseCurrentPos = prevPos;
+			POINT rawCursorPos;
 			rawCursorPos.x = static_cast< Int32 >( prevPos.X ) + m_window.GetWidth() / 2;
 			rawCursorPos.y = static_cast< Int32 >( -prevPos.Y ) + m_window.GetHeight() / 2;
 
@@ -120,6 +116,19 @@ namespace windows
 		m_onInputEvent.Invoke( static_cast< Float >( delta ) );
 	}
 
+	Vector2 WindowsInput::CalcMousePos() const
+	{
+		POINT rawCursorPos;
+		GetCursorPos( &rawCursorPos );
+		ScreenToClient( m_window.GetHWND(), &rawCursorPos );
+
+		Vector2 currentPos;
+		currentPos = Vector2( static_cast< Float >( rawCursorPos.x ), static_cast< Float >( rawCursorPos.y ) );
+		currentPos.X = Math::Clamp( 0.0f, static_cast< Float >( m_window.GetWidth() ), currentPos.X ) - static_cast< Float >( m_window.GetWidth() / 2u );
+		currentPos.Y = -( Math::Clamp( 0.0f, static_cast< Float >( m_window.GetHeight() ), currentPos.Y ) - static_cast< Float >( m_window.GetHeight() / 2u ) );
+		return currentPos;
+	}
+
 	IInput::KeyState WindowsInput::GetKeyState( Key key ) const
 	{
 		if ( GetKeyDown( key ) )
@@ -136,5 +145,10 @@ namespace windows
 		}
 
 		return IInput::KeyState::None;
+	}
+
+	void WindowsInput::LockCursor( Bool lock )
+	{
+		m_lockCursor = lock;
 	}
 }

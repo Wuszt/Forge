@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma comment(linker, "/WHOLEARCHIVE:Core.lib")
+
 #include "Core.h"
 #include "ExternalIncludes.h"
 #include "Types.h"

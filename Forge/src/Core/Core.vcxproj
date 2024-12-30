@@ -56,6 +56,7 @@
     <ClInclude Include="PropertiesChain.h" />
     <ClInclude Include="RawVector.h" />
     <ClInclude Include="Serializer.h" />
+    <ClInclude Include="StartupArguments.h" />
     <ClInclude Include="Streams.h" />
     <ClInclude Include="StringUtils.h" />
     <ClInclude Include="Time.h" />
@@ -86,6 +87,7 @@
     <ClCompile Include="PropertiesChain.cpp" />
     <ClCompile Include="RawVector.cpp" />
     <ClCompile Include="Serializer.cpp" />
+    <ClCompile Include="StartupArguments.cpp" />
     <ClCompile Include="Streams.cpp" />
     <ClCompile Include="StringUtils.cpp" />
     <ClCompile Include="Time.cpp" />

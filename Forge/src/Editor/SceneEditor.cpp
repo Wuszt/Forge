@@ -60,7 +60,7 @@ editor::SceneEditor::SceneEditor( editor::WindowBase* parent, forge::EngineInsta
 		{
 			if ( type.IsA< forge::SceneObject >() || type.InheritsFrom< forge::SceneObject >() )
 			{
-				if( !type.HasMetadata( "EditorOnly" ) )
+				if( !type.IsAbstract() && !type.HasMetadata( "EditorOnly" ) )
 				{
 					m_objectCreationButtons.emplace_back( GetMenuBar()->AddButton( { "Create Scene Object", type.GetName() }, [ & ]()
 						{

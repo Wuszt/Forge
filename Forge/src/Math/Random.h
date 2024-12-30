@@ -34,7 +34,9 @@ namespace Math
 
 		Float GetFloat( Float min = 0.0f, Float max = 1.0f );
 		Uint32 GetUnsigned( Uint32 min = 0u, Uint32 max = std::numeric_limits< Uint32 >::max() );
+		Int32 GetInteger( Int32 min = std::numeric_limits< Int32 >::min(), Int32 max = std::numeric_limits< Int32 >::max() );
         Uint32 GetRaw();
+
 		static Random& GetRNG()
 		{
 			static Random rng;

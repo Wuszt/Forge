@@ -168,7 +168,7 @@ Int32 main()
 				engineInstance.GetSystemsManager().GetSystem< systems::PlayerSystem >().SetActivePlayerComponent( *freeCameraController );
 			} } );
 
-			engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetSkyboxTexture( engineInstance.GetAssetsManager().GetAsset< renderer::TextureAsset >( forge::Path( "Textures\\skymap.dds" ) )->GetTexture() );
+			engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetSkyboxTexture( engineInstance.GetAssetsManager().GetAsset< renderer::TextureAsset >( forge::Path( "Launcher\\Textures\\skymap.dds" ) )->GetTexture() );
 			engineInstance.GetSystemsManager().GetSystem< systems::SceneRenderingSystem >().SetTargetTexture( &engineInstance.GetRenderingManager().GetRenderer().GetSwapchain()->GetBackBuffer() );
 
 			SponzaScene( engineInstance );
