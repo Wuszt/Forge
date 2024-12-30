@@ -9,14 +9,14 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Header Files\External">
-      <UniqueIdentifier>{e0668231-8838-41ca-bb73-d80916addf6b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{526c3392-878d-452b-86b1-f2c285c4a2b7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shaders\Headers">
       <UniqueIdentifier>{410f5854-1e17-4044-b563-ba1ad75b4d87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\External">
+      <UniqueIdentifier>{9809d4db-c85c-4b7e-9095-1a06aabcde88}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -131,12 +131,6 @@
     <ClCompile Include="TextureAsset.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\External\openfbx\src\miniz.c">
-      <Filter>Header Files\External</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\External\openfbx\src\ofbx.cpp">
-      <Filter>Header Files\External</Filter>
-    </ClCompile>
     <ClCompile Include="FBXLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -154,6 +148,12 @@
     </ClCompile>
     <ClCompile Include="IRenderingResource.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\openfbx\src\miniz.c">
+      <Filter>Header Files\External</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\External\openfbx\src\ofbx.cpp">
+      <Filter>Header Files\External</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -213,9 +213,6 @@
     </ClInclude>
     <ClInclude Include="ShadersManager.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\External\tinyobjloader\tiny_obj_loader.h">
-      <Filter>Header Files\External</Filter>
     </ClInclude>
     <ClInclude Include="TinyObjModelsLoader.h">
       <Filter>Header Files</Filter>
@@ -277,12 +274,6 @@
     <ClInclude Include="TextureAsset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\External\openfbx\src\miniz.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\External\openfbx\src\ofbx.h">
-      <Filter>Header Files\External</Filter>
-    </ClInclude>
     <ClInclude Include="FBXLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -300,6 +291,12 @@
     </ClInclude>
     <ClInclude Include="IRenderingResource.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\openfbx\src\miniz.h">
+      <Filter>Header Files\External</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\openfbx\src\ofbx.h">
+      <Filter>Header Files\External</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

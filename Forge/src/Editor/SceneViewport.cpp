@@ -66,7 +66,7 @@ void editor::SceneViewport::Draw()
 	}
 
 	const Vector2 cursorPos = forge::imgui::CastToForge( ImGui::GetMousePos() ) - forge::imgui::CastToForge( ImGui::GetCursorScreenPos() );
-	ImGui::Image( m_targetTexture->GetShaderResourceView()->GetRawSRV(), forge::imgui::CastToImGui( m_targetTexture->GetSize() ) );
+	ImGui::Image( reinterpret_cast< ImTextureID >( m_targetTexture->GetShaderResourceView()->GetRawSRV() ), forge::imgui::CastToImGui( m_targetTexture->GetSize() ) );
 
 	auto& inputSystem = GetEngineInstance().GetSystemsManager().GetSystem< systems::InputSystem >();
 	inputSystem.Enable( ImGui::IsMouseDown( ImGuiMouseButton_Right ) );

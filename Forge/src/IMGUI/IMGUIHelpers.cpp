@@ -16,7 +16,7 @@ void forge::imgui::DrawFoldableTextureView( const std::string& name, const rende
 		const Vector2& size = texture.GetSize();
 		Float contentWidth = ImGui::GetWindowWidth() - ImGui::GetCursorPosX();
 		const ImVec2 textureSize = ImVec2( contentWidth, contentWidth * size.Y / size.X );
-		ImGui::Image( texture.GetShaderResourceView()->GetRawSRV(), textureSize );
+		ImGui::Image( reinterpret_cast< ImTextureID >( texture.GetShaderResourceView()->GetRawSRV() ), textureSize );
 		if ( ImGui::IsItemHovered() && ImGui::IsMouseDown( ImGuiMouseButton_Right ) )
 		{
 			ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -30,7 +30,7 @@ void forge::imgui::DrawFoldableTextureView( const std::string& name, const rende
 			Math::Clamp( 0.0f, textureSize.y - region_sz, region_y );
 			ImVec2 uv0 = ImVec2( ( region_x ) / textureSize.x, ( region_y ) / textureSize.y );
 			ImVec2 uv1 = ImVec2( ( region_x + region_sz ) / textureSize.x, ( region_y + region_sz ) / textureSize.y );
-			ImGui::Image( texture.GetShaderResourceView()->GetRawSRV(), ImVec2( region_sz * zoom, region_sz * zoom ), uv0, uv1 );
+			ImGui::Image( reinterpret_cast< ImTextureID >( texture.GetShaderResourceView()->GetRawSRV() ), ImVec2( region_sz * zoom, region_sz * zoom ), uv0, uv1 );
 			ImGui::EndTooltip();
 		}
 		ImGui::TreePop();

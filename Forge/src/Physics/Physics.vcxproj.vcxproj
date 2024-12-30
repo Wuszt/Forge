@@ -207,7 +207,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\debug\*.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /y /d "$(ProjectDir)..\..\External\physx\lib\debug\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -226,7 +226,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\debug\*.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /y /d "$(ProjectDir)..\..\External\physx\lib\debug\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -249,7 +249,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /y /d "$(ProjectDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|Win32'">
@@ -272,7 +272,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /y /d "$(ProjectDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profiling|Win32'">
@@ -295,7 +295,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /y /d "$(ProjectDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -318,7 +318,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /y /d "$(ProjectDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Final|x64'">
@@ -341,7 +341,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /y /d "$(ProjectDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profiling|x64'">
@@ -364,7 +364,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(TargetDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
+      <Command>xcopy /y /d "$(ProjectDir)..\..\External\physx\lib\release\*.dll" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

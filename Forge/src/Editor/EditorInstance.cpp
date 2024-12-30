@@ -197,7 +197,7 @@ void forge::EditorInstance::Update()
 	}
 
 	forge::imgui::ScopedStyle style( StyleColorsEditor );
-	ImGui::DockSpaceOverViewport( ImGui::GetMainViewport() );
+	ImGui::DockSpaceOverViewport( 0, ImGui::GetMainViewport());
 
 	for ( auto& window : m_windows )
 	{
