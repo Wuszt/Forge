@@ -105,7 +105,7 @@ namespace forge
 			return m_windowCallbacks.AddListener( func );
 		}
 
-		static std::unique_ptr< IWindow > CreateNewWindow( Uint32 width, Uint32 height );
+		static std::unique_ptr< IWindow > CreateNewWindow( Uint32 width, Uint32 height, const Char* name );
 
 	protected:
 		void DispatchEvent( const IEvent& event )

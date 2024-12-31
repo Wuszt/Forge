@@ -40,7 +40,7 @@ namespace windows
 {
 	const LPCTSTR c_windowClassName = L"Window";
 
-	WindowsWindow::InitializationState InternalInitialize( HINSTANCE hInstance, Uint32 width, Uint32 height, HWND& outHWND )
+	WindowsWindow::InitializationState InternalInitialize( HINSTANCE hInstance, Uint32 width, Uint32 height, const Char* windowName, HWND& outHWND )
 	{
 		typedef struct _WNDCLASS {
 			Uint32 cbSize;
@@ -78,10 +78,11 @@ namespace windows
 		RECT wr = { 0, 0, static_cast< Int32 >( width ), static_cast< Int32 >( height ) };
 		AdjustWindowRect( &wr, WS_OVERLAPPEDWINDOW, false );
 
+		std::string windowNameStr( windowName );
 		outHWND = CreateWindowEx(
 			NULL,
 			c_windowClassName,
-			L"Forge",
+			std::wstring( windowNameStr.begin(), windowNameStr.end() ).c_str(),
 			WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			wr.right - wr.left, wr.bottom - wr.top,
@@ -102,13 +103,13 @@ namespace windows
 		return WindowsWindow::InitializationState::Initialized;
 	}
 
-	WindowsWindow::WindowsWindow( Uint32 width, Uint32 height )
+	WindowsWindow::WindowsWindow( Uint32 width, Uint32 height, const Char* windowName )
 		: m_width( width )
 		, m_height( height )
 	{
 		auto hInstance = GetModuleHandle( NULL );
 
-		Initialize( hInstance );
+		Initialize( hInstance, windowName );
 		FORGE_ASSERT( IsInitialized() );
 
 		SetWindowLongPtr( m_hwnd, GWLP_USERDATA, reinterpret_cast< LONG_PTR >( this ) );
@@ -118,9 +119,9 @@ namespace windows
 
 	WindowsWindow::~WindowsWindow() = default;
 
-	void WindowsWindow::Initialize( HINSTANCE hInstance )
+	void WindowsWindow::Initialize( HINSTANCE hInstance, const Char* windowName )
 	{
-		m_initializationState = InternalInitialize( hInstance, m_width, m_height, m_hwnd );
+		m_initializationState = InternalInitialize( hInstance, m_width, m_height, windowName, m_hwnd );
 		UpdatePositionAndSize();
 	}
 

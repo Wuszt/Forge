@@ -4,12 +4,13 @@
 #include "../Renderer/Renderer.h"
 #include "../Renderer/ISwapchain.h"
 #include "../Renderer/IRenderTargetView.h"
+#include "ApplicationInstance.h"
 
-renderer::RenderingManager::RenderingManager( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::UpdateManager& updateManager )
+renderer::RenderingManager::RenderingManager( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::UpdateManager& updateManager, forge::ApplicationInstance& appInstance )
 {
 	const Uint32 width = 1200;
 	const Uint32 height = 600;
-	m_window = forge::IWindow::CreateNewWindow( width, height );
+	m_window = forge::IWindow::CreateNewWindow( width, height, appInstance.GetApplicationName().c_str() );
 	m_renderer = renderer::Renderer::CreateRenderer( depotsContainer, assetsManager, *m_window, renderer::RendererType::D3D11 );
 
 	m_windowUpdateToken = updateManager.RegisterUpdateFunction( forge::UpdateManager::BucketType::PostUpdate, [ this ]()

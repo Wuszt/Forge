@@ -25,7 +25,7 @@ forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 
 	if( m_appInstance.WithWindow() )
 	{
-		m_renderingManager = std::make_unique< renderer::RenderingManager >( GetDepotsContainer(), GetAssetsManager(), GetUpdateManager() );
+		m_renderingManager = std::make_unique< renderer::RenderingManager >( GetDepotsContainer(), GetAssetsManager(), GetUpdateManager(), m_appInstance );
 
 		m_windowClosedToken = GetRenderingManager().GetWindow().RegisterEventListener( [ appPtr = &appInstance ]( const forge::IWindow::IEvent& ev )
 		{

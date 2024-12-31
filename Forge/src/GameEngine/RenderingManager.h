@@ -3,6 +3,7 @@
 namespace forge
 {
 	class IWindow;
+	class ApplicationInstance;
 }
 
 namespace renderer
@@ -12,7 +13,7 @@ namespace renderer
 	class RenderingManager
 	{
 	public:
-		RenderingManager( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::UpdateManager& updateManager );
+		RenderingManager( const forge::DepotsContainer& depotsContainer, forge::AssetsManager& assetsManager, forge::UpdateManager& updateManager, forge::ApplicationInstance& appInstance );
 
 		renderer::Renderer& GetRenderer() const
 		{

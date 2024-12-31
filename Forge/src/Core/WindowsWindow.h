@@ -29,7 +29,7 @@ namespace windows
 			Error_Registering_Class
 		};
 
-		WindowsWindow( Uint32 width, Uint32 height );
+		WindowsWindow( Uint32 width, Uint32 height, const Char* windowName );
 		~WindowsWindow();
 
 		HWND GetHWND() const
@@ -84,7 +84,7 @@ namespace windows
 
 	private:
 
-		void Initialize( HINSTANCE hInstance );
+		void Initialize( HINSTANCE hInstance, const Char* windowName );
 
 		void UpdatePositionAndSize();
 
