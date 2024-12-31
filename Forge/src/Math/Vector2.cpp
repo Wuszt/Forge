@@ -33,3 +33,8 @@ std::string Vector2::ToDebugString( Uint32 precision ) const
 	return forge::String::Printf( format.c_str(), X, Y );
 }
 #endif
+
+std::size_t std::hash< Vector2 >::operator()( const Vector2& vec ) const noexcept
+{
+	return Math::CombineHashes( Math::CalculateHash( vec.X ), Math::CalculateHash( vec.Y ) );
+}

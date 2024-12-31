@@ -248,16 +248,21 @@ namespace AI
 			return result;
 		}
 
+		Bool HasNodeForLocation( const T& location ) const
+		{
+			return m_localizationData.find( location ) != m_localizationData.end();
+		}
+
 		NodeID GetIDFromLocation( const T& location ) const
 		{
-			FORGE_ASSERT( m_localizationData.find( location ) != m_localizationData.end() );
+			FORGE_ASSERT( HasNodeForLocation( location ) );
 
 			return m_localizationData.find( location )->second;
 		}
 
 		const T& GetLocationFromID( NodeID id ) const
 		{
-			return m_nodesData[ id ];
+			return m_nodesData.at( id );
 		}
 
 		NodeID GetOrCreateNode( const T& identifier )

@@ -163,7 +163,10 @@ namespace AI
 		return from.DistanceSquaredTo( to );
 	}
 
-	Float ManhattanHeuristicFormula( const Vector2& from, const Vector2& to );
+	Float ManhattanHeuristicFormula( const Vector2& from, const Vector2& to )
+	{
+		return abs( from.X - to.X ) + abs( from.Y - to.Y );
+	}
 
 	template< class DataType >
 	static void PerformAStar( NodeID startNode, NodeID endNode, const NavigationGraph< DataType >& graph, PathAsNodes& outPath, Float( *heuristicFunc )( const DataType&, const DataType& ) = &BasicHeuristicFormula )
@@ -186,12 +189,14 @@ namespace AI
 		nodesData[ startNode ].m_heuristicCost = heuristicFunc( graph.GetLocationFromID( startNode ), graph.GetLocationFromID( endNode ) );
 		nodesData[ startNode ].m_localHeuristicCost = nodesData[ startNode ].m_heuristicCost;
 
+		Bool succeeded = false;
 		while( !queue.empty() )
 		{
 			auto it = std::min_element( queue.begin(), queue.end(), [ &nodesData ]( const auto& l, const auto& r ) { return nodesData[ l ].m_heuristicCost < nodesData[ r ].m_heuristicCost; } );
 			NodeID currentNode = *it;
 			if( currentNode == endNode )
 			{
+				succeeded = true;
 				break;
 			}
 
@@ -247,6 +252,12 @@ namespace AI
 					scoredNodes[ connection.m_to ] = true;
 				}
 			}
+		}
+
+		if ( !succeeded )
+		{
+			outPath = {};
+			return;
 		}
 
 		NodeID currentNode = endNode;

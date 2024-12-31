@@ -46,7 +46,10 @@ forge::Object* systems::PlayerSystem::GetCurrentPlayerObject() const
 
 void systems::PlayerSystem::Update()
 {
-	m_activeController->Update();
+	if ( m_activeController )
+	{
+		m_activeController->Update();
+	}
 }
 
 #ifdef FORGE_IMGUI_ENABLED
