@@ -125,6 +125,12 @@ namespace Math
 		return l;
 	}
 
+	template< class... TArgs >
+	FORGE_INLINE Uint64 CombineHashes( Uint64 l, TArgs... args )
+	{
+		return CombineHashes( l, CombineHashes( args... ) );
+	}
+
 	template< class T >
 	FORGE_INLINE Uint64 CalculateHash( const T& value )
 	{

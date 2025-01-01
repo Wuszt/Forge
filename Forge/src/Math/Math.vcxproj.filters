@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="Natvis Files">
+      <UniqueIdentifier>{e4c6dbc9-7cb7-42f9-b5da-6cc5914da0d2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vector2.h">
@@ -79,5 +82,10 @@
     <ClCompile Include="LinearColor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Vector.natvis">
+      <Filter>Natvis Files</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

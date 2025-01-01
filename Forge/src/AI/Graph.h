@@ -64,8 +64,19 @@ namespace AI
 			return false;
 		}
 
+		void Enable( Bool enable )
+		{
+			m_enabled = enable;
+		}
+
+		Bool IsEnabled() const
+		{
+			return m_enabled;
+		}
+
 	private:
 		std::vector< Connection > m_connections;
+		Bool m_enabled = true;
 	};
 
 	template< class T >
@@ -109,6 +120,11 @@ namespace AI
 		const NodeType& GetNode( const NodeID& id ) const
 		{
 			return m_nodes[ id ];
+		}
+
+		void EnableNode( const NodeID& id, Bool enable )
+		{
+			GetNode( id ).Enable( enable );
 		}
 
 	protected:
@@ -183,9 +199,14 @@ namespace AI
 			return result;
 		}
 
+		Bool HasNodeForIdentifier( const T& identifier ) const
+		{
+			return m_identifiersMap.find( identifier ) != m_identifiersMap.end();
+		}
+
 		NodeID GetIDFromIdentifier( const T& identifier )
 		{
-			FORGE_ASSERT( m_identifiersMap.find( identifier ) != m_identifiersMap.end() );
+			FORGE_ASSERT( HasNodeForIdentifier( identifier ) );
 
 			return m_identifiersMap.find( identifier )->second;
 		}
@@ -230,7 +251,15 @@ namespace AI
 			NodeID fromId = GetOrCreateNode( from );
 			NodeID toId = GetOrCreateNode( to );
 
-			Float cost = from.DistanceTo( to );
+			Float cost = from.DistTo( to );
+
+			Graph< Node>::AddConnection( fromId, toId, cost );
+		}
+
+		void AddConnection( const T& from, const T& to, Float cost )
+		{
+			NodeID fromId = GetOrCreateNode( from );
+			NodeID toId = GetOrCreateNode( to );
 
 			Graph< Node>::AddConnection( fromId, toId, cost );
 		}
@@ -278,7 +307,6 @@ namespace AI
 		}
 
 	private:
-
 		std::unordered_map< T, NodeID > m_localizationData;
 		std::vector< T > m_nodesData;
 	};

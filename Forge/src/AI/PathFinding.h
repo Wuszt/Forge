@@ -23,15 +23,15 @@ namespace AI
 	template< class DataType >
 	static void GetPaths( const forge::ArraySpan< const DataType >& nodesData, std::vector< PathAsNodes >& outPaths )
 	{
-		for( Uint32 i = 0; i < nodesData.GetSize(); ++i )
+		for ( Uint32 i = 0; i < nodesData.GetSize(); ++i )
 		{
 			PathAsNodes path;
 
-			if( nodesData[ i ].m_cost != std::numeric_limits< Float >::infinity() )
+			if ( nodesData[ i ].m_cost != std::numeric_limits< Float >::infinity() )
 			{
 				auto currentNode = i;
 
-				while( nodesData[ currentNode ].m_cost > 0.0f )
+				while ( nodesData[ currentNode ].m_cost > 0.0f )
 				{
 					path.emplace_back( currentNode );
 					currentNode = nodesData[ currentNode ].m_predecessor;
@@ -48,15 +48,15 @@ namespace AI
 	template< class GraphType, class DataType >
 	static void GetPaths( const GraphType& graph, const forge::ArraySpan< const DataType >& nodesData, std::vector< PathAsConnections >& outPaths )
 	{
-		for( Uint32 i = 0; i < nodesData.GetSize(); ++i )
+		for ( Uint32 i = 0; i < nodesData.GetSize(); ++i )
 		{
 			PathAsConnections path;
 
-			if( nodesData[ i ].m_cost != std::numeric_limits< Float >::infinity() )
+			if ( nodesData[ i ].m_cost != std::numeric_limits< Float >::infinity() )
 			{
 				auto currentNode = i;
 
-				while( nodesData[ currentNode ].m_cost > 0.0f )
+				while ( nodesData[ currentNode ].m_cost > 0.0f )
 				{
 					const auto& node = graph.GetNode( nodesData[ currentNode ].m_predecessor );
 					path.emplace_back( *node.GetConnectionTo( currentNode ) );
@@ -102,7 +102,7 @@ namespace AI
 			}
 		};
 
-		while( !queue.empty() )
+		while ( !queue.empty() )
 		{
 			auto minIt = queue.back();
 			queue.pop_back();
@@ -110,17 +110,17 @@ namespace AI
 			NodeID currentNode = minIt;
 			const DijkstraNodeData& currentNodeData = nodesData[ currentNode ];
 
-			for( const auto& connection : graph.GetNode( currentNode ).GetAllConnections() )
+			for ( const auto& connection : graph.GetNode( currentNode ).GetAllConnections() )
 			{
 
 				DijkstraNodeData& destinationData = nodesData[ connection.m_to ];
 
 				Float overallCost = currentNodeData.m_cost + connection.m_cost;
-				if( destinationData.m_cost > overallCost )
+				if ( destinationData.m_cost > overallCost )
 				{
 					Float previousScore = destinationData.m_cost;
 
-					if( scoredNodes[ connection.m_to ] )
+					if ( scoredNodes[ connection.m_to ] )
 					{
 						auto pairIt = std::equal_range( queue.begin(), queue.end(), destinationData.m_cost, Pred{ nodesData } );
 
@@ -163,24 +163,33 @@ namespace AI
 		return from.DistanceSquaredTo( to );
 	}
 
-	Float ManhattanHeuristicFormula( const Vector2& from, const Vector2& to )
+	FORGE_INLINE Float ManhattanHeuristicFormula( const Vector2& from, const Vector2& to )
 	{
 		return abs( from.X - to.X ) + abs( from.Y - to.Y );
 	}
 
-	template< class DataType >
-	static void PerformAStar( NodeID startNode, NodeID endNode, const NavigationGraph< DataType >& graph, PathAsNodes& outPath, Float( *heuristicFunc )( const DataType&, const DataType& ) = &BasicHeuristicFormula )
+	FORGE_INLINE Bool EndNodeCompareDefault( NodeID left, NodeID right )
 	{
+		return left == right;
+	}
+
+	template< class DataType >
+	static void PerformAStar( NodeID startNode, NodeID endNode, const NavigationGraph< DataType >& graph, PathAsNodes& outPath, std::type_identity_t< std::function< Float( const DataType&, const DataType& ) > > heuristicFunc = &BasicHeuristicFormula, std::type_identity_t< std::function< Bool( NodeID, NodeID ) > > endNodeComparator = &EndNodeCompareDefault )
+	{
+		struct QueueNode
+		{
+			NodeID m_node = 0u;
+			Float m_cost = 0.0f;
+			Uint32 m_generation = 0u;
+		};
+
 		Uint32 nodesAmount = graph.GetNodesAmount();
-
-		//todo: make true priorityqueue/heap
-		std::vector< NodeID > queue;
+		std::vector< QueueNode > queue;
 		queue.reserve( nodesAmount );
+		queue.push_back( { startNode, 0.0f } );
 
-		queue.emplace_back( startNode );
-
-		std::vector< Bool > scoredNodes;
-		scoredNodes.resize( nodesAmount, false );
+		std::vector< Uint32 > nodeGenerations;
+		nodeGenerations.resize( nodesAmount, 0u );
 
 		std::vector< AStarNodeData > nodesData;
 		nodesData.resize( nodesAmount, { -1.0f, std::numeric_limits< Float >::infinity(), std::numeric_limits< Float >::infinity(), std::numeric_limits< NodeID >::max() } );
@@ -190,66 +199,57 @@ namespace AI
 		nodesData[ startNode ].m_localHeuristicCost = nodesData[ startNode ].m_heuristicCost;
 
 		Bool succeeded = false;
-		while( !queue.empty() )
+		while ( !queue.empty() )
 		{
-			auto it = std::min_element( queue.begin(), queue.end(), [ &nodesData ]( const auto& l, const auto& r ) { return nodesData[ l ].m_heuristicCost < nodesData[ r ].m_heuristicCost; } );
-			NodeID currentNode = *it;
-			if( currentNode == endNode )
+			auto queuePredicate = []( const QueueNode& l, const QueueNode& r )
+				{
+					return l.m_cost > r.m_cost;
+				};
+
+			std::pop_heap( queue.begin(), queue.end(), queuePredicate );
+			QueueNode node = queue.back();
+			queue.pop_back();
+
+			if ( nodeGenerations[ node.m_node ] > node.m_generation )
 			{
+				continue;
+			}
+
+			NodeID currentNode = node.m_node;
+			if ( endNodeComparator( currentNode, endNode ) )
+			{
+				endNode = currentNode;
 				succeeded = true;
 				break;
 			}
 
-			queue.erase( it );
-
-			scoredNodes[ currentNode ] = false;
-
 			AStarNodeData& currentNodeData = nodesData[ currentNode ];
 
-			struct Pred
+			for ( const auto& connection : graph.GetNode( currentNode ).GetAllConnections() )
 			{
-				const std::vector< AStarNodeData >& m_nodesData;
-
-				bool operator () ( Float value, NodeID id ) const {
-					return m_nodesData[ id ].m_heuristicCost < value;
+				if ( !graph.GetNode( connection.m_to ).IsEnabled() )
+				{
+					continue;
 				}
 
-				bool operator () ( NodeID id, Float value ) const {
-					return m_nodesData[ id ].m_heuristicCost > value;
-				}
-			};
-
-			for( const auto& connection : graph.GetNode( currentNode ).GetAllConnections() )
-			{
 				AStarNodeData& destinationData = nodesData[ connection.m_to ];
 
 				Float overallCost = currentNodeData.m_cost + connection.m_cost;
 
-				if( destinationData.m_cost > overallCost )
+				if ( destinationData.m_cost > overallCost )
 				{
-					if( scoredNodes[ connection.m_to ] )
-					{
-						auto pairIt = std::equal_range( queue.begin(), queue.end(), destinationData.m_heuristicCost, Pred{ nodesData } );
-
-						auto it = std::find( pairIt.first, pairIt.second, connection.m_to );
-
-						queue.erase( it );
-					}
-
 					destinationData.m_cost = overallCost;
 					destinationData.m_predecessor = currentNode;
 
-					if( destinationData.m_localHeuristicCost < 0.0f )
+					if ( destinationData.m_localHeuristicCost < 0.0f )
 					{
 						destinationData.m_localHeuristicCost = heuristicFunc( graph.GetLocationFromID( connection.m_to ), graph.GetLocationFromID( endNode ) );
 					}
 
 					destinationData.m_heuristicCost = overallCost + destinationData.m_localHeuristicCost;
 
-					auto it = std::upper_bound( queue.begin(), queue.end(), destinationData.m_heuristicCost, Pred{ nodesData } );
-					queue.emplace( it, connection.m_to );
-
-					scoredNodes[ connection.m_to ] = true;
+					queue.push_back( { connection.m_to, destinationData.m_heuristicCost, ++nodeGenerations[ connection.m_to ] } );
+					std::push_heap( queue.begin(), queue.end(), queuePredicate );
 				}
 			}
 		}
@@ -261,13 +261,13 @@ namespace AI
 		}
 
 		NodeID currentNode = endNode;
-		
-		while( currentNode != startNode )
+
+		while ( currentNode != startNode )
 		{
 			outPath.emplace_back( currentNode );
 			currentNode = nodesData[ currentNode ].m_predecessor;
 		}
-		
+
 		outPath.emplace_back( currentNode );
 
 		std::reverse( outPath.begin(), outPath.end() );

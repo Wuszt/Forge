@@ -74,6 +74,9 @@
       <Project>{38e97199-f4e4-4704-b916-dd286525c84b}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Vector.natvis" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{4EE1F241-1190-4A8F-BE2A-2054BCAB3709}</ProjectGuid>
