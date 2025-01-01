@@ -208,3 +208,8 @@ struct Vector3
 #endif
 };
 
+template<>
+struct std::hash< Vector3 >
+{
+	std::size_t operator()( const Vector3& vec ) const noexcept;
+};

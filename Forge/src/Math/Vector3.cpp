@@ -43,3 +43,8 @@ std::string Vector3::ToDebugString( Uint32 precision ) const
 	std::string format = forge::String::Printf( "[%s%u%s, %s%u%s, %s%u%s]", "%.", precision, "f", "%.", precision, "f", "%.", precision, "f" );
 	return forge::String::Printf( format.c_str(), X, Y, Z );
 }
+
+std::size_t std::hash< Vector3 >::operator()( const Vector3& vec ) const noexcept
+{
+	return Math::CombineHashes( Math::CalculateHash( vec.X ), Math::CalculateHash( vec.Y ), Math::CalculateHash( vec.Z ) );
+}

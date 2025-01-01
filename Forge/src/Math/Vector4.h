@@ -253,3 +253,8 @@ struct Vector4
 #endif
 };
 
+template<>
+struct std::hash< Vector4 >
+{
+	std::size_t operator()( const Vector4& vec ) const noexcept;
+};

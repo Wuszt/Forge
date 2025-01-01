@@ -45,12 +45,12 @@ struct Vector2
 		return mag;
 	}
 
-	Float DistanceTo( const Vector2& to ) const
+	Float DistTo( const Vector2& to ) const
 	{
 		return ( *this - to ).Mag();
 	}
 
-	Float DistanceSquaredTo( const Vector2& to ) const
+	Float SquareDistTo( const Vector2& to ) const
 	{
 		return ( *this - to ).SquareMag();
 	}

@@ -34,3 +34,8 @@ std::string Vector4::ToDebugString( Uint32 precision ) const
 	return forge::String::Printf( format.c_str(), X, Y, Z, W );
 }
 #endif
+
+std::size_t std::hash< Vector4 >::operator()( const Vector4& vec ) const noexcept
+{
+	return Math::CombineHashes( Math::CalculateHash( vec.X ), Math::CalculateHash( vec.Y ), Math::CalculateHash( vec.Z ), Math::CalculateHash( vec.W ) );
+}
