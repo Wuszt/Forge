@@ -174,4 +174,36 @@ namespace forge
 		const rtti::Type* m_type = nullptr;
 		void* m_memory = nullptr;
 	};
+
+	template< class TReturn = void, class... TArgs >
+	struct Functor
+	{
+		template< TReturn( *T )( TArgs... ) >
+		class Static
+		{
+		public:
+			TReturn operator()( TArgs&&... args ) const
+			{
+				return T( std::forward< TArgs >( args )... );
+			}
+		};
+
+		template< class TFunc >
+		class Dynamic
+		{
+		public:
+			Dynamic( TFunc func )
+				: m_func( std::move( func ) )
+			{}
+
+			template< class... TDynArgs >
+			TReturn operator()( TDynArgs&&... args ) const
+			{
+				return m_func( std::forward< TDynArgs >( args )... );
+			}
+
+		private:
+			TFunc m_func;
+		};
+	};
 }
