@@ -17,6 +17,11 @@ struct LinearColor
 	Float B = 0.0f;
 	Float A = 1.0f;
 
+	LinearColor operator*( Float scalar ) const
+	{
+		return LinearColor( R * scalar, G * scalar, B * scalar, A * scalar );
+	}
+
 	static const LinearColor Red;
 	static const LinearColor Green;
 	static const LinearColor Blue;
