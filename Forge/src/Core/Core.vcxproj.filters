@@ -119,6 +119,9 @@
     <ClInclude Include="StartupArguments.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CoroutineUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fpch.cpp">

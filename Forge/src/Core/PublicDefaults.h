@@ -18,3 +18,4 @@
 #include "OnScopeExit.h"
 #include "GUID.h"
 #include "IndexTypes.h"
+#include "CoroutineUtils.h"

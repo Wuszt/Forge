@@ -39,6 +39,7 @@
     <ClInclude Include="ArraySpan.h" />
     <ClInclude Include="Assertions.h" />
     <ClInclude Include="AssetsManager.h" />
+    <ClInclude Include="CoroutineUtils.h" />
     <ClInclude Include="GUID.h" />
     <ClInclude Include="IAsset.h" />
     <ClInclude Include="Callback.h" />
