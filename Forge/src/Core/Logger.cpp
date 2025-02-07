@@ -10,6 +10,13 @@ namespace forge
 {
 	void Logger::LogToConsole( LogType type, const std::string& str )
 	{
+		static Bool attached = false;
+		if ( !attached )
+		{
+			AttachConsole( ATTACH_PARENT_PROCESS );
+			attached = true;
+		}
+
 		if( type == LogType::Info )
 		{
 			spdlog::info( str );

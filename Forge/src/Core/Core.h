@@ -17,7 +17,7 @@
 #elif defined FORGE_PROFILING_VERSION
 
 #define FORGE_PROFILING_ENABLED
-#define _NDEBUG
+#define NDEBUG
 
 #elif defined FORGE_FINAL_VERSION
 
