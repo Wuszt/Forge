@@ -1,9 +1,45 @@
 #pragma once
 
-namespace AI
+namespace forge::ai
 {
-	using NodeID = Uint32;
+	class NodeID
+	{
+	public:
+		NodeID() = default;
+		explicit NodeID( Uint32 value )
+			: m_value( value )
+		{}
 
+		Bool IsValid() const
+		{
+			return c_invalidNodeID != m_value;
+		}
+
+		Uint32 Get() const
+		{
+			FORGE_ASSERT( IsValid() );
+			return m_value;
+		}
+
+		auto operator<=>( const NodeID& other ) const = default;
+		
+	private:
+		static constexpr Uint32 c_invalidNodeID = std::numeric_limits< Uint32 >::max();
+		Uint32 m_value = c_invalidNodeID;
+	};
+}
+
+namespace std
+{
+	template <>
+	struct hash< forge::ai::NodeID >
+	{
+		size_t operator() ( const forge::ai::NodeID& nodeID ) const { return Math::CalculateHash( nodeID ); }
+	};
+}
+
+namespace forge::ai
+{
 	struct Connection
 	{
 		NodeID m_to;
@@ -19,7 +55,7 @@ namespace AI
 		Node() {}
 		~Node() {}
 
-		const std::vector< Connection >& GetAllConnections() const { return m_connections; }
+		const std::vector< Connection >& GetConnections() const { return m_connections; }
 
 		const Connection* GetConnectionTo( const NodeID& destination ) const
 		{
@@ -119,7 +155,7 @@ namespace AI
 
 		const NodeType& GetNode( const NodeID& id ) const
 		{
-			return m_nodes[ id ];
+			return m_nodes[ id.Get() ];
 		}
 
 		void EnableNode( const NodeID& id, Bool enable )
@@ -130,7 +166,7 @@ namespace AI
 	protected:
 		void AddConnection( const NodeID& from, const NodeID& to, Float cost )
 		{
-			m_nodes[ from ].AddConnection( { to, cost } );
+			m_nodes[ from.Get() ].AddConnection( { to, cost } );
 		}
 
 		NodeID AddEmptyNode()
@@ -143,7 +179,7 @@ namespace AI
 		{
 			m_nodes.emplace_back( node );
 
-			return static_cast< Uint32 >( m_nodes.size() - 1 );
+			return NodeID( static_cast< Uint32 >( m_nodes.size() - 1 ) );
 		}
 
 		NodeType& GetNode( const NodeID& id )
@@ -264,14 +300,14 @@ namespace AI
 			Graph< Node>::AddConnection( fromId, toId, cost );
 		}
 
-		std::vector< T > TranslatePath( const forge::ArraySpan< NodeID >& path )
+		std::vector< T > TranslatePath( forge::ArraySpan< const NodeID > path )
 		{
 			std::vector< T > result;
 			result.reserve( path.GetSize() );
 
 			for( NodeID id : path )
 			{
-				result.emplace_back( m_nodesData[ id ] );
+				result.emplace_back( m_nodesData[ id.Get() ] );
 			}
 
 			return result;
@@ -291,7 +327,7 @@ namespace AI
 
 		const T& GetLocationFromID( NodeID id ) const
 		{
-			return m_nodesData.at( id );
+			return m_nodesData[ id.Get() ];
 		}
 
 		NodeID GetOrCreateNode( const T& identifier )

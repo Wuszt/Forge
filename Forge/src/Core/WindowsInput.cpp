@@ -149,6 +149,6 @@ namespace windows
 
 	void WindowsInput::LockCursor( Bool lock )
 	{
-		m_lockCursor = lock;
+		//m_lockCursor = lock;
 	}
 }

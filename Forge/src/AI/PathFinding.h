@@ -1,22 +1,14 @@
 #pragma once
 #include "Graph.h"
 
-namespace AI
+namespace forge::ai
 {
-	namespace
+	namespace internal
 	{
-		struct DijkstraNodeData
+		struct PathFindingNodeData
 		{
-			Float m_cost;
-			NodeID m_predecessor;
-		};
-
-		struct AStarNodeData
-		{
-			Float m_localHeuristicCost = -1.0f;
-			Float m_heuristicCost;
-			Float m_cost;
-			NodeID m_predecessor;
+			Float m_cost = std::numeric_limits< Float >::infinity();
+			ai::NodeID m_predecessor;
 		};
 	}
 
@@ -70,95 +62,103 @@ namespace AI
 		}
 	}
 
-	template< class GraphType >
-	static std::vector< DijkstraNodeData > PerformDijkstraInternal( NodeID startNode, const GraphType& graph )
+	namespace internal
 	{
-		Uint32 nodesAmount = graph.GetNodesAmount();
-
-		std::vector< DijkstraNodeData > nodesData;
-		nodesData.resize( nodesAmount, { std::numeric_limits< Float >::infinity(), std::numeric_limits< NodeID >::max() } );
-
-		nodesData[ startNode ].m_predecessor = startNode;
-		nodesData[ startNode ].m_cost = 0.0f;
-
-		std::vector< NodeID > queue;
-		queue.reserve( nodesAmount );
-
-		queue.emplace_back( startNode );
-
-		std::vector< Bool > scoredNodes;
-		scoredNodes.resize( nodesAmount, false );
-
-		struct Pred
+		template< class GraphType >
+		static std::vector< PathFindingNodeData > PerformDijkstra( NodeID startNode, const GraphType& graph )
 		{
-			const std::vector< DijkstraNodeData >& m_nodesData;
+			Uint32 nodesAmount = graph.GetNodesAmount();
 
-			bool operator () ( Float value, NodeID id ) const {
-				return m_nodesData[ id ].m_cost < value;
-			}
+			std::vector< PathFindingNodeData > nodesData;
+			nodesData.resize( nodesAmount, { std::numeric_limits< Float >::infinity(), std::numeric_limits< NodeID >::max() } );
 
-			bool operator () ( NodeID id, Float value ) const {
-				return m_nodesData[ id ].m_cost > value;
-			}
-		};
+			nodesData[ startNode ].m_predecessor = startNode;
+			nodesData[ startNode ].m_cost = 0.0f;
 
-		while ( !queue.empty() )
-		{
-			auto minIt = queue.back();
-			queue.pop_back();
+			std::vector< NodeID > queue;
+			queue.reserve( nodesAmount );
 
-			NodeID currentNode = minIt;
-			const DijkstraNodeData& currentNodeData = nodesData[ currentNode ];
+			queue.emplace_back( startNode );
 
-			for ( const auto& connection : graph.GetNode( currentNode ).GetAllConnections() )
+			std::vector< Bool > scoredNodes;
+			scoredNodes.resize( nodesAmount, false );
+
+			struct Pred
 			{
+				const std::vector< PathFindingNodeData >& m_nodesData;
 
-				DijkstraNodeData& destinationData = nodesData[ connection.m_to ];
+				bool operator () ( Float value, NodeID id ) const {
+					return m_nodesData[ id.Get() ].m_cost < value;
+				}
 
-				Float overallCost = currentNodeData.m_cost + connection.m_cost;
-				if ( destinationData.m_cost > overallCost )
+				bool operator () ( NodeID id, Float value ) const {
+					return m_nodesData[ id.Get() ].m_cost > value;
+				}
+			};
+
+			while ( !queue.empty() )
+			{
+				auto minIt = queue.back();
+				queue.pop_back();
+
+				NodeID currentNode = minIt;
+				const PathFindingNodeData& currentNodeData = nodesData[ currentNode ];
+
+				for ( const auto& connection : graph.GetNode( currentNode ).GetAllConnections() )
 				{
-					Float previousScore = destinationData.m_cost;
 
-					if ( scoredNodes[ connection.m_to ] )
+					PathFindingNodeData& destinationData = nodesData[ connection.m_to ];
+
+					Float overallCost = currentNodeData.m_cost + connection.m_cost;
+					if ( destinationData.m_cost > overallCost )
 					{
-						auto pairIt = std::equal_range( queue.begin(), queue.end(), destinationData.m_cost, Pred{ nodesData } );
+						Float previousScore = destinationData.m_cost;
 
-						auto it = std::find( pairIt.first, pairIt.second, connection.m_to );
+						if ( scoredNodes[ connection.m_to ] )
+						{
+							auto pairIt = std::equal_range( queue.begin(), queue.end(), destinationData.m_cost, Pred{ nodesData } );
 
-						queue.erase( it );
+							auto it = std::find( pairIt.first, pairIt.second, connection.m_to );
+
+							queue.erase( it );
+						}
+
+						destinationData.m_cost = overallCost;
+						destinationData.m_predecessor = currentNode;
+
+						auto it = std::upper_bound( queue.begin(), queue.end(), overallCost, Pred{ nodesData } );
+						queue.emplace( it, connection.m_to );
+
+						scoredNodes[ connection.m_to ] = true;
 					}
-
-					destinationData.m_cost = overallCost;
-					destinationData.m_predecessor = currentNode;
-
-					auto it = std::upper_bound( queue.begin(), queue.end(), overallCost, Pred{ nodesData } );
-					queue.emplace( it, connection.m_to );
-
-					scoredNodes[ connection.m_to ] = true;
 				}
 			}
+
+			return nodesData;
 		}
 
-		return nodesData;
+		FORGE_INLINE Bool IsNodeAccessibleDefault( NodeID node, Float currentCost )
+		{
+			return true;
+		}
 	}
 
 	template< class GraphType >
-	void PerformDijkstra( NodeID startNode, const GraphType& graph, std::vector< PathAsNodes >& outPaths )
+	void FindPath_Dijkstra( NodeID startNode, const GraphType& graph, std::vector< PathAsNodes >& outPaths )
 	{
-		std::vector< DijkstraNodeData > data = PerformDijkstraInternal( startNode, graph );
-		GetPaths( forge::ArraySpan< const DijkstraNodeData >( data ), outPaths );
+		std::vector< internal::PathFindingNodeData > data = PerformDijkstra( startNode, graph );
+		GetPaths( forge::ArraySpan< const internal::PathFindingNodeData >( data ), outPaths );
 	}
 
 	template< class GraphType >
-	void PerformDijkstra( NodeID startNode, const GraphType& graph, std::vector< PathAsConnections >& outPaths )
+	void FindPath_Dijkstra( NodeID startNode, const GraphType& graph, std::vector< PathAsConnections >& outPaths )
 	{
-		std::vector< DijkstraNodeData > data = PerformDijkstraInternal( startNode, graph );
-		GetPaths( graph, forge::ArraySpan< const DijkstraNodeData >( data ), outPaths );
+		std::vector< internal::PathFindingNodeData > data = PerformDijkstra( startNode, graph );
+		GetPaths( graph, forge::ArraySpan< const internal::PathFindingNodeData >( data ), outPaths );
 	}
 
 	template< class DataType >
-	Float BasicHeuristicFormula( const DataType& from, const DataType& to )
+	Float EuclideanHeuristicFormula( const DataType& from, const DataType& to )
 	{
 		return from.DistanceSquaredTo( to );
 	}
@@ -168,35 +168,76 @@ namespace AI
 		return abs( from.X - to.X ) + abs( from.Y - to.Y );
 	}
 
-	FORGE_INLINE Bool EndNodeCompareDefault( NodeID left, NodeID right )
-	{
-		return left == right;
-	}
-
 	template< class DataType >
-	static void PerformAStar( NodeID startNode, NodeID endNode, const NavigationGraph< DataType >& graph, PathAsNodes& outPath, std::type_identity_t< std::function< Float( const DataType&, const DataType& ) > > heuristicFunc = &BasicHeuristicFormula, std::type_identity_t< std::function< Bool( NodeID, NodeID ) > > endNodeComparator = &EndNodeCompareDefault )
+	using HeuristicFunc = std::type_identity_t< std::function< Float( const DataType&, const DataType& ) > >;
+
+	using NodeAccesibilityFunc = std::function< Bool( NodeID, Float ) >;
+
+	template< class TDataType, Bool CheckEnablement = true, 
+		class HeuristicFunc = forge::Functor< Float, const DataType&, const DataType& >::Static< ::EuclideanHeuristicFormula >,
+		class NodeAccessibilityFunc = forge::Functor< Bool, NodeID, Float >::Static< internal::IsNodeAccessibleDefault >,
+		Bool PreCalculateHeuristics = false
+	>
+	struct AStarConfig
 	{
+		using DataType = TDataType;
+		static constexpr Bool c_checkEnablement = CheckEnablement;
+		static constexpr Bool c_preCalculateHeuristics = PreCalculateHeuristics;
+
+		AStarConfig( const NavigationGraph< DataType >& graph, HeuristicFunc heuristic = {}, NodeAccessibilityFunc accessibilityFunc = {}, Uint32 minAllowedTimeToRevisit = std::numeric_limits< Uint32 >::max() )
+			: m_graph( graph )
+			, m_heuristicFunc( std::move( heuristic ) )
+			, m_nodeAccesibilityFunc( std::move( accessibilityFunc ) )
+			, m_minAllowedTimeToRevisit( minAllowedTimeToRevisit )
+		{}
+
+		const NavigationGraph< DataType >& m_graph;
+		HeuristicFunc m_heuristicFunc;
+		NodeAccessibilityFunc m_nodeAccesibilityFunc;
+		Uint32 m_minAllowedTimeToRevisit = std::numeric_limits< Uint32 >::max();
+	};
+
+	template< class TConfig >
+	static void FindPath_AStar( forge::ArraySpan< const NodeID > startNodes, NodeID endNode, const TConfig& config, PathAsNodes& outPath )
+	{
+		PC_SCOPE_FUNC();
+
 		struct QueueNode
 		{
-			NodeID m_node = 0u;
+			NodeID m_node;
 			Float m_cost = 0.0f;
 			Uint32 m_generation = 0u;
 		};
 
+		auto& graph = config.m_graph;
 		Uint32 nodesAmount = graph.GetNodesAmount();
-		std::vector< QueueNode > queue;
-		queue.reserve( nodesAmount );
-		queue.push_back( { startNode, 0.0f } );
+
+		std::vector< Float > heuristics;
+		heuristics.resize( nodesAmount, -1.0f );
+
+		if constexpr ( config.c_preCalculateHeuristics )
+		{
+			for ( Uint32 i = 0u; i < nodesAmount; ++i )
+			{
+				heuristics[ i ] = config.m_heuristicFunc( graph.GetLocationFromID( NodeID( i ) ), graph.GetLocationFromID( endNode ) );
+			}
+		}
 
 		std::vector< Uint32 > nodeGenerations;
 		nodeGenerations.resize( nodesAmount, 0u );
 
-		std::vector< AStarNodeData > nodesData;
-		nodesData.resize( nodesAmount, { -1.0f, std::numeric_limits< Float >::infinity(), std::numeric_limits< Float >::infinity(), std::numeric_limits< NodeID >::max() } );
+		std::vector< QueueNode > queue;
+		queue.reserve( nodesAmount );
 
-		nodesData[ startNode ].m_cost = 0.0f;
-		nodesData[ startNode ].m_heuristicCost = heuristicFunc( graph.GetLocationFromID( startNode ), graph.GetLocationFromID( endNode ) );
-		nodesData[ startNode ].m_localHeuristicCost = nodesData[ startNode ].m_heuristicCost;
+		std::vector< internal::PathFindingNodeData > nodesData;
+		nodesData.resize( nodesAmount );
+
+		for ( const NodeID startNode : startNodes )
+		{
+			queue.push_back( { startNode, 0.0f } );
+			internal::PathFindingNodeData& startData = nodesData[ startNode.Get() ];
+			startData.m_cost = 0.0f;
+		}
 
 		Bool succeeded = false;
 		while ( !queue.empty() )
@@ -210,29 +251,37 @@ namespace AI
 			QueueNode node = queue.back();
 			queue.pop_back();
 
-			if ( nodeGenerations[ node.m_node ] > node.m_generation )
+			NodeID currentNode = node.m_node;
+			if ( nodeGenerations[ currentNode.Get() ] > node.m_generation )
 			{
 				continue;
 			}
 
-			NodeID currentNode = node.m_node;
-			if ( endNodeComparator( currentNode, endNode ) )
+			if ( currentNode == endNode )
 			{
 				endNode = currentNode;
 				succeeded = true;
 				break;
 			}
 
-			AStarNodeData& currentNodeData = nodesData[ currentNode ];
+			internal::PathFindingNodeData& currentNodeData = nodesData[ currentNode.Get() ];
 
-			for ( const auto& connection : graph.GetNode( currentNode ).GetAllConnections() )
+			for ( const auto& connection : graph.GetNode( currentNode ).GetConnections() )
 			{
-				if ( !graph.GetNode( connection.m_to ).IsEnabled() )
+				if constexpr ( config.c_checkEnablement )
+				{
+					if ( !graph.GetNode( connection.m_to ).IsEnabled() )
+					{
+						continue;
+					}
+				}
+
+				if ( !config.m_nodeAccesibilityFunc( connection.m_to, currentNodeData.m_cost + connection.m_cost ) )
 				{
 					continue;
 				}
 
-				AStarNodeData& destinationData = nodesData[ connection.m_to ];
+				internal::PathFindingNodeData& destinationData = nodesData[ connection.m_to.Get() ];
 
 				Float overallCost = currentNodeData.m_cost + connection.m_cost;
 
@@ -241,14 +290,17 @@ namespace AI
 					destinationData.m_cost = overallCost;
 					destinationData.m_predecessor = currentNode;
 
-					if ( destinationData.m_localHeuristicCost < 0.0f )
+					if constexpr ( !config.c_preCalculateHeuristics )
 					{
-						destinationData.m_localHeuristicCost = heuristicFunc( graph.GetLocationFromID( connection.m_to ), graph.GetLocationFromID( endNode ) );
+						if ( heuristics[ connection.m_to.Get() ] < 0.0f )
+						{
+							heuristics[ connection.m_to.Get() ] = config.m_heuristicFunc( graph.GetLocationFromID( connection.m_to ), graph.GetLocationFromID( endNode ) );
+						}
 					}
 
-					destinationData.m_heuristicCost = overallCost + destinationData.m_localHeuristicCost;
+					const Float heuristicCost = overallCost + heuristics[ connection.m_to.Get() ];
 
-					queue.push_back( { connection.m_to, destinationData.m_heuristicCost, ++nodeGenerations[ connection.m_to ] } );
+					queue.push_back( { connection.m_to, heuristicCost, ++nodeGenerations[ connection.m_to.Get() ] } );
 					std::push_heap( queue.begin(), queue.end(), queuePredicate );
 				}
 			}
@@ -261,15 +313,170 @@ namespace AI
 		}
 
 		NodeID currentNode = endNode;
-
-		while ( currentNode != startNode )
-		{
-			outPath.emplace_back( currentNode );
-			currentNode = nodesData[ currentNode ].m_predecessor;
-		}
-
 		outPath.emplace_back( currentNode );
 
+		while ( nodesData[ currentNode.Get() ].m_predecessor.IsValid() )
+		{
+			currentNode = nodesData[ currentNode.Get() ].m_predecessor;
+			outPath.emplace_back( currentNode );
+		}	
+
 		std::reverse( outPath.begin(), outPath.end() );
+	}
+
+	using ShouldInterruptFunc = std::function< Bool() >;
+
+	Bool ShouldInterruptDefault()
+	{
+		return false;
+	}
+
+	template< class TConfig >
+	static forge::co::Generator< PathAsNodes > FindPaths_AStar( forge::ArraySpan< const NodeID > startNodes, NodeID endNode, const TConfig& config, ShouldInterruptFunc shouldInterruptFunc = &ShouldInterruptDefault )
+	{
+		PC_SCOPE_FUNC();
+
+		struct QueueNode
+		{
+			Uint32 m_walkthroughNodeIndex = std::numeric_limits< Uint32 >::max();
+			Float m_heuristic = std::numeric_limits< Float >::infinity();
+		};
+
+		struct WalkthroughNode
+		{
+			NodeID m_nodeID;
+			Uint32 m_predecessor = std::numeric_limits< Uint32 >::max();
+			Float m_cost = std::numeric_limits< Float >::infinity();
+		};
+
+		auto& graph = config.m_graph;
+		const Uint32 nodesAmount = graph.GetNodesAmount();
+
+		std::vector< WalkthroughNode > walkthroughNodes;
+		walkthroughNodes.reserve( nodesAmount * 64u );
+
+		std::vector< QueueNode > queue;
+		queue.reserve( nodesAmount * 32u );
+
+		std::vector< Float > heuristics;
+		heuristics.resize( nodesAmount, -1.0f );
+
+		if constexpr ( config.c_preCalculateHeuristics )
+		{
+			for ( Uint32 i = 0u; i < nodesAmount; ++i )
+			{
+				heuristics[ i ] = config.m_heuristicFunc( graph.GetLocationFromID( NodeID( i ) ), graph.GetLocationFromID( endNode ) );
+			}
+		}
+
+		for ( const NodeID startNode : startNodes )
+		{
+			walkthroughNodes.push_back( { startNode, std::numeric_limits< Uint32 >::max(), 0.0f } );
+			
+			QueueNode newQueueNode;
+			newQueueNode.m_walkthroughNodeIndex = static_cast< Uint32 >( walkthroughNodes.size() - 1u );
+			newQueueNode.m_heuristic = config.m_heuristicFunc( graph.GetLocationFromID( startNode ), graph.GetLocationFromID( endNode ) );
+			queue.push_back( newQueueNode );
+		}
+
+		auto queuePredicate = []( const QueueNode& l, const QueueNode& r )
+			{
+				return l.m_heuristic > r.m_heuristic || ( l.m_heuristic == r.m_heuristic && r.m_walkthroughNodeIndex > l.m_walkthroughNodeIndex );
+			};
+
+		while ( !queue.empty() )
+		{
+			if ( shouldInterruptFunc() )
+			{
+				co_return;
+			}
+
+			std::pop_heap( queue.begin(), queue.end(), queuePredicate );
+			const QueueNode node = queue.back();
+			queue.pop_back();
+
+			const WalkthroughNode currentWalkthroughNode = walkthroughNodes[ node.m_walkthroughNodeIndex ];
+			const NodeID currentNode = currentWalkthroughNode.m_nodeID;
+			if ( currentNode == endNode )
+			{
+				PathAsNodes outPath;
+				WalkthroughNode node = currentWalkthroughNode;
+				
+				outPath.emplace_back( node.m_nodeID );
+				while ( node.m_predecessor != std::numeric_limits< Uint32 >::max() )
+				{
+					node = walkthroughNodes[ node.m_predecessor ];
+					outPath.emplace_back( node.m_nodeID );
+				}
+
+				std::reverse( outPath.begin(), outPath.end() );
+				co_yield std::move( outPath );
+				continue;
+			}
+
+			{
+				Bool containsNodeOnPath = false;
+				Uint32 nodesAmountOnPath = 0u;
+				Uint32 currNodeIndex = currentWalkthroughNode.m_predecessor;
+				while ( currNodeIndex != std::numeric_limits< Uint32 >::max() && !containsNodeOnPath && nodesAmountOnPath < config.m_minAllowedTimeToRevisit )
+				{
+					const WalkthroughNode walkthroughNode = walkthroughNodes[ currNodeIndex ];
+					containsNodeOnPath = walkthroughNode.m_nodeID == currentWalkthroughNode.m_nodeID;
+					currNodeIndex = walkthroughNode.m_predecessor;
+					++nodesAmountOnPath;
+				}
+
+				if ( containsNodeOnPath )
+				{
+					continue;
+				}
+			}
+
+			for ( const auto& connection : graph.GetNode( currentNode ).GetConnections() )
+			{
+				if constexpr ( config.c_checkEnablement )
+				{
+					if ( !graph.GetNode( connection.m_to ).IsEnabled() )
+					{
+						continue;
+					}
+				}
+
+				if ( !config.m_nodeAccesibilityFunc( connection.m_to, currentWalkthroughNode.m_cost + connection.m_cost ) )
+				{
+					continue;
+				}
+
+				if ( config.m_minAllowedTimeToRevisit > 0u
+					&& currentWalkthroughNode.m_predecessor != std::numeric_limits< Uint32 >::max()
+					&& walkthroughNodes[ currentWalkthroughNode.m_predecessor ].m_nodeID == connection.m_to )
+				{
+					continue;
+				}
+
+				const Float overallCost = currentWalkthroughNode.m_cost + connection.m_cost;
+
+				WalkthroughNode newNode;
+				newNode.m_nodeID = connection.m_to;
+				newNode.m_predecessor = node.m_walkthroughNodeIndex;
+				newNode.m_cost = overallCost;
+				walkthroughNodes.emplace_back( newNode );
+
+				if constexpr ( !config.c_preCalculateHeuristics )
+				{
+					if ( heuristics[ connection.m_to.Get() ] < 0.0f )
+					{
+						heuristics[ connection.m_to.Get() ] = config.m_heuristicFunc( graph.GetLocationFromID( connection.m_to ), graph.GetLocationFromID( endNode ) );
+					}
+				}
+
+				QueueNode newQueueNode;
+				newQueueNode.m_heuristic = overallCost + heuristics[ connection.m_to.Get() ];
+				newQueueNode.m_walkthroughNodeIndex = static_cast< Uint32 >( walkthroughNodes.size() - 1u );
+
+				queue.emplace_back( newQueueNode );
+				std::push_heap( queue.begin(), queue.end(), queuePredicate );
+			}
+		}
 	}
 }
