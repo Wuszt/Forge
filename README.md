@@ -21,6 +21,9 @@ Unit Tests have been moved to separate, private submodule. They're obviously not
 - Editor (scene hierarchy, view and object's details)
 - Scene serialization (generalized and RTTI-based)
 
+https://github.com/user-attachments/assets/050f9c7a-a60d-4a93-a33a-d7a861441b39
+
+
 # v0.04
 ![](Journal/030523/state.gif)
 - ECS 2.0
