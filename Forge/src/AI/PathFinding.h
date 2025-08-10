@@ -206,7 +206,6 @@ namespace forge::ai
 		{
 			NodeID m_node;
 			Float m_cost = 0.0f;
-			Uint32 m_generation = 0u;
 		};
 
 		auto& graph = config.m_graph;
@@ -222,9 +221,6 @@ namespace forge::ai
 				heuristics[ i ] = config.m_heuristicFunc( graph.GetLocationFromID( NodeID( i ) ), graph.GetLocationFromID( endNode ) );
 			}
 		}
-
-		std::vector< Uint32 > nodeGenerations;
-		nodeGenerations.resize( nodesAmount, 0u );
 
 		std::vector< QueueNode > queue;
 		queue.reserve( nodesAmount );
@@ -251,8 +247,9 @@ namespace forge::ai
 			QueueNode node = queue.back();
 			queue.pop_back();
 
-			NodeID currentNode = node.m_node;
-			if ( nodeGenerations[ currentNode.Get() ] > node.m_generation )
+			const NodeID currentNode = node.m_node;
+			internal::PathFindingNodeData& currentNodeData = nodesData[ currentNode.Get() ];
+			if ( currentNodeData.m_cost + heuristics[ currentNode.Get() ] < node.m_cost )
 			{
 				continue;
 			}
@@ -263,8 +260,6 @@ namespace forge::ai
 				succeeded = true;
 				break;
 			}
-
-			internal::PathFindingNodeData& currentNodeData = nodesData[ currentNode.Get() ];
 
 			for ( const auto& connection : graph.GetNode( currentNode ).GetConnections() )
 			{
@@ -300,7 +295,7 @@ namespace forge::ai
 
 					const Float heuristicCost = overallCost + heuristics[ connection.m_to.Get() ];
 
-					queue.push_back( { connection.m_to, heuristicCost, ++nodeGenerations[ connection.m_to.Get() ] } );
+					queue.push_back( { connection.m_to, heuristicCost } );
 					std::push_heap( queue.begin(), queue.end(), queuePredicate );
 				}
 			}
