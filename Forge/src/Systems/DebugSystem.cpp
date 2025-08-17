@@ -89,8 +89,7 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 
 	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
 }
-
-void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& extension, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime )
+void systems::DebugSystem::DrawCube( const Transform& transform, const Vector3& extension, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime )
 {
 	auto initFunc = [ = ]( forge::Object& obj )
 	{
@@ -104,7 +103,7 @@ void systems::DebugSystem::DrawCube( const Vector3& position, const Vector3& ext
 			renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
 		}
 
-		transformComponent->SetWorldPosition( position );
+		transformComponent->SetWorldTransform( transform );
 		transformComponent->SetWorldScale( extension );
 
 		renderingComponent->SetInteractingWithLight( false );

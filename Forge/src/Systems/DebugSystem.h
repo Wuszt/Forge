@@ -16,12 +16,12 @@ namespace systems
 
 	public:
 		DebugSystem();
-		DebugSystem(DebugSystem&&);
+		DebugSystem( DebugSystem&& );
 		~DebugSystem();
 		virtual void OnPostInit() override;
 
 		void DrawSphere( const Vector3& position, Float radius, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime );
-		void DrawCube( const Vector3& position, const Vector3& extension, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime );
+		void DrawCube( const Transform& transform, const Vector3& extension, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime );
 		void DrawLine( const Vector3& start, const Vector3& end, Float thickness, const LinearColor& color, Bool overlay, Float lifetime );
 		void DrawCone( const Vector3& top, const Vector3& base, Float angle, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime );
 
