@@ -64,7 +64,7 @@ void systems::DebugSystem::OnPostInit()
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostUpdate, [ this ]() { Update(); } );
 }
 
-void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime )
+void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const DebugDrawParams& debugShapeParams )
 {
 	auto initFunc = [ = ]( forge::Object& obj )
 	{
@@ -73,7 +73,7 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\sphere.obj" ) );
 
-		if ( wireFrame )
+		if ( debugShapeParams.m_wireFrame )
 		{
 			renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
 		}
@@ -82,14 +82,14 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 		transformComponent->SetWorldScale( { radius, radius, radius } );
 
 		renderingComponent->SetInteractingWithLight( false );
-		renderingComponent->SetDrawAsOverlayEnabled( overlay );
-		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+		renderingComponent->SetDrawAsOverlayEnabled( debugShapeParams.m_overlay );
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugShapeParams.m_color );
 		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 	};
 
-	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugShapeParams.m_lifetime } );
 }
-void systems::DebugSystem::DrawCube( const Transform& transform, const Vector3& extension, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime )
+void systems::DebugSystem::DrawCube( const Transform& transform, const Vector3& extension, const DebugDrawParams& debugShapeParams )
 {
 	auto initFunc = [ = ]( forge::Object& obj )
 	{
@@ -98,7 +98,7 @@ void systems::DebugSystem::DrawCube( const Transform& transform, const Vector3& 
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\cube.obj" ) );
 
-		if ( wireFrame )
+		if ( debugShapeParams.m_wireFrame )
 		{
 			renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
 		}
@@ -107,15 +107,15 @@ void systems::DebugSystem::DrawCube( const Transform& transform, const Vector3& 
 		transformComponent->SetWorldScale( extension );
 
 		renderingComponent->SetInteractingWithLight( false );
-		renderingComponent->SetDrawAsOverlayEnabled( overlay );
-		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+		renderingComponent->SetDrawAsOverlayEnabled( debugShapeParams.m_overlay );
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugShapeParams.m_color );
 		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 	};
 
-	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugShapeParams.m_lifetime } );
 }
 
-void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, Float thickness, const LinearColor& color, Bool overlay, Float lifetime )
+void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, Float thickness, const DebugDrawParams& debugShapeParams )
 {
 	auto initFunc = [ = ]( forge::Object& obj )
 	{
@@ -124,20 +124,25 @@ void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, F
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\cylinder.obj" ) );
 
+		if ( debugShapeParams.m_wireFrame )
+		{
+			renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
+		}
+
 		transformComponent->SetWorldPosition( start + ( end - start ) * 0.5f );
 		transformComponent->SetWorldScale( { thickness, thickness, ( end - start ).Mag() } );
 		transformComponent->SetWorldOrientation( Quaternion::GetRotationBetweenVectors( Vector3::EZ(), end - start ) );
 
 		renderingComponent->SetInteractingWithLight( false );
-		renderingComponent->SetDrawAsOverlayEnabled( overlay );
-		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+		renderingComponent->SetDrawAsOverlayEnabled( debugShapeParams.m_overlay );
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugShapeParams.m_color );
 		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 	};
 
-	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugShapeParams.m_lifetime } );
 }
 
-void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Float angle, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime )
+void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Float angle, const DebugDrawParams& debugShapeParams )
 {
 	auto initFunc = [ = ]( forge::Object& obj )
 	{
@@ -146,7 +151,7 @@ void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Fl
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\cone.obj" ) );
 
-		if ( wireFrame )
+		if ( debugShapeParams.m_wireFrame )
 		{
 			renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
 		}
@@ -166,12 +171,12 @@ void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Fl
 		transformComponent->SetWorldScale( { size, size, length } );
 
 		renderingComponent->SetInteractingWithLight( false );
-		renderingComponent->SetDrawAsOverlayEnabled( overlay );
-		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", color );
+		renderingComponent->SetDrawAsOverlayEnabled( debugShapeParams.m_overlay );
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugShapeParams.m_color );
 		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 	};
 
-	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), lifetime } );
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugShapeParams.m_lifetime } );
 }
 
 void systems::DebugSystem::Update()

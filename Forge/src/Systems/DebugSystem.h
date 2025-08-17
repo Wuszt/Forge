@@ -20,10 +20,18 @@ namespace systems
 		~DebugSystem();
 		virtual void OnPostInit() override;
 
-		void DrawSphere( const Vector3& position, Float radius, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime );
-		void DrawCube( const Transform& transform, const Vector3& extension, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime );
-		void DrawLine( const Vector3& start, const Vector3& end, Float thickness, const LinearColor& color, Bool overlay, Float lifetime );
-		void DrawCone( const Vector3& top, const Vector3& base, Float angle, const LinearColor& color, Bool wireFrame, Bool overlay, Float lifetime );
+		struct DebugDrawParams
+		{
+			LinearColor m_color = LinearColor::Red;
+			Bool m_wireFrame = false;
+			Bool m_overlay = false;
+			Float m_lifetime = 0.0f;
+		};
+
+		void DrawSphere( const Vector3& position, Float radius, const DebugDrawParams& debugShapeParams );
+		void DrawCube( const Transform& transform, const Vector3& extension, const DebugDrawParams& debugShapeParams );
+		void DrawLine( const Vector3& start, const Vector3& end, Float thickness, const DebugDrawParams& debugShapeParams );
+		void DrawCone( const Vector3& top, const Vector3& base, Float angle, const DebugDrawParams& debugShapeParams );
 
 	private:
 		void Update();

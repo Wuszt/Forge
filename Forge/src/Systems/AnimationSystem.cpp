@@ -72,7 +72,11 @@ void systems::AnimationSystem::OnRenderDebug()
 					{
 						Matrix boneMatrix = animFragment.m_bonesOffsets[ j ].AffineInverted() * animFragment.m_cb->GetData().Transforms[j] * entityWorldMatrix;
 
-						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( boneMatrix.GetTranslation(), 5.0f, LinearColor(0.0f, 1.0f, 0.0f), false, true, 0.0f);
+						systems::DebugSystem::DebugDrawParams drawParams;
+						drawParams.m_color = LinearColor( 0.0f, 1.0f, 0.0f );
+						drawParams.m_overlay = true;
+
+						GetEngineInstance().GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( boneMatrix.GetTranslation(), 5.0f, drawParams );
 					}
 
 					ImGui::TreePop();

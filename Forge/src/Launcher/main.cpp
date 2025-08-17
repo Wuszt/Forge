@@ -215,7 +215,11 @@ Int32 main()
 				physics::RaycastResult result;
 				if ( engineInstance.GetSystemsManager().GetSystem< systems::PhysicsSystem >().PerformRaycast( playerTransform.GetPosition3() + playerTransform.GetForward(), playerTransform.GetForward(), 100.0f, result ) )
 				{
-					engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( result.m_position, 0.5f, LinearColor::Red, true, false, -1.0f );
+					systems::DebugSystem::DebugDrawParams drawParams;
+					drawParams.m_color = LinearColor::Red;
+					drawParams.m_wireFrame = true;
+
+					engineInstance.GetSystemsManager().GetSystem< systems::DebugSystem >().DrawSphere( result.m_position, 0.5f, drawParams );
 					FORGE_LOG( "Hit!" );
 				}
 			}
