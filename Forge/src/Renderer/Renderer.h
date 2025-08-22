@@ -89,7 +89,7 @@ namespace renderer
 
 		virtual std::unique_ptr< IInputLayout > CreateInputLayout( const IVertexShader& vertexShader, const IVertexBuffer& vertexBuffer ) const = 0;
 		virtual std::unique_ptr< IVertexBuffer > CreateVertexBuffer( const Vertices& vertices ) const = 0;
-		virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const = 0;
+		virtual std::unique_ptr< IIndexBuffer > CreateIndexBuffer( forge::ArraySpan< const Uint32 > indices ) const = 0;
 		virtual std::unique_ptr< ITexture > CreateTexture( Uint32 width, Uint32 height, ITexture::Flags flags, ITexture::Format format, renderer::ITexture::Type type, ITexture::Format srvFormat = ITexture::Format::Unknown ) const = 0;
 		virtual std::unique_ptr< IBlendState > CreateBlendState( const BlendOperationDesc& rgbOperation, const BlendOperationDesc& alphaDesc ) const = 0;
 		virtual std::unique_ptr< renderer::IDepthStencilBuffer > CreateDepthStencilBuffer( Uint32 width, Uint32 height, Bool cubeTexture = false ) const = 0;

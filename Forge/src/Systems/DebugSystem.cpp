@@ -3,16 +3,19 @@
 #ifdef FORGE_DEBUGGING
 #include "DebugSystem.h"
 #include "../Core/FPSCounter.h"
-
-#ifdef FORGE_IMGUI_ENABLED
-#include "IMGUISystem.h"
-#include "../IMGUI/PublicDefaults.h"
 #include "TransformComponent.h"
 #include "RenderingComponent.h"
 #include "../Renderer/Renderable.h"
 #include "../Renderer/Material.h"
 #include "../Renderer/Renderer.h"
 #include "ECSDebug.h"
+#include "../Renderer/IVertexBuffer.h"
+#include "../GameEngine/RenderingManager.h"
+#include "../Renderer/Model.h"
+
+#ifdef FORGE_IMGUI_ENABLED
+#include "IMGUISystem.h"
+#include "../IMGUI/PublicDefaults.h"
 #endif
 
 RTTI_IMPLEMENT_TYPE( systems::DebugSystem );
@@ -64,16 +67,16 @@ void systems::DebugSystem::OnPostInit()
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::PostUpdate, [ this ]() { Update(); } );
 }
 
-void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const DebugDrawParams& debugShapeParams )
+void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, const DebugDrawParams& debugDrawParams )
 {
-	auto initFunc = [ = ]( forge::Object& obj )
+	auto initFunc = [ debugDrawParams, position, radius ]( forge::Object& obj )
 	{
 		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
 		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\sphere.obj" ) );
 
-		if ( debugShapeParams.m_wireFrame )
+		if ( debugDrawParams.m_wireFrame )
 		{
 			renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
 		}
@@ -82,23 +85,23 @@ void systems::DebugSystem::DrawSphere( const Vector3& position, Float radius, co
 		transformComponent->SetWorldScale( { radius, radius, radius } );
 
 		renderingComponent->SetInteractingWithLight( false );
-		renderingComponent->SetDrawAsOverlayEnabled( debugShapeParams.m_overlay );
-		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugShapeParams.m_color );
+		renderingComponent->SetDrawAsOverlayEnabled( debugDrawParams.m_overlay );
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugDrawParams.m_color );
 		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 	};
 
-	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugShapeParams.m_lifetime } );
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugDrawParams.m_lifetime } );
 }
-void systems::DebugSystem::DrawCube( const Transform& transform, const Vector3& extension, const DebugDrawParams& debugShapeParams )
+void systems::DebugSystem::DrawCube( const Transform& transform, const Vector3& extension, const DebugDrawParams& debugDrawParams )
 {
-	auto initFunc = [ = ]( forge::Object& obj )
+	auto initFunc = [ debugDrawParams, transform, extension ]( forge::Object& obj )
 	{
 		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
 		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\cube.obj" ) );
 
-		if ( debugShapeParams.m_wireFrame )
+		if ( debugDrawParams.m_wireFrame )
 		{
 			renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
 		}
@@ -107,24 +110,24 @@ void systems::DebugSystem::DrawCube( const Transform& transform, const Vector3& 
 		transformComponent->SetWorldScale( extension );
 
 		renderingComponent->SetInteractingWithLight( false );
-		renderingComponent->SetDrawAsOverlayEnabled( debugShapeParams.m_overlay );
-		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugShapeParams.m_color );
+		renderingComponent->SetDrawAsOverlayEnabled( debugDrawParams.m_overlay );
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugDrawParams.m_color );
 		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 	};
 
-	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugShapeParams.m_lifetime } );
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugDrawParams.m_lifetime } );
 }
 
-void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, Float thickness, const DebugDrawParams& debugShapeParams )
+void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, Float thickness, const DebugDrawParams& debugDrawParams )
 {
-	auto initFunc = [ = ]( forge::Object& obj )
+	auto initFunc = [ debugDrawParams, start, end, thickness ]( forge::Object& obj )
 	{
 			auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
 			auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\cylinder.obj" ) );
 
-		if ( debugShapeParams.m_wireFrame )
+		if ( debugDrawParams.m_wireFrame )
 		{
 			renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
 		}
@@ -134,24 +137,24 @@ void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, F
 		transformComponent->SetWorldOrientation( Quaternion::GetRotationBetweenVectors( Vector3::EZ(), end - start ) );
 
 		renderingComponent->SetInteractingWithLight( false );
-		renderingComponent->SetDrawAsOverlayEnabled( debugShapeParams.m_overlay );
-		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugShapeParams.m_color );
+		renderingComponent->SetDrawAsOverlayEnabled( debugDrawParams.m_overlay );
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugDrawParams.m_color );
 		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 	};
 
-	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugShapeParams.m_lifetime } );
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugDrawParams.m_lifetime } );
 }
 
-void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Float angle, const DebugDrawParams& debugShapeParams )
+void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Float angle, const DebugDrawParams& debugDrawParams )
 {
-	auto initFunc = [ = ]( forge::Object& obj )
+	auto initFunc = [ debugDrawParams, top, base, angle ]( forge::Object& obj )
 	{
 		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
 		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\cone.obj" ) );
 
-		if ( debugShapeParams.m_wireFrame )
+		if ( debugDrawParams.m_wireFrame )
 		{
 			renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
 		}
@@ -171,12 +174,52 @@ void systems::DebugSystem::DrawCone( const Vector3& top, const Vector3& base, Fl
 		transformComponent->SetWorldScale( { size, size, length } );
 
 		renderingComponent->SetInteractingWithLight( false );
-		renderingComponent->SetDrawAsOverlayEnabled( debugShapeParams.m_overlay );
-		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugShapeParams.m_color );
+		renderingComponent->SetDrawAsOverlayEnabled( debugDrawParams.m_overlay );
+		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugDrawParams.m_color );
 		renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
 	};
 
-	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugShapeParams.m_lifetime } );
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugDrawParams.m_lifetime } );
+}
+
+void systems::DebugSystem::DrawShape( const Transform& transform, forge::ArraySpan< const Vector3 > vertices, const DebugDrawParams& debugDrawParams )
+{
+	std::vector< renderer::InputPosition > positions;
+	positions.reserve( vertices.GetSize() );
+	for ( const Vector3& vert : vertices )
+	{
+		positions.push_back( vert );
+	}
+
+	auto initFunc = [ debugDrawParams, transform, positions = std::move( positions ), this ]( forge::Object& obj )
+		{
+			auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
+			auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
+
+			auto& renderer = GetEngineInstance().GetRenderingManager().GetRenderer();
+
+			renderer::Shape shape;
+			shape.m_indices.resize( positions.size() );
+			std::iota( shape.m_indices.begin(), shape.m_indices.end(), 0 );
+			renderer::Model model( renderer, renderer::Vertices( forge::ArraySpan< const renderer::InputPosition >( positions ) ), {shape});
+
+			renderingComponent->GetDirtyData()->m_renderable.SetModel( std::move( model ) );
+			renderingComponent->GetDirtyData()->m_renderable.SetDefaultMaterial( renderer );
+
+			if ( debugDrawParams.m_wireFrame )
+			{
+				renderingComponent->GetDirtyData()->m_renderable.SetFillMode( renderer::FillMode::WireFrame );
+			}
+
+			transformComponent->SetWorldTransform( transform );
+
+			renderingComponent->SetInteractingWithLight( false );
+			renderingComponent->SetDrawAsOverlayEnabled( debugDrawParams.m_overlay );
+			renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->SetData( "diffuseColor", debugDrawParams.m_color );
+			renderingComponent->GetDirtyData()->m_renderable.GetMaterials()[ 0 ]->GetConstantBuffer()->UpdateBuffer();
+		};
+
+	m_objectsCreationRequests.emplace_back( ObjectCreationRequest{ std::move( initFunc ), debugDrawParams.m_lifetime } );
 }
 
 void systems::DebugSystem::Update()

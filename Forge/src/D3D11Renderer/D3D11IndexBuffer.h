@@ -12,7 +12,7 @@ namespace d3d11
 	class D3D11IndexBuffer : public renderer::IIndexBuffer
 	{
 	public:
-		D3D11IndexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const Uint32* indices, Uint32 amount );
+		D3D11IndexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, forge::ArraySpan< const Uint32 > indices );
 		~D3D11IndexBuffer();
 
 		ID3D11Buffer* GetBuffer() const

@@ -16,7 +16,9 @@ namespace renderer
 			Uint32 m_materialIndex = 0u;
 		};
 
-		Model( renderer::Renderer& renderer, renderer::Vertices vertices, const forge::ArraySpan< const renderer::Shape >& shapes );
+		Model( renderer::Renderer& renderer, renderer::Vertices vertices, forge::ArraySpan< const renderer::Shape > shapes );
+		Model( Model&& );
+		~Model();
 
 		const renderer::IVertexBuffer* GetVertexBuffer() const
 		{

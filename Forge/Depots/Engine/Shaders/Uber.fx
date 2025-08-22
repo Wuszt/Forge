@@ -41,7 +41,7 @@ Custom_VS_Output Vert(Custom_VS_Input input)
     output.TexCoord = input.TexCoord;
 #endif
 
-#ifndef __NORMAL_TEXTURE__
+#if !defined __NORMAL_TEXTURE__ && defined __VERTEX_INPUT_NORMAL_AMOUNT__ 
     output.Normal = input.Normal;
 #endif
 

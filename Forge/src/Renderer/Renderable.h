@@ -33,6 +33,10 @@ namespace renderer
 		void Initialize( renderer::Renderer& renderer );
 
 		void SetModel( Renderer& renderer, forge::AssetsManager& assetsManager, const forge::Path& path );
+		void SetModel( Model&& model );
+
+		void SetDefaultMaterial( Renderer& renderer );
+
 		const Model& GetModel() const
 		{
 			return *m_model;

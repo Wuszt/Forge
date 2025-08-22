@@ -28,10 +28,11 @@ namespace systems
 			Float m_lifetime = 0.0f;
 		};
 
-		void DrawSphere( const Vector3& position, Float radius, const DebugDrawParams& debugShapeParams );
-		void DrawCube( const Transform& transform, const Vector3& extension, const DebugDrawParams& debugShapeParams );
-		void DrawLine( const Vector3& start, const Vector3& end, Float thickness, const DebugDrawParams& debugShapeParams );
-		void DrawCone( const Vector3& top, const Vector3& base, Float angle, const DebugDrawParams& debugShapeParams );
+		void DrawSphere( const Vector3& position, Float radius, const DebugDrawParams& debugDrawParams );
+		void DrawCube( const Transform& transform, const Vector3& extension, const DebugDrawParams& debugDrawParams );
+		void DrawLine( const Vector3& start, const Vector3& end, Float thickness, const DebugDrawParams& debugDrawParams );
+		void DrawCone( const Vector3& top, const Vector3& base, Float angle, const DebugDrawParams& debugDrawParams );
+		void DrawShape( const Transform& transform, forge::ArraySpan< const Vector3 > vertices, const DebugDrawParams& debugDrawParams );
 
 	private:
 		void Update();

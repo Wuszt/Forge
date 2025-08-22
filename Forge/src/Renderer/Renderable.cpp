@@ -21,6 +21,11 @@ void renderer::Renderable::Initialize( Renderer& renderer )
 	m_cbMesh.SetImpl( renderer.CreateConstantBufferImpl() );
 }
 
+void renderer::Renderable::SetModel( Model&& model )
+{
+	m_model = std::make_shared< Model >( std::move( model ) );
+}
+
 void renderer::Renderable::SetModel( Renderer& renderer, forge::AssetsManager& assetsManager, const forge::Path& path )
 {
 	auto modelAsset = assetsManager.GetAsset< renderer::ModelAsset >( path );
@@ -76,14 +81,21 @@ void renderer::Renderable::SetModel( Renderer& renderer, forge::AssetsManager& a
 
 	if( modelAsset->GetMaterialsData().empty() )
 	{
-		auto constantBuffer = renderer.CreateConstantBuffer();
-		constantBuffer->AddData( "diffuseColor", LinearColor( 230.0f / 255.0f, 128.0f / 255.0f, 255.0f / 255.0f ) );
-		constantBuffer->UpdateBuffer();
-		m_materials.emplace_back( std::make_unique< Material >( std::move( constantBuffer ), forge::Path( "Uber.fx" ), forge::Path( "Uber.fx" ), renderer::RenderingPass::Opaque ) );
-		m_materials.back()->Initialize( renderer, *m_model );
-		for( auto& shape : m_model->GetShapes() )
-		{
-			shape.m_materialIndex = 0u;
-		}
+		SetDefaultMaterial( renderer );
+	}
+}
+
+void renderer::Renderable::SetDefaultMaterial( Renderer& renderer )
+{
+	auto constantBuffer = renderer.CreateConstantBuffer();
+	constantBuffer->AddData( "diffuseColor", LinearColor( 230.0f / 255.0f, 128.0f / 255.0f, 255.0f / 255.0f ) );
+	constantBuffer->UpdateBuffer();
+
+	m_materials.clear();
+	m_materials.emplace_back( std::make_unique< Material >( std::move( constantBuffer ), forge::Path( "Uber.fx" ), forge::Path( "Uber.fx" ), renderer::RenderingPass::Opaque ) );
+	m_materials.back()->Initialize( renderer, *m_model );
+	for ( auto& shape : m_model->GetShapes() )
+	{
+		shape.m_materialIndex = 0u;
 	}
 }

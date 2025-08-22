@@ -4,9 +4,9 @@
 
 namespace d3d11
 {
-	D3D11IndexBuffer::D3D11IndexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, const Uint32* indices, Uint32 amount )
+	D3D11IndexBuffer::D3D11IndexBuffer( D3D11RenderContext* contextPtr, const D3D11Device& device, forge::ArraySpan< const Uint32 > indices )
 		: m_contextPtr( contextPtr )
-		, m_indicesAmount( amount )
+		, m_indicesAmount( indices.GetSize() )
 	{
 		D3D11_BUFFER_DESC indexBufferDesc;
 		ZeroMemory( &indexBufferDesc, sizeof( indexBufferDesc ) );
@@ -14,12 +14,12 @@ namespace d3d11
 		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		indexBufferDesc.ByteWidth = sizeof( Uint32 ) * amount;
+		indexBufferDesc.ByteWidth = sizeof( Uint32 ) * m_indicesAmount;
 
-		D3D11_SUBRESOURCE_DATA iinitData;
-		iinitData.pSysMem = indices;
+		D3D11_SUBRESOURCE_DATA initData;
+		initData.pSysMem = indices.GetData();
 
-		device.GetDevice()->CreateBuffer( &indexBufferDesc, &iinitData, &m_buffer );
+		device.GetDevice()->CreateBuffer( &indexBufferDesc, &initData, &m_buffer );
 	}
 
 	D3D11IndexBuffer::~D3D11IndexBuffer()

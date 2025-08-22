@@ -14,7 +14,10 @@
 struct VS_INPUT
 {
     float3 Pos : POSITION;
+    
+#ifdef __VERTEX_INPUT_NORMAL_AMOUNT__ 
     float3 Normal : NORMAL;
+#endif
 
 #ifdef __VERTEX_INPUT_COLOR_AMOUNT__
     float4 Color : COLOR;

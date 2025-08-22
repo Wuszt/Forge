@@ -6,6 +6,8 @@ namespace forge
 	class ArraySpan
 	{
 	public:
+		using ValueType = T;
+
 		ArraySpan()
 			: m_begin( nullptr )
 			, m_end( nullptr )
@@ -68,6 +70,16 @@ namespace forge
 		Bool IsEmpty() const
 		{
 			return m_begin == m_end;
+		}
+
+		T* GetData()
+		{
+			return m_begin;
+		}
+
+		const T* GetData() const
+		{
+			return m_begin;
 		}
 
 		T* begin()

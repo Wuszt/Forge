@@ -18,8 +18,10 @@ float4 CalculateNormal(Custom_VS_Output vsOutput)
 #if defined __VERTEX_INPUT_BLENDWEIGHTS_AMOUNT__ && defined __VERTEX_INPUT_BLENDINDICES_AMOUNT__
     normal = mul( vsOutput.boneTransform, normal );
 #endif
-#else
+#elif defined __VERTEX_INPUT_BLENDWEIGHTS_AMOUNT__ 
     float4 normal = float4(vsOutput.Normal, 0.0f);
+#else
+    float4 normal = float4(1.0f, 1.0f, 1.0f, 1.0f);
 #endif
 
     normal = mul(W, normal);

@@ -83,10 +83,10 @@ namespace renderer
 
 	struct InputBlendWeights
 	{
-		Float m_weights[4] = {0.0f};
+		Float m_weights[ 4 ] = { 0.0f };
 		static constexpr InputElementDescription GetInputDescription()
 		{
-			return {InputType::BlendWeights, InputFormat::R32G32B32A32_FLOAT, InputClassification::PerVertex, sizeof(InputBlendWeights)};
+			return { InputType::BlendWeights, InputFormat::R32G32B32A32_FLOAT, InputClassification::PerVertex, sizeof( InputBlendWeights ) };
 		}
 	};
 
@@ -95,7 +95,7 @@ namespace renderer
 		Uint32 m_indices[ 4 ] = { 0u };
 		static constexpr InputElementDescription GetInputDescription()
 		{
-			return {InputType::BlendIndices, InputFormat::R32G32B32A32_UINT, InputClassification::PerVertex, sizeof(InputBlendIndices)};
+			return { InputType::BlendIndices, InputFormat::R32G32B32A32_UINT, InputClassification::PerVertex, sizeof( InputBlendIndices ) };
 		}
 	};
 
@@ -190,13 +190,13 @@ namespace renderer
 	class Vertices
 	{
 	public:
-		Vertices() {}
+		Vertices() = default;
 
-		template< class arrT, class... arrTs >
-		Vertices( const arrT& t0, const arrTs&... ts )
+		template< class T, class... TSpans >
+		Vertices( forge::ArraySpan< const T > t0, const TSpans&... ts )
 		{
-			m_verticesAmount = static_cast< Uint32 >( t0.size() );
-			m_vertexSize = GetSingleVertexDataSize< arrT, arrTs... >();
+			m_verticesAmount = static_cast< Uint32 >( t0.GetSize() );
+			m_vertexSize = GetSingleVertexDataSize< forge::ArraySpan< const T >, TSpans... >();
 
 			m_buffer = forge::UniqueRawPtr( m_vertexSize * m_verticesAmount );
 			AddDataInternalT( 0u, t0, ts... );
@@ -210,18 +210,18 @@ namespace renderer
 			m_buffer = forge::UniqueRawPtr( m_vertexSize * m_verticesAmount );
 
 			Uint32 offset = 0u;
-			for( const auto& element : builder.GetElementsDescs() )
+			for ( const auto& element : builder.GetElementsDescs() )
 			{
 				AddDataInternal( offset, element->GetData(), element->GetElementSize(), element->GetDesc() );
 				offset += element->GetElementSize();
 			}
 		}
 
-		template< class arrT, class... arrTs >
-		void AddData( const arrT& t0, const arrTs&... ts )
+		template< class T, class... TSpans >
+		void AddData( const forge::ArraySpan< const T >& t0, const TSpans&... ts )
 		{
 			Uint32 prevVertexSize = m_vertexSize;
-			Uint32 additionalVertexSize = GetSingleVertexDataSize< arrT, arrTs... >();
+			Uint32 additionalVertexSize = GetSingleVertexDataSize< forge::ArraySpan< const T >, TSpans... >();
 
 			m_vertexSize = prevVertexSize + additionalVertexSize;
 			forge::UniqueRawPtr oldBuffer = std::move( m_buffer );
@@ -258,35 +258,36 @@ namespace renderer
 		}
 
 	private:
-		template< class... arrTs >
-		decltype( typename std::enable_if<sizeof...( arrTs ) == 0, Uint32>::type() ) GetSingleVertexDataSize()
+		template< class... TSpans >
+		decltype( typename std::enable_if<sizeof...( TSpans ) == 0, Uint32>::type() ) GetSingleVertexDataSize()
 		{
 			return 0u;
 		}
 
-		template< class arrT, class... arrTs >
+		template< class TSpan, class... TSpans >
 		Uint32 GetSingleVertexDataSize()
 		{
-			return sizeof( arrT::value_type ) + GetSingleVertexDataSize< arrTs... >();
+			return sizeof( TSpan::ValueType ) + GetSingleVertexDataSize< TSpans... >();
 		}
 
-		template< class... arrTs >
-		static decltype( typename std::enable_if<sizeof...( arrTs ) == 0, void>::type() ) AddDataInternalT( Uint32 offset, const arrTs&... arrs )
-		{}
-
-		template< class arrT, class... arrTs >
-		void AddDataInternalT( Uint32 offset, const arrT& arr, const arrTs&... arrs )
+		template< class... TSpans >
+		static decltype( typename std::enable_if<sizeof...( TSpans ) == 0, void>::type() ) AddDataInternalT( Uint32 offset, const TSpans&... spans )
 		{
-			Uint32 tSize = sizeof( arrT::value_type );
+		}
 
-			AddDataInternal( offset, arr.data(), tSize, arrT::value_type::GetInputDescription() );
+		template< class TSpan, class... TSpans >
+		void AddDataInternalT( Uint32 offset, const TSpan& span, const TSpans&... spans )
+		{
+			Uint32 tSize = sizeof( TSpan::ValueType );
 
-			AddDataInternalT( tSize + offset, arrs... );
+			AddDataInternal( offset, span.GetData(), tSize, TSpan::ValueType::GetInputDescription() );
+
+			AddDataInternalT( tSize + offset, spans... );
 		}
 
 		void AddDataInternal( Uint32 offset, const void* data, Uint32 elementSize )
 		{
-			for( Uint32 i = 0; i < m_verticesAmount; ++i )
+			for ( Uint32 i = 0; i < m_verticesAmount; ++i )
 			{
 				memcpy( static_cast< Byte* >( m_buffer.GetData() ) + i * m_vertexSize + offset, static_cast< const Byte* >( data ) + i * elementSize, elementSize );
 			}

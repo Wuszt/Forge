@@ -87,9 +87,9 @@ namespace d3d11
 		return std::make_unique< D3D11VertexBuffer >( GetContext(), *GetDevice(), vertices );
 	}
 
-	std::unique_ptr< renderer::IIndexBuffer > D3D11Renderer::CreateIndexBuffer( const Uint32* indices, Uint32 amount ) const
+	std::unique_ptr< renderer::IIndexBuffer > D3D11Renderer::CreateIndexBuffer( forge::ArraySpan< const Uint32 > indices ) const
 	{
-		return std::make_unique< D3D11IndexBuffer >( GetContext(), *GetDevice(), indices, amount );
+		return std::make_unique< D3D11IndexBuffer >( GetContext(), *GetDevice(), indices );
 	}
 
 	std::unique_ptr< renderer::ITexture > D3D11Renderer::CreateTexture( Uint32 width, Uint32 height, renderer::ITexture::Flags flags, renderer::ITexture::Format format, renderer::ITexture::Type type, renderer::ITexture::Format srvFormat /*= renderer::ITexture::Format::Unknown */ ) const

@@ -80,7 +80,7 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::TinyObjModelsLoader::L
 		}
 	}
 
-	renderer::Vertices vertices( poses, normals, texCoords );
+	renderer::Vertices vertices{ forge::ArraySpan< const renderer::InputPosition >( poses ), forge::ArraySpan< const renderer::InputNormal >( normals ), forge::ArraySpan< const renderer::InputTexCoord >( texCoords ) };
 	auto& materials = reader.GetMaterials();
 
 	std::vector< renderer::ModelAsset::MaterialData > materialsData;
@@ -95,7 +95,7 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::TinyObjModelsLoader::L
 		materialsData.back().m_buffer->UpdateBuffer();
 	}
 
-	return { std::make_shared< renderer::ModelAsset >( path, std::make_unique< renderer::Model >( m_renderer, std::move( vertices ), shapes ), std::move( materialsData ) ) };
+	return { std::make_shared< renderer::ModelAsset >( path, std::make_unique< renderer::Model >( m_renderer, std::move( vertices ), shapes ), std::move(materialsData))};
 }
 
 static const char* c_handledExceptions[] = { "obj" };
