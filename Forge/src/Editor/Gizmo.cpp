@@ -35,7 +35,7 @@ namespace editor
 		virtual forge::Path GetModelPath() const = 0;
 		Vector3 GetRayIntersectionWithPlane( const Vector3& cursorRayDir, const Vector3& planeNormal ) const;
 	};
-	RTTI_IMPLEMENT_TYPE( editor::GizmoElement, RTTI_ADD_METADATA( "EditorOnly" ) );
+	RTTI_IMPLEMENT_TYPE( editor::GizmoElement );
 
 	class GizmoTranslationArrow : public GizmoElement
 	{
@@ -55,7 +55,7 @@ namespace editor
 	private:
 		Float m_movementOffset = 0.0f;
 	};
-	RTTI_IMPLEMENT_TYPE( editor::GizmoTranslationArrow, RTTI_ADD_METADATA( "EditorOnly" ) );
+	RTTI_IMPLEMENT_TYPE( editor::GizmoTranslationArrow );
 
 	class GizmoOrientationRing : public GizmoElement
 	{
@@ -76,7 +76,7 @@ namespace editor
 		Transform m_initialTransform;
 		Quaternion m_rotationOffset;
 	};
-	RTTI_IMPLEMENT_TYPE( editor::GizmoOrientationRing, RTTI_ADD_METADATA( "EditorOnly" ) );
+	RTTI_IMPLEMENT_TYPE( editor::GizmoOrientationRing );
 
 	class GizmoUniformScaleCube : public GizmoElement
 	{
@@ -98,7 +98,7 @@ namespace editor
 		Vector3 m_initialScale;
 		Vector3 m_initialCursorPos;
 	};
-	RTTI_IMPLEMENT_TYPE( editor::GizmoUniformScaleCube, RTTI_ADD_METADATA( "EditorOnly" ) );
+	RTTI_IMPLEMENT_TYPE( editor::GizmoUniformScaleCube );
 
 	class GizmoAxisScaleCube : public GizmoElement
 	{
@@ -120,7 +120,7 @@ namespace editor
 		Vector3 m_initialScale;
 		Vector3 m_initialCursorPos;
 	};
-	RTTI_IMPLEMENT_TYPE( editor::GizmoAxisScaleCube, RTTI_ADD_METADATA( "EditorOnly" ) );
+	RTTI_IMPLEMENT_TYPE( editor::GizmoAxisScaleCube );
 }
 
 void editor::Gizmo::OnInit( forge::ObjectInitData& initData )

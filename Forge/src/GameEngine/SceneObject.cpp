@@ -4,7 +4,7 @@
 #include "SceneManager.h"
 #include "Scene.h"
 
-RTTI_IMPLEMENT_TYPE( forge::SceneObject );
+RTTI_IMPLEMENT_TYPE( forge::SceneObject, RTTI_ADD_METADATA( "Spawnable" ) );
 
 void forge::SceneObject::OnInit( ObjectInitData& initData )
 {
