@@ -132,7 +132,7 @@ namespace forge
 		{
 			m_engineInstance = &engineInstance;
 			m_id = id;
-			m_name = forge::String::Printf( "_%lu_", static_cast< Uint32 >( id ) );
+			m_name = forge::String::Printf( "%s_%lu", GetType().GetName(), static_cast< Uint32 >( id ));
 		}
 
 		template< class T >

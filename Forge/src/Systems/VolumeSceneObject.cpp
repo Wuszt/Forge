@@ -24,7 +24,7 @@ void forge::VolumeSceneObject::OnInit( ObjectInitData& initData )
 				};
 
 			systems::DebugSystem::DebugDrawParams drawParams;
-			drawParams.m_color = LinearColor( 0.75f, 0.75f, 0.0f, 1.0f );
+			drawParams.m_color = GetBoundsColor();
 
 			const float thickness = 0.05f;
 

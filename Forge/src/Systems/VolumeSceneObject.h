@@ -10,6 +10,12 @@ namespace forge
 	public:
 		virtual void OnInit( ObjectInitData& initData ) override;
 
+	protected:
+		virtual LinearColor GetBoundsColor() const
+		{
+			return LinearColor( 0.75f, 0.75f, 0.0f, 1.0f );
+		}
+
 	private:
 		forge::CallbackToken m_updateToken;
 	};

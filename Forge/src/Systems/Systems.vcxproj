@@ -339,6 +339,7 @@
     <ClCompile Include="TimeSystem.cpp" />
     <ClCompile Include="TransformComponent.cpp" />
     <ClCompile Include="TransformSystem.cpp" />
+    <ClCompile Include="VolumeSceneObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationComponent.h" />
@@ -367,6 +368,7 @@
     <ClInclude Include="TimeSystem.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="TransformSystem.h" />
+    <ClInclude Include="VolumeSceneObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">
