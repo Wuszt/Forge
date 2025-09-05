@@ -39,13 +39,9 @@ void forge::VolumeSceneObject::OnInit( ObjectInitData& initData )
 			debugSystem.DrawLine( dirToPos( Vector4( -1.0f, -1.0f, 1.0f ) ), dirToPos( Vector4( -1.0f, 1.0f, 1.0f ) ), thickness, drawParams );
 
 			debugSystem.DrawLine( dirToPos( Vector4( 1.0f, 1.0f, 1.0f ) ), dirToPos( Vector4( -1.0f, 1.0f, 1.0f ) ), thickness, drawParams );
-			debugSystem.DrawLine( dirToPos( Vector4( -1.0f, 1.0f, 1.0f ) ), dirToPos( Vector4( -1.0f, -1.0f, 1.0f ) ), thickness, drawParams );
 			debugSystem.DrawLine( dirToPos( Vector4( -1.0f, -1.0f, 1.0f ) ), dirToPos( Vector4( 1.0f, -1.0f, 1.0f ) ), thickness, drawParams );
-			debugSystem.DrawLine( dirToPos( Vector4( 1.0f, -1.0f, 1.0f ) ), dirToPos( Vector4( 1.0f, 1.0f, 1.0f ) ), thickness, drawParams );
 
 			debugSystem.DrawLine( dirToPos( Vector4( 1.0f, 1.0f, -1.0f ) ), dirToPos( Vector4( -1.0f, 1.0f, -1.0f ) ), thickness, drawParams );
-			debugSystem.DrawLine( dirToPos( Vector4( -1.0f, 1.0f, -1.0f ) ), dirToPos( Vector4( -1.0f, -1.0f, -1.0f ) ), thickness, drawParams );
 			debugSystem.DrawLine( dirToPos( Vector4( -1.0f, -1.0f, -1.0f ) ), dirToPos( Vector4( 1.0f, -1.0f, -1.0f ) ), thickness, drawParams );
-			debugSystem.DrawLine( dirToPos( Vector4( 1.0f, -1.0f, -1.0f ) ), dirToPos( Vector4( 1.0f, 1.0f, -1.0f ) ), thickness, drawParams );
 		} );	
 }
