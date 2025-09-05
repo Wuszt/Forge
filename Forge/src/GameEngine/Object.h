@@ -1,6 +1,7 @@
 #pragma once
 #include "../ECS/Fragment.h"
 #include "IComponent.h"
+#include "ObjectID.h"
 
 namespace forge
 {
