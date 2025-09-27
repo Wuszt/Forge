@@ -116,6 +116,12 @@ namespace forge
 			, m_memory( m_type->ConstructWithMove( &data ) )
 		{}
 
+		InstanceUniquePtr( const InstanceUniquePtr& ) = delete;
+		InstanceUniquePtr( InstanceUniquePtr&& other );
+
+		InstanceUniquePtr& operator=( const InstanceUniquePtr& ) = delete;
+		InstanceUniquePtr& operator=( InstanceUniquePtr&& other );
+
 		~InstanceUniquePtr()
 		{
 			if ( m_memory )
@@ -127,7 +133,7 @@ namespace forge
 
 		const rtti::Type* GetStoredType() const { return m_type; }
 		void* GetMemory() {	return m_memory; }
-		const void* GetMemory() const {	m_memory; }
+		const void* GetMemory() const { return m_memory; }
 
 		void Serialize( forge::Serializer& serializer ) const;
 		void Deserialize( forge::Deserializer& deserializer );

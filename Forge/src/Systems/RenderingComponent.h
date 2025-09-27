@@ -21,7 +21,6 @@ namespace forge
 		RTTI_DECLARE_STRUCT( RenderableFragment, ecs::Fragment );
 
 		RenderableFragment() = default;
-		RenderableFragment( RenderableFragment&) {}
 		RenderableFragment( RenderableFragment&& ) = default;
 		RenderableFragment& operator=( RenderableFragment&& ) = default;
 

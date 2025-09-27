@@ -110,7 +110,7 @@ void forge::RenderingComponent::SetDrawAsOverlayEnabled( Bool enabled )
 
 void forge::RenderingComponent::OnPropertyChanged( const forge::PropertiesChain& propertiesChain )
 {
-	if (std::strcmp( ( *propertiesChain.Get().back() )->GetName(), "m_meshPath" ) == 0)
+	if ( std::strcmp( ( *propertiesChain.Get().back() )->GetName(), "m_meshPath" ) == 0 )
 	{
 		LoadMeshAndMaterial( m_meshPath );
 	}

@@ -77,8 +77,6 @@ namespace forge
 
 		virtual void OnAttached( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue, forge::ObjectInitData* initData ) override
 		{
-			ParentClass::OnAttached( engineInstance, commandsQueue, initData );
-
 			if ( initData )
 			{
 				if ( TData* fragmentData = initData->GetData< TData >() )
@@ -89,6 +87,8 @@ namespace forge
 					initData->RemoveData( TData::GetTypeStatic() );
 				}
 			}
+
+			ParentClass::OnAttached( engineInstance, commandsQueue, initData );
 		}
 
 		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override

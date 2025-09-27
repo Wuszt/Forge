@@ -5,6 +5,7 @@ namespace renderer
 {
 	class IVertexBuffer;
 	class IIndexBuffer;
+	class Renderer;
 
 	class Model : public IRenderingResource
 	{

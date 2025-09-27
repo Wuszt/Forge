@@ -10,6 +10,7 @@ namespace physics
 
 	enum class PhysicsGroupFlags : Uint32
 	{
+		Invalid = 0,
 		Default = 1u << 0,
 		Editor = 1u << 1,
 		All = std::numeric_limits< Uint32 >::max(),

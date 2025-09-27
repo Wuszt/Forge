@@ -28,6 +28,8 @@ static physx::PxForceMode::Enum Convert( physics::PhysicsDynamicActor::ForceMode
 	return physx::PxForceMode::eFORCE;
 }
 
+physics::PhysicsActor::~PhysicsActor() = default;
+
 void physics::PhysicsActor::Initialize( PhysxProxy& proxy, Uint32 group, Transform transform /*= Transform()*/, void* userData /*= nullptr */ )
 {
 	m_group = group;
@@ -74,6 +76,19 @@ void physics::PhysicsActor::AddShape( physics::PhysicsShape&& shape )
 	shape.GetShape().setSimulationFilterData( filterData );
 	shape.ChangeScale( Vector3::ONES(), Vector3::ONES() * m_currentScale );
 	GetActor().attachShape( shape.GetShape() );
+}
+
+void physics::PhysicsActor::RemoveAllShapes()
+{
+	std::vector< physx::PxShape* > shapes;
+	shapes.resize( GetActor().getNbShapes() );
+	GetActor().getShapes( shapes.data(), static_cast< Uint32 >( shapes.size() ) );
+
+	for ( physx::PxShape* const shape : shapes )
+	{
+		GetActor().detachShape( *shape );
+		shape->release();
+	}
 }
 
 void physics::PhysicsActor::ChangeScale( const Vector3& newScale )

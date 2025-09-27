@@ -358,8 +358,9 @@ std::shared_ptr< renderer::ModelAsset > LoadModel( const forge::Path& path, rend
 		for ( Uint32 i = 0; i < static_cast< Uint32 >( mesh->getMaterialCount() ); ++i )
 		{
 			auto* rawMaterial = mesh->getMaterial( i );
-			materialsData.emplace_back( renderer::ModelAsset::MaterialData{ renderer.CreateConstantBuffer() } );
+			materialsData.emplace_back();
 			auto& materialData = materialsData.back();
+			materialData.m_buffer = renderer.CreateConstantBuffer();
 			materialData.m_buffer->AddData( "diffuseColor", LinearColor( rawMaterial->getDiffuseColor().r, rawMaterial->getDiffuseColor().g, rawMaterial->getDiffuseColor().b ) );
 			materialData.m_buffer->UpdateBuffer();
 

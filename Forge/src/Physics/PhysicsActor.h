@@ -17,7 +17,7 @@ namespace physics
 		RTTI_DECLARE_ABSTRACT_CLASS( PhysicsActor );
 
 	public:
-		virtual ~PhysicsActor() = default;
+		virtual ~PhysicsActor();
 		PhysicsActor() = default;
 
 		virtual void Initialize( PhysxProxy& proxy, Uint32 group, Transform transform = Transform(), void* userData = nullptr ) = 0;
@@ -32,11 +32,14 @@ namespace physics
 		}
 
 		void AddShape( physics::PhysicsShape&& shape );
+		void RemoveAllShapes();
 
 		virtual void ChangeScale( const Vector3& newScale );
 
 		virtual const physx::PxRigidActor& GetActor() const = 0;
 		virtual physx::PxRigidActor& GetActor() = 0;
+
+		virtual bool IsInitialized() const = 0;
 
 	protected:
 		const Vector3& GetCurrentScale() const
@@ -100,6 +103,11 @@ namespace physics
 			return *m_actor;
 		}
 
+		virtual bool IsInitialized() const override
+		{
+			return m_actor;
+		}
+
 	private:
 		physx::PxRigidDynamic* m_actor;
 	};
@@ -126,6 +134,11 @@ namespace physics
 		physx::PxRigidStatic& GetStaticActor()
 		{
 			return *m_actor;
+		}
+
+		virtual bool IsInitialized() const override
+		{
+			return m_actor;
 		}
 
 	private:

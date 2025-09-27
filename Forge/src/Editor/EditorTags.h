@@ -3,7 +3,7 @@
 
 namespace editor
 {
-	struct EditorObjectTag : ecs::Tag
+	struct EditorObjectTag : public ecs::Tag
 	{
 		RTTI_DECLARE_STRUCT( EditorObjectTag, ecs::Tag );
 	};

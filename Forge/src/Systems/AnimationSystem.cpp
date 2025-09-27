@@ -16,7 +16,7 @@ RTTI_IMPLEMENT_TYPE( systems::AnimationSystem );
 void systems::AnimationSystem::OnInitialize()
 {
 #ifdef FORGE_IMGUI_ENABLED
-	InitializeDebuggable< systems::AnimationSystem >( GetEngineInstance() );
+	InitializeDebuggable< AnimationSystem >( GetEngineInstance() );
 #endif
 	m_updateToken = GetEngineInstance().GetUpdateManager().RegisterUpdateFunction( forge::UpdateManager::BucketType::Update, std::bind( &systems::AnimationSystem::Update, this ) );
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "../Physics/PhysicsActor.h"
+#include "../Core/Path.h"
 
 namespace physics
 {
@@ -14,6 +15,8 @@ namespace systems
 
 namespace forge
 {
+	class PropertiesChain;
+
 	struct PhysicsStaticFragment : public ecs::Fragment
 	{
 		RTTI_DECLARE_STRUCT( PhysicsStaticFragment, ecs::Fragment );
@@ -37,10 +40,16 @@ namespace forge
 		virtual void OnDetaching( EngineInstance& engineInstance, ecs::CommandsQueue& commandsQueue ) override;
 
 		virtual void AddShape( physics::PhysicsShape&& shape );
+		void SetModel( forge::Path path );
 
 		void SetGroup( physics::PhysicsGroupFlags group );
 
 		virtual physics::PhysicsActor& GetActor() = 0;
+
+	private:
+		void OnPropertyChanged( const forge::PropertiesChain& propertiesChain );
+
+		forge::Path m_modelPath;
 	};
 
 	class PhysicsStaticComponent : public DataComponent< PhysicsStaticFragment, PhysicsComponent >

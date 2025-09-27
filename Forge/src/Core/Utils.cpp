@@ -13,6 +13,25 @@ RTTI_IMPLEMENT_TYPE( forge::InstanceUniquePtr,
 	RTTI_REGISTER_METHOD( Deserialize );
 );
 
+forge::InstanceUniquePtr::InstanceUniquePtr( InstanceUniquePtr&& other )
+	: m_type( other.m_type )
+	, m_memory( other.m_memory )
+{
+	other.m_type = nullptr;
+	other.m_memory = nullptr;
+}
+
+forge::InstanceUniquePtr& forge::InstanceUniquePtr::operator=( InstanceUniquePtr&& other )
+{
+	m_type = other.m_type;
+	m_memory = other.m_memory;
+
+	other.m_type = nullptr;
+	other.m_memory = nullptr;
+
+	return *this;
+}
+
 void forge::InstanceUniquePtr::Serialize( forge::Serializer& serializer ) const
 {
 	serializer.Serialize( m_type->GetID() );

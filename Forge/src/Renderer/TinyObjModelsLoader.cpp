@@ -90,9 +90,14 @@ std::vector< std::shared_ptr< forge::IAsset > > renderer::TinyObjModelsLoader::L
 		std::string normalTexMap = std::filesystem::path( material.normal_texname ).filename().string();
 		std::string alphaTexName = std::filesystem::path( material.alpha_texname ).filename().string();
 
-		materialsData.emplace_back( renderer::ModelAsset::MaterialData{ m_renderer.CreateConstantBuffer(), diffuseTexName, normalTexMap, alphaTexName } );
-		materialsData.back().m_buffer->AddData( "diffuseColor", LinearColor( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ] ) );
-		materialsData.back().m_buffer->UpdateBuffer();
+		materialsData.emplace_back();
+		auto& materialData = materialsData.back();
+		materialData.m_buffer = m_renderer.CreateConstantBuffer();
+		materialData.m_diffuseTextureName = std::move( diffuseTexName );
+		materialData.m_normalTextureName = std::move( normalTexMap );
+		materialData.m_alphaTextureName = std::move( alphaTexName );
+		materialData.m_buffer->AddData( "diffuseColor", LinearColor( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ] ) );
+		materialData.m_buffer->UpdateBuffer();
 	}
 
 	return { std::make_shared< renderer::ModelAsset >( path, std::make_unique< renderer::Model >( m_renderer, std::move( vertices ), shapes ), std::move(materialsData))};

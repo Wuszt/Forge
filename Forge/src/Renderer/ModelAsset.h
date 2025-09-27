@@ -4,6 +4,7 @@
 namespace renderer
 {
 	class ConstantBuffer;
+	class Model;
 
 	class ModelAsset : public forge::IAsset
 	{
@@ -11,6 +12,10 @@ namespace renderer
 	public:
 		struct MaterialData
 		{
+			MaterialData();
+			MaterialData(MaterialData&&);
+			~MaterialData();
+
 			std::unique_ptr< renderer::ConstantBuffer > m_buffer;
 			std::string m_diffuseTextureName;
 			std::string m_normalTextureName;
