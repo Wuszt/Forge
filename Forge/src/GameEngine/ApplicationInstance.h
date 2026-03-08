@@ -1,4 +1,5 @@
 #pragma once
+#include "../Core/ApplicationArgs.h"
 
 namespace forge
 {
@@ -7,7 +8,7 @@ namespace forge
 	class ApplicationInstance
 	{
 	public:
-		ApplicationInstance( const std::string& applicationName );
+		ApplicationInstance( std::string applicationName, ApplicationArgs args = ApplicationArgs() );
 		virtual ~ApplicationInstance() = default;
 		virtual void Initialize( EngineInstance& engineInstance ) {}
 		virtual void OnUpdate( EngineInstance& engineInstance ) {}
@@ -16,6 +17,11 @@ namespace forge
 		const std::string& GetApplicationName() const
 		{
 			return m_applicationName;
+		}
+
+		const ApplicationArgs& GetApplicationArgs() const
+		{
+			return m_applicationArgs;
 		}
 
 		void Shutdown()
@@ -34,6 +40,7 @@ namespace forge
 		}
 
 	private:
+		ApplicationArgs m_applicationArgs;
 		const std::string m_applicationName;
 		Bool m_shutdownRequested = false;
 	};

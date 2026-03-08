@@ -9,7 +9,7 @@ namespace forge
 	class SceneManager
 	{
 	public:
-		SceneManager( forge::ObjectsManager& objectsManager );
+		SceneManager( forge::ObjectsManager& objectsManager, const ApplicationArgs& applicationArgs );
 		~SceneManager();
 
 		void OpenEmptyScene();

@@ -38,14 +38,15 @@
 #include "../IMGUI/IMGUIHelpers.h"
 #include "EditorTags.h"
 #include "../GameEngine/SceneObject.h"
+#include "../Systems/NavmeshSystem.h"
 
-forge::EditorInstance::EditorInstance( const std::string& applicationName )
-	: forge::ApplicationInstance( applicationName )
+forge::EditorInstance::EditorInstance( std::string applicationName, ApplicationArgs args )
+	: forge::ApplicationInstance( std::move( applicationName ), std::move( args ) )
 {}
 
 forge::EditorInstance::~EditorInstance() = default;
 
-void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
+void forge::EditorInstance::Initialize( forge::EngineInstance& engineInstance )
 {
 	m_engineInstance = &engineInstance;
 	m_updateToken = engineInstance.GetUpdateManager().RegisterUpdateFunction(forge::UpdateManager::BucketType::Update, [this](){ Update(); });
@@ -61,6 +62,7 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 		&systems::TransformSystem::GetTypeStatic(),
 		&systems::PhysicsSystem::GetTypeStatic(),
 		&systems::InputSystem::GetTypeStatic(),
+		&forge::ai::NavmeshSystem::GetTypeStatic(),
 #ifdef FORGE_DEBUGGING
 		&systems::DebugSystem::GetTypeStatic(),
 #endif
@@ -78,7 +80,7 @@ void forge::EditorInstance::Initialize(forge::EngineInstance& engineInstance)
 		const auto entityID = engineInstance.GetObjectsManager().GetOrCreateEntityId( player.GetObjectID() );
 		player.SetName( "Player" );
 		player.AddComponents< forge::TransformComponent, forge::CameraComponent, forge::PhysicsFreeCameraControllerComponent >();
-		player.GetComponent< forge::TransformComponent >()->SetWorldPosition({ 0.0f, -5.0f, 0.0f });
+		player.GetComponent< forge::TransformComponent >()->SetWorldPosition({ 0.0f, -15.0f, 10.0f });
 		auto* cameraComp = player.GetComponent< forge::CameraComponent >();
 		cameraComp->CreateImplementation< renderer::PerspectiveCamera >(forge::CameraComponent::GetDefaultPerspectiveCamera( engineInstance.GetRenderingManager().GetWindow() ) );
 

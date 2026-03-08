@@ -4,9 +4,19 @@
 #include "../Core/Path.h"
 #include "../Core/Streams.h"
 
-forge::SceneManager::SceneManager( forge::ObjectsManager& objectsManager )
+forge::SceneManager::SceneManager( forge::ObjectsManager& objectsManager, const ApplicationArgs& applicationArgs )
 	: m_objectsManager( objectsManager )
 {
+	if ( const std::string* sceneRawPath = applicationArgs.GetArgumentValue( "StartupLevel" ) )
+	{
+		forge::Path scenePath( *sceneRawPath );
+		if ( !scenePath.IsEmpty() )
+		{
+			LoadScene( scenePath );
+			return;
+		}
+	}
+
 	m_scene = std::make_unique< Scene >( m_objectsManager );
 }
 

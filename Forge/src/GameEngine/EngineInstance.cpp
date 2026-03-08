@@ -21,7 +21,7 @@ forge::EngineInstance::EngineInstance( ApplicationInstance& appInstance )
 	m_updateManager = std::make_unique< forge::UpdateManager >();
 	m_systemManager = std::make_unique< systems::SystemsManager >( *this );
 	m_objectsManager = std::make_unique< forge::ObjectsManager >( *this, *m_updateManager, *m_ecsManager );
-	m_sceneManager = std::make_unique< forge::SceneManager >( *m_objectsManager );
+	m_sceneManager = std::make_unique< forge::SceneManager >( *m_objectsManager, m_appInstance.GetApplicationArgs() );
 
 	if( m_appInstance.WithWindow() )
 	{

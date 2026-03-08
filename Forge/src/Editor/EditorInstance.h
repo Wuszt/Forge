@@ -11,7 +11,7 @@ namespace forge
 	class EditorInstance : public forge::ApplicationInstance
 	{
 	public:
-		EditorInstance( const std::string& applicationName );
+		EditorInstance( std::string applicationName, ApplicationArgs args = ApplicationArgs() );
 		~EditorInstance();
 
 		virtual void Initialize(forge::EngineInstance& engineInstance) override;
