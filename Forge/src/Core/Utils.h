@@ -25,6 +25,12 @@ namespace forge
 			auto it = std::find( vec.begin(), vec.end(), val );
 			return RemoveReorder( vec, it );
 		}
+
+		enum class VisitResult
+		{
+			Break,
+			Continue
+		};
 	}
 
 	class Serializer;

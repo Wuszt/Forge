@@ -67,33 +67,14 @@ void SponzaScene( forge::EngineInstance& engineInstance )
 		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
 		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
-		renderingComponent->LoadMeshAndMaterial( forge::Path( "Launcher\\Models\\sponza\\sponza.obj" ) );
+		forge::Path modelPath = forge::Path( "Launcher\\Models\\sponza\\sponza.obj" );
+		renderingComponent->LoadMeshAndMaterial( modelPath );
 
 		transformComponent->SetWorldPosition( Vector3::ZEROS() );
 		transformComponent->SetWorldScale( Vector3::ONES() * 0.01f );
 
 		auto* physicsComponent = obj.GetComponent< forge::PhysicsStaticComponent >();
-		auto modelAsset = engineInstance.GetAssetsManager().GetAsset< renderer::ModelAsset >( forge::Path( "Launcher\\Models\\sponza\\sponza.obj" ) );
-
-		auto model = modelAsset->GetModel();
-		const renderer::Vertices& vertices = model->GetVertices();
-		std::vector< Vector3 > verts;
-		verts.resize( vertices.GetVerticesAmount() );
-
-		FORGE_ASSERT( vertices.GetInputElements().begin()->m_inputType == renderer::InputType::Position );
-		const Byte* address = static_cast< const Byte* >( vertices.GetData() );
-		for ( Vector3& vec : verts )
-		{
-			vec = *reinterpret_cast< const Vector3* >( address );
-			address += vertices.GetVertexSize();
-		}
-
-		Uint32 index = 0u;
-		for ( renderer::Model::Shape& shape : model->GetShapes() )
-		{
-			physicsComponent->AddShape( physics::PhysicsShape( engineInstance.GetSystemsManager().GetSystem< systems::PhysicsSystem >().GetPhysicsProxy(), verts, shape.m_indices ) );
-			++index;
-		}
+		physicsComponent->SetMainModel( std::move( modelPath ) );
 	} } );
 
 	engineInstance.GetObjectsManager().RequestCreatingObject< forge::Object >( { .m_postInitFunc = [ & ]( forge::Object& light, forge::ObjectInitData& )

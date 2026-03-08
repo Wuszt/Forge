@@ -40,9 +40,9 @@ void Math::Random::SetSeed( Uint32 seed )
 	m_randomEngine->seed( seed );
 }
 
-Math::Random::Random( Uint32 seed )
+Math::Random::Random( Uint64 seed )
 {
-	m_randomEngine = std::make_unique<std::mt19937>( static_cast< Uint32 >( seed ) );
+	m_randomEngine = std::make_unique<std::mt19937>( seed );
 }
 
 Math::Random::Random()

@@ -29,7 +29,7 @@ namespace Math
 	{
 	public:
 		Random();
-		Random( Uint32 seed );
+		Random( Uint64 seed );
 		~Random();
 
 		Float GetFloat( Float min = 0.0f, Float max = 1.0f );

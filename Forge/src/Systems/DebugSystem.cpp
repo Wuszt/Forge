@@ -122,8 +122,8 @@ void systems::DebugSystem::DrawLine( const Vector3& start, const Vector3& end, F
 {
 	auto initFunc = [ debugDrawParams, start, end, thickness ]( forge::Object& obj )
 	{
-			auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
-			auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
+		auto* transformComponent = obj.GetComponent< forge::TransformComponent >();
+		auto* renderingComponent = obj.GetComponent< forge::RenderingComponent >();
 
 		renderingComponent->LoadMeshAndMaterial( forge::Path( "Engine\\Models\\cylinder.obj" ) );
 
@@ -233,7 +233,7 @@ void systems::DebugSystem::Update()
 			if ( requestsLastIndex >= 0 )
 			{
 				m_objectsCreationRequests[ requestsLastIndex ].m_initFunc( *GetEngineInstance().GetObjectsManager().GetObject( it->m_objectId ) );
-				it->m_timestamp = forge::Time::GetTime() + m_objectsCreationRequests[ requestsLastIndex ].m_timestamp;
+				it->m_timestamp = forge::Time::GetTime() + m_objectsCreationRequests[ requestsLastIndex ].m_lifetime;
 				--requestsLastIndex;
 			}
 			else
@@ -255,7 +255,7 @@ void systems::DebugSystem::Update()
 		{
 			obj.AddComponents< forge::TransformComponent, forge::RenderingComponent >();
 			request.m_initFunc( obj );
-			m_debugObjects.emplace_back( DebugObject{ obj.GetObjectID(), forge::Time::GetTime() + request.m_timestamp } );
+			m_debugObjects.emplace_back( DebugObject{ obj.GetObjectID(), forge::Time::GetTime() + request.m_lifetime } );
 		} } );
 	}
 
