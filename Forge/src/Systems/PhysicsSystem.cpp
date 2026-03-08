@@ -37,11 +37,32 @@ void systems::PhysicsSystem::UnregisterActor( physics::PhysicsActor& actor )
 	m_scene->RemoveActor( actor );
 }
 
-bool systems::PhysicsSystem::PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult, physics::PhysicsGroupFlags flags )
+bool systems::PhysicsSystem::PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult, physics::PhysicsGroupFlags flags /*= physics::PhysicsGroupFlags::Default */ )
 {
 	UpdateScene();
 
 	return m_scene->PerformRaycast( start, direction, length, static_cast< Uint32 >( flags ), outResult );
+}
+
+bool systems::PhysicsSystem::PerformSphereOverlap( const Vector3& position, Float radius, physics::PhysicsGroupFlags flags /*= physics::PhysicsGroupFlags::Default */ )
+{
+	UpdateScene();
+
+	return m_scene->PerformSphereOverlap( position, radius, static_cast< Uint32 >( flags ) );
+}
+
+bool systems::PhysicsSystem::PerformCubeOverlap( const Transform& transform, const Vector3& halfExtents, physics::PhysicsGroupFlags flags /*= physics::PhysicsGroupFlags::Default */ )
+{
+	UpdateScene();
+
+	return m_scene->PerformCubeOverlap( transform, halfExtents, static_cast< Uint32 >( flags ) );
+}
+
+bool systems::PhysicsSystem::PerformCapsuleOverlap( const Transform& transform, Float radius, Float height, physics::PhysicsGroupFlags flags /*= physics::PhysicsGroupFlags::Default */ )
+{
+	UpdateScene();
+
+	return m_scene->PerformCapsuleOverlap( transform, radius, height, static_cast< Uint32 >( flags ) );
 }
 
 void systems::PhysicsSystem::UpdateSimulation()

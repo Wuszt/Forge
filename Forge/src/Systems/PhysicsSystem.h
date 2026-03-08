@@ -49,7 +49,10 @@ namespace systems
 		void RegisterActor( physics::PhysicsActor& actor );
 		void UnregisterActor( physics::PhysicsActor& actor );
 
-		bool PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult, physics::PhysicsGroupFlags flags = physics::PhysicsGroupFlags::All );
+		bool PerformRaycast( const Vector3& start, const Vector3& direction, Float length, physics::RaycastResult& outResult, physics::PhysicsGroupFlags flags = physics::PhysicsGroupFlags::Default );
+		bool PerformSphereOverlap( const Vector3& position, Float radius, physics::PhysicsGroupFlags flags = physics::PhysicsGroupFlags::Default );
+		bool PerformCubeOverlap( const Transform& transform, const Vector3& halfExtents, physics::PhysicsGroupFlags flags = physics::PhysicsGroupFlags::Default );
+		bool PerformCapsuleOverlap( const Transform& transform, Float radius, Float height, physics::PhysicsGroupFlags flags = physics::PhysicsGroupFlags::Default );
 
 		physics::PhysxProxy& GetPhysicsProxy()
 		{

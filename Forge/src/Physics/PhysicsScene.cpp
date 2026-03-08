@@ -40,18 +40,62 @@ void physics::PhysicsScene::RemoveActor( physics::PhysicsActor& actor )
 
 bool physics::PhysicsScene::PerformRaycast( const Vector3& start, const Vector3& direction, Float length, Uint32 flags, physics::RaycastResult& outResult )
 {
-	physx::PxRaycastBuffer hit;
+	physx::PxRaycastBuffer hitBuffer;
 	physx::PxQueryFilterData filterData;
 	filterData.data.word0 = flags;
 
-	bool anyHit = m_pxScene->raycast( physics::helpers::Convert( start ), physics::helpers::Convert( direction ), length, hit, physx::PxHitFlag::eDEFAULT, filterData );
+	const bool anyHit = m_pxScene->raycast( physics::helpers::Convert( start ), physics::helpers::Convert( direction ), length, hitBuffer, physx::PxHitFlag::eDEFAULT, filterData );
 	
 	if ( anyHit )
 	{
-		outResult = physics::RaycastResult( hit.block );
+		outResult = physics::RaycastResult( hitBuffer.block );
 	}
 
 	return anyHit;
+}
+
+bool physics::PhysicsScene::PerformSphereOverlap( const Vector3& position, Float radius, Uint32 flags )
+{
+	const physx::PxSphereGeometry sphere( radius );
+	physx::PxQueryFilterData filterData;
+	filterData.data.word0 = flags;
+	filterData.flags |= physx::PxQueryFlag::eANY_HIT;
+
+	physx::PxOverlapBuffer overlapBuffer;
+
+	physx::PxTransform transform( physics::helpers::Convert( position ) );
+
+	const bool anyOverlap = m_pxScene->overlap( sphere, transform, overlapBuffer, filterData );
+	return anyOverlap;
+}
+
+bool physics::PhysicsScene::PerformCubeOverlap( const Transform& transform, const Vector3& halfExtents, Uint32 flags )
+{
+	const physx::PxBoxGeometry box( physics::helpers::Convert( halfExtents ) );
+	physx::PxQueryFilterData filterData;
+	filterData.data.word0 = flags;
+	filterData.flags |= physx::PxQueryFlag::eANY_HIT;
+
+	physx::PxOverlapBuffer overlapBuffer;
+
+	const bool anyOverlap = m_pxScene->overlap( box, physics::helpers::Convert( transform ), overlapBuffer, filterData );
+	return anyOverlap;
+}
+
+bool physics::PhysicsScene::PerformCapsuleOverlap( const Transform& transform, Float radius, Float height, Uint32 flags )
+{
+	FORGE_ASSERT( height >= 2.0f * radius );
+
+	const physx::PxCapsuleGeometry capsule( radius, height * 0.5f - radius );
+	physx::PxQueryFilterData filterData;
+	filterData.data.word0 = flags;
+	filterData.flags |= physx::PxQueryFlag::eANY_HIT;
+
+	physx::PxOverlapBuffer overlapBuffer;
+	const bool anyOverlap = m_pxScene->overlap( capsule, physics::helpers::Convert( Transform( Quaternion( 0.0f, DEG2RAD * 90.0f, 0.0f ) ) * transform ), overlapBuffer, filterData,
+		 nullptr, nullptr );
+
+	return anyOverlap;
 }
 
 void physics::PhysicsScene::Simulate( Float deltaTime )

@@ -21,6 +21,9 @@ namespace physics
 		void RemoveActor( PhysicsActor& actor );
 
 		bool PerformRaycast( const Vector3& start, const Vector3& direction, Float length, Uint32 flags, physics::RaycastResult& outResult );
+		bool PerformSphereOverlap( const Vector3& position, Float radius, Uint32 flags );
+		bool PerformCubeOverlap( const Transform& transform, const Vector3& halfExtents, Uint32 flags );
+		bool PerformCapsuleOverlap( const Transform& transform, Float radius, Float height, Uint32 flags );
 
 		void Simulate( Float deltaTime );
 
