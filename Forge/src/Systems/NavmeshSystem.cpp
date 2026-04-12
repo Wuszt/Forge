@@ -137,9 +137,23 @@ void forge::ai::NavmeshSystem::Generate( Float maxCellSize, Float agentRadius, F
 				struct Island
 				{
 					std::vector< Voxel > m_border;
+					std::vector< Uint8 > m_borderWalkableNeighbourAmounts;
 				};
 
 				std::vector< Island > islands;
+
+				struct Vector2D
+				{
+					Int32 m_x = 0;
+					Int32 m_y = 0;
+				};
+
+				constexpr Vector2D c_offsets[] =
+				{
+					{ -1, 1 },  { 0, 1 },   { 1, 1 },
+					{ -1, 0 },             { 1, 0 },
+					{ -1, -1 }, { 0, -1 }, { 1, -1 },
+				};
 
 				while ( !walkables.empty() )
 				{
@@ -154,21 +168,9 @@ void forge::ai::NavmeshSystem::Generate( Float maxCellSize, Float agentRadius, F
 						const Voxel walkable = queue.back();
 						queue.pop_back();
 
-						struct Vector2D
-						{
-							Int32 m_x = 0;
-							Int32 m_y = 0;
-						};
-
-						constexpr Vector2D c_offsets[] =
-						{
-							{ -1, 1 },  { 0, 1 },   { 1, 1 },
-							{ -1, 0 },             { 1, 0 },
-							{ -1, -1 }, { 0, -1 }, { 1, -1 },
-						};
-
-						const Int32 maxZ = static_cast< Int32 >( maxStep / zSize );
+						const Int32 maxZ = Math::Max( 0, static_cast< Int32 >( std::ceil( maxStep / zSize ) ) );
 						bool isBorder = false;
+						Uint32 walkableNeighbours = 0u;
 						for ( const Vector2D& offset : c_offsets )
 						{
 							const Int32 neighbourX = static_cast< Int32 >( walkable.m_x ) + offset.m_x;
@@ -197,12 +199,62 @@ void forge::ai::NavmeshSystem::Generate( Float maxCellSize, Float agentRadius, F
 							}
 
 							isBorder |= !walkableNeighbour;
+							if ( walkableNeighbour )
+							{
+								++walkableNeighbours;
+							}
 						}
 
 						if ( isBorder )
 						{
 							island.m_border.emplace_back( walkable );
+							island.m_borderWalkableNeighbourAmounts.push_back( walkableNeighbours );
 						}
+					}
+				}
+
+				// Removing too small islands
+				for ( Island& island : islands )
+				{
+					std::unordered_set<Uint64> border;
+					for ( const Voxel& voxel : island.m_border )
+					{
+						border.insert( static_cast< Uint64 >( voxel.m_x ) << 32 | voxel.m_y );
+					}
+
+					FORGE_ASSERT( island.m_border.size() == island.m_borderWalkableNeighbourAmounts.size() );
+					for ( Int32 voxelIndex = static_cast< Int32 >( island.m_border.size() ) - 1; voxelIndex >= 0; --voxelIndex )
+					{
+						const Voxel& voxel = island.m_border[ voxelIndex ];
+
+						Int32 nonBorderNeighboursAmount = -island.m_borderWalkableNeighbourAmounts[ voxelIndex ];
+						for ( const Vector2D& offset : c_offsets )
+						{
+							const Int32 neighbourX = static_cast< Int32 >( voxel.m_x ) + offset.m_x;
+							const Int32 neighbourY = static_cast< Int32 >( voxel.m_y ) + offset.m_y;
+
+							const Uint64 neighbourKey = static_cast< Uint64 >( neighbourX ) << 32 | static_cast< Uint64 >( neighbourY );
+							if ( border.contains( neighbourKey ) )
+							{
+								++nonBorderNeighboursAmount;
+							}
+						}
+
+						if ( nonBorderNeighboursAmount >= 0 )
+						{
+							forge::utils::RemoveReorder( island.m_border, voxelIndex );
+						}
+					}
+				}
+
+				// Removing too small islands
+				for ( Int32 islandIndex = static_cast< Int32 >( islands.size() ) - 1; islandIndex >= 0; --islandIndex )
+				{
+					Island& island = islands[ islandIndex ];
+					constexpr Float minSize = 1.0f;
+					if ( static_cast< Float >( island.m_border.size() ) * xSize * ySize < minSize )
+					{
+						forge::utils::RemoveReorder( islands, islandIndex );
 					}
 				}
 
@@ -214,12 +266,6 @@ void forge::ai::NavmeshSystem::Generate( Float maxCellSize, Float agentRadius, F
 					params.m_color = LinearColor{ rng.GetFloat(), rng.GetFloat(), rng.GetFloat() };
 
 					Island& island = islands[ islandIndex ];
-
-					const Float minSize = 1.0f;
-					if ( static_cast< Float >( island.m_border.size() ) * xSize * ySize < minSize )
-					{
-						continue;
-					}
 
 					for ( const Voxel& voxel : island.m_border )
 					{
